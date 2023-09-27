@@ -1,3 +1,14 @@
+import laika.helium.Helium
+import laika.helium.config.*
+import laika.markdown.github.GitHubFlavor
+import laika.parse.code.SyntaxHighlighting
+import laika.ast.Path.Root
+import laika.theme.config.Color
+import laika.ast.LengthUnit.*
+import laika.ast.*
+
+import java.time.OffsetDateTime
+
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
 ThisBuild / tlBaseVersion := "0.0" // your current series x.y
 
@@ -26,7 +37,7 @@ lazy val core = crossProject(
 ).crossType(CrossType.Full)
   .settings(
     description := "Dyanmic extensions for slash",
-    libraryDependencies ++= Seq("ai.dragonfly" %% "slash" % "0.1")
+    libraryDependencies ++= Seq("ai.dragonfly" %%% "slash" % "0.1")
   )
   .jvmSettings(
   )
