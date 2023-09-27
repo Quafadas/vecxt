@@ -33,7 +33,45 @@ lazy val core = crossProject(
   .jsSettings()
   .nativeSettings()
 
-lazy val docs = project.in(file("site")).enablePlugins(TypelevelSitePlugin)
+lazy val docs = project
+  .in(file("site"))
+  .enablePlugins(TypelevelSitePlugin)
+  .settings(
+    laikaConfig ~= { _.withRawContent },
+    laikaExtensions := Seq(
+      GitHubFlavor,
+      SyntaxHighlighting
+    ),
+    tlSiteHelium := {
+      Helium.defaults.site
+        .metadata(
+          title = Some("vecxt"),
+          language = Some("en"),
+          description = Some("vecxt"),
+          authors = Seq("Simon Parten"),
+          datePublished = Some(OffsetDateTime.now)
+        )
+        .site
+        .topNavigationBar(
+          homeLink = IconLink.internal(Root / "README.md", HeliumIcon.home),
+          navLinks = Seq(IconLink.external("https://github.com/Quafadas/vecxt", HeliumIcon.github))
+        )
+      Helium.defaults.site
+        .externalJS(
+          url = "https://cdn.jsdelivr.net/npm/vega@5"
+        )
+        .site
+        .externalJS(
+          url = "https://cdn.jsdelivr.net/npm/vega-lite@5"
+        )
+        .site
+        .externalJS(
+          url = "https://cdn.jsdelivr.net/npm/vega-embed@6"
+        )
+        .site
+        .autoLinkJS()
+    }
+  )
 
 lazy val tests = crossProject(
   JVMPlatform,
