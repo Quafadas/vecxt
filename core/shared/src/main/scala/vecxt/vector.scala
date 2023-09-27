@@ -50,6 +50,7 @@ package object vector:
         import ai.dragonfly.math.vector.Vec.+
         thisVector + thatVector.asInstanceOf[Vec[N]]
       end `+!`
+    end extension
   end dynamic
 
   object logical:
