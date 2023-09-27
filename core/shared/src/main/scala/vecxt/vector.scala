@@ -50,43 +50,10 @@ package object vector:
         import ai.dragonfly.math.vector.Vec.+
         thisVector + thatVector.asInstanceOf[Vec[N]]
       end `+!`
-
-      inline def <(num: Double): Index[N] =
-        logicalIdx((a, b) => a < b, num)
-
-      inline def <=(num: Double): Index[N] =
-        logicalIdx((a, b) => a <= b, num)
-
-      inline def >(num: Double): Index[N] =
-        logicalIdx((a, b) => a > b, num)
-
-      inline def >=(num: Double): Index[N] =
-        logicalIdx((a, b) => a >= b, num)
-
-      inline def logicalIdx(
-          inline op: (Double, Double) => Boolean,
-          inline num: Double
-      ): Index[N] =
-        val n = thisVector.dimension
-        val idx = Index.none(n)
-        var i = 0
-        while i < n do
-          if op(thisVector(i), num) then idx.changeAt(i, true)
-          i = i + 1
-        end while
-        idx.asInstanceOf[Index[N]]
-      end logicalIdx
-    end extension
-
   end dynamic
 
   object logical:
     extension [N <: Int](thisVector: Vec[N])
-
-      //     def `+!`[M <: Int](thatVector: Vec[M])(using NotGiven[M =:= N]): Vec[M] =
-      //       dimensionCheck(thisVector.dimension, thatVector.dimension)
-      //       import ai.dragonfly.math.vector.Vec.+
-      //       thisVector + thatVector.asInstanceOf[Vec[N]]
 
       inline def <(num: Double): Index[N] =
         logicalIdx((a, b) => a < b, num)

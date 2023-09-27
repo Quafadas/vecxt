@@ -20,6 +20,7 @@ import narr.NArray
 import vecxt.idx.Index
 import vecxt.idx.*
 import vecxt.vector.dynamic.*
+import vecxt.vector.logical.*
 //import ai.dragonfly.math.vector.
 
 class IndexTests extends munit.FunSuite:
