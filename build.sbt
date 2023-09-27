@@ -17,14 +17,13 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / tlSitePublishBranch := Some("main")
 ThisBuild / scalaVersion := "3.3.1"
 
-lazy val root = tlCrossRootProject.aggregate(core)
+lazy val root = tlCrossRootProject.aggregate(core, tests)
 
 lazy val core = crossProject(
   JSPlatform,
   JVMPlatform,
   NativePlatform
-)
-  .crossType(CrossType.Full)
+).crossType(CrossType.Full)
   .settings(
     description := "Dyanmic extensions for slash",
     libraryDependencies ++= Seq("ai.dragonfly" %% "slash" % "0.1")
@@ -37,10 +36,10 @@ lazy val core = crossProject(
 lazy val docs = project.in(file("site")).enablePlugins(TypelevelSitePlugin)
 
 lazy val tests = crossProject(
-    JVMPlatform,
-    JSPlatform,
-    NativePlatform
-  )
+  JVMPlatform,
+  JSPlatform,
+  NativePlatform
+)
   .in(file("tests"))
   .enablePlugins(NoPublishPlugin)
   .dependsOn(core)

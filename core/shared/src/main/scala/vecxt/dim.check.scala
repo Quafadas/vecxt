@@ -16,11 +16,7 @@
 
 package vecxt
 
-import cats.effect.IO
-import cats.effect.IOApp
+import ai.dragonfly.math.UnsupportedVectorDimension
 
-object Main extends IOApp.Simple {
-
-  def run: IO[Unit] =
-    IO.println("Hello sbt-typelevel!")
-}
+inline def dimensionCheck(supplied: Int, required: Int): Unit =
+  if supplied != required then throw UnsupportedVectorDimension(supplied, required)
