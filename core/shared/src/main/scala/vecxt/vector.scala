@@ -30,7 +30,7 @@ package object vector:
       transparent inline def index[M <: Int](index: Index[M])(using
           ValueOf[M]
       ) =
-        // dimensionCheck(valueOf[M], valueOf[N])
+        dimCheck.dimensionCheck(valueOf[M], valueOf[N])
         val newLength = index.countTrue
         type D = newLength.type
         val newVec = Vec.zeros[D]
@@ -46,7 +46,7 @@ package object vector:
     extension [N <: Int](thisVector: Vec[N])
 
       def `+!`[M <: Int](thatVector: Vec[M])(using NotGiven[M =:= N]): Vec[N] =
-        dimensionCheck(thisVector.dimension, thatVector.dimension)
+        dimCheck.dimensionCheck(thisVector.dimension, thatVector.dimension)
         import ai.dragonfly.math.vector.Vec.+
         thisVector + thatVector.asInstanceOf[Vec[N]]
       end `+!`

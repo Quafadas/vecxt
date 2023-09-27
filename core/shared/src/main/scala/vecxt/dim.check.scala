@@ -18,5 +18,6 @@ package vecxt
 
 import ai.dragonfly.math.UnsupportedVectorDimension
 
-inline def dimensionCheck(supplied: Int, required: Int): Unit =
-  if supplied != required then throw UnsupportedVectorDimension(supplied, required)
+object dimCheck :
+  inline def dimensionCheck(supplied: Int, required: Int): Unit =
+    if supplied != required then throw UnsupportedVectorDimension(supplied, required)
