@@ -16,20 +16,11 @@
 
 package vecxt
 
-import ai.dragonfly.math.Random.nextVec
 import ai.dragonfly.math.vector.Vec
 import ai.dragonfly.math.vector.Vec.*
-import narr.*
 import vecxt.idx.*
 
-import scala.collection.View
-import scala.collection.mutable.ListBuffer
-import scala.compiletime.ops.any.!=
-import scala.compiletime.ops.any.==
-import scala.compiletime.ops.boolean.&&
-import scala.compiletime.ops.int.*
 import scala.util.NotGiven
-//import ai.dragonfly.Index
 
 package object vector:
 
