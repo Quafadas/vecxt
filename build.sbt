@@ -47,6 +47,7 @@ lazy val core = crossProject(
 lazy val docs = project
   .in(file("site"))
   .enablePlugins(TypelevelSitePlugin)
+  .dependsOn(core.jvm)
   .settings(
     laikaConfig ~= { _.withRawContent },
     laikaExtensions := Seq(
@@ -64,7 +65,7 @@ lazy val docs = project
         )
         .site
         .topNavigationBar(
-          homeLink = IconLink.internal(Root / "index.md", HeliumIcon.home),
+          homeLink = IconLink.internal(laika.ast.Path(List("index.md")), HeliumIcon.home),
           navLinks = Seq(IconLink.external("https://github.com/Quafadas/vecxt", HeliumIcon.github))
         )
       Helium.defaults.site
