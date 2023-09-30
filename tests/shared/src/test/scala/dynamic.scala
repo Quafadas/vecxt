@@ -41,7 +41,6 @@ class DynamicTests extends munit.FunSuite:
     val anotherVec2 = vec3.index(idx)
     val sum = vec2 +! anotherVec2
 
-
     assert(
       // notice the difference in the operator on the last line vs above
       compileErrors("""
