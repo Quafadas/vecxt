@@ -16,9 +16,6 @@
 
 package vexct
 
-/*
-These opaque types prevent boxing?
- */
 import vexct.Retentions.*
 
 object Limits:
