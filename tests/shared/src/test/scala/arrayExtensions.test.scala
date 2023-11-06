@@ -16,9 +16,7 @@
 
 package vexct
 
-
 import scala.util.chaining.*
-
 
 class ArrayExtensionSuite extends munit.FunSuite:
 
@@ -49,9 +47,9 @@ class ArrayExtensionSuite extends munit.FunSuite:
     val v1 = Array[Double](1.0, 2.0, 3.0)
     v1 += Array[Double](3.0, 2.0, 1.0)
 
-    assertEqualsDouble(v1(0) , 4, 0.00001)
-    assertEqualsDouble(v1(1) , 4, 0.00001)
-    assertEqualsDouble(v1(2) , 4, 0.00001)
+    assertEqualsDouble(v1(0), 4, 0.00001)
+    assertEqualsDouble(v1(1), 4, 0.00001)
+    assertEqualsDouble(v1(2), 4, 0.00001)
 
   }
 
@@ -61,19 +59,19 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
     val v3 = v1 + v2
 
-    assertEqualsDouble(v3(0) , 4, 0.00001)
-    assertEqualsDouble(v3(1) , 4, 0.00001)
-    assertEqualsDouble(v3(2) , 4, 0.00001)
+    assertEqualsDouble(v3(0), 4, 0.00001)
+    assertEqualsDouble(v3(1), 4, 0.00001)
+    assertEqualsDouble(v3(2), 4, 0.00001)
 
   }
 
-    test("Array -= ") {
+  test("Array -= ") {
     val v1 = Array[Double](1.0, 2.0, 3.0)
     v1 -= Array[Double](3.0, 2.0, 1.0)
 
-    assertEqualsDouble(v1(0) , -2, 0.00001)
-    assertEqualsDouble(v1(1) , 0, 0.00001)
-    assertEqualsDouble(v1(2) , 2, 0.00001)
+    assertEqualsDouble(v1(0), -2, 0.00001)
+    assertEqualsDouble(v1(1), 0, 0.00001)
+    assertEqualsDouble(v1(2), 2, 0.00001)
 
   }
 
@@ -83,18 +81,18 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
     val v3 = v1 - v2
 
-    assertEqualsDouble(v3(0) , -2, 0.00001)
-    assertEqualsDouble(v3(1) , 0, 0.00001)
-    assertEqualsDouble(v3(2) , 2, 0.00001)
+    assertEqualsDouble(v3(0), -2, 0.00001)
+    assertEqualsDouble(v3(1), 0, 0.00001)
+    assertEqualsDouble(v3(2), 2, 0.00001)
   }
 
   test("Array *= ") {
     val v1 = Array[Double](1.0, 2.0, 3.0)
     v1 *= 2
 
-    assertEqualsDouble(v1(0) , 2, 0.00001)
-    assertEqualsDouble(v1(1) , 4, 0.00001)
-    assertEqualsDouble(v1(2) , 6, 0.00001)
+    assertEqualsDouble(v1(0), 2, 0.00001)
+    assertEqualsDouble(v1(1), 4, 0.00001)
+    assertEqualsDouble(v1(2), 6, 0.00001)
 
   }
 
@@ -103,12 +101,12 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
     val v2 = v1 * 2
 
-    assertEqualsDouble(v1(0) , 1, 0.00001)
-    assertEqualsDouble(v2(1) , 4, 0.00001)
-    assertEqualsDouble(v2(2) , 6, 0.00001)
+    assertEqualsDouble(v1(0), 1, 0.00001)
+    assertEqualsDouble(v2(1), 4, 0.00001)
+    assertEqualsDouble(v2(2), 6, 0.00001)
   }
 
-   test("<=") {
+  test("<=") {
     val v_idx2 = v_fill < 2.5
     assertEquals(v_idx2.countTrue, 3)
   }
@@ -140,7 +138,6 @@ class ArrayExtensionSuite extends munit.FunSuite:
     val v_idx3 = (v_fill < 1.0) || (v_fill > 4.0)
     assertEquals(v_idx3.countTrue, 1)
   }
-
 
   test("Array indexing") {
     val v1 = Array[Double](1.0, 2.0, 3.0)

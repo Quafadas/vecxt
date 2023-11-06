@@ -16,7 +16,6 @@
 
 package vexct
 
-
 object Retentions:
   opaque type Retention = Double
 

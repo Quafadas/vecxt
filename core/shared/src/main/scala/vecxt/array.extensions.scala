@@ -24,7 +24,6 @@ enum LossCalc:
   case Agg, Occ
 end LossCalc
 
-
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
     var sum = 0
@@ -57,12 +56,12 @@ end extension
 
 extension (vec: Array[Double])
 
-  def idx(index : Array[Boolean]) =
+  def idx(index: Array[Boolean]) =
     val trues = index.countTrue
     val newVec = new Array[Double](trues)
     var j = 0
     for i <- 0 to trues do
-      //println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
+      // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
       if index(i) then
         newVec(j) = vec(i)
         j += 1
@@ -81,23 +80,24 @@ extension (vec: Array[Double])
     out
   end increments
 
-  inline def stdDev: Double = {
-      // https://www.cuemath.com/data/standard-deviation/
+  inline def stdDev: Double =
+    // https://www.cuemath.com/data/standard-deviation/
     val mu = vec.mean
-    val diffs_2 = vec.map( num => Math.pow(num - mu, 2) )
-    Math.sqrt( diffs_2.sum / (vec.length - 1 ) )
-  }
+    val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
+    Math.sqrt(diffs_2.sum / (vec.length - 1))
+  end stdDev
 
   inline def mean: Double = vec.sum / vec.length
 
-  inline def sum: Double = {
+  inline def sum: Double =
     var sum = 0.0
-    var i = 0; while (i < vec.length) {
+    var i = 0;
+    while i < vec.length do
       sum = sum + vec(i)
       i = i + 1
-    }
+    end while
     sum
-  }
+  end sum
 
   def cumsum =
     var i = 1
@@ -107,7 +107,7 @@ extension (vec: Array[Double])
     end while
   end cumsum
 
-  def - (vec2: Array[Double]) =
+  def -(vec2: Array[Double]) =
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do
@@ -117,7 +117,7 @@ extension (vec: Array[Double])
     out
   end -
 
-  def -= (vec2: Array[Double]) : Unit =
+  def -=(vec2: Array[Double]): Unit =
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) - vec2(i)
@@ -125,7 +125,7 @@ extension (vec: Array[Double])
     end while
   end -=
 
-  def + (vec2: Array[Double]) =
+  def +(vec2: Array[Double]) =
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do
@@ -135,7 +135,7 @@ extension (vec: Array[Double])
     out
   end +
 
-  def += (vec2: Array[Double]) : Unit =
+  def +=(vec2: Array[Double]): Unit =
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) + vec2(i)
@@ -143,7 +143,7 @@ extension (vec: Array[Double])
     end while
   end +=
 
-  def *= (d: Double) =
+  def *=(d: Double) =
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) * d
@@ -152,7 +152,7 @@ extension (vec: Array[Double])
     vec
   end *=
 
-  def * (d: Double) =
+  def *(d: Double) =
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do
@@ -188,7 +188,6 @@ extension (vec: Array[Double])
     idx
   end logicalIdx
 
-
   /*
 
 Retention and limit are known constants
@@ -197,7 +196,7 @@ In excel f(x) = min(max(x - retention, 0), limit))
 
 The implementation takes advantage of their existence or not, to optimise the number of operations required.
 
-  */
+   */
   inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
     (limitOpt, retentionOpt) match
       case (Some(limit), Some(retention)) =>
@@ -239,7 +238,7 @@ Retention and limit are known constants
 
 In excel f(x) = if(x < retention, 0, if(x > limit, limit, x)
 
-  */
+   */
   inline def franchiseFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention]): Unit =
     (limitOpt, retentionOpt) match
       case (None, None) => ()
@@ -287,7 +286,7 @@ extension (vec: Array[Array[Double]])
       var j = 0
       while j < vec.length do
         sum += vec(j)(i)
-        //pprint.pprintln(s"j : $j i : $i vecij : ${vec(j)(i)}  out : ${out(i)} sum : $sum")
+        // pprint.pprintln(s"j : $j i : $i vecij : ${vec(j)(i)}  out : ${out(i)} sum : $sum")
         j = j + 1
       end while
       out(i) = sum
