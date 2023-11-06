@@ -17,9 +17,10 @@
 package vecxt
 
 object dimCheck:
-  inline def apply[A, B](a: Array[A], b : Array[B]) =
-      if a.length != b.length then throw UnsupportedVectorDimension(a.length, b.length)
+  inline def apply[A, B](a: Array[A], b : Array[B]) (using inline doCheck: BoundsCheck)=
+      inline if doCheck then
+        if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
-case class UnsupportedVectorDimension(givenDimension:Int, requiredDimension:Int) extends Exception(
+case class VectorDimensionMismatch(givenDimension:Int, requiredDimension:Int) extends Exception(
   s"Expected Vector dimensions to match. First dimension was : $requiredDimension, second was : $givenDimension ."
 )

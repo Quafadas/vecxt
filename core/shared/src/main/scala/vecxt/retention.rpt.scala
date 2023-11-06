@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package vexct
+package vecxt
 
 object Retentions:
   opaque type Retention = Double

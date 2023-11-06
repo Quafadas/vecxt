@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package vexct
-import vexct.Limits.Limit
-import vexct.Retentions.Retention
+package vecxt
+import vecxt.Limits.Limit
+import vecxt.Retentions.Retention
 
 import scala.util.chaining.*
+import vecxt.BoundsCheck
+
 
 enum LossCalc:
   case Agg, Occ
@@ -56,7 +58,7 @@ end extension
 
 extension (vec: Array[Double])
 
-  def idx(index: Array[Boolean]) =
+  def idxBoolean(index: Array[Boolean]) =
     val trues = index.countTrue
     val newVec = new Array[Double](trues)
     var j = 0
@@ -67,7 +69,7 @@ extension (vec: Array[Double])
         j += 1
     end for
     newVec
-  end idx
+  end idxBoolean
 
   def increments: Array[Double] =
     val out = new Array[Double](vec.length)
@@ -99,7 +101,7 @@ extension (vec: Array[Double])
     sum
   end sum
 
-  def cumsum =
+  inline def cumsum =
     var i = 1
     while i < vec.length do
       vec(i) = vec(i - 1) + vec(i)
@@ -107,7 +109,8 @@ extension (vec: Array[Double])
     end while
   end cumsum
 
-  def -(vec2: Array[Double]) =
+  inline def -(vec2: Array[Double])(using inline boundsCheck : BoundsCheck) =
+    dimCheck(vec, vec2)
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do
@@ -117,7 +120,7 @@ extension (vec: Array[Double])
     out
   end -
 
-  def -=(vec2: Array[Double]): Unit =
+  inline def -=(vec2: Array[Double]): Unit =
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) - vec2(i)
@@ -125,7 +128,7 @@ extension (vec: Array[Double])
     end while
   end -=
 
-  def +(vec2: Array[Double]) =
+  inline def +(vec2: Array[Double]) =
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do
@@ -135,7 +138,7 @@ extension (vec: Array[Double])
     out
   end +
 
-  def +=(vec2: Array[Double]): Unit =
+  inline def +=(vec2: Array[Double]): Unit =
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) + vec2(i)
@@ -143,7 +146,7 @@ extension (vec: Array[Double])
     end while
   end +=
 
-  def *=(d: Double) =
+  inline def *=(d: Double) =
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) * d
@@ -152,7 +155,7 @@ extension (vec: Array[Double])
     vec
   end *=
 
-  def *(d: Double) =
+  inline def *(d: Double) =
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do

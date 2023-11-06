@@ -16,19 +16,19 @@
 
 package vecxt
 
-import vecxt.Retentions.*
+import scala.util.chaining.*
 
-object Limits:
-  opaque type Limit = Double
+class BoundsCheckSuite extends munit.FunSuite:
 
-  object Limit:
-    inline def apply(d: Double): Limit = d
-  end Limit
 
-  extension (x: Limit) inline def toDouble: Double = x
+  lazy val v_fill = Array.tabulate(5)(i => i.toDouble)
 
-  extension (in: Double)
-    inline def >(l: Limit): Boolean = in > l
-    inline def +(l: Retention): Double = in + l.toDouble
-  end extension
-end Limits
+  test("Bounds check") {
+    intercept[vecxt.VectorDimensionMismatch](v_fill.-(Array[Double](1,2,3))(using vecxt.BoundsCheck.yes))
+  }
+
+  test("no bound check") {
+    intercept[java.lang.ArrayIndexOutOfBoundsException](v_fill.-(Array[Double](1,2,3))(using vecxt.BoundsCheck.no))
+  }
+
+end BoundsCheckSuite

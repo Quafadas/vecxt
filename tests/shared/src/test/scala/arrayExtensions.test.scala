@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package vexct
+package vecxt
 
 import scala.util.chaining.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
+  import vecxt.BoundsCheck.yes
 
   lazy val v_fill = Array.tabulate(5)(i => i.toDouble)
 
@@ -142,7 +143,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   test("Array indexing") {
     val v1 = Array[Double](1.0, 2.0, 3.0)
     val vIdx = Array[Boolean](true, false, true)
-    val afterIndex = v1.idx(vIdx)
+    val afterIndex = v1.idxBoolean(vIdx)
 
     assertEquals(afterIndex.length, 2)
     assertEqualsDouble(afterIndex.head, 1, 0.0001)

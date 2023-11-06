@@ -36,8 +36,6 @@ lazy val core = crossProject(
   NativePlatform
 ).crossType(CrossType.Full)
   .settings(
-    description := "Dyanmic extensions for slash",
-    libraryDependencies ++= Seq("ai.dragonfly" %%% "slash" % "0.1")
   )
   .jvmSettings(
   )
