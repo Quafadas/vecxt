@@ -15,34 +15,35 @@
  */
 
 package vecxt
+import vecxt.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
 
-import scala.util.chaining.*
-import vecxt.BoundsCheck
-import scala.scalajs.js.typedarray.Float64Array
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSBracketAccess
-
+import scala.scalajs.js.typedarray.Float64Array
+import scala.util.chaining.*
 
 extension (v: Float64Array)
   inline def sort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
   inline def reverse(): Unit = v.asInstanceOf[TypedArrayFacade].reverse()
   inline def slice(): Float64Array = v.asInstanceOf[TypedArrayFacade].slice()
+end extension
 
 @js.native
-trait TypedArrayFacade extends js.Object :
+trait TypedArrayFacade extends js.Object:
   def sort(): Unit = js.native
-  def reverse(): Unit = js.native // mutable https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reverse
+  def reverse(): Unit =
+    js.native // mutable https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reverse
   def slice(): Float64Array = js.native
+end TypedArrayFacade
 
-extension [A](v: js.Array[A])
-  inline def fill(a: A): Unit = v.asInstanceOf[JsArrayFacade].fill(a)
+extension [A](v: js.Array[A]) inline def fill(a: A): Unit = v.asInstanceOf[JsArrayFacade].fill(a)
 
 @js.native
-trait JsArrayFacade extends js.Object :
+trait JsArrayFacade extends js.Object:
   def fill[A](a: A): Unit = js.native
-
+end JsArrayFacade
 
 extension (vec: js.Array[Boolean])
   inline def countTrue: Int =
@@ -76,7 +77,7 @@ end extension
 
 extension (vec: Float64Array)
 
-  inline def idxBoolean(index: js.Array[Boolean])(using inline boundsCheck : BoundsCheck) =
+  inline def idxBoolean(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck) =
     dimCheck(vec, index)
     val trues = index.countTrue
     val newVec = Float64Array(trues)
@@ -128,7 +129,7 @@ extension (vec: Float64Array)
     end while
   end cumsum
 
-  inline def -(vec2: Float64Array)(using inline boundsCheck : BoundsCheck) =
+  inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck) =
     dimCheck(vec, vec2)
     val out = Float64Array(vec.length)
     var i = 0
@@ -139,7 +140,7 @@ extension (vec: Float64Array)
     out
   end -
 
-  inline def -=(vec2: Float64Array)(using inline boundsCheck : BoundsCheck): Unit =
+  inline def -=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
     dimCheck(vec, vec2)
     var i = 0
     while i < vec.length do
@@ -148,7 +149,7 @@ extension (vec: Float64Array)
     end while
   end -=
 
-  inline def +(vec2: Float64Array)(using inline boundsCheck : BoundsCheck) =
+  inline def +(vec2: Float64Array)(using inline boundsCheck: BoundsCheck) =
     dimCheck(vec, vec2)
     val out = new Array[Double](vec.length)
     var i = 0
@@ -159,7 +160,7 @@ extension (vec: Float64Array)
     out
   end +
 
-  inline def +=(vec2: Float64Array)(using inline boundsCheck : BoundsCheck): Unit =
+  inline def +=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
     dimCheck(vec, vec2)
     var i = 0
     while i < vec.length do
@@ -168,7 +169,7 @@ extension (vec: Float64Array)
     end while
   end +=
 
-  inline def *=(d: Double): Float64Array=
+  inline def *=(d: Double): Float64Array =
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) * d

@@ -16,12 +16,10 @@
 
 package vecxt
 
-import scala.util.chaining.*
 import scala.scalajs.js.typedarray.Float64Array
-
+import scala.util.chaining.*
 
 class BoundsCheckSuite extends munit.FunSuite:
-
 
   lazy val v_fill = Float64Array(5).tap(a =>
     a(0) = 1.0

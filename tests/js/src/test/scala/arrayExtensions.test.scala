@@ -16,19 +16,19 @@
 
 package vecxt
 
-import scala.util.chaining.*
-import scala.scalajs.js.typedarray.Float64Array
 import scala.scalajs.js
+import scala.scalajs.js.typedarray.Float64Array
+import scala.util.chaining.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import vecxt.BoundsCheck.yes
 
   def v_fill = Float64Array(5).tap(a =>
     a.update(0, 0.0)
-    a.update(1,  1.0)
-    a.update(2,  2.0)
-    a.update(3,  3.0)
-    a.update(4,  4.0)
+    a.update(1, 1.0)
+    a.update(2, 2.0)
+    a.update(3, 3.0)
+    a.update(4, 4.0)
   )
 
   def v_3 = Float64Array(3).tap(a =>
@@ -162,7 +162,6 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(afterIndex.length, 2)
     assertEqualsDouble(afterIndex.head, 1, 0.0001)
     assertEqualsDouble(afterIndex.last, 3.0, 0.0001)
- }
+  }
 
 end ArrayExtensionSuite
-

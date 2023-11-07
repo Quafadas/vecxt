@@ -15,12 +15,11 @@
  */
 
 package vecxt
+import vecxt.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
 
 import scala.util.chaining.*
-import vecxt.BoundsCheck
-
 
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
@@ -105,7 +104,7 @@ extension (vec: Array[Double])
     end while
   end cumsum
 
-  inline def -(vec2: Array[Double])(using inline boundsCheck : BoundsCheck) =
+  inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck) =
     dimCheck(vec, vec2)
     val out = new Array[Double](vec.length)
     var i = 0

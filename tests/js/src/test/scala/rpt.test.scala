@@ -16,10 +16,11 @@
 
 package vecxt
 
-import Retentions.*
-import Limits.*
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
+
+import Retentions.*
+import Limits.*
 
 extension [A <: AnyRef](o: A) def some = Some(o)
 
@@ -28,7 +29,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   def v_8_11_16 = Float64Array(3).tap(a =>
     a.update(0, 8)
     a.update(1, 11)
-    a.update(2,16)
+    a.update(2, 16)
   )
 
   test("reinsurance function - ret and limit") {

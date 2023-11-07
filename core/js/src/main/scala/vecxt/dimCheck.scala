@@ -16,8 +16,8 @@
 
 package vecxt
 
-import scala.scalajs.js.typedarray.Float64Array
 import scala.scalajs.js
+import scala.scalajs.js.typedarray.Float64Array
 
 object dimCheck:
   inline def apply[A](a: Float64Array, b: js.Array[A])(using inline doCheck: BoundsCheck) =
