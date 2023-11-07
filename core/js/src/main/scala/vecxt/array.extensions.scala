@@ -76,7 +76,8 @@ end extension
 
 extension (vec: Float64Array)
 
-  def idxBoolean(index: js.Array[Boolean]) =
+  inline def idxBoolean(index: js.Array[Boolean])(using inline boundsCheck : BoundsCheck) =
+    dimCheck(vec, index)
     val trues = index.countTrue
     val newVec = Float64Array(trues)
     var j = 0
@@ -138,7 +139,8 @@ extension (vec: Float64Array)
     out
   end -
 
-  inline def -=(vec2: Float64Array): Unit =
+  inline def -=(vec2: Float64Array)(using inline boundsCheck : BoundsCheck): Unit =
+    dimCheck(vec, vec2)
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) - vec2(i)
@@ -146,7 +148,8 @@ extension (vec: Float64Array)
     end while
   end -=
 
-  inline def +(vec2: Float64Array) =
+  inline def +(vec2: Float64Array)(using inline boundsCheck : BoundsCheck) =
+    dimCheck(vec, vec2)
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do
@@ -156,7 +159,8 @@ extension (vec: Float64Array)
     out
   end +
 
-  inline def +=(vec2: Float64Array): Unit =
+  inline def +=(vec2: Float64Array)(using inline boundsCheck : BoundsCheck): Unit =
+    dimCheck(vec, vec2)
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) + vec2(i)
@@ -164,7 +168,7 @@ extension (vec: Float64Array)
     end while
   end +=
 
-  inline def *=(d: Double) =
+  inline def *=(d: Double): Float64Array=
     var i = 0
     while i < vec.length do
       vec(i) = vec(i) * d
@@ -173,7 +177,7 @@ extension (vec: Float64Array)
     vec
   end *=
 
-  inline def *(d: Double) =
+  inline def *(d: Double): Float64Array =
     val out = Float64Array(vec.length)
     var i = 0
     while i < vec.length do
