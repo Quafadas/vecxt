@@ -1,5 +1,9 @@
-package vecxt
 
+import scala.language.implicitConversions
+
+import vecxt.given_Conversion_Array_vecxting
+
+import vecxt.*
 
 @main def checkBytecode =
   val a = Array[Double](1,2,3)

@@ -18,6 +18,7 @@ package vecxt
 
 import Retentions.*
 import Limits.*
+import scala.language.implicitConversions
 
 extension [A <: AnyRef](o: A) def some = Some(o)
 

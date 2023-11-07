@@ -17,9 +17,13 @@
 package vecxt
 
 import scala.util.chaining.*
+import scala.language.implicitConversions
+import vecxt.given_Conversion_Array_vecxting
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import vecxt.BoundsCheck.yes
+
+  //import vecxt.given_Conversion_Array_vecxting
 
   lazy val v_fill = Array.tabulate(5)(i => i.toDouble)
 

@@ -21,10 +21,18 @@ import vecxt.Retentions.Retention
 import scala.util.chaining.*
 import vecxt.BoundsCheck
 
-
 enum LossCalc:
   case Agg, Occ
 end LossCalc
+
+transparent trait vecxt {
+
+  def update(i: Int, d: Double): Unit
+  def apply(i:Int) : Double
+  def length: Int
+
+}
+
 
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
@@ -56,7 +64,7 @@ extension (vec: Array[Boolean])
   // end copy
 end extension
 
-extension (vec: Array[Double])
+extension (vec: vecxt)
 
   def idxBoolean(index: Array[Boolean]) =
     val trues = index.countTrue
@@ -82,12 +90,12 @@ extension (vec: Array[Double])
     out
   end increments
 
-  inline def stdDev: Double =
-    // https://www.cuemath.com/data/standard-deviation/
-    val mu = vec.mean
-    val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
-    Math.sqrt(diffs_2.sum / (vec.length - 1))
-  end stdDev
+  // inline def stdDev: Double =
+  //   // https://www.cuemath.com/data/standard-deviation/
+  //   val mu = vec.mean
+  //   val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
+  //   Math.sqrt(diffs_2.sum / (vec.length - 1))
+  // end stdDev
 
   inline def mean: Double = vec.sum / vec.length
 
@@ -110,7 +118,7 @@ extension (vec: Array[Double])
   end cumsum
 
   inline def -(vec2: Array[Double])(using inline boundsCheck : BoundsCheck) =
-    dimCheck(vec, vec2)
+    //dimCheck(vec, vec2)
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do

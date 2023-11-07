@@ -17,6 +17,7 @@
 package vecxt
 
 import scala.util.chaining.*
+import scala.language.implicitConversions
 
 class BoundsCheckSuite extends munit.FunSuite:
 
