@@ -16,19 +16,13 @@
 
 package vecxt
 
-import scala.util.chaining.*
+import scala.scalajs.js.typedarray.Float64Array
 
-class BoundsCheckSuite extends munit.FunSuite:
+object dimCheck:
+  inline def apply(a: Float64Array, b : Float64Array) (using inline doCheck: BoundsCheck)=
+      inline if doCheck then
+        if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
-
-  lazy val v_fill = Array.tabulate(5)(i => i.toDouble)
-
-  test("Bounds check") {
-    intercept[vecxt.VectorDimensionMismatch](v_fill.-(Array[Double](1,2,3))(using vecxt.BoundsCheck.yes))
-  }
-
-  test("no bound check") {
-    intercept[java.lang.ArrayIndexOutOfBoundsException](v_fill.-(Array[Double](1,2,3))(using vecxt.BoundsCheck.no))
-  }
-
-end BoundsCheckSuite
+case class VectorDimensionMismatch(givenDimension:Int, requiredDimension:Int) extends Exception(
+  s"Expected Vector dimensions to match. First dimension was : $requiredDimension, second was : $givenDimension ."
+)

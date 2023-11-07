@@ -22,10 +22,6 @@ import scala.util.chaining.*
 import vecxt.BoundsCheck
 
 
-enum LossCalc:
-  case Agg, Occ
-end LossCalc
-
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
     var sum = 0

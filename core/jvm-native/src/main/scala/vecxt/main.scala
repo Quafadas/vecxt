@@ -1,5 +1,5 @@
-package vecxt
 
+import vecxt.*
 
 @main def checkBytecode =
   val a = Array[Double](1,2,3)
