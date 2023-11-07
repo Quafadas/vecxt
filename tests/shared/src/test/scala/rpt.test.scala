@@ -18,35 +18,35 @@ package vecxt
 
 import Retentions.*
 import Limits.*
-import scala.language.implicitConversions
+
 
 extension [A <: AnyRef](o: A) def some = Some(o)
 
 class ReinsurancePricingSuite extends munit.FunSuite:
 
   test("reinsurance function - ret and limit") {
-    val v = Array[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16).vecxtable
     v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 1.0)
     assert(v(2) == 5.0)
   }
   test("reinsurance function - ret only") {
-    val v = Array[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16).vecxtable
     v.reinsuranceFunction(None, Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 1.0)
     assert(v(2) == 6.0)
   }
   test("reinsurance function - limit only") {
-    val v = Array[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16).vecxtable
     v.reinsuranceFunction(Some(Limit(15.0)), None)
     assert(v(0) == 8.0)
     assert(v(1) == 11.0)
     assert(v(2) == 15.0)
   }
   test("reinsurance function - no ret or limit") {
-    val v = Array[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16).vecxtable
     v.reinsuranceFunction(None, None)
     assert(v(0) == 8.0)
     assert(v(1) == 11.0)
@@ -54,7 +54,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - ret and limit") {
-    val v = Array[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16).vecxtable
     v.franchiseFunction(Some(Limit(5.0)), Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 11.0)
@@ -62,7 +62,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - ret only") {
-    val v = Array[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16).vecxtable
     v.franchiseFunction(None, Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 11.0)
@@ -70,7 +70,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - Limit only") {
-    val v = Array[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16).vecxtable
     v.franchiseFunction(Some(Limit(10.0)), None)
     assert(v(0) == 8.0)
     assert(v(1) == 10.0)
@@ -78,7 +78,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - No ret or limit") {
-    val v = Array[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16).vecxtable
     v.franchiseFunction(None, None)
     assert(v(0) == 8.0)
     assert(v(1) == 11.0)

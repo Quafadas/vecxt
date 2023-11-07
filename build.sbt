@@ -30,11 +30,24 @@ ThisBuild / scalaVersion := "3.3.1"
 
 lazy val root = tlCrossRootProject.aggregate(core, tests)
 
+lazy val shim = crossProject(
+  JSPlatform,
+  JVMPlatform,
+  NativePlatform
+).crossType(CrossType.Full)
+  .settings(
+  )
+  .jvmSettings(
+  )
+  .jsSettings()
+  .nativeSettings()
+
 lazy val core = crossProject(
   JSPlatform,
   JVMPlatform,
   NativePlatform
 ).crossType(CrossType.Full)
+.dependsOn(shim)
   .settings(
   )
   .jvmSettings(

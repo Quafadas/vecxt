@@ -17,22 +17,26 @@
 package vecxt
 
 import scala.util.chaining.*
-import scala.language.implicitConversions
-import vecxt.given_Conversion_Array_vecxting
+// import vecxt.given_Conversion_Array_vecxting
+
+// type vecxting = Array[Double] with vecxt
+
+
+extension (inline a: Array[Double])
+  inline def vecxtable = a.asInstanceOf[vecxting]
 
 class ArrayExtensionSuite extends munit.FunSuite:
-  import vecxt.BoundsCheck.yes
 
-  //import vecxt.given_Conversion_Array_vecxting
+  import vecxt.BoundsCheck.yes
 
   lazy val v_fill = Array.tabulate(5)(i => i.toDouble)
 
   test("Array horizontal sum") {
-    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0).vecxtable
     val v2 = v1 * 2.0
     val v3 = v1 * 3.0
 
-    val l = Array(v1, v2, v3)
+    val l = Array(v1, v2.vecxtable, v3.vecxtable)
     val summed = l.horizontalSum
 
     assert(summed(0) == 1 + 2 + 3)
@@ -42,14 +46,14 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("cumsum") {
-    val v1 = Array[Double](1.0, 2.0, 3.0).tap(_.cumsum)
+    val v1 = Array[Double](1.0, 2.0, 3.0).tap(_.vecxtable.cumsum)
     assert(v1(0) == 1)
     assert(v1(1) == 3)
     assert(v1(2) == 6)
   }
 
   test("Array += ") {
-    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0).vecxtable
     v1 += Array[Double](3.0, 2.0, 1.0)
 
     assertEqualsDouble(v1(0), 4, 0.00001)
@@ -59,7 +63,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array + ") {
-    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0).vecxtable
     val v2 = Array[Double](3.0, 2.0, 1.0)
 
     val v3 = v1 + v2
@@ -71,7 +75,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array -= ") {
-    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0).vecxtable
     v1 -= Array[Double](3.0, 2.0, 1.0)
 
     assertEqualsDouble(v1(0), -2, 0.00001)
@@ -81,7 +85,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array - ") {
-    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0).vecxtable
     val v2 = Array[Double](3.0, 2.0, 1.0)
 
     val v3 = v1 - v2
@@ -92,8 +96,10 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array *= ") {
-    val v1 = Array[Double](1.0, 2.0, 3.0)
-    v1 *= 2
+
+    val v1: vecxting = Array[Double](1.0, 2.0, 3.0).vecxtable
+
+    v1 *= 2.0
 
     assertEqualsDouble(v1(0), 2, 0.00001)
     assertEqualsDouble(v1(1), 4, 0.00001)
@@ -102,7 +108,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array * ") {
-    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0).vecxtable
 
     val v2 = v1 * 2
 
@@ -112,40 +118,40 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("<=") {
-    val v_idx2 = v_fill < 2.5
+    val v_idx2 = v_fill.vecxtable < 2.5
     assertEquals(v_idx2.countTrue, 3)
   }
 
   test("<") {
-    val v_idx2 = v_fill < 3.0
+    val v_idx2 = v_fill.vecxtable < 3.0
     assertEquals(v_idx2.countTrue, 3)
   }
 
   test(">") {
-    val v_idx2 = v_fill > 2.5
+    val v_idx2 = v_fill.vecxtable > 2.5
     assertEquals(v_idx2.countTrue, 2)
   }
 
   test(">=") {
-    val v_idx2 = v_fill >= 3.0
+    val v_idx2 = v_fill.vecxtable >= 3.0
     assertEquals(v_idx2.countTrue, 2)
   }
 
   test("&&") {
-    val v_idx2 = (v_fill < 3.0) && (v_fill > 1.0)
+    val v_idx2 = (v_fill.vecxtable < 3.0) && (v_fill.vecxtable > 1.0)
     assertEquals(v_idx2.countTrue, 1)
   }
 
   test("||") {
-    val v_idx2 = (v_fill < 3.0) || (v_fill > 1.0)
+    val v_idx2 = (v_fill.vecxtable < 3.0) || (v_fill.vecxtable > 1.0)
     assertEquals(v_idx2.countTrue, 5)
 
-    val v_idx3 = (v_fill < 1.0) || (v_fill > 4.0)
+    val v_idx3 = (v_fill.vecxtable < 1.0) || (v_fill.vecxtable > 4.0)
     assertEquals(v_idx3.countTrue, 1)
   }
 
   test("Array indexing") {
-    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0).vecxtable
     val vIdx = Array[Boolean](true, false, true)
     val afterIndex = v1.idxBoolean(vIdx)
 

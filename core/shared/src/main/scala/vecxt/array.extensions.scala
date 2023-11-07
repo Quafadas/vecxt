@@ -25,15 +25,6 @@ enum LossCalc:
   case Agg, Occ
 end LossCalc
 
-transparent trait vecxt {
-
-  def update(i: Int, d: Double): Unit
-  def apply(i:Int) : Double
-  def length: Int
-
-}
-
-
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
     var sum = 0
@@ -117,7 +108,7 @@ extension (vec: vecxt)
     end while
   end cumsum
 
-  inline def -(vec2: Array[Double])(using inline boundsCheck : BoundsCheck) =
+  transparent inline def -(vec2: Array[Double])(using inline boundsCheck : BoundsCheck) =
     //dimCheck(vec, vec2)
     val out = new Array[Double](vec.length)
     var i = 0
@@ -136,7 +127,7 @@ extension (vec: vecxt)
     end while
   end -=
 
-  inline def +(vec2: Array[Double]) =
+  transparent inline def +(vec2: Array[Double]) =
     val out = new Array[Double](vec.length)
     var i = 0
     while i < vec.length do
@@ -288,7 +279,7 @@ In excel f(x) = if(x < retention, 0, if(x > limit, limit, x)
 
 end extension
 
-extension (vec: Array[Array[Double]])
+extension [A <: vecxt](vec: Array[A])
   inline def horizontalSum: Array[Double] =
     val out = new Array[Double](vec.head.length)
     var i = 0
