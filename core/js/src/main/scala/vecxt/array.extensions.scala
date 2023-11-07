@@ -20,7 +20,6 @@ import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSBracketAccess
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 

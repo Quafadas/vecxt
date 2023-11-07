@@ -16,8 +16,6 @@
 
 package vecxt
 
-import scala.util.chaining.*
-
 class BoundsCheckSuite extends munit.FunSuite:
 
   lazy val v_fill = Array.tabulate(5)(i => i.toDouble)

@@ -19,8 +19,6 @@ import vecxt.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
 
-import scala.util.chaining.*
-
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
     var sum = 0
