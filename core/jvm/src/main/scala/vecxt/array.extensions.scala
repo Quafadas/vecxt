@@ -75,6 +75,74 @@ extension (vec: Array[Double])
     out
   end increments
 
+  def pearsonCorrelationCoefficient(thatVector: Array[Double]): Double =
+    val n = vec.length
+    var i = 0
+
+    var sum_x = 0.0
+    var sum_y = 0.0
+    var sum_xy = 0.0
+    var sum_x2 = 0.0
+    var sum_y2 = 0.0
+
+    while i < n do
+      sum_x = sum_x + vec(i)
+      sum_y = sum_y + thatVector(i)
+      sum_xy = sum_xy + vec(i) * thatVector(i)
+      sum_x2 = sum_x2 + vec(i) * vec(i)
+      sum_y2 = sum_y2 + thatVector(i) * thatVector(i)
+      i = i + 1
+    end while
+    (n * sum_xy - (sum_x * sum_y)) / Math.sqrt(
+      (sum_x2 * n - sum_x * sum_x) * (sum_y2 * n - sum_y * sum_y)
+    )
+  end pearsonCorrelationCoefficient
+
+  def spearmansRankCorrelation(thatVector: Array[Double]): Double =
+    val theseRanks = vec.elementRanks
+    val thoseRanks = thatVector.elementRanks
+    theseRanks.pearsonCorrelationCoefficient(thoseRanks)
+  end spearmansRankCorrelation
+
+  // An alias - pearson is the most commonly requested type of correlation
+  inline def corr(thatVector: Array[Double]): Double = pearsonCorrelationCoefficient(thatVector)
+
+  def elementRanks: Array[Double] =
+    val indexed: Array[(Double, Int)] = vec.zipWithIndex
+    indexed.sorted(Ordering.by(_._1))
+
+    val ranks: Array[Double] = new Array(vec.length) // faster than zeros.
+    ranks(indexed.last._2) = vec.length
+    var currentValue: Double = indexed(0)._1
+    var r0: Int = 0
+    var rank: Int = 1
+    while rank < vec.length do
+      val temp: Double = indexed(rank)._1
+      val end: Int =
+        if temp != currentValue then rank
+        else if rank == vec.length - 1 then rank + 1
+        else -1
+      if end > -1 then
+        val avg: Double = (1.0 + (end + r0)) / 2.0
+        var i: Int = r0;
+        while i < end do
+          ranks(indexed(i)._2) = avg
+          i += 1
+        end while
+        r0 = rank
+        currentValue = temp
+      end if
+      rank += 1
+    end while
+    ranks
+  end elementRanks
+
+  def variance: Double =
+    // https://www.cuemath.com/sample-variance-formula/
+    val μ = vec.mean
+    vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+  end variance
+
   inline def stdDev: Double =
     // https://www.cuemath.com/data/standard-deviation/
     val mu = vec.mean
@@ -184,6 +252,18 @@ extension (vec: Array[Double])
     idx
   end logicalIdx
 
+  def covariance(thatVector: Array[Double]): Double =
+    val μThis = vec.mean
+    val μThat = thatVector.mean
+    var cv: Double = 0
+    var i: Int = 0;
+    while i < vec.length do
+      cv += (vec(i) - μThis) * (thatVector(i) - μThat)
+      i += 1
+    end while
+    cv / (vec.length - 1)
+  end covariance
+
   /*
 
 Retention and limit are known constants
@@ -224,7 +304,25 @@ The implementation takes advantage of their existence or not, to optimise the nu
           i = i + 1
         end while
 
-      case (None, None) => ()
+      case (None, None) =>
+        ()
+
+      //     def min(lt: Double): Unit =
+      //       var i = 0;
+      //       while i < thisVector.dimension do
+      //         if thisVector(i) < lt then thisVector(i) = lt
+      //         i = i + 1
+      //       end while
+      //     end min
+      // end match
+
+      // def MAX(gt: Double): Unit =
+      //   var i = 0;
+      //   while i < thisVector.dimension do
+      //     if thisVector(i) > gt then thisVector(i) = gt
+      //     i = i + 1
+      //   end while
+      // end MAX
 
   end reinsuranceFunction
 

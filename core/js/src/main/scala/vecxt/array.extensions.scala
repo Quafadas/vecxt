@@ -31,6 +31,7 @@ end extension
 
 @js.native
 trait TypedArrayFacade extends js.Object:
+
   def sort(): Unit = js.native
   def reverse(): Unit =
     js.native // mutable https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reverse
@@ -104,7 +105,7 @@ extension (vec: Float64Array)
   inline def stdDev: Double =
     // https://www.cuemath.com/data/standard-deviation/
     val mu = vec.mean
-    val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
+    val diffs_2 = vec.map(num => (num - mu)*(num - mu))
     Math.sqrt(diffs_2.sum / (vec.length - 1))
   end stdDev
 
@@ -119,6 +120,75 @@ extension (vec: Float64Array)
     end while
     sum
   end sum
+
+  def variance: Double =
+    // https://www.cuemath.com/sample-variance-formula/
+    val μ = vec.mean
+    vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+  end variance
+
+
+    def pearsonCorrelationCoefficient(thatVector: Float64Array): Double =
+    val n = vec.length
+    var i = 0
+
+    var sum_x = 0.0
+    var sum_y = 0.0
+    var sum_xy = 0.0
+    var sum_x2 = 0.0
+    var sum_y2 = 0.0
+
+    while i < n do
+      sum_x = sum_x + vec(i)
+      sum_y = sum_y + thatVector(i)
+      sum_xy = sum_xy + vec(i) * thatVector(i)
+      sum_x2 = sum_x2 + vec(i) * vec(i)
+      sum_y2 = sum_y2 + thatVector(i) * thatVector(i)
+      i = i + 1
+    end while
+    (n * sum_xy - (sum_x * sum_y)) / Math.sqrt(
+      (sum_x2 * n - sum_x * sum_x) * (sum_y2 * n - sum_y * sum_y)
+    )
+  end pearsonCorrelationCoefficient
+
+  def spearmansRankCorrelation(thatVector: Float64Array): Double =
+    val theseRanks = vec.elementRanks
+    val thoseRanks = thatVector.elementRanks
+    theseRanks.pearsonCorrelationCoefficient(thoseRanks)
+  end spearmansRankCorrelation
+
+  // An alias - pearson is the most commonly requested type of correlation
+  inline def corr(thatVector: Float64Array): Double = pearsonCorrelationCoefficient(thatVector)
+
+  def elementRanks: Float64Array =
+    val indexed1 = vec.zipWithIndex
+    val indexed = indexed1.toArray.sorted(Ordering.by(_._1))
+
+    val ranks: Array[Double] = new Array(vec.length) // faster than zeros.
+    ranks(indexed.last._2) = vec.length
+    var currentValue: Double = indexed(0)._1
+    var r0: Int = 0
+    var rank: Int = 1
+    while rank < vec.length do
+      val temp: Double = indexed(rank)._1
+      val end: Int =
+        if temp != currentValue then rank
+        else if rank == vec.length - 1 then rank + 1
+        else -1
+      if end > -1 then
+        val avg: Double = (1.0 + (end + r0)) / 2.0
+        var i: Int = r0;
+        while i < end do
+          ranks(indexed(i)._2) = avg
+          i += 1
+        end while
+        r0 = rank
+        currentValue = temp
+      end if
+      rank += 1
+    end while
+    Float64Array.of(ranks:_*)
+  end elementRanks
 
   inline def cumsum =
     var i = 1
@@ -213,6 +283,18 @@ extension (vec: Float64Array)
     end while
     idx
   end logicalIdx
+
+  def covariance(thatVector: Float64Array): Double =
+    val μThis = vec.mean
+    val μThat = thatVector.mean
+    var cv: Double = 0
+    var i: Int = 0;
+    while i < vec.length do
+      cv += (vec(i) - μThis) * (thatVector(i) - μThat)
+      i += 1
+    end while
+    cv / (vec.length - 1)
+  end covariance
 
   /*
 
