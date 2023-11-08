@@ -105,7 +105,7 @@ extension (vec: Float64Array)
   inline def stdDev: Double =
     // https://www.cuemath.com/data/standard-deviation/
     val mu = vec.mean
-    val diffs_2 = vec.map(num => (num - mu)*(num - mu))
+    val diffs_2 = vec.map(num => (num - mu) * (num - mu))
     Math.sqrt(diffs_2.sum / (vec.length - 1))
   end stdDev
 
@@ -127,8 +127,7 @@ extension (vec: Float64Array)
     vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
   end variance
 
-
-    def pearsonCorrelationCoefficient(thatVector: Float64Array): Double =
+  def pearsonCorrelationCoefficient(thatVector: Float64Array): Double =
     val n = vec.length
     var i = 0
 
@@ -187,7 +186,7 @@ extension (vec: Float64Array)
       end if
       rank += 1
     end while
-    Float64Array.of(ranks:_*)
+    Float64Array.of(ranks*)
   end elementRanks
 
   inline def cumsum =
