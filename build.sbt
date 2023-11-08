@@ -42,7 +42,7 @@ lazy val core = crossProject(
     description := """High performance extensions for numeric workloads for
       - Array[Double] on JVM
       - Array[Double] on native.
-      - Float64Array on JS""",
+      - Float64Array on JS"""
   )
   .jvmSettings(
   )
