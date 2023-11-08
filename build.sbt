@@ -38,6 +38,11 @@ lazy val core = crossProject(
   // NativePlatform
 ).crossType(CrossType.Full)
   .settings(
+    name := "vecxt",
+    description := """High performance extensions for numeric workloads for
+      - Array[Double] on JVM
+      - Array[Double] on native.
+      - Float64Array on JS""",
   )
   .jvmSettings(
   )
