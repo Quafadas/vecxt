@@ -20,6 +20,7 @@ tags
 .bloop/
 metals.sbt
 .vscode
+sbt-launch.jar
 
 # npm
 node_modules/
