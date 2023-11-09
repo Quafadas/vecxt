@@ -16,32 +16,21 @@
 
 package vecxt
 
-import scala.scalajs.js
-import scala.scalajs.js.typedarray.Float64Array
+import narr.*
+
 import scala.util.chaining.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import vecxt.BoundsCheck.yes
 
-  def v_fill = Float64Array(5).tap(a =>
-    a.update(0, 0.0)
-    a.update(1, 1.0)
-    a.update(2, 2.0)
-    a.update(3, 3.0)
-    a.update(4, 4.0)
-  )
-
-  def v_3 = Float64Array(3).tap(a =>
-    a.update(0, 1.0)
-    a.update(1, 2.0)
-    a.update(2, 3.0)
-  )
+  lazy val v_fill = NArray.tabulate[Double](5)(i => i.toDouble)
 
   test("Array horizontal sum") {
-    val v2 = v_3 * 2.0
-    val v3 = v_3 * 3.0
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v2 = v1 * 2.0
+    val v3 = v1 * 3.0
 
-    val l = js.Array(v_3, v2, v3)
+    val l = NArray(v1, v2, v3)
     val summed = l.horizontalSum
 
     assert(summed(0) == 1 + 2 + 3)
@@ -51,16 +40,15 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("cumsum") {
-    val v1 = v_3.tap(_.cumsum)
+    val v1 = NArray[Double](1.0, 2.0, 3.0).tap(_.cumsum)
     assert(v1(0) == 1)
     assert(v1(1) == 3)
     assert(v1(2) == 6)
   }
 
   test("Array += ") {
-    val v1 = v_3
-    val v2 = v_3.tap(_.reverse())
-    v1 += v2
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    v1 += NArray[Double](3.0, 2.0, 1.0)
 
     assertEqualsDouble(v1(0), 4, 0.00001)
     assertEqualsDouble(v1(1), 4, 0.00001)
@@ -69,8 +57,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array + ") {
-    val v1 = v_3
-    val v2 = v_3.tap(_.reverse())
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v2 = NArray[Double](3.0, 2.0, 1.0)
 
     val v3 = v1 + v2
 
@@ -81,8 +69,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array -= ") {
-    val v1 = v_3
-    v1 -= v_3.tap(_.reverse())
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    v1 -= NArray[Double](3.0, 2.0, 1.0)
 
     assertEqualsDouble(v1(0), -2, 0.00001)
     assertEqualsDouble(v1(1), 0, 0.00001)
@@ -91,8 +79,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array - ") {
-    val v1 = v_3
-    val v2 = v_3.tap(_.reverse())
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v2 = NArray[Double](3.0, 2.0, 1.0)
 
     val v3 = v1 - v2
 
@@ -102,7 +90,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array *= ") {
-    val v1 = v_3
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
     v1 *= 2
 
     assertEqualsDouble(v1(0), 2, 0.00001)
@@ -112,7 +100,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array * ") {
-    val v1 = v_3
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
 
     val v2 = v1 * 2
 
@@ -155,8 +143,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array indexing") {
-    val v1 = v_3
-    val vIdx = scala.scalajs.js.Array[Boolean](true, false, true)
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val vIdx = NArray[Boolean](true, false, true)
     val afterIndex = v1.idxBoolean(vIdx)
 
     assertEquals(afterIndex.length, 2)

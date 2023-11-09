@@ -15,6 +15,7 @@
  */
 
 package vecxt
+
 import vecxt.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
