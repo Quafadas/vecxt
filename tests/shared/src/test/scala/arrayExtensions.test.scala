@@ -17,12 +17,13 @@
 package vecxt
 
 import narr.*
+
 import scala.util.chaining.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import vecxt.BoundsCheck.yes
 
-  lazy val v_fill = NArray[Double](0,1,2,3,4)
+  lazy val v_fill = NArray[Double](0, 1, 2, 3, 4)
 
   test("Array horizontal sum") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
