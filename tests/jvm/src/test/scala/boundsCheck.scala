@@ -15,7 +15,6 @@
  */
 
 package vecxt
-import VectorDimensionMismatch
 
 class BoundsCheckSuite extends munit.FunSuite:
 

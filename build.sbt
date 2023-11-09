@@ -34,8 +34,8 @@ lazy val root = tlCrossRootProject.aggregate(core, tests)
 
 lazy val core = crossProject(
   JSPlatform,
-  JVMPlatform,
-  //NativePlatform
+  JVMPlatform
+  // NativePlatform
 )
   .crossType(CrossType.Full)
   .settings(
@@ -51,7 +51,7 @@ lazy val core = crossProject(
   .jvmSettings(
   )
   .jsSettings()
-  //.nativeSettings()
+//.nativeSettings()
 
 lazy val docs = project
   .in(file("site"))
