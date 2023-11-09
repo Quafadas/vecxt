@@ -28,14 +28,14 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 
 // publish website from this branch
 ThisBuild / tlSitePublishBranch := Some("main")
-ThisBuild / scalaVersion := "3.3.1"
+ThisBuild / scalaVersion := "3.4.0-RC1-bin-20231108-e149e4c-NIGHTLY"
 
 lazy val root = tlCrossRootProject.aggregate(core, tests)
 
 lazy val core = crossProject(
   JSPlatform,
   JVMPlatform,
-  NativePlatform
+  //NativePlatform
 )
   .crossType(CrossType.Full)
   .settings(
@@ -51,7 +51,7 @@ lazy val core = crossProject(
   .jvmSettings(
   )
   .jsSettings()
-  .nativeSettings()
+  //.nativeSettings()
 
 lazy val docs = project
   .in(file("site"))
