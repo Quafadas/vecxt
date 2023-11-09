@@ -28,7 +28,7 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 
 // publish website from this branch
 ThisBuild / tlSitePublishBranch := Some("main")
-ThisBuild / scalaVersion := "3.4.0-RC1-bin-20231106-f61026d-NIGHTLY"
+ThisBuild / scalaVersion := "3.3.1"
 
 lazy val root = tlCrossRootProject.aggregate(core, tests)
 
@@ -36,13 +36,17 @@ lazy val core = crossProject(
   JSPlatform,
   JVMPlatform
   // NativePlatform
-).crossType(CrossType.Full)
+)
+  .crossType(CrossType.Full)
   .settings(
     name := "vecxt",
     description := """High performance extensions for numeric workloads for
       - Array[Double] on JVM
       - Array[Double] on native.
-      - Float64Array on JS"""
+      - Float64Array on JS""",
+    libraryDependencies ++= Seq(
+      "ai.dragonfly" %%% "narr" % "0.103"
+    )
   )
   .jvmSettings(
   )

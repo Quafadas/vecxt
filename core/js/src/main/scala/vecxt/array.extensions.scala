@@ -23,6 +23,8 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 
+type NArray = Float64Array
+
 extension (v: Float64Array)
   inline def sort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
   inline def reverse(): Unit = v.asInstanceOf[TypedArrayFacade].reverse()

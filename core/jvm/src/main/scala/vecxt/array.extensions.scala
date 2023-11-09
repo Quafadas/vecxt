@@ -19,6 +19,8 @@ import vecxt.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
 
+type NArray = Array[Double]
+
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
     var sum = 0
