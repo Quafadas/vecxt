@@ -111,9 +111,9 @@ extension (vec: Array[Double])
 
   def elementRanks: Array[Double] =
     val indexed: Array[(Double, Int)] = vec.zipWithIndex
-    indexed.sorted(Ordering.by(_._1))
+    indexed.sortInPlace()(Ordering.by(_._1))
 
-    val ranks: Array[Double] = new Array(vec.length) // faster than zeros.
+    val ranks: Array[Double] = new Array[Double](vec.length)
     ranks(indexed.last._2) = vec.length
     var currentValue: Double = indexed(0)._1
     var r0: Int = 0

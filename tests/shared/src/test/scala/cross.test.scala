@@ -25,6 +25,8 @@ import Limits.*
 
 class XSuite extends munit.FunSuite:
 
+
+  // This test is a duplicate ... but if it works, it proves that the extension methods work on every platform with a common supertype :-)...
   test("reinsurance function - ret and limit") {
     val v = NArray
       .ofSize[Double](3)
