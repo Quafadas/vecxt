@@ -84,7 +84,7 @@ lazy val core = crossProject(
   .nativeSettings(
     // nativeBrewFormulas += "atlas", //??
     libraryDependencies += "org.ekrich" %%% "sblas" % "0.5.0",
-    nativeConfig ~= { c => c.withLinkingOptions(c.linkingOptions :+ "-latlas") }
+    //nativeConfig ~= { c => c.withLinkingOptions(c.linkingOptions :+ "-latlas") }
   )
 
 lazy val docs = project

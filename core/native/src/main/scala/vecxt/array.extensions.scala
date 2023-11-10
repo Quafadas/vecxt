@@ -202,12 +202,9 @@ extension (vec: Array[Double])
     out
   end +
 
-  inline def +=(vec2: Array[Double]): Unit =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) + vec2(i)
-      i = i + 1
-    end while
+  inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    dimCheck(vec, vec2)
+    blas.cblas_daxpy(vec.length, 1.0, vec2.at(0), 1, vec.at(0), 1)
   end +=
 
   inline def *=(d: Double) =
