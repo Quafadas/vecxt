@@ -221,13 +221,14 @@ extension (vec: Float64Array)
 
   inline def +(vec2: Float64Array)(using inline boundsCheck: BoundsCheck) =
     dimCheck(vec, vec2)
-    val out = new Array[Double](vec.length)
-    var i = 0
-    while i < vec.length do
-      out(i) = vec(i) + vec2(i)
-      i = i + 1
-    end while
-    out
+    tf.add(vec, vec2)
+    // val out = new Array[Double](vec.length)
+    // var i = 0
+    // while i < vec.length do
+    //   out(i) = vec(i) + vec2(i)
+    //   i = i + 1
+    // end while
+    // out
   end +
 
   inline def +=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
