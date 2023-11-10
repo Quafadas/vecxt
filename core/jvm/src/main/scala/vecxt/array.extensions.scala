@@ -21,13 +21,9 @@ import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
 //import dev.ludovic.netlib.blas.JavaBLAS
 import dev.ludovic.netlib.blas.JavaBLAS.{getInstance => blas}
+import scala.util.chaining.*
 
 type NArray = Array[Double]
-
-// object blas :
-//   //lazy val blas = VectorBLAS.getInstance()
-//   inline def apply() = JavaBLAS.getInstance()
-
 
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
@@ -172,7 +168,7 @@ extension (vec: Array[Double])
     sum
   end sum
 
-  inline def cumsum =
+  inline def cumsum: Unit =
     var i = 1
     while i < vec.length do
       vec(i) = vec(i - 1) + vec(i)
@@ -180,62 +176,35 @@ extension (vec: Array[Double])
     end while
   end cumsum
 
-  inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck) =
+  inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
     dimCheck(vec, vec2)
-    val out = new Array[Double](vec.length)
-    var i = 0
-    while i < vec.length do
-      out(i) = vec(i) - vec2(i)
-      i = i + 1
-    end while
-    out
+    val out = vec.clone
+    out.tap( _ -= vec2)
   end -
 
   inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
     dimCheck(vec, vec2)
     blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
-    // var i = 0
-    // while i < vec.length do
-    //   vec(i) = vec(i) - vec2(i)
-    //   i = i + 1
-    // end while
   end -=
 
-  inline def +(vec2: Array[Double]) =
-    val out = new Array[Double](vec.length)
-    var i = 0
-    while i < vec.length do
-      out(i) = vec(i) + vec2(i)
-      i = i + 1
-    end while
-    out
+  inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    dimCheck(vec, vec2)
+    val out = vec.clone
+    out.tap( _ += vec2)
   end +
 
-  inline def +=(vec2: Array[Double]): Unit =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) + vec2(i)
-      i = i + 1
-    end while
+  inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    dimCheck(vec, vec2)
+    blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
   end +=
 
   inline def *=(d: Double) =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) * d
-      i = i + 1
-    end while
-    vec
+    vec.tap(v => blas.dscal(v.length, d, v, 1))
   end *=
 
   inline def *(d: Double) =
-    val out = new Array[Double](vec.length)
-    var i = 0
-    while i < vec.length do
-      out(i) = vec(i) * d
-      i = i + 1
-    end while
-    out
+    val out = vec.clone
+    out.tap(_ *= d)
   end *
 
   inline def <(num: Double): Array[Boolean] =
