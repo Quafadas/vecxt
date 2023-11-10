@@ -40,6 +40,8 @@ ThisBuild / githubWorkflowBuildPreamble ++= Seq(
 )
 
 ThisBuild / tlCiDocCheck := false
+// ThisBuild / githubWorkflowBuildPreamble ++= nativeBrewInstallWorkflowSteps.value
+// ThisBuild / nativeBrewInstallCond := Some("matrix.project == 'rootNative'")
 
 // publish to s01.oss.sonatype.org (set to true to publish to oss.sonatype.org instead)
 ThisBuild / tlSonatypeUseLegacyHost := false
@@ -48,6 +50,7 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / tlSitePublishBranch := Some("main")
 ThisBuild / scalaVersion := "3.3.1"
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
+ThisBuild / tlJdkRelease := Some(17)
 
 lazy val root = tlCrossRootProject.aggregate(core, tests)
 
@@ -78,7 +81,12 @@ lazy val core = crossProject(
       new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
     }
   )
-  .nativeSettings()
+  .nativeSettings(
+    // nativeBrewFormulas += "atlas", //??
+    libraryDependencies += "org.ekrich" %%% "sblas" % "0.5.0",
+
+    nativeConfig ~= { c => c.withLinkingOptions(c.linkingOptions :+ "-latlas") },
+  )
 
 lazy val docs = project
   .in(file("site"))
