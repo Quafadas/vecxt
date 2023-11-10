@@ -1,11 +1,12 @@
 import laika.helium.Helium
 import laika.helium.config.*
-import laika.markdown.github.GitHubFlavor
-import laika.parse.code.SyntaxHighlighting
 import laika.ast.Path.Root
 import laika.theme.config.Color
 import laika.ast.LengthUnit.*
-import laika.ast.*
+import laika.format.Markdown.GitHubFlavor
+import laika.config.SyntaxHighlighting
+import laika.parse.code.languages.ScalaSyntax
+
 import org.scalajs.linker.interface.OutputPatterns
 
 import java.time.OffsetDateTime
@@ -120,8 +121,6 @@ lazy val docs = project
         .externalJS(
           url = "https://cdn.jsdelivr.net/npm/vega-embed@6"
         )
-        .site
-        .autoLinkJS()
     }
   )
 
