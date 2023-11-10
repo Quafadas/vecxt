@@ -28,7 +28,8 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 
 // publish website from this branch
 ThisBuild / tlSitePublishBranch := Some("main")
-ThisBuild / scalaVersion := "3.4.0-RC1-bin-20231108-e149e4c-NIGHTLY"
+ThisBuild / scalaVersion := "3.3.1"
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 
 lazy val root = tlCrossRootProject.aggregate(core, tests)
 
@@ -45,7 +46,8 @@ lazy val core = crossProject(
       - Array[Double] on native.
       - Float64Array on JS""",
     libraryDependencies ++= Seq(
-      "ai.dragonfly" %%% "narr" % "0.103"
+      // ai.dragonfly" %%% "narr" % "0.103", I do'nt think we need this ... it can be added seperately in userland!
+      "dev.ludovic.netlib" % "blas" % "3.0.3"
     )
   )
   .jvmSettings(
@@ -62,6 +64,9 @@ lazy val docs = project
     laikaExtensions := Seq(
       GitHubFlavor,
       SyntaxHighlighting
+    ),
+    libraryDependencies ++= Seq(
+      "ai.dragonfly" %%% "narr" % "0.103"
     ),
     tlSiteHelium := {
       Helium.defaults.site
@@ -104,5 +109,8 @@ lazy val tests = crossProject(
   .dependsOn(core)
   .settings(
     name := "tests",
-    libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0-M10" % Test
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % "1.0.0-M10" % Test,
+      "ai.dragonfly" %%% "narr" % "0.103" % Test
+    )
   )

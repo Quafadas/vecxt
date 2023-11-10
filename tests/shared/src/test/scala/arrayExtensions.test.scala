@@ -69,12 +69,13 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array -= ") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    v1 -= NArray[Double](3.0, 2.0, 1.0)
+    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+    v1 -= NArray[Double](3.0, 2.0, 1.0, 0.0, 0.0, 0.0)
 
     assertEqualsDouble(v1(0), -2, 0.00001)
     assertEqualsDouble(v1(1), 0, 0.00001)
     assertEqualsDouble(v1(2), 2, 0.00001)
+    assertEqualsDouble(v1(5), 6, 0.00001)
 
   }
 

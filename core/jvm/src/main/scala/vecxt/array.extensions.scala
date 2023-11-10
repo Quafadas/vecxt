@@ -19,8 +19,15 @@ package vecxt
 import vecxt.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
+//import dev.ludovic.netlib.blas.JavaBLAS
+import dev.ludovic.netlib.blas.JavaBLAS.{getInstance => blas}
 
 type NArray = Array[Double]
+
+// object blas :
+//   //lazy val blas = VectorBLAS.getInstance()
+//   inline def apply() = JavaBLAS.getInstance()
+
 
 extension (vec: Array[Boolean])
   inline def countTrue: Int =
@@ -184,12 +191,14 @@ extension (vec: Array[Double])
     out
   end -
 
-  inline def -=(vec2: Array[Double]): Unit =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) - vec2(i)
-      i = i + 1
-    end while
+  inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    dimCheck(vec, vec2)
+    blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
+    // var i = 0
+    // while i < vec.length do
+    //   vec(i) = vec(i) - vec2(i)
+    //   i = i + 1
+    // end while
   end -=
 
   inline def +(vec2: Array[Double]) =

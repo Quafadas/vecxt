@@ -25,20 +25,20 @@ import scala.util.chaining.*
 
 type NArray = Float64Array
 
-extension (v: Float64Array)
-  inline def sort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
-  inline def reverse(): Unit = v.asInstanceOf[TypedArrayFacade].reverse()
-  inline def slice(): Float64Array = v.asInstanceOf[TypedArrayFacade].slice()
-end extension
+// extension (v: Float64Array)
+//   inline def sort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
+//   inline def reverse(): Unit = v.asInstanceOf[TypedArrayFacade].reverse()
+//   inline def slice(): Float64Array = v.asInstanceOf[TypedArrayFacade].slice()
+// end extension
 
-@js.native
-trait TypedArrayFacade extends js.Object:
+// @js.native
+// trait TypedArrayFacade extends js.Object:
 
-  def sort(): Unit = js.native
-  def reverse(): Unit =
-    js.native // mutable https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reverse
-  def slice(): Float64Array = js.native
-end TypedArrayFacade
+//   def sort(): Unit = js.native
+//   def reverse(): Unit =
+//     js.native // mutable https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reverse
+//   def slice(): Float64Array = js.native
+// end TypedArrayFacade
 
 extension [A](v: js.Array[A]) inline def fill(a: A): Unit = v.asInstanceOf[JsArrayFacade].fill(a)
 
