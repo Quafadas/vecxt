@@ -81,7 +81,8 @@ extension (vec: Array[Double])
     out
   end increments
 
-  def pearsonCorrelationCoefficient(thatVector: Array[Double]): Double =
+  inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    dimCheck(vec, thatVector)
     val n = vec.length
     var i = 0
 

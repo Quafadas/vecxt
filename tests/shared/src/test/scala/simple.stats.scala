@@ -64,7 +64,7 @@ class StatsSuite extends munit.FunSuite:
     // https://www.statisticshowto.com/probability-and-statistics/correlation-coefficient-formula/
     val v1 = NArray[Double](43.0, 21.0, 25.0, 42.0, 57.0, 59.0)
     val v2 = NArray[Double](99.0, 65.0, 79.0, 75.0, 87.0, 81.0)
-    assertEqualsDouble(v1.pearsonCorrelationCoefficient(v2), 0.529809, 0.0001)
+    assertEqualsDouble(v1.pearsonCorrelationCoefficient(v2)(using vecxt.BoundsCheck.yes), 0.529809, 0.0001)
 
   }
 

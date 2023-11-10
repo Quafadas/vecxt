@@ -129,7 +129,8 @@ extension (vec: Float64Array)
     vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
   end variance
 
-  def pearsonCorrelationCoefficient(thatVector: Float64Array): Double =
+  inline def pearsonCorrelationCoefficient(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck): Double =
+    dimCheck(vec, thatVector)
     val n = vec.length
     var i = 0
 
@@ -152,14 +153,16 @@ extension (vec: Float64Array)
     )
   end pearsonCorrelationCoefficient
 
-  def spearmansRankCorrelation(thatVector: Float64Array): Double =
+  inline def spearmansRankCorrelation(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck): Double =
+    dimCheck(vec, thatVector)
     val theseRanks = vec.elementRanks
     val thoseRanks = thatVector.elementRanks
     theseRanks.pearsonCorrelationCoefficient(thoseRanks)
   end spearmansRankCorrelation
 
   // An alias - pearson is the most commonly requested type of correlation
-  inline def corr(thatVector: Float64Array): Double = pearsonCorrelationCoefficient(thatVector)
+  inline def corr(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck): Double =
+    pearsonCorrelationCoefficient(thatVector)
 
   def elementRanks: Float64Array =
     val indexed1 = vec.zipWithIndex
