@@ -6,7 +6,11 @@ import laika.parse.code.languages.ScalaSyntax
 import laika.ast.Path.Root
 import laika.theme.config.Color
 import laika.ast.LengthUnit.*
-import laika.ast.*
+import laika.format.Markdown.GitHubFlavor
+import laika.config.SyntaxHighlighting
+import laika.parse.code.languages.ScalaSyntax
+
+import org.scalajs.linker.interface.OutputPatterns
 
 import java.time.OffsetDateTime
 
@@ -20,6 +24,19 @@ ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(
   // your GitHub handle and name
   tlGitHubDev("quafadas", "Simon Parten")
+)
+
+ThisBuild / githubWorkflowBuildPreamble ++= Seq(
+  WorkflowStep.Use(
+    UseRef.Public("actions", "setup-node", "v3"),
+    name = Some("Setup NodeJS v18 LTS"),
+    params = Map("node-version" -> "18", "cache" -> "npm"),
+    cond = Some("matrix.project == 'rootJS'")
+  ),
+  WorkflowStep.Run(
+    List("npm install"),
+    cond = Some("matrix.project == 'rootJS'")
+  )
 )
 
 ThisBuild / tlCiDocCheck := false
@@ -53,7 +70,14 @@ lazy val core = crossProject(
   )
   .jvmSettings(
   )
-  .jsSettings()
+  .jsSettings(
+    scalaJSUseMainModuleInitializer := false,
+    scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+    jsEnv := {
+      import org.scalajs.jsenv.nodejs.NodeJSEnv
+      new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
+    }
+  )
   .nativeSettings()
 
 lazy val docs = project
@@ -112,4 +136,13 @@ lazy val tests = crossProject(
       "org.scalameta" %%% "munit" % "1.0.0-M10" % Test,
       "ai.dragonfly" %%% "narr" % "0.103" % Test
     )
+  )
+  .jsSettings(
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSUseTestModuleInitializer := false,
+    scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+    jsEnv := {
+      import org.scalajs.jsenv.nodejs.NodeJSEnv
+      new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
+    }
   )
