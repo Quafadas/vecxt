@@ -16,11 +16,11 @@
 
 package vecxt
 
+import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import vecxt.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
-//import dev.ludovic.netlib.blas.JavaBLAS
-import dev.ludovic.netlib.blas.JavaBLAS.{getInstance => blas}
+
 import scala.util.chaining.*
 
 type NArray = Array[Double]
@@ -104,7 +104,8 @@ extension (vec: Array[Double])
   end spearmansRankCorrelation
 
   // An alias - pearson is the most commonly requested type of correlation
-  inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double = pearsonCorrelationCoefficient(thatVector)
+  inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    pearsonCorrelationCoefficient(thatVector)
 
   inline def elementRanks: Array[Double] =
     val indexed: Array[(Double, Int)] = vec.zipWithIndex
@@ -181,7 +182,7 @@ extension (vec: Array[Double])
 
   inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
     dimCheck(vec, vec2)
-    vec.clone.tap( _ += vec2)
+    vec.clone.tap(_ += vec2)
   end +
 
   inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =

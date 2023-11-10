@@ -16,10 +16,11 @@
 
 package vecxt
 
+import org.ekrich.blas.unsafe.*
 import vecxt.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
-import org.ekrich.blas.unsafe.*
+
 import scala.scalanative.unsafe.*
 
 type NArray = Array[Double]
@@ -188,7 +189,7 @@ extension (vec: Array[Double])
 
   inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
     dimCheck(vec, vec2)
-    blas.cblas_daxpy(vec.length, -1.0, vec2.at(0) , 1, vec.at(0), 1)
+    blas.cblas_daxpy(vec.length, -1.0, vec2.at(0), 1, vec.at(0), 1)
   end -=
 
   inline def +(vec2: Array[Double]) =
