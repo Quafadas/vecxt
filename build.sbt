@@ -81,10 +81,10 @@ lazy val core = crossProject(
       new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
     }
   )
-  //.nativeConfigure(_.enablePlugins(ScalaNativeBrewedConfigPlugin))
+  // .nativeConfigure(_.enablePlugins(ScalaNativeBrewedConfigPlugin))
   .nativeSettings(
-    libraryDependencies += "org.ekrich" %%% "sblas" % "0.5.0",
-    //nativeBrewFormulas += "libopenblas-dev", //??
+    libraryDependencies += "org.ekrich" %%% "sblas" % "0.5.0"
+    // nativeBrewFormulas += "libopenblas-dev", //??
     // nativeConfig ~= { c => c.withLinkingOptions(c.linkingOptions :+ "-libopenblas-dev") }
   )
 
