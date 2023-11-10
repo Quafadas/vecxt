@@ -1,1 +1,2 @@
 -J--add-modules=jdk.incubator.vector
+-J-Xmx4g
