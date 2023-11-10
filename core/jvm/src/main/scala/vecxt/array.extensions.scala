@@ -43,23 +43,14 @@ extension (vec: Array[Boolean])
     for i <- 0 until vec.length do result(i) = vec(i) || thatIdx(i)
     result
   end ||
-
-  // def copy: Array[Boolean] =
-  //   val copyOfThisVector: Array[Boolean] = new Array[Boolean](vec.length)
-  //   var i = 0
-  //   while i < vec.length do
-  //     copyOfThisVector(i) = vec(i)
-  //     i = i + 1
-  //   end while
-  //   copyOfThisVector
-  // end copy
 end extension
 
 extension (vec: Array[Double])
 
-  def idxBoolean(index: Array[Boolean]) =
+  inline def idxBoolean(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
+    dimCheck(vec, index)
     val trues = index.countTrue
-    val newVec = new Array[Double](trues)
+    val newVec: Array[Double] = new Array[Double](trues)
     var j = 0
     for i <- 0 to trues do
       // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
@@ -81,7 +72,8 @@ extension (vec: Array[Double])
     out
   end increments
 
-  def pearsonCorrelationCoefficient(thatVector: Array[Double]): Double =
+  inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    dimCheck(vec, thatVector)
     val n = vec.length
     var i = 0
 
@@ -104,16 +96,17 @@ extension (vec: Array[Double])
     )
   end pearsonCorrelationCoefficient
 
-  def spearmansRankCorrelation(thatVector: Array[Double]): Double =
+  inline def spearmansRankCorrelation(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    dimCheck(vec, thatVector)
     val theseRanks = vec.elementRanks
     val thoseRanks = thatVector.elementRanks
     theseRanks.pearsonCorrelationCoefficient(thoseRanks)
   end spearmansRankCorrelation
 
   // An alias - pearson is the most commonly requested type of correlation
-  inline def corr(thatVector: Array[Double]): Double = pearsonCorrelationCoefficient(thatVector)
+  inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double = pearsonCorrelationCoefficient(thatVector)
 
-  def elementRanks: Array[Double] =
+  inline def elementRanks: Array[Double] =
     val indexed: Array[(Double, Int)] = vec.zipWithIndex
     indexed.sortInPlace()(Ordering.by(_._1))
 
@@ -178,8 +171,7 @@ extension (vec: Array[Double])
 
   inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
     dimCheck(vec, vec2)
-    val out = vec.clone
-    out.tap( _ -= vec2)
+    vec.clone.tap(_ -= vec2)
   end -
 
   inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
@@ -189,8 +181,7 @@ extension (vec: Array[Double])
 
   inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
     dimCheck(vec, vec2)
-    val out = vec.clone
-    out.tap( _ += vec2)
+    vec.clone.tap( _ += vec2)
   end +
 
   inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
@@ -203,8 +194,7 @@ extension (vec: Array[Double])
   end *=
 
   inline def *(d: Double) =
-    val out = vec.clone
-    out.tap(_ *= d)
+    vec.clone.tap(_ *= d)
   end *
 
   inline def <(num: Double): Array[Boolean] =
@@ -249,10 +239,9 @@ extension (vec: Array[Double])
 
 Retention and limit are known constants
 
-In excel f(x) = min(max(x - retention, 0), limit))
+f(X;retention, limit) = MIN(MAX(X - retention, 0), limit))
 
-The implementation takes advantage of their existence or not, to optimise the number of operations required.
-
+Note: mutates the input array
    */
   inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
     (limitOpt, retentionOpt) match
@@ -287,24 +276,6 @@ The implementation takes advantage of their existence or not, to optimise the nu
 
       case (None, None) =>
         ()
-
-      //     def min(lt: Double): Unit =
-      //       var i = 0;
-      //       while i < thisVector.dimension do
-      //         if thisVector(i) < lt then thisVector(i) = lt
-      //         i = i + 1
-      //       end while
-      //     end min
-      // end match
-
-      // def MAX(gt: Double): Unit =
-      //   var i = 0;
-      //   while i < thisVector.dimension do
-      //     if thisVector(i) > gt then thisVector(i) = gt
-      //     i = i + 1
-      //   end while
-      // end MAX
-
   end reinsuranceFunction
 
   /*
