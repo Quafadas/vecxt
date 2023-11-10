@@ -35,8 +35,8 @@ lazy val root = tlCrossRootProject.aggregate(core, tests)
 
 lazy val core = crossProject(
   JSPlatform,
-  JVMPlatform
-  // NativePlatform
+  JVMPlatform,
+  NativePlatform
 )
   .crossType(CrossType.Full)
   .settings(
@@ -46,14 +46,14 @@ lazy val core = crossProject(
       - Array[Double] on native.
       - Float64Array on JS""",
     libraryDependencies ++= Seq(
-      // ai.dragonfly" %%% "narr" % "0.103", I do'nt think we need this ... it can be added seperately in userland!
+      // ai.dragonfly" %%% "narr" % "0.103", I do'nt think we need this as a dependance ... it can be added seperately in userland!
       "dev.ludovic.netlib" % "blas" % "3.0.3"
     )
   )
   .jvmSettings(
   )
   .jsSettings()
-//.nativeSettings()
+  .nativeSettings()
 
 lazy val docs = project
   .in(file("site"))
@@ -101,8 +101,8 @@ lazy val docs = project
 
 lazy val tests = crossProject(
   JVMPlatform,
-  JSPlatform
-  // NativePlatform
+  JSPlatform,
+  NativePlatform
 )
   .in(file("tests"))
   .enablePlugins(NoPublishPlugin)

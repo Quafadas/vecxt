@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+
 package vecxt
-import VectorDimensionMismatch
 
 class BoundsCheckSuite extends munit.FunSuite:
 
