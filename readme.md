@@ -17,6 +17,25 @@ https://github.com/dragonfly-ai/narr
 
 Surprise! Add that dependancy, express your computation in `NArray` and get best-in-class, native performance (no runtime overhead) on all platforms.
 
+Note: Narr is not distributed "out the box", but it is recommended for anything cross platform.
+
+## Syntax
+
+Supported operationsa re currently very basic, but we share a single test suite across all platforms, e.g.
+
+```scala
+
+  val v1 = NArray[Double](1.0, 2.0, 3.0)
+  val v2 = NArray[Double](3.0, 2.0, 1.0)
+
+  val v3 = v1 + v2
+
+  assertEqualsDouble(v3(0), 4, 0.00001)
+  assertEqualsDouble(v3(1), 4, 0.00001)
+  assertEqualsDouble(v3(2), 4, 0.00001)
+
+```
+
 ## Why?
 
 Not?

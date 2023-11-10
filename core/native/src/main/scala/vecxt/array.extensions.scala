@@ -112,7 +112,8 @@ extension (vec: Array[Double])
   end spearmansRankCorrelation
 
   // An alias - pearson is the most commonly requested type of correlation
-  inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double = pearsonCorrelationCoefficient(thatVector)
+  inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    pearsonCorrelationCoefficient(thatVector)
 
   def elementRanks: Array[Double] =
     val indexed: Array[(Double, Int)] = vec.zipWithIndex

@@ -20,7 +20,7 @@ import narr.*
 
 class StatsSuite extends munit.FunSuite:
 
-  //import vecxt.BoundsCheck.yes
+  // import vecxt.BoundsCheck.yes
 
   test("sample covariance") {
     // Sample version
