@@ -20,6 +20,8 @@
           typelevelShell = {
             jdk.package = pkgs.jdk17;
             nodejs.enable = true;
+            native.enable = true;
+            native.libraries = [ pkgs.libopenblas-dev ];
           };
         };
       }
