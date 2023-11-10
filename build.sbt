@@ -68,13 +68,8 @@ lazy val core = crossProject(
   .jvmSettings(
   )
   .jsSettings(
-    Test / scalaJSUseMainModuleInitializer := true,
-    Test / scalaJSUseTestModuleInitializer := false,
-    Test / scalaJSLinkerConfig ~= (
-      _.withModuleKind(ModuleKind.ESModule)
-      // Use .mjs extension.
-      .withOutputPatterns(OutputPatterns.fromJSFile("%s.mjs"))
-    ),
+    scalaJSUseMainModuleInitializer := false,
+    scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
     jsEnv := {
       import org.scalajs.jsenv.nodejs.NodeJSEnv
       new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
@@ -138,4 +133,13 @@ lazy val tests = crossProject(
       "org.scalameta" %%% "munit" % "1.0.0-M10" % Test,
       "ai.dragonfly" %%% "narr" % "0.103" % Test
     )
+  )
+  .jsSettings(
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSUseTestModuleInitializer := false,
+    scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+    jsEnv := {
+      import org.scalajs.jsenv.nodejs.NodeJSEnv
+      new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
+    }
   )

@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@tensorflow/tfjs": "^4.13.0"
+    "@stdlib/blas": "^0.1.1"
   }
 }

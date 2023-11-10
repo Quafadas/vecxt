@@ -199,15 +199,9 @@ extension (vec: Float64Array)
     end while
   end cumsum
 
-  inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck) =
+  inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Float64Array =
     dimCheck(vec, vec2)
-    val out = Float64Array(vec.length)
-    var i = 0
-    while i < vec.length do
-      out(i) = vec(i) - vec2(i)
-      i = i + 1
-    end while
-    out
+    blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
   end -
 
   inline def -=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
@@ -219,16 +213,9 @@ extension (vec: Float64Array)
     end while
   end -=
 
-  inline def +(vec2: Float64Array)(using inline boundsCheck: BoundsCheck) =
+  inline def +(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Float64Array =
     dimCheck(vec, vec2)
-    tf.add(vec, vec2)
-    // val out = new Array[Double](vec.length)
-    // var i = 0
-    // while i < vec.length do
-    //   out(i) = vec(i) + vec2(i)
-    //   i = i + 1
-    // end while
-    // out
+    blas.daxpy(vec.length, 1.0, vec, 1, vec2, 1)
   end +
 
   inline def +=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
