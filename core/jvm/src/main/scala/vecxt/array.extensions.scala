@@ -189,11 +189,11 @@ extension (vec: Array[Double])
     blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
   end +=
 
-  inline def *=(d: Double) =
+  inline def *=(d: Double): Array[Double] =
     vec.tap(v => blas.dscal(v.length, d, v, 1))
   end *=
 
-  inline def *(d: Double) =
+  inline def *(d: Double): Array[Double] =
     vec.clone.tap(_ *= d)
   end *
 

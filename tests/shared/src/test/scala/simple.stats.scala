@@ -20,6 +20,8 @@ import narr.*
 
 class StatsSuite extends munit.FunSuite:
 
+  import vecxt.BoundsCheck.yes
+
   test("sample covariance") {
     // Sample version
     // https://corporatefinanceinstitute.com/resources/data-science/covariance/
