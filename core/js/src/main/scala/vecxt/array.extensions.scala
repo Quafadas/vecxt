@@ -17,10 +17,10 @@
 import vecxt.BoundsChecks.*
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
-import scala.scalajs.js
 
-import scala.util.chaining.*
+import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
+import scala.util.chaining.*
 
 // extension (v: Float64Array)
 //   inline def sort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
