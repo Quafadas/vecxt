@@ -167,6 +167,8 @@ package object vecxt:
       end while
     end cumsum
 
+    inline def norm: Double = blas().dnrm2(vec.length, vec, 1)
+
     inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)

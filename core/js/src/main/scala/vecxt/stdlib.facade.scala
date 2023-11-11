@@ -26,6 +26,9 @@ object blas extends ArrayOps
 
 @js.native
 trait ArrayOps extends js.Object:
-  def daxpy(N: Int, alpha: Double, x: Float64Array, strideX: Int, y: Float64Array, strideY: Int): Float64Array =
+  def daxpy(N: Int, alpha: Double, x: Float64Array, strideX: Int, y: Float64Array, strideY: Int): Unit =
     js.native
+
+  def dscal(N: Int, alpha: Double, x: Float64Array, strideX: Int): Unit = js.native
+  def dnrm2(N: Int, x: Float64Array, strideX: Int): Double = js.native
 end ArrayOps

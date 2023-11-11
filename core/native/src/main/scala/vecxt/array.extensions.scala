@@ -18,7 +18,7 @@ import org.ekrich.blas.unsafe.*
 import vecxt.BoundsChecks.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
-
+import scala.util.chaining.*
 import scala.scalanative.unsafe.*
 
 package object vecxt:
@@ -176,15 +176,11 @@ package object vecxt:
       end while
     end cumsum
 
+    inline def norm: Double = blas.cblas_dnrm2(vec.length, vec.at(0), 1)
+
     inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck) =
       dimCheck(vec, vec2)
-      val out = new Array[Double](vec.length)
-      var i = 0
-      while i < vec.length do
-        out(i) = vec(i) - vec2(i)
-        i = i + 1
-      end while
-      out
+      vec.clone.tap(_ -= vec2)
     end -
 
     inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
@@ -192,14 +188,9 @@ package object vecxt:
       blas.cblas_daxpy(vec.length, -1.0, vec2.at(0), 1, vec.at(0), 1)
     end -=
 
-    inline def +(vec2: Array[Double]) =
-      val out = new Array[Double](vec.length)
-      var i = 0
-      while i < vec.length do
-        out(i) = vec(i) + vec2(i)
-        i = i + 1
-      end while
-      out
+    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck) =
+      dimCheck(vec, vec2)
+      vec.clone.tap(_ += vec2)
     end +
 
     inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
@@ -208,22 +199,11 @@ package object vecxt:
     end +=
 
     inline def *=(d: Double) =
-      var i = 0
-      while i < vec.length do
-        vec(i) = vec(i) * d
-        i = i + 1
-      end while
-      vec
+      blas.cblas_dscal(vec.length, d, vec.at(0), 1)
     end *=
 
     inline def *(d: Double) =
-      val out = new Array[Double](vec.length)
-      var i = 0
-      while i < vec.length do
-        out(i) = vec(i) * d
-        i = i + 1
-      end while
-      out
+      vec.clone.tap(_ *= d)
     end *
 
     inline def <(num: Double): Array[Boolean] =

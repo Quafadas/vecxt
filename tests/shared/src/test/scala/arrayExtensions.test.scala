@@ -143,6 +143,10 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(v_idx3.countTrue, 1)
   }
 
+  test("norm") {
+    assertEqualsDouble(v_fill.norm, Math.sqrt(1 + 4 + 9 + 16), 0.00001)
+  }
+
   test("Array indexing") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
     val vIdx = NArray[Boolean](true, false, true)

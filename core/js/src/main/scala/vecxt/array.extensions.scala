@@ -1,3 +1,4 @@
+import vecxt.blas
 /*
  * Copyright 2023 quafadas
  *
@@ -22,21 +23,22 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 
-// extension (v: Float64Array)
-//   inline def sort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
-//   inline def reverse(): Unit = v.asInstanceOf[TypedArrayFacade].reverse()
-//   inline def slice(): Float64Array = v.asInstanceOf[TypedArrayFacade].slice()
-// end extension
-
-// @js.native
-// trait TypedArrayFacade extends js.Object:
-
-//   def sort(): Unit = js.native
-//   def reverse(): Unit =
-//     js.native // mutable https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reverse
-//   def slice(): Float64Array = js.native
-// end TypedArrayFacade
 package object vecxt:
+
+  extension (v: Float64Array)
+    inline def nativeSort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
+    inline def nativeReverse(): Unit = v.asInstanceOf[TypedArrayFacade].reverse()
+    inline def nativeSlice(): Float64Array = v.asInstanceOf[TypedArrayFacade].slice()
+  end extension
+
+  @js.native
+  trait TypedArrayFacade extends js.Object:
+
+    def sort(): Unit = js.native
+    def reverse(): Unit =
+      js.native // mutable https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray/reverse
+    def slice(): Float64Array = js.native
+  end TypedArrayFacade
 
   @js.native
   trait JsArrayFacade extends js.Object:
@@ -199,51 +201,34 @@ package object vecxt:
       end while
     end cumsum
 
+    inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
+
     inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Float64Array =
       dimCheck(vec, vec2)
-      blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
+      vec.nativeSlice().tap(_ -= vec2)
     end -
 
     inline def -=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, vec2)
-      var i = 0
-      while i < vec.length do
-        vec(i) = vec(i) - vec2(i)
-        i = i + 1
-      end while
+      blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
     end -=
 
     inline def +(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Float64Array =
       dimCheck(vec, vec2)
-      blas.daxpy(vec.length, 1.0, vec, 1, vec2, 1)
+      vec.nativeSlice().tap(_ += vec2)
     end +
 
     inline def +=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, vec2)
-      var i = 0
-      while i < vec.length do
-        vec(i) = vec(i) + vec2(i)
-        i = i + 1
-      end while
+      blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
     end +=
 
-    inline def *=(d: Double): Float64Array =
-      var i = 0
-      while i < vec.length do
-        vec(i) = vec(i) * d
-        i = i + 1
-      end while
-      vec
+    inline def *=(d: Double): Unit =
+      blas.dscal(vec.length, d, vec, 1)
     end *=
 
     inline def *(d: Double): Float64Array =
-      val out = Float64Array(vec.length)
-      var i = 0
-      while i < vec.length do
-        out(i) = vec(i) * d
-        i = i + 1
-      end while
-      out
+      vec.nativeSlice().tap(_ *= d)
     end *
 
     inline def <(num: Double): js.Array[Boolean] =
@@ -290,8 +275,6 @@ package object vecxt:
   Retention and limit are known constants
 
   In excel f(x) = min(max(x - retention, 0), limit))
-
-  The implementation takes advantage of their existence or not, to optimise the number of operations required.
 
      */
     inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
