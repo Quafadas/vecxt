@@ -17,7 +17,6 @@
 import vecxt.BoundsChecks.*
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
-import vecxt.blas
 
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
