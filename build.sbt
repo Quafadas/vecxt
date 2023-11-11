@@ -84,8 +84,8 @@ lazy val core = crossProject(
   .nativeConfigure(_.enablePlugins(ScalaNativeBrewedConfigPlugin))
   .nativeSettings(
     libraryDependencies += "org.ekrich" %%% "sblas" % "0.5.0",
-    nativeBrewFormulas += "openblas", //??
-    //nativeConfig ~= { c => c.withLinkingOptions(c.linkingOptions :+ "-libopenblas-dev") }
+    nativeBrewFormulas += "openblas" // ??
+    // nativeConfig ~= { c => c.withLinkingOptions(c.linkingOptions :+ "-libopenblas-dev") }
   )
 
 lazy val docs = project
