@@ -240,7 +240,7 @@ package object vecxt:
   f(X;retention, limit) = MIN(MAX(X - retention, 0), limit))
 
   Note: mutates the input array
-    */
+     */
     inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
       (limitOpt, retentionOpt) match
         case (Some(limit), Some(retention)) =>
@@ -282,7 +282,7 @@ package object vecxt:
 
   In excel f(x) = if(x < retention, 0, if(x > limit, limit, x)
 
-    */
+     */
     inline def franchiseFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention]): Unit =
       (limitOpt, retentionOpt) match
         case (None, None) => ()
@@ -338,3 +338,4 @@ package object vecxt:
       end while
       out
   end extension
+end vecxt

@@ -25,7 +25,9 @@ class BoundsCheckSuite extends munit.FunSuite:
   }
 
   test("no bound check") {
-    intercept[java.lang.ArrayIndexOutOfBoundsException](v_fill.-(Array[Double](1, 2, 3))(using BoundsChecks.BoundsCheck.no))
+    intercept[java.lang.ArrayIndexOutOfBoundsException](
+      v_fill.-(Array[Double](1, 2, 3))(using BoundsChecks.BoundsCheck.no)
+    )
   }
 
 end BoundsCheckSuite
