@@ -62,6 +62,10 @@ jobs:
       - if: matrix.project == 'rootJS'
         run: npm install
 
+      - name: Install brew formulae (ubuntu)
+        if: (matrix.project == 'rootNative') && startsWith(matrix.os, 'ubuntu')
+        run: /home/linuxbrew/.linuxbrew/bin/brew install openblas
+
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
 

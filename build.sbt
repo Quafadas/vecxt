@@ -40,8 +40,8 @@ ThisBuild / githubWorkflowBuildPreamble ++= Seq(
 )
 
 ThisBuild / tlCiDocCheck := false
-// ThisBuild / githubWorkflowBuildPreamble ++= nativeBrewInstallWorkflowSteps.value
-// ThisBuild / nativeBrewInstallCond := Some("matrix.project == 'rootNative'")
+ThisBuild / githubWorkflowBuildPreamble ++= nativeBrewInstallWorkflowSteps.value
+ThisBuild / nativeBrewInstallCond := Some("matrix.project == 'rootNative'")
 
 // publish to s01.oss.sonatype.org (set to true to publish to oss.sonatype.org instead)
 ThisBuild / tlSonatypeUseLegacyHost := false
@@ -84,8 +84,8 @@ lazy val core = crossProject(
   .nativeConfigure(_.enablePlugins(ScalaNativeBrewedConfigPlugin))
   .nativeSettings(
     libraryDependencies += "org.ekrich" %%% "sblas" % "0.5.0",
-    nativeBrewFormulas += "openblas" // ??
-    // nativeConfig ~= { c => c.withLinkingOptions(c.linkingOptions :+ "-libopenblas-dev") }
+    nativeBrewFormulas += "openblas", // ??
+    nativeConfig ~= { c => c.withLinkingOptions(c.linkingOptions :+ "-lopenblas") }
   )
 
 lazy val docs = project
