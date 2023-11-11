@@ -30,7 +30,7 @@ class BoundsCheckSuite extends munit.FunSuite:
   )
 
   test("Bounds check") {
-    intercept[vecxt.VectorDimensionMismatch](v_fill.-(Float64Array(2))(using vecxt.BoundsCheck.yes))
+    intercept[vecxt.VectorDimensionMismatch](v_fill.-(Float64Array(2))(using BoundsChecks.BoundsCheck.yes))
   }
 
   // I don't know how to do this.

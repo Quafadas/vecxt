@@ -23,10 +23,10 @@ package vecxt
 // end BoundsCheck
 
 // extension (inline bc: BoundsCheck) inline def value: Boolean = bc.self
+package object BoundsChecks :
+  type BoundsCheck = Boolean
 
-type BoundsCheck = Boolean
-
-object BoundsCheck:
-  inline given yes: BoundsCheck = true
-  inline given no: BoundsCheck = false
-end BoundsCheck
+  object BoundsCheck:
+    inline given yes: BoundsCheck = true
+    inline given no: BoundsCheck = false
+  end BoundsCheck

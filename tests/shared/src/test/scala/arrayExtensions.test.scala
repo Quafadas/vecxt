@@ -21,7 +21,7 @@ import narr.*
 import scala.util.chaining.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
-  import vecxt.BoundsCheck.yes
+  import BoundsChecks.BoundsCheck.yes
 
   lazy val v_fill = NArray[Double](0, 1, 2, 3, 4)
 

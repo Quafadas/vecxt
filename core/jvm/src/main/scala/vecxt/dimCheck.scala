@@ -16,6 +16,8 @@
 
 package vecxt
 
+import BoundsChecks.BoundsCheck
+
 object dimCheck:
   inline def apply[A, B](a: Array[A], b: Array[B])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
