@@ -36,6 +36,10 @@ ThisBuild / githubWorkflowBuildPreamble ++= Seq(
   WorkflowStep.Run(
     List("npm install"),
     cond = Some("matrix.project == 'rootJS'")
+  ),
+  WorkflowStep.Run(
+    List("sudo apt-get install -y libatlas-base-dev"),
+    cond = Some("matrix.project == 'rootNative'")
   )
 )
 
