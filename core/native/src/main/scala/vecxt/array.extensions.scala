@@ -18,8 +18,9 @@ import org.ekrich.blas.unsafe.*
 import vecxt.BoundsChecks.BoundsCheck
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
-import scala.util.chaining.*
+
 import scala.scalanative.unsafe.*
+import scala.util.chaining.*
 
 package object vecxt:
   extension (vec: Array[Boolean])

@@ -1,4 +1,3 @@
-import vecxt.blas
 /*
  * Copyright 2023 quafadas
  *
@@ -18,6 +17,7 @@ import vecxt.blas
 import vecxt.BoundsChecks.*
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
+import vecxt.blas
 
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
