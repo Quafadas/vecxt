@@ -65,10 +65,6 @@ jobs:
       - if: matrix.project == 'rootNative'
         run: sudo apt-get install -y libatlas-base-dev
 
-      - name: Install brew formulae (ubuntu)
-        if: (matrix.project == 'rootNative') && startsWith(matrix.os, 'ubuntu')
-        run: /home/linuxbrew/.linuxbrew/bin/brew install openblas
-
       - name: Check that workflows are up to date
         run: sbt githubWorkflowCheck
 
