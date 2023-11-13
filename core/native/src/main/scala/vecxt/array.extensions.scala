@@ -245,6 +245,8 @@ package object vecxt:
       cv / (vec.length - 1)
     end covariance
 
+    // def max: Double = vec(blas.cblas_idamax(vec.length, vec.at(0), 1)) // No JS version
+
     /*
 
   Retention and limit are known constants

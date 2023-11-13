@@ -269,6 +269,9 @@ package object vecxt:
       cv / (vec.length - 1)
     end covariance
 
+    // def maxElement: Double =
+    //   val t = js.Math.max( vec.toArray: _* )
+
     /*
 
   Retention and limit are known constants

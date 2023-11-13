@@ -167,7 +167,7 @@ package object vecxt:
       end while
     end cumsum
 
-    inline def norm: Double = blas().dnrm2(vec.length, vec, 1)
+    inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
 
     inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, vec2)
@@ -234,6 +234,9 @@ package object vecxt:
       end while
       cv / (vec.length - 1)
     end covariance
+
+    // def max: Double =
+    //   vec(blas.idamax(vec.length, vec, 1)) // No JS version
 
     /*
 

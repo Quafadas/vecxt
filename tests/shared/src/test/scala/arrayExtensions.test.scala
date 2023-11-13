@@ -157,4 +157,9 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(afterIndex.last, 3.0, 0.0001)
   }
 
+  // test("max element"){
+  //   val v2 = NArray[Double](3.0, 2.0, 4.0, 1.0)
+  //   assertEqualsDouble(v2.max, 4.0, 0.00001)
+  // }
+
 end ArrayExtensionSuite
