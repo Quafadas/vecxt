@@ -21,21 +21,21 @@ import scala.util.chaining.*
 
 class BoundsCheckSuite extends munit.FunSuite:
 
-  lazy val v_fill = Float64Array(5).tap(a =>
-    a(0) = 1.0
-    a(1) = 2.0
-    a(2) = 3.0
-    a(3) = 4.0
-    a(4) = 5.0
-  )
+    lazy val v_fill = Float64Array(5).tap(a =>
+        a(0) = 1.0
+        a(1) = 2.0
+        a(2) = 3.0
+        a(3) = 4.0
+        a(4) = 5.0
+    )
 
-  test("Bounds check") {
-    intercept[vecxt.VectorDimensionMismatch](v_fill.-(Float64Array(2))(using BoundsChecks.BoundsCheck.yes))
-  }
+    test("Bounds check") {
+        intercept[vecxt.VectorDimensionMismatch](v_fill.-(Float64Array(2))(using BoundsChecks.BoundsCheck.yes))
+    }
 
-  // I don't know how to do this.
-  // test("no bound check") {
-  //   intercept[java.lang.ClassCastException](v_fill.-(Float64Array(2))(using vecxt.BoundsCheck.no))
-  // }
+    // I don't know how to do this.
+    // test("no bound check") {
+    //   intercept[java.lang.ClassCastException](v_fill.-(Float64Array(2))(using vecxt.BoundsCheck.no))
+    // }
 
 end BoundsCheckSuite

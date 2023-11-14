@@ -61,94 +61,94 @@ lazy val core = crossProject(
   JVMPlatform,
   NativePlatform
 )
-  .crossType(CrossType.Full)
-  .settings(
-    name := "vecxt",
-    description := """High performance extensions for numeric workloads for
+    .crossType(CrossType.Full)
+    .settings(
+      name := "vecxt",
+      description := """High performance extensions for numeric workloads for
       - Array[Double] on JVM
       - Array[Double] on native.
       - Float64Array on JS""",
-    libraryDependencies ++= Seq(
-      // ai.dragonfly" %%% "narr" % "0.103", I do'nt think we need this as a dependance ... it can be added seperately in userland!
-      "dev.ludovic.netlib" % "blas" % "3.0.3"
+      libraryDependencies ++= Seq(
+        // ai.dragonfly" %%% "narr" % "0.103", I do'nt think we need this as a dependance ... it can be added seperately in userland!
+        "dev.ludovic.netlib" % "blas" % "3.0.3"
+      )
     )
-  )
-  .jvmSettings(
-  )
-  .jsSettings(
-    scalaJSUseMainModuleInitializer := false,
-    scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
-    jsEnv := {
-      import org.scalajs.jsenv.nodejs.NodeJSEnv
-      new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
-    }
-  )
-  .nativeSettings(
-    libraryDependencies += "org.ekrich" %%% "sblas" % "0.5.0"
-  )
+    .jvmSettings(
+    )
+    .jsSettings(
+      scalaJSUseMainModuleInitializer := false,
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+      jsEnv := {
+          import org.scalajs.jsenv.nodejs.NodeJSEnv
+          new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
+      }
+    )
+    .nativeSettings(
+      libraryDependencies += "org.ekrich" %%% "sblas" % "0.5.0"
+    )
 
 lazy val docs = project
-  .in(file("site"))
-  .enablePlugins(TypelevelSitePlugin)
-  .dependsOn(core.jvm)
-  .settings(
-    laikaConfig ~= { _.withRawContent },
-    laikaExtensions := Seq(
-      GitHubFlavor,
-      SyntaxHighlighting
-    ),
-    libraryDependencies ++= Seq(
-      "ai.dragonfly" %%% "narr" % "0.103"
-    ),
-    tlSiteHelium := {
-      Helium.defaults.site
-        .metadata(
-          title = Some("vecxt"),
-          language = Some("en"),
-          description = Some("vecxt"),
-          authors = Seq("Simon Parten"),
-          datePublished = Some(OffsetDateTime.now)
-        )
-        .site
-        .topNavigationBar(
-          homeLink = IconLink.internal(laika.ast.Path(List("index.md")), HeliumIcon.home),
-          navLinks = Seq(IconLink.external("https://github.com/Quafadas/vecxt", HeliumIcon.github))
-        )
-      Helium.defaults.site
-        .externalJS(
-          url = "https://cdn.jsdelivr.net/npm/vega@5"
-        )
-        .site
-        .externalJS(
-          url = "https://cdn.jsdelivr.net/npm/vega-lite@5"
-        )
-        .site
-        .externalJS(
-          url = "https://cdn.jsdelivr.net/npm/vega-embed@6"
-        )
-    }
-  )
+    .in(file("site"))
+    .enablePlugins(TypelevelSitePlugin)
+    .dependsOn(core.jvm)
+    .settings(
+      laikaConfig ~= { _.withRawContent },
+      laikaExtensions := Seq(
+        GitHubFlavor,
+        SyntaxHighlighting
+      ),
+      libraryDependencies ++= Seq(
+        "ai.dragonfly" %%% "narr" % "0.103"
+      ),
+      tlSiteHelium := {
+          Helium.defaults.site
+              .metadata(
+                title = Some("vecxt"),
+                language = Some("en"),
+                description = Some("vecxt"),
+                authors = Seq("Simon Parten"),
+                datePublished = Some(OffsetDateTime.now)
+              )
+              .site
+              .topNavigationBar(
+                homeLink = IconLink.internal(laika.ast.Path(List("index.md")), HeliumIcon.home),
+                navLinks = Seq(IconLink.external("https://github.com/Quafadas/vecxt", HeliumIcon.github))
+              )
+          Helium.defaults.site
+              .externalJS(
+                url = "https://cdn.jsdelivr.net/npm/vega@5"
+              )
+              .site
+              .externalJS(
+                url = "https://cdn.jsdelivr.net/npm/vega-lite@5"
+              )
+              .site
+              .externalJS(
+                url = "https://cdn.jsdelivr.net/npm/vega-embed@6"
+              )
+      }
+    )
 
 lazy val tests = crossProject(
   JVMPlatform,
   JSPlatform,
   NativePlatform
 )
-  .in(file("tests"))
-  .enablePlugins(NoPublishPlugin)
-  .dependsOn(core)
-  .settings(
-    name := "tests",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % "1.0.0-M10" % Test,
-      "ai.dragonfly" %%% "narr" % "0.103" % Test
+    .in(file("tests"))
+    .enablePlugins(NoPublishPlugin)
+    .dependsOn(core)
+    .settings(
+      name := "tests",
+      libraryDependencies ++= Seq(
+        "org.scalameta" %%% "munit" % "1.0.0-M10" % Test,
+        "ai.dragonfly" %%% "narr" % "0.103" % Test
+      )
     )
-  )
-  .jsSettings(
-    scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
-    jsEnv := {
-      import org.scalajs.jsenv.nodejs.NodeJSEnv
-      new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
-    }
-  )
+    .jsSettings(
+      scalaJSUseMainModuleInitializer := true,
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+      jsEnv := {
+          import org.scalajs.jsenv.nodejs.NodeJSEnv
+          new NodeJSEnv(NodeJSEnv.Config().withArgs(List("--enable-source-maps")))
+      }
+    )
