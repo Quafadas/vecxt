@@ -21,30 +21,40 @@ import narr.*
 import Retentions.*
 import Limits.*
 
-extension [A <: AnyRef](o: A) def some = Some(o)
-
 class ReinsurancePricingSuite extends munit.FunSuite:
 
+  def long_v = NArray[Double](8, 11, 16, 8, 11, 16, 8, 11, 16)
+
   test("reinsurance function - ret and limit") {
-    val v = NArray[Double](8, 11, 16)
+    val v = long_v
+    val l = v.length
     v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
-    assert(v(0) == 0.0)
-    assert(v(1) == 1.0)
-    assert(v(2) == 5.0)
+    assertEqualsDouble(v(0), 0.0, 0.0001)
+    assertEqualsDouble(v(1), 1.0, 0.0001)
+    assertEqualsDouble(v(2), 5.0, 0.0001)
+    assertEqualsDouble(v(l - 3), 0.0, 0.0001)
+    assertEqualsDouble(v(l - 2), 1.0, 0.0001)
+    assertEqualsDouble(v(l - 1), 5.0, 0.0001)
   }
   test("reinsurance function - ret only") {
-    val v = NArray[Double](8, 11, 16)
+    val v = long_v
     v.reinsuranceFunction(None, Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 1.0)
     assert(v(2) == 6.0)
+    assert(v(v.length - 3) == 0.0)
+    assert(v(v.length - 2) == 1.0)
+    assert(v(v.length - 1) == 6.0)
   }
   test("reinsurance function - limit only") {
-    val v = NArray[Double](8, 11, 16)
+    val v = long_v
     v.reinsuranceFunction(Some(Limit(15.0)), None)
     assert(v(0) == 8.0)
     assert(v(1) == 11.0)
     assert(v(2) == 15.0)
+    assert(v(v.length - 3) == 8.0)
+    assert(v(v.length - 2) == 11.0)
+    assert(v(v.length - 1) == 15.0)
   }
   test("reinsurance function - no ret or limit") {
     val v = NArray[Double](8, 11, 16)

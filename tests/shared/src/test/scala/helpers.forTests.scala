@@ -18,6 +18,8 @@ package vecxt
 
 import narr.*
 
+extension [A <: AnyRef](o: A) def some: Some[A] = Some(o)
+
 inline def assertVecEquals(v1: NArray[Double], v2: NArray[Double])(implicit loc: munit.Location): Unit =
   var i: Int = 0;
   while i < v1.length do

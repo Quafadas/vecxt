@@ -220,8 +220,8 @@ package object vecxt:
       logicalIdx((a, b) => a >= b, num)
 
     inline def logicalIdx(
-        inline op: (Double, Double) => Boolean,
-        inline num: Double
+      inline op: (Double, Double) => Boolean,
+      inline num: Double
     ): Array[Boolean] =
       val n = vec.length
       val idx = new Array[Boolean](n)

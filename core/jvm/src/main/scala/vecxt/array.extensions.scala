@@ -18,10 +18,13 @@ import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import vecxt.BoundsChecks.*
 import vecxt.Limits.Limit
 import vecxt.Retentions.Retention
-
+import jdk.incubator.vector.*
 import scala.util.chaining.*
 
 package object vecxt:
+
+  val SPECIES = DoubleVector.SPECIES_PREFERRED;
+
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
       var sum = 0
@@ -210,8 +213,8 @@ package object vecxt:
       logicalIdx((a, b) => a >= b, num)
 
     inline def logicalIdx(
-        inline op: (Double, Double) => Boolean,
-        inline num: Double
+      inline op: (Double, Double) => Boolean,
+      inline num: Double
     ): Array[Boolean] =
       val n = vec.length
       val idx = new Array[Boolean](n)
@@ -246,10 +249,21 @@ package object vecxt:
 
   Note: mutates the input array
      */
-    inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+    inline def reinsuranceFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention]): Unit =
       (limitOpt, retentionOpt) match
         case (Some(limit), Some(retention)) =>
           var i = 0;
+          val upperBound = SPECIES.loopBound(vec.length);
+          while i < upperBound do
+            val tmp = DoubleVector.fromArray(SPECIES, vec, i).lanewise(VectorOperators.SUB, retention.toDouble)
+            val belowAttach = tmp.compare(VectorOperators.LT, 0)
+            val greaterLimit = tmp.compare(VectorOperators.GT, limit.toDouble)
+            tmp
+              .blend(0, belowAttach)
+              .blend(limit.toDouble, greaterLimit)
+              .intoArray(vec, i)
+            i += SPECIES.length()
+          end while
           while i < vec.length do
             val tmp = vec(i) - retention
             if tmp < 0.0 then vec(i) = 0.0
@@ -261,6 +275,16 @@ package object vecxt:
 
         case (None, Some(retention)) =>
           var i = 0;
+          val upperBound = SPECIES.loopBound(vec.length);
+          while i < upperBound do
+            val tmp = DoubleVector.fromArray(SPECIES, vec, i).lanewise(VectorOperators.SUB, retention.toDouble)
+            val belowAttach = tmp.compare(VectorOperators.LT, 0)
+            tmp
+              .blend(0, belowAttach)
+              .intoArray(vec, i)
+            i += SPECIES.length()
+          end while
+
           while i < vec.length do
             val tmp = vec(i) - retention
             if tmp < 0.0 then vec(i) = 0.0
@@ -270,6 +294,16 @@ package object vecxt:
 
         case (Some(limit), None) =>
           var i = 0;
+          val upperBound = SPECIES.loopBound(vec.length);
+          while i < upperBound do
+            val tmp = DoubleVector.fromArray(SPECIES, vec, i)
+            val greaterLimit = tmp.compare(VectorOperators.GT, limit.toDouble)
+            tmp
+              .blend(limit.toDouble, greaterLimit)
+              .intoArray(vec, i)
+            i += SPECIES.length()
+          end while
+
           while i < vec.length do
             val tmp = vec(i)
             if tmp > limit then vec(i) = limit.toDouble
