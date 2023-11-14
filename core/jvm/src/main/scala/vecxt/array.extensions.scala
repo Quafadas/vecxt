@@ -365,7 +365,7 @@ package object vecxt:
 
     end extension
 
-    extension (vec: Array[Array[Double]])
+    extension (vec: Seq[Array[Double]])
         inline def horizontalSum: Array[Double] =
             val out = new Array[Double](vec.head.length)
             var i = 0
