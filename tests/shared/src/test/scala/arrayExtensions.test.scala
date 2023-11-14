@@ -30,7 +30,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
         val v2 = v1 * 2.0
         val v3 = v1 * 3.0
 
-        val l = NArray(v1, v2, v3)
+        val l = Array(v1, v2, v3)
         val summed = l.horizontalSum
 
         assert(summed(0) == 1 + 2 + 3)
