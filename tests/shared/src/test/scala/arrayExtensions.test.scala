@@ -39,6 +39,15 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
     }
 
+    test("increments") {
+        val v1 = NArray[Double](1.0, 2.0, 3.0, 5.0, 0.0).pipe(_.increments)
+        assert(v1(0) == 1)
+        assert(v1(1) == 1.0)
+        assert(v1(2) == 1.0)
+        assert(v1(3) == 2.0)
+        assert(v1(4) == -5)
+    }
+
     test("cumsum") {
         val v1 = NArray[Double](1.0, 2.0, 3.0).tap(_.cumsum)
         assert(v1(0) == 1)
