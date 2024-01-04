@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-package io.gihub.quafadas.vexct.retention
+package vecxt
 
+export Retentions.*
 
+object Retentions:
+    opaque type Retention = Double
 
-type Retention = Double
-extension (loss: Double)
-  inline def -(l: Retention): Double = loss - l
-  inline def <(l: Retention): Boolean = loss < l
-end extension
+    object Retention:
+        inline def apply(d: Double): Retention = d
+    end Retention
+
+    extension (x: Retention)
+        inline def retention: Double = x
+
+    extension (loss: Double)
+        inline def -(l: Retention): Double = loss - l
+        inline def <(l: Retention): Boolean = loss < l
+    end extension
+end Retentions

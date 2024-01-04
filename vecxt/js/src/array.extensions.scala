@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gihub.quafadas.vecxt
-
-import io.github.quafadas.vecxt.dimCheck
-import io.github.quafadas.vecxt.BoundsCheck
-import io.gihub.quafadas.vexct.retention.*
-import io.gihub.quafadas.vexct.limit.*
+package vecxt
 
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
+
+export extensions.*
 
 object extensions:
 
@@ -79,7 +76,7 @@ object extensions:
 
   extension (vec: Float64Array)
 
-    inline def idxBoolean(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck) =
+    inline def idxBoolean(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, index)
       val trues = index.countTrue
       val newVec = Float64Array(trues)
@@ -129,7 +126,7 @@ object extensions:
       vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
     end variance
 
-    inline def pearsonCorrelationCoefficient(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck): Double =
+    inline def pearsonCorrelationCoefficient(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -153,7 +150,7 @@ object extensions:
       )
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck): Double =
+    inline def spearmansRankCorrelation(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
@@ -161,7 +158,7 @@ object extensions:
     end spearmansRankCorrelation
 
     // An alias - pearson is the most commonly requested type of correlation
-    inline def corr(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck): Double =
+    inline def corr(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
       pearsonCorrelationCoefficient(thatVector)
 
     def elementRanks: Float64Array =
@@ -204,22 +201,22 @@ object extensions:
 
     inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
 
-    inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Float64Array =
+    inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Float64Array =
       dimCheck(vec, vec2)
       vec.nativeSlice().tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
+    inline def -=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
     end -=
 
-    inline def +(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Float64Array =
+    inline def +(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Float64Array =
       dimCheck(vec, vec2)
       vec.nativeSlice().tap(_ += vec2)
     end +
 
-    inline def +=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
     end +=

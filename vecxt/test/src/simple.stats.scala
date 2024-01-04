@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.gihub.quafadas.vecxt
+package vecxt
 
 import narr.*
-import io.gihub.quafadas.vecxt.extensions.*
-import io.github.quafadas.vecxt.BoundsCheck
+import vecxt.extensions.*
+import vecxt.DoBoundsCheck
 
 class StatsSuite extends munit.FunSuite:
 
@@ -66,7 +66,7 @@ class StatsSuite extends munit.FunSuite:
     // https://www.statisticshowto.com/probability-and-statistics/correlation-coefficient-formula/
     val v1 = NArray[Double](43.0, 21.0, 25.0, 42.0, 57.0, 59.0)
     val v2 = NArray[Double](99.0, 65.0, 79.0, 75.0, 87.0, 81.0)
-    assertEqualsDouble(v1.pearsonCorrelationCoefficient(v2)(using BoundsCheck.yes), 0.529809, 0.0001)
+    assertEqualsDouble(v1.pearsonCorrelationCoefficient(v2)(using DoBoundsCheck.yes), 0.529809, 0.0001)
 
   }
 
@@ -85,13 +85,13 @@ class StatsSuite extends munit.FunSuite:
     // https://statistics.laerd.com/statistical-guides/spearmans-rank-order-correlation-statistical-guide-2.php
     val v1 = NArray[Double](56.0, 75.0, 45.0, 71.0, 62.0, 64.0, 58.0, 80.0, 76.0, 61.0)
     val v2 = NArray[Double](66.0, 70.0, 40.0, 60.0, 65.0, 56.0, 59.0, 77.0, 67.0, 63.0)
-    assertEqualsDouble(v1.spearmansRankCorrelation(v2)(using BoundsCheck.yes), 0.6727, 0.001)
+    assertEqualsDouble(v1.spearmansRankCorrelation(v2)(using DoBoundsCheck.yes), 0.6727, 0.001)
 
     // https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient
 
     val v3 = NArray[Double](86.0, 97.0, 99.0, 100.0, 101.0, 103.0, 106.0, 110.0, 112.0, 113.0)
     val v4 = NArray[Double](2, 20.0, 28.0, 27.0, 50.0, 29.0, 7.0, 17.0, 6.0, 12.0)
-    assertEqualsDouble(-0.1757575, v3.spearmansRankCorrelation(v4)(using BoundsCheck.yes), 0.000001)
+    assertEqualsDouble(-0.1757575, v3.spearmansRankCorrelation(v4)(using DoBoundsCheck.yes), 0.000001)
   }
 
 end StatsSuite

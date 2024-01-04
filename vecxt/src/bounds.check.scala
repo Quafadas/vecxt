@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package io.github.quafadas.vecxt
-
-type BoundsCheck = Boolean
+package vecxt
 
 object BoundsCheck:
-  inline given yes: BoundsCheck = true
-  inline given no: BoundsCheck = false
+  type BoundsCheck = Boolean
+
+  object DoBoundsCheck:
+    inline given yes: BoundsCheck = true
+    inline given no: BoundsCheck = false
+  end DoBoundsCheck
 end BoundsCheck
 
+export BoundsCheck.{BoundsCheck, DoBoundsCheck}

@@ -18,8 +18,8 @@ package io.gihub.quafadas.vecxt
 import org.ekrich.blas.unsafe.*
 import scala.scalanative.unsafe.*
 import scala.util.chaining.*
-import io.github.quafadas.vecxt.dimCheck
-import io.github.quafadas.vecxt.BoundsCheck
+import vecxt.dimCheck
+import vecxt.BoundsCheck
 import io.gihub.quafadas.vexct.retention.*
 import io.gihub.quafadas.vexct.limit.*
 
@@ -80,7 +80,7 @@ object extensions:
       out
     end increments
 
-    inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -104,7 +104,7 @@ object extensions:
       )
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    inline def spearmansRankCorrelation(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
@@ -112,7 +112,7 @@ object extensions:
     end spearmansRankCorrelation
 
     // An alias - pearson is the most commonly requested type of correlation
-    inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
       pearsonCorrelationCoefficient(thatVector)
 
     def elementRanks: Array[Double] =
@@ -180,22 +180,22 @@ object extensions:
 
     inline def norm: Double = blas.cblas_dnrm2(vec.length, vec.at(0), 1)
 
-    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck) =
+    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
       blas.cblas_daxpy(vec.length, -1.0, vec2.at(0), 1, vec.at(0), 1)
     end -=
 
-    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck) =
+    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, vec2)
       vec.clone.tap(_ += vec2)
     end +
 
-    inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
       blas.cblas_daxpy(vec.length, 1.0, vec2.at(0), 1, vec.at(0), 1)
     end +=

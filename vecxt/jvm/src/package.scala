@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gihub.quafadas.vecxt
+package vecxt
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
-import io.github.quafadas.vecxt.dimCheck
-import io.github.quafadas.vecxt.BoundsCheck
-import io.gihub.quafadas.vexct.retention.*
-import io.gihub.quafadas.vexct.limit.*
+
 object extensions:
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
@@ -253,7 +250,7 @@ object extensions:
           while i < vec.length do
             val tmp = vec(i) - retention
             if tmp < 0.0 then vec(i) = 0.0
-            else if tmp > limit then vec(i) = limit.toDouble
+            else if tmp > limit then vec(i) = limit.limit
             else vec(i) = tmp
             end if
             i = i + 1
@@ -272,7 +269,7 @@ object extensions:
           var i = 0;
           while i < vec.length do
             val tmp = vec(i)
-            if tmp > limit then vec(i) = limit.toDouble
+            if tmp > limit then vec(i) = limit.limit
             else vec(i) = tmp
             i = i + 1
           end while
@@ -294,7 +291,7 @@ object extensions:
 
         case (Some(limit), Some(retention)) =>
           var i = 0;
-          val maxLim = limit.toDouble + retention.toDouble
+          val maxLim = limit.limit + retention.retention
           while i < vec.length do
             val tmp = vec(i)
             if tmp < retention then vec(i) = 0.0
@@ -308,7 +305,7 @@ object extensions:
           var i = 0;
           while i < vec.length do
             val tmp = vec(i)
-            if tmp > limit.toDouble then vec(i) = limit.toDouble
+            if tmp > limit.limit then vec(i) = limit.limit
             else vec(i) = tmp
             end if
             i = i + 1
@@ -317,7 +314,7 @@ object extensions:
           var i = 0;
           while i < vec.length do
             val tmp = vec(i)
-            if tmp > retention.toDouble then vec(i) = tmp
+            if tmp > retention.retention then vec(i) = tmp
             else vec(i) = 0.0
             end if
             i = i + 1

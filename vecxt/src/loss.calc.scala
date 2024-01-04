@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gihub.quafadas.vecxt
+package vecxt
 
 enum LossCalc:
     case Agg, Occ

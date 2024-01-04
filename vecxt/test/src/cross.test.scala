@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.gihub.quafadas.vecxt
+package vecxt
 
 import narr.*
+import vecxt.extensions.*
+import vecxt.*
 
 import scala.util.chaining.*
-import io.gihub.quafadas.vecxt.extensions.*
 
 class XSuite extends munit.FunSuite:
 
@@ -32,7 +33,7 @@ class XSuite extends munit.FunSuite:
         n(1) = 11
         n(2) = 16
       )
-    v.reinsuranceFunction(Some(5.0), Some(10.0))
+    v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 1.0)
     assert(v(2) == 5.0)
