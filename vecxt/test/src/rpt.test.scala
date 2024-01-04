@@ -21,9 +21,6 @@ import io.gihub.quafadas.vexct.limit.Limit
 import io.gihub.quafadas.vexct.retention.Retention
 import io.gihub.quafadas.vecxt.extensions.*
 
-
-extension [A <: AnyRef](o: A) def some = Some(o)
-
 class ReinsurancePricingSuite extends munit.FunSuite:
 
   test("reinsurance function - ret and limit") {
