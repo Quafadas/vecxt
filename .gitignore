@@ -24,3 +24,6 @@ sbt-launch.jar
 
 # npm
 node_modules/
+
+#mill
+out/
