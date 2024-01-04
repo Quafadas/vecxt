@@ -17,7 +17,6 @@
 package vecxt
 
 import narr.*
-import vecxt.extensions.*
 class ReinsurancePricingSuite extends munit.FunSuite:
 
     def long_v = NArray[Double](8, 11, 16, 8, 11, 16, 8, 11, 16)

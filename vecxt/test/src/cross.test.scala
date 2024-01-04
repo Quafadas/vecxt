@@ -17,8 +17,6 @@
 package vecxt
 
 import narr.*
-import vecxt.extensions.*
-import vecxt.*
 
 import scala.util.chaining.*
 

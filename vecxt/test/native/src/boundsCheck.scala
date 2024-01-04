@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package io.gihub.quafadas.vecxt
+package vecxt
 
 import scala.util.chaining.*
-import io.gihub.quafadas.vecxt.extensions.*
-import io.github.quafadas.vecxt.VectorDimensionMismatch
-import io.github.quafadas.vecxt.BoundsCheck
-
-
 class BoundsCheckSuite extends munit.FunSuite:
 
   lazy val v_fill = Array.tabulate(5)(i => i.toDouble)
 
   test("Bounds check") {
-    intercept[VectorDimensionMismatch](v_fill.-(Array[Double](1, 2, 3))(using BoundsCheck.yes))
+    intercept[VectorDimensionMismatch](v_fill.-(Array[Double](1, 2, 3))(using DoBoundsCheck.yes))
   }
 
   // test("no bound check") {

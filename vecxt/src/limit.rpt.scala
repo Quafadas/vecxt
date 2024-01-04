@@ -18,7 +18,7 @@ package vecxt
 
 import Retentions.*
 
-export Limits.*
+export Limits.Limit
 
 object Limits:
     opaque type Limit = Double

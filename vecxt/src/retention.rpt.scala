@@ -16,7 +16,7 @@
 
 package vecxt
 
-export Retentions.*
+export Retentions.Retention
 
 object Retentions:
     opaque type Retention = Double

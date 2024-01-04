@@ -18,6 +18,8 @@ package vecxt
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
 
+export extensions.*
+
 object extensions:
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
