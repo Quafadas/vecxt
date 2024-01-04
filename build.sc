@@ -68,12 +68,18 @@ object vecxt extends CrossPlatform {
     }
   }
   object jvm extends Shared {
-    // jvm specific settings here
+    def forkArgs = super.forkArgs() ++ Seq(
+      "--add-modules=jdk.incubator.vector"
+    )
     def ivyDeps = super.ivyDeps() ++ Agg(
       ivy"dev.ludovic.netlib:blas:3.0.3"
     )
 
-    object test extends ScalaTests with SharedTests
+    object test extends ScalaTests with SharedTests {
+      def forkArgs = super.forkArgs() ++ Seq(
+        "--add-modules=jdk.incubator.vector"
+      )
+    }
   }
   object js extends Shared with CommonJS {
     // js specific settings here

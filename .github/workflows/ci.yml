@@ -47,10 +47,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: sbt update
-        if: matrix.java == 'temurin@17' && steps.setup-java-temurin-17.outputs.cache-hit == 'false'
-        run: sbt +update
-
       - name: Setup NodeJS v18 LTS
         if: matrix.project == 'js'
         uses: actions/setup-node@v3
@@ -66,14 +62,14 @@ jobs:
 
       - name: scalaJSLink
         if: matrix.project == 'js'
-        run: mill vecxt.${{ matrix.project }}.fastLinkJS
+        run: ./mill vecxt.${{ matrix.project }}.fastLinkJS
 
       - name: nativeLink
         if: matrix.project == 'native'
-        run: sbt vecxt.${{ matrix.project }}.test.nativeLink
+        run: ./mill vecxt.${{ matrix.project }}.test.nativeLink
 
       - name: Test
-        run: mill vecxt.${{ matrix.project }}.test
+        run: ./mill vecxt.${{ matrix.project }}.test
 
   publish:
     if: github.repository == 'Quafadas/vecxt' && contains(github.ref, 'refs/tags/')
