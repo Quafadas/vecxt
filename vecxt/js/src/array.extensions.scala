@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.gihub.quafadas.vecxt
 
-import vecxt.BoundsChecks.*
-import vecxt.Limits.Limit
-import vecxt.Retentions.Retention
+import io.github.quafadas.vecxt.dimCheck
+import io.github.quafadas.vecxt.BoundsCheck
+import io.gihub.quafadas.vexct.retention.*
+import io.gihub.quafadas.vexct.limit.*
 
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 
-package object vecxt:
+object extensions:
 
   extension (v: Float64Array)
     inline def nativeSort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
@@ -376,4 +378,4 @@ package object vecxt:
       end while
       out
   end extension
-end vecxt
+end extensions

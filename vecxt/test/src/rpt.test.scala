@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package vecxt
+package io.gihub.quafadas.vecxt
 
 import narr.*
+import io.gihub.quafadas.vexct.limit.Limit
+import io.gihub.quafadas.vexct.retention.Retention
+import io.gihub.quafadas.vecxt.extensions.*
 
-import Retentions.*
-import Limits.*
 
 extension [A <: AnyRef](o: A) def some = Some(o)
 
@@ -27,21 +28,21 @@ class ReinsurancePricingSuite extends munit.FunSuite:
 
   test("reinsurance function - ret and limit") {
     val v = NArray[Double](8, 11, 16)
-    v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
+    v.reinsuranceFunction(Some(5.0), Some(10.0))
     assert(v(0) == 0.0)
     assert(v(1) == 1.0)
     assert(v(2) == 5.0)
   }
   test("reinsurance function - ret only") {
     val v = NArray[Double](8, 11, 16)
-    v.reinsuranceFunction(None, Some(Retention(10.0)))
+    v.reinsuranceFunction(None, Some(10.0))
     assert(v(0) == 0.0)
     assert(v(1) == 1.0)
     assert(v(2) == 6.0)
   }
   test("reinsurance function - limit only") {
     val v = NArray[Double](8, 11, 16)
-    v.reinsuranceFunction(Some(Limit(15.0)), None)
+    v.reinsuranceFunction(Some(15.0), None)
     assert(v(0) == 8.0)
     assert(v(1) == 11.0)
     assert(v(2) == 15.0)
@@ -56,7 +57,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
 
   test("franchise function - ret and limit") {
     val v = NArray[Double](8, 11, 16)
-    v.franchiseFunction(Some(Limit(5.0)), Some(Retention(10.0)))
+    v.franchiseFunction(Some(5.0), Some(10.0))
     assert(v(0) == 0.0)
     assert(v(1) == 11.0)
     assert(v(2) == 15.0)
@@ -64,7 +65,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
 
   test("franchise function - ret only") {
     val v = NArray[Double](8, 11, 16)
-    v.franchiseFunction(None, Some(Retention(10.0)))
+    v.franchiseFunction(None, Some(10.0))
     assert(v(0) == 0.0)
     assert(v(1) == 11.0)
     assert(v(2) == 16.0)
@@ -72,7 +73,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
 
   test("franchise function - Limit only") {
     val v = NArray[Double](8, 11, 16)
-    v.franchiseFunction(Some(Limit(10.0)), None)
+    v.franchiseFunction(Some(10.0), None)
     assert(v(0) == 8.0)
     assert(v(1) == 10.0)
     assert(v(2) == 10.0)

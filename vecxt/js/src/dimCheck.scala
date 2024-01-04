@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package vecxt
+package io.github.quafadas.vecxt
 
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
-
-import BoundsChecks.BoundsCheck
 
 object dimCheck:
   inline def apply[A](a: Float64Array, b: js.Array[A])(using inline doCheck: BoundsCheck) =

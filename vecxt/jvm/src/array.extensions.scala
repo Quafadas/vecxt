@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.gihub.quafadas.vecxt
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
-import vecxt.BoundsChecks.*
-import vecxt.Limits.Limit
-import vecxt.Retentions.Retention
-
 import scala.util.chaining.*
-
-package object vecxt:
+import io.github.quafadas.vecxt.dimCheck
+import io.github.quafadas.vecxt.BoundsCheck
+import io.gihub.quafadas.vexct.retention.*
+import io.gihub.quafadas.vexct.limit.*
+object extensions:
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
       var sum = 0
@@ -343,4 +343,4 @@ package object vecxt:
       end while
       out
   end extension
-end vecxt
+end extensions

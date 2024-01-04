@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package vecxt
+package io.gihub.quafadas.vecxt
 
 import narr.*
+import io.gihub.quafadas.vecxt.extensions.*
 
 import scala.util.chaining.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
-  import BoundsChecks.BoundsCheck.yes
+  import io.github.quafadas.vecxt.BoundsCheck.yes
 
   lazy val v_fill = NArray[Double](0, 1, 2, 3, 4)
 

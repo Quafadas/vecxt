@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.gihub.quafadas.vecxt
 
 import org.ekrich.blas.unsafe.*
-import vecxt.BoundsChecks.BoundsCheck
-import vecxt.Limits.Limit
-import vecxt.Retentions.Retention
-
 import scala.scalanative.unsafe.*
 import scala.util.chaining.*
+import io.github.quafadas.vecxt.dimCheck
+import io.github.quafadas.vecxt.BoundsCheck
+import io.gihub.quafadas.vexct.retention.*
+import io.gihub.quafadas.vexct.limit.*
 
-package object vecxt:
+object extensions:
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
       var sum = 0
@@ -371,4 +372,4 @@ package object vecxt:
       end while
       out
   end extension
-end vecxt
+end extensions

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package vecxt
+package io.gihub.quafadas.vecxt
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport

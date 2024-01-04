@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package vecxt
-
-import BoundsChecks.BoundsCheck
+package io.github.quafadas.vecxt
 
 object dimCheck:
   inline def apply[A, B](a: Array[A], b: Array[B])(using inline doCheck: BoundsCheck) =

@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package vecxt
+package io.gihub.quafadas.vexct.limit
 
-import vecxt.Retentions.*
+import io.gihub.quafadas.vexct.retention.*
 
-object Limits:
-  opaque type Limit = Double
+type Limit = Double
 
-  object Limit:
-    inline def apply(d: Double): Limit = d
-  end Limit
+extension (in: Double)
+  inline def >(l: Limit): Boolean = in > l
+  inline def +(l: Retention): Double = in + l
+end extension
 
-  extension (x: Limit) inline def toDouble: Double = x
-
-  extension (in: Double)
-    inline def >(l: Limit): Boolean = in > l
-    inline def +(l: Retention): Double = in + l.toDouble
-  end extension
-end Limits

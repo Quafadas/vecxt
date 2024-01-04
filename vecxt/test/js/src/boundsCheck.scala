@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package vecxt
+package io.gihub.quafadas.vecxt
 
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
+import io.gihub.quafadas.vecxt.extensions.*
+import io.github.quafadas.vecxt.VectorDimensionMismatch
 
 class BoundsCheckSuite extends munit.FunSuite:
 
@@ -30,7 +32,7 @@ class BoundsCheckSuite extends munit.FunSuite:
   )
 
   test("Bounds check") {
-    intercept[vecxt.VectorDimensionMismatch](v_fill.-(Float64Array(2))(using BoundsChecks.BoundsCheck.yes))
+    intercept[VectorDimensionMismatch](v_fill.-(Float64Array(2))(using io.github.quafadas.vecxt.BoundsCheck.yes))
   }
 
   // I don't know how to do this.

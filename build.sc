@@ -19,6 +19,10 @@ trait Common extends ScalaModule  with PublishModule {
 
   def publishVersion = VcsVersion.vcsState().format()
 
+  def ivyDeps = super.ivyDeps() ++ Agg(
+    ivy"ai.dragonfly::narr::0.105"
+  )
+
   override def pomSettings = T {
     PomSettings(
       description = "Automatically generate html tables from scala case classes",
@@ -52,7 +56,6 @@ trait CommonNative extends ScalaNativeModule {
 trait CommonTests extends TestModule.Munit {
   def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.scalameta::munit::1.0.0-M10",
-    ivy"ai.dragonfly::narr::0.105"
   )
 }
 

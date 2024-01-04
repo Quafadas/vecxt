@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package vecxt
+package io.github.quafadas.vecxt
 
-// opaque type BoundsCheck = Boolean
+type BoundsCheck = Boolean
 
-// object BoundsCheck:
-//   inline def apply(inline d: Boolean): BoundsCheck = d
-// end BoundsCheck
+object BoundsCheck:
+  inline given yes: BoundsCheck = true
+  inline given no: BoundsCheck = false
+end BoundsCheck
 
-// extension (inline bc: BoundsCheck) inline def value: Boolean = bc.self
-package object BoundsChecks:
-  type BoundsCheck = Boolean
-
-  object BoundsCheck:
-    inline given yes: BoundsCheck = true
-    inline given no: BoundsCheck = false
-  end BoundsCheck
-end BoundsChecks
