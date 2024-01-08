@@ -18,6 +18,7 @@ import mill.api.Result
 
 
 val repos = T.task {
+  Thread.sleep(scala.util.Random.nextInt(3000) )
   Seq(
     coursier.MavenRepository("https://oss.sonatype.org/content/repositories/releases"),
     coursier.LocalRepositories.ivy2Local
