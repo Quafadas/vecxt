@@ -3,6 +3,7 @@ import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import $ivy.`io.github.quafadas::millSite::0.0.15`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 
+import coursier.Repository
 import de.tobiasroeser.mill.vcs.version._
 import com.github.lolgab.mill.crossplatform._
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
@@ -18,9 +19,9 @@ import mill.api.Result
 
 
 val repos = T.task {
-  Thread.sleep(scala.util.Random.nextInt(3000) )
+  //Thread.sleep(scala.util.Random.nextInt(3000) )
   Seq(
-    coursier.MavenRepository("https://oss.sonatype.org/content/repositories/releases"),
+    coursier.maven.MavenRepository("https://repo1.maven.org/maven2"),
     coursier.LocalRepositories.ivy2Local
   )
 }
