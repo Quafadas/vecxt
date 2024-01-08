@@ -11,13 +11,31 @@ import io.github.quafadas.millSite.QuickChange
 import mill._, scalalib._, publish._
 import mill.scalajslib.api._
 import mill.scalanativelib._
+import coursier.maven.MavenRepository
+import mill.define.ModuleRef
 
 import mill.api.Result
+
+
+val repos = T.task {
+  Seq(
+    coursier.MavenRepository("https://oss.sonatype.org/content/repositories/releases"),
+    coursier.LocalRepositories.ivy2Local
+  )
+}
+
+// Allows mill to resolve the "meta-build"
+object CustomZincWorkerModule extends ZincWorkerModule with CoursierModule {
+  def repositoriesTask = repos
+}
 
 trait Common extends ScalaModule  with PublishModule {
   def scalaVersion = "3.3.1"
 
   def publishVersion = VcsVersion.vcsState().format()
+
+  def repositoriesTask = repos
+  def zincWorker       = ModuleRef(CustomZincWorkerModule)
 
   def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"ai.dragonfly::narr::0.105"
