@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package vecxt
+package vecxt.rpt
+
+import Retentions.Retention
+import Limits.Limit
 
 import narr.*
 class ReinsurancePricingSuite extends munit.FunSuite:

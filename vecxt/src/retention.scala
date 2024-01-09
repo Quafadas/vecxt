@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package vecxt
-
-export Retentions.Retention
+package vecxt.rpt
 
 object Retentions:
     opaque type Retention = Double

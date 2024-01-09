@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package vecxt
+package vecxt.rpt
 
 import Retentions.*
-
-export Limits.Limit
 
 object Limits:
     opaque type Limit = Double

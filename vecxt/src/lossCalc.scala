@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package vecxt
+package vecxt.rpt
 
 enum LossCalc:
     case Agg, Occ
