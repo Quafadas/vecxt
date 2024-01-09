@@ -196,6 +196,14 @@ object extensions:
       vec.clone.tap(_ *= d)
     end *
 
+    inline def /=(d: Double): Array[Double] =
+      vec.tap(v => blas.dscal(v.length, 1.0/d, v, 1))
+    end /=
+
+    inline def /(d: Double): Array[Double] =
+      vec.clone.tap(_ *= d)
+    end /
+
     inline def <(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
