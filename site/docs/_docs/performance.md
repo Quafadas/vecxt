@@ -14,5 +14,6 @@ Consider browsing the [[vecxt]] api, and particulaly the extensions object. You'
 
 ### JS
 
-On Node, this stand ships with C BLAS.
+On Node, this shim ships with it's own C BLAS implementation.
+
 In browser / elsewhere, it's done in loop-unrolled native arrays.

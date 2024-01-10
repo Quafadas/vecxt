@@ -1,9 +1,17 @@
 ---
 title: Bounds Checks
 ---
+# Rationale
+
 In performance sensitive vector applications, bounds checking may be an unwelcome overhead.
 
-It is left to the developer, to decide whether, or where this is wanted or not. A boolean is required as a context (given) parameter to some operations.
+# Mechanism
+
+This bounds checking mechansim is an inline given `Boolean`, which reduces to an inline `if` _at compile time_. So if you turn bounds checking off, the compiler doesn't generate the code. No code => zero runtime overhead.
+
+# Implications and use
+
+It is left to the developer, to decide whether, or where BoundsChecks are wanted or not. A boolean is required as a context (given) parameter.
 
 In this case, we disable bounds checks, maximising performance.
 
@@ -18,7 +26,7 @@ println(v1 + v2)
 
 ```
 
-In this case, we disable bounds checks, maximising performance, and generate undefined runtime behaviour. It may fail, it may not, but the results will be unpredictable, wrong and potentially hard to track - it is your responsibility.
+In this case, we disable bounds checks, maximising performance, and generate undefined runtime behaviour. It may fail, it may not, but the results will be unpredictable, wrong and potentially hard to track - it is _your_ responsibility.
 
 ```scala
 import vecxt._
