@@ -2,7 +2,7 @@
 
 If you are running on the JVM, The shim to a java SIMD [netlib](https://github.com/luhenry/netlib) will generate warnings when it's instantiated. That shim looks for potential execution pathways upon instantiation, and prefers;
 
-1. JNI to C
+1. A JNI to C
 2. Java SIMD
 3. Fallback to vanilla Java
 
@@ -10,7 +10,7 @@ The console warnings on startup will tell you the implementations you are missin
 
 My understanding, is that for level 1 BLAS operations (i.e. this library), the performance of the SIMD implementation is comparable to native - i.e. C performance.
 
-To enable the SIMD implementation, you'll need (at the time of writing) to enable the incubating `vector` API flags and be using JVM 18+. Consider adding this flag, to the JVM startup commands.
+To enable the SIMD implementation, you'll need (at the time of writing) to enable the incubating `vector` API flags and be using JVM 18+. Consider adding this flag, to your JVM startup commands.
 
 `--add-modules=jdk.incubator.vector`
 
@@ -25,10 +25,15 @@ You'll need this or better, available somewhere in your bundle / build / browser
   }
 }
 ```
+If you aren't using a bundler, you can add this script to your html.
+
+```html
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/stdlib-js/blas@umd/browser.js"></script>
+```
 
 # Native
 
-Isn't 100% my thing, so this is less tested.
+Is less tested, but works according to the tests. You'll need CBLAS installed one way or another.
 
 ## Linux
 On linux,
@@ -39,7 +44,7 @@ works, but not clear, if it's minimal.
 
 ## MacOS
 
-I believe ships with CBLAS available, so shoudl work straight out the box.
+I believe ships with CBLAS available, so should work straight out the box.
 
 ## Windows
 

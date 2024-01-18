@@ -230,6 +230,14 @@ object extensions:
       vec.nativeSlice().tap(_ *= d)
     end *
 
+    inline def /=(d: Double): Float64Array =
+      vec.tap(v => blas.dscal(v.length, 1.0/d, v, 1))
+    end /=
+
+    inline def /(d: Double): Float64Array =
+      vec.nativeSlice().tap(_ /= d)
+    end /
+
     inline def <(num: Double): js.Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 

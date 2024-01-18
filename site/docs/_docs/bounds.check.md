@@ -7,11 +7,11 @@ In performance sensitive vector applications, bounds checking may be an unwelcom
 
 # Mechanism
 
-This bounds checking mechansim is an inline given `Boolean`, which reduces to an inline `if` _at compile time_. So if you turn bounds checking off, the compiler doesn't generate the code. No code => zero runtime overhead.
+This bounds checking mechansim is an `inline given Boolean`, which reduces to an inline `if` _at compile time_. So if you turn bounds checking off, the compiler doesn't generate the code. No code => zero runtime overhead.
 
 # Implications and use
 
-It is left to the developer, to decide whether, or where BoundsChecks are wanted or not. A boolean is required as a context (given) parameter.
+It is left to the developer, to decide whether, or where BoundsChecks are desirable in their application or not. A boolean is required as a context (given) parameter.
 
 In this case, we disable bounds checks, maximising performance.
 

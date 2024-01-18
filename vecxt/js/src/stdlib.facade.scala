@@ -21,14 +21,14 @@ import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.typedarray.Float64Array
 
 @js.native
-@JSImport("@stdlib/blas/base", JSImport.Default)
-object blas extends ArrayOps
+@JSImport("@stdlib/blas/base", JSImport.Default, "window.blas.base")
+object blas extends BlasArrayOps
 
 @js.native
-trait ArrayOps extends js.Object:
+trait BlasArrayOps extends js.Object:
     def daxpy(N: Int, alpha: Double, x: Float64Array, strideX: Int, y: Float64Array, strideY: Int): Unit =
         js.native
 
     def dscal(N: Int, alpha: Double, x: Float64Array, strideX: Int): Unit = js.native
     def dnrm2(N: Int, x: Float64Array, strideX: Int): Double = js.native
-end ArrayOps
+end BlasArrayOps

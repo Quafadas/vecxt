@@ -39,3 +39,22 @@ Supported operationsa re currently very basic, but we share a single test suite 
 ## Why?
 
 Not?
+
+## JS installation
+
+https://github.com/stdlib-js/blas
+
+I'm not sure, what the right way of doing this is. In the absence of a bundler, it appears possible, to get it work for documenation purposes, by adding this script;
+
+```
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/stdlib-js/blas@umd/browser.js"></script>
+```
+
+
+With the following scalaJS facade, it remains unclear however, what the implication for bundlers is.
+```
+js.native
+@JSImport("@stdlib/blas/base", JSImport.Default, "window.blas.base")
+object blas extends BlasArrayOps
+```
+

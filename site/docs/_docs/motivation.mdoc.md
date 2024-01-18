@@ -10,9 +10,9 @@ For example, your data acquisition is serverside, but do parts of a calculation 
 
 [[vecxt]] provides easy access to platform native common vector operations via intuitive and common syntax. Guaranteeing platform native performance - wherever you want to do your numerics.
 
-# Cross Platform
+# JVM
 
-[[vecxt]] is cross platform, and can be used on the JVM, JS and Native platforms.
+[[vecxt]] is cross platform, this example runs on the JVM, see [Cross Platform](js.mdoc.md) for the same example running in scalaJS.
 
 ```scala mdoc
 
@@ -29,4 +29,4 @@ val c = 2.0
 println(algo(a, b, c).mkString(", "))
 
 ```
-You can place the `algo` method in the shared part of your project, and use it on all platforms.
+It would be possible to write the `algo` method in the shared part of your project, and use it on any of the platforms - freeing you from the tyranny of having to choose a platform in advance.

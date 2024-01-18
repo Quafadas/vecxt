@@ -1,13 +1,12 @@
 
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
-import $ivy.`io.github.quafadas::millSite::0.0.16`
+import $ivy.`io.github.quafadas::millSite::0.0.17`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 
 import de.tobiasroeser.mill.vcs.version._
 import com.github.lolgab.mill.crossplatform._
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import io.github.quafadas.millSite.SiteModule
-import io.github.quafadas.millSite.QuickChange
+import io.github.quafadas.millSite._
 import mill._, scalalib._, publish._
 import mill.scalajslib.api._
 import mill.scalanativelib._
@@ -42,7 +41,7 @@ trait Common extends ScalaModule  with PublishModule {
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.15.0"
 
-  def moduleKind = ModuleKind.CommonJSModule
+  // def moduleKind = ModuleKind.
 }
 
 
@@ -83,7 +82,9 @@ object vecxt extends CrossPlatform {
   }
   object js extends Shared with CommonJS {
     // js specific settings here
-    object test extends ScalaJSTests with SharedTests
+    object test extends ScalaJSTests with SharedTests {
+        def moduleKind = ModuleKind.CommonJSModule
+    }
   }
 
   object native extends Shared with CommonNative {
@@ -93,7 +94,17 @@ object vecxt extends CrossPlatform {
 
 }
 
+object jsSite extends SiteJSModule {
+
+  override def moduleDeps = Seq(vecxt.js)
+  override def scalaVersion = vecxt.js.scalaVersion
+  override def scalaJSVersion = vecxt.js.scalaJSVersion
+  override def moduleKind = ModuleKind.NoModule
+}
+
 object site extends SiteModule {
+
+  override val jsSiteModule = jsSite
 
   def scalaVersion = vecxt.jvm.scalaVersion
 
