@@ -33,7 +33,7 @@ If you aren't using a bundler, you can add this script to your html.
 
 # Native
 
-Is less tested, but works according to the tests. You'll need CBLAS installed one way or another.
+Is less tested, but works according to the tests. You'll need CBLAS on the path one way or another.
 
 ## Linux
 On linux,

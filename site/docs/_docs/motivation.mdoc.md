@@ -29,4 +29,5 @@ val c = 2.0
 println(algo(a, b, c).mkString(", "))
 
 ```
+
 It would be possible to write the `algo` method in the shared part of your project, and use it on any of the platforms - freeing you from the tyranny of having to choose a platform in advance.

@@ -21,7 +21,11 @@ val b = NArray(4.0, 5.0, 6.0, 2.0)
 val c = 2.0
 
 // you'll have to look in the browser console to see this.
-println(algo(a, b, c).mkString(", "))
+println("BLAS in browser!")
+println(algo(a, b, c).mkString("[",",","]"))
+
+
+
 // Need to be able to disable the snippet compiler, for this to work.
 // node.innerHTML = algo(a, b, c).mkString(", ")
 

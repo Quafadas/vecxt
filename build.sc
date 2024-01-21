@@ -1,6 +1,6 @@
 
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
-import $ivy.`io.github.quafadas::millSite::0.0.17`
+import $ivy.`io.github.quafadas::millSite::0.0.19`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 
 import de.tobiasroeser.mill.vcs.version._
@@ -110,49 +110,4 @@ object site extends SiteModule {
 
   override def moduleDeps = Seq(vecxt.jvm)
 
-
-  private def fixAssets(docFile: os.Path) = {
-    if (docFile.ext == "md") {
-      val fixyFixy = os.read(docFile).replace("../_assets/", "")
-      os.write.over(docFile, fixyFixy.getBytes())
-    }
-  }
-
-
-  // override def apiOnlyGen: T[PathRef] = T {
-  //   compile()
-  //   val javadocDir = T.dest / "javadoc"
-  //   os.makeDir.all(javadocDir)
-  //   val combinedStaticDir = T.dest / "static"
-  //   os.makeDir.all(combinedStaticDir)
-
-  //   val compileCp = compileCpArg
-  //   val options = Seq(
-  //     "-d",
-  //     javadocDir.toNIO.toString,
-  //     "-siteroot",
-  //     fakeDoc().path.toNIO.toString,
-  //     "-Ygenerate-inkuire"
-  //   )
-
-  //   zincWorker()
-  //     .worker()
-  //     .docJar(
-  //       scalaVersion(),
-  //       scalaOrganization(),
-  //       scalaDocClasspath(),
-  //       scalacPluginClasspath(),
-  //       options ++ compileCpArg() ++ scalaDocOptions()
-  //         ++ Lib
-  //           .findSourceFiles(docSources(), Seq("tasty"))
-  //           .map(_.toString()) // transitive api, i.e. module deps.
-
-  //     ) match {
-  //     case true => Result.Success(PathRef(javadocDir, quick = true))
-  //     case false =>
-  //       Result.Failure(
-  //         s"Documentation generatation failed. This would normally indicate that the standard mill `docJar` command on one of the underlying projects will fail. Please attempt to fix that problem and try again  "
-  //       )
-  //   }
-  // }
 }
