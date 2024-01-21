@@ -2,6 +2,16 @@
 
 Making cross plaform vector problem less... vexing
 
+Scala cli
+```scala
+//> using dep io.github.quafadas::vecxt::{{projectVersion}}
+```
+
+### Mill
+```scala sc:nocompile
+ivy"io.github.quafadas::vecxt::{{projectVersion}}"
+```
+
 ```scala
 import vecxt._
 import BoundsCheck.DoBoundsCheck.no
