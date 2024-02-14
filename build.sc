@@ -38,6 +38,7 @@ trait Common extends ScalaModule  with PublishModule {
 
 }
 
+val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.15.0"
 
@@ -67,17 +68,14 @@ object vecxt extends CrossPlatform {
     }
   }
   object jvm extends Shared {
-    def forkArgs = super.forkArgs() ++ Seq(
-      "--add-modules=jdk.incubator.vector"
-    )
+    override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
+    def forkArgs = super.forkArgs() ++ vecIncubatorFlag
     def ivyDeps = super.ivyDeps() ++ Agg(
       ivy"dev.ludovic.netlib:blas:3.0.3"
     )
 
     object test extends ScalaTests with SharedTests {
-      def forkArgs = super.forkArgs() ++ Seq(
-        "--add-modules=jdk.incubator.vector"
-      )
+      def forkArgs = super.forkArgs() ++ vecIncubatorFlag
     }
   }
   object js extends Shared with CommonJS {
