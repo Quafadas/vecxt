@@ -280,7 +280,7 @@ object extensions:
     def maxElement: Double = vec.max
       //val t = js.Math.max( vec.toArray: _* )
 
-  extension (vec: js.Array[Float64Array])
+  extension (vec: Array[Float64Array])
     inline def horizontalSum: Float64Array =
       val out = new Float64Array(vec.head.length)
       var i = 0
