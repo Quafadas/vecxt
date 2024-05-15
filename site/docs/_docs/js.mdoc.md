@@ -24,8 +24,6 @@ val c = 2.0
 println("BLAS in browser!")
 println(algo(a, b, c).mkString("[",",","]"))
 
-
-
 // Need to be able to disable the snippet compiler, for this to work.
 // node.innerHTML = algo(a, b, c).mkString(", ")
 
