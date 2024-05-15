@@ -14,7 +14,7 @@ import mill.scalanativelib._
 import mill.api.Result
 
 trait Common extends ScalaModule  with PublishModule {
-  def scalaVersion = "3.3.1"
+  def scalaVersion = "3.3.3"
 
   def publishVersion = VcsVersion.vcsState().format()
 

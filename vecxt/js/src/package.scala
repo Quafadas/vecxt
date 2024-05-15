@@ -206,7 +206,14 @@ object extensions:
 
         inline def dot(v1: Float64Array)(using inline boundsCheck: BoundsCheck): Double =
             dimCheck(vec, v1)
-            blas.ddot(vec.length, vec, 1, v1, 1)
+
+            var product = 0.0
+            var i = 0;
+            while i < vec.length do
+                product = product + vec(i) * v1(i)
+                i = i + 1
+            end while
+            product
         end dot
 
         inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
