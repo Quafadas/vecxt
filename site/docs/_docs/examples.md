@@ -4,6 +4,7 @@ Some basic exampeles.
 ```scala
 
 import vecxt.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 val v1 = Array[Double](1, 2, 3)
 val v2 = Array[Double](4, 5, 6)
