@@ -8,7 +8,7 @@ This has the same algorithm as the [motivation](motivation.mdoc.md) example, but
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/stdlib-js/blas@umd/browser.js"></script>
 
-```scala mdoc:js sc:nocompile
+```scala mdoc
 
 import vecxt.*
 import narr.*
