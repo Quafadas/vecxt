@@ -19,6 +19,7 @@ package vecxt
 import narr.*
 import scala.util.chaining.*
 
+
 class ArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
 
@@ -157,9 +158,51 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(afterIndex.last, 3.0, 0.0001)
   }
 
-  // test("max element"){
-  //   val v2 = NArray[Double](3.0, 2.0, 4.0, 1.0)
-  //   assertEqualsDouble(v2.max, 4.0, 0.00001)
-  // }
+  test("tvar") {
+    import vecxt.rpt.tVar
+    val v1 = NArray.tabulate(100)(_.toDouble)
+    val tvar = v1.tVar(0.95)
+    assertEqualsDouble(tvar, 2, 0.0001)
+  }
+
+  test("qdep".only) {
+    import vecxt.rpt.qdep
+    val v1 = NArray.tabulate(100)(_.toDouble)
+    val v2 = v1 * 2
+    val qdep = v1.qdep(0.95, v2)
+    assertEqualsDouble(qdep, 1, 0.0001)
+
+    val v3 = v1.clone   
+    v3(1) = 100
+    assertEqualsDouble(v1.qdep(0.95, v3), 0.8, 0.0001)
+  }
+
+  test("tvar index".only) {
+    import vecxt.rpt.tVarIdx
+    val v1 = NArray.tabulate(100)(_.toDouble)
+    val tvar = v1.tVarIdx(0.95)
+    assertEquals(tvar.countTrue, 5)
+    for i <- 0 until 5 do      
+      assert(tvar(i))
+    end for
+    for(i <- 5 until 100) do
+      assert(!tvar(i))
+    end for
+  }
+
+  test("tvar idx 2".only) {
+    import vecxt.rpt.tVarIdx
+    val v1 = NArray.tabulate(100)(_.toDouble).reverse
+    val tvar = v1.tVarIdx(0.95)
+    assertEquals(tvar.countTrue, 5)
+    for i <- 0 until 95 do      
+      assert(!tvar(i))
+    end for
+    for(i <- 96 until 100) do
+      assert(tvar(i))
+    end for
+  }
+
+
 
 end ArrayExtensionSuite

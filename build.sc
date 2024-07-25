@@ -1,6 +1,6 @@
 
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
-import $ivy.`io.github.quafadas::millSite::0.0.22`
+import $ivy.`io.github.quafadas::millSite::0.0.24`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 
 import de.tobiasroeser.mill.vcs.version._
@@ -41,7 +41,7 @@ trait Common extends ScalaModule  with PublishModule {
 val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.15.0"
-
+  // def ivyDeps = super.ivyDeps() ++ Seq(ivy"com.raquo::ew::0.2.0")
   // def moduleKind = ModuleKind.
 }
 
