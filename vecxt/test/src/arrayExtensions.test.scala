@@ -190,7 +190,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     end for
   }
 
-  test("tvar idx 2".only) {
+  test("tvar idx 2") {
     import vecxt.rpt.tVarIdx
     val v1 = NArray.tabulate(100)(_.toDouble).reverse
     val tvar = v1.tVarIdx(0.95)
