@@ -212,7 +212,7 @@ object extensions:
         end /=
 
         inline def /(d: Double): Array[Double] =
-            vec.clone.tap(_ *= d)
+            vec.clone.tap(_ /= d)
         end /
 
         inline def <(num: Double): Array[Boolean] =
