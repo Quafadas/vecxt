@@ -1,7 +1,7 @@
 package vecxt.rpt
 
-import narr.NArray
-import narr.native.Extensions.sort
+import narr.*
+// import narr.native.Extensions.sort
 
 
 extension [N <: Int](thisVector: NArray[Double])
@@ -42,13 +42,13 @@ extension [N <: Int](thisVector: NArray[Double])
       val numYears = thisVector.length
       val nte = numYears * (1.0 - alpha);
       val fte = Math.floor(nte).toInt;
-      val sorted = thisVector.zipWithIndex.sortBy(_._1).map(_._2)
+      val sorted = thisVector.toVector.zipWithIndex.sortBy(_._1).map(_._2)
       val idx = NArray.fill[Boolean](numYears)(false)
       var i = 0
       while i < fte do
-        idx(sorted(i)) = true;        
+        idx(sorted(i)) = true;
         i = i + 1
       end while
       idx
-      
+
     end tVarIdx
