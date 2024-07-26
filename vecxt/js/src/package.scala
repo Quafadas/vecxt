@@ -82,11 +82,11 @@ object extensions:
             val trues = index.countTrue
             val newVec = Float64Array(trues)
             var j = 0
-            for i <- 0 to trues do
+            for i <- 0 until index.length do
                 // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
                 if index(i) then
                     newVec(j) = vec(i)
-                    j += 1
+                    j = 1 + j
             end for
             newVec
         end idxBoolean

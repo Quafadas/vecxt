@@ -18,6 +18,7 @@ package vecxt
 
 import narr.*
 import scala.util.chaining.*
+import vecxt.extensions.idxBoolean
 
 
 class ArrayExtensionSuite extends munit.FunSuite:
@@ -202,15 +203,16 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
     test("tvar index 3") {
     import vecxt.rpt.tVarIdx
-    val v1 = NArray.from(Array(6.0, 8.0, 5.0, 5.0, 10.0, 1.0, 2.0, 3.0, 5.0, 8.0))
+    val v1 = NArray.from(Array(6.0, 8.0, 5.0, 5.0, 10.0, 10.0, 2.0, 3.0, 5.0, 1.0))
     val tvar = v1.tVarIdx(0.8)
     assertEquals(tvar.countTrue, 2)
-    assert(tvar(5))
+    assert(tvar(9))
     assert(tvar(6))
-  }
 
-  test("floor") {
-    Math.floor(1.0) == 1
+    val v4 = v1.idxBoolean(tvar)
+    assertEquals(v4.length, 2)
+    assertEquals(v4(0), 2.0)
+    assertEquals(v4(1), 1.0)
   }
 
 
