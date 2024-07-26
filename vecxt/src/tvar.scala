@@ -27,7 +27,7 @@ extension [N <: Int](thisVector: NArray[Double])
     def tVar(alpha: Double): Double =
       val numYears = thisVector.length
       val nte = numYears * (1.0 - alpha);
-      val fte = Math.floor(nte+0.001).toInt;
+      val fte = Math.floor(nte+0.00000000001).toInt; // numberic precision is a pain.
       val sorted = thisVector.sort()
       var i = 0
       var tailSum = 0.0;
@@ -41,7 +41,7 @@ extension [N <: Int](thisVector: NArray[Double])
     def tVarIdx(alpha: Double): NArray[Boolean] =
       val numYears = thisVector.length
       val nte = numYears * (1.0 - alpha);
-      val fte = Math.floor(nte+0.001).toInt;
+      val fte = Math.floor(nte+0.00000000001).toInt;
       val sorted = thisVector.toVector.zipWithIndex.sortBy(_._1).map(_._2)
       val idx = NArray.fill[Boolean](numYears)(false)
       var i = 0
