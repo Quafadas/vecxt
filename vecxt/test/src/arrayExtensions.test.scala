@@ -190,5 +190,25 @@ class ArrayExtensionSuite extends munit.FunSuite:
     end for
   }
 
+    test("tvar index 2") {
+    import vecxt.rpt.tVarIdx
+    val v1 = NArray.from(Array(6.0, 2.0, 5.0, 5.0, 10.0, 1.0, 2.0, 3.0, 5.0, 8.0))
+    val tvar = v1.tVarIdx(0.90)
+
+    assertEquals(tvar.countTrue, 1)
+    assert(tvar(5))
+  }
+
+
+    test("tvar index 3") {
+    import vecxt.rpt.tVarIdx
+    val v1 = NArray.from(Array(6.0, 2.0, 5.0, 5.0, 10.0, 1.0, 2.0, 3.0, 5.0, 8.0))
+    val tvar = v1.tVarIdx(0.8)
+
+    assertEquals(tvar.countTrue, 1)
+    assert(tvar(5))
+    assert(tvar(6))
+  }
+
 
 end ArrayExtensionSuite
