@@ -21,13 +21,36 @@ import scala.util.chaining.*
 import vecxt.dimCheck
 import vecxt.BoundsCheck
 import vecxt.Tensors.Matrix
+import org.ekrich.blas.*
 
 export extensions.*
 
 object extensions:
 
-  // extension (mat: Matrix)
-  // def x(that: Matrix) = blas.
+  extension (a: Matrix)
+    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
+      dimMatCheck(a, b)
+      val newArr = Array.ofDim[Double](a.rows * b.cols)
+      // Note, might need to deal with transpose later.
+      blas.cblas_dgemm(
+        blasEnums.CblasColMajor,
+        blasEnums.CblasNoTrans,
+        blasEnums.CblasNoTrans,
+        a.rows,
+        b.cols,
+        a.cols,
+        1.0,
+        a.raw.at(0),
+        a.rows,
+        b.raw.at(0),
+        b.rows,
+        1.0,
+        newArr.at(0),
+        a.rows
+      )
+      Matrix(newArr, (a.rows, b.cols))
+    end matmul
+  end extension
 
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
