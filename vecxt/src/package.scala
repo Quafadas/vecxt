@@ -69,7 +69,9 @@ object Tensors:
 
   extension (m: Matrix)
     inline def rows: Int = m._2._1
+
     inline def cols: Int = m._2._2
+
     inline def row(i: Int): NArray[Double] =
       val start = i * m.cols
       val end = (i + 1) * m.cols
@@ -83,6 +85,27 @@ object Tensors:
       end while
       result
     end row
+
+    inline def print: String =
+      val arrArr = for i <- 0 until m.rows yield m.row(i).mkString(" ")
+      arrArr.mkString("\n")
+    end print
+
     inline def col(i: Int): NArray[Double] = NArray.tabulate(m.rows)(j => m._1(j * m.cols + i))
+
+    inline def transpose: Matrix =
+      val newArr = NArray.ofSize[Double](m._1.length)
+      var i = 0
+      while i < m.cols do
+        var j = 0
+        while j < m.rows do
+          newArr(i * m.rows + j) = m._1(j * m.cols + i)
+          j += 1
+        end while
+        i += 1
+      end while
+      Matrix(newArr, (m.cols, m.rows))
+    end transpose
   end extension
+
 end Tensors

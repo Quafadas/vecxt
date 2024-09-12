@@ -24,6 +24,22 @@ class TensorExtensionSuite extends FunSuite:
     assertVecEquals(result.raw, NArray(58.0, 139.0, 64.0, 154.0))
   }
 
+  test("Matrix transpose") {
+    val originalArray = NArray[Double](1, 2, 3, 4, 5, 6)
+    val matrix = Matrix(originalArray, (2, 3))
+
+    println(matrix.print)
+
+    val transposedMatrix = matrix.transpose
+
+    val expectedArray = NArray[Double](1, 4, 2, 5, 3, 6)
+    val expectedMatrix = Matrix(expectedArray, (3, 2))
+
+    assertEquals(transposedMatrix.raw.toList, expectedMatrix.raw.toList)
+    assertEquals(transposedMatrix.rows, expectedMatrix.rows)
+    assertEquals(transposedMatrix.cols, expectedMatrix.cols)
+  }
+
   test("Tensor raw array retrieval") {
     val vec = Vector(NArray[Double](1.0, 2.0, 3.0))
     assertVecEquals(vec.raw, NArray(1.0, 2.0, 3.0))
