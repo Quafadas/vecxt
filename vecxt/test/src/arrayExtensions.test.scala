@@ -20,10 +20,8 @@ import narr.*
 import scala.util.chaining.*
 import vecxt.extensions.idxBoolean
 
-
 class ArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
-
 
   lazy val v_fill = NArray[Double](0, 1, 2, 3, 4)
 
@@ -168,7 +166,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("qdep") {
     import vecxt.rpt.qdep
-    val v1 : NArray[Double] = NArray.tabulate[Double](100)(_.toDouble)
+    val v1: NArray[Double] = NArray.tabulate[Double](100)(_.toDouble)
     val v2 = v1 * 2
     val qdep = v1.qdep(0.95, v2)
     assertEqualsDouble(qdep, 1, 0.0001)
@@ -183,15 +181,13 @@ class ArrayExtensionSuite extends munit.FunSuite:
     val v1 = NArray.tabulate[Double](100)(_.toDouble)
     val tvar = v1.tVarIdx(0.95)
     assertEquals(tvar.countTrue, 5)
-    for i <- 0 until 5 do
-      assert(tvar(i))
+    for i <- 0 until 5 do assert(tvar(i))
     end for
-    for(i <- 5 until 100) do
-      assert(!tvar(i))
+    for i <- 5 until 100 do assert(!tvar(i))
     end for
   }
 
-    test("tvar index 2") {
+  test("tvar index 2") {
     import vecxt.rpt.tVarIdx
     val v1 = NArray.from(Array(6.0, 2.0, 5.0, 5.0, 10.0, 1.0, 2.0, 3.0, 5.0, 8.0))
     val tvar = v1.tVarIdx(0.9)
@@ -200,8 +196,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(tvar(5))
   }
 
-
-    test("tvar index 3") {
+  test("tvar index 3") {
     import vecxt.rpt.tVarIdx
     val v1 = NArray.from(Array(6.0, 8.0, 5.0, 5.0, 10.0, 10.0, 2.0, 3.0, 5.0, 1.0))
     val tvar = v1.tVarIdx(0.8)
@@ -214,6 +209,5 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(v4(0), 2.0)
     assertEquals(v4(1), 1.0)
   }
-
 
 end ArrayExtensionSuite

@@ -17,6 +17,7 @@ package vecxt
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
+import vecxt.Tensors.Matrix
 
 export extensions.*
 export vecxt.rpt.{Retentions, Limits, LossCalc}
@@ -25,253 +26,282 @@ export vecxt.rpt.Retentions.Retention
 export vecxt.rpt.Limits.Limit
 
 object extensions:
-    extension (vec: Array[Boolean])
-        inline def countTrue: Int =
-            var sum = 0
-            for i <- 0 until vec.length do if vec(i) then sum = sum + 1
-            sum
-        end countTrue
 
-        inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
-            val result: Array[Boolean] = new Array[Boolean](vec.length)
-            for i <- 0 until vec.length do result(i) = vec(i) && thatIdx(i)
-            result
-        end &&
+  extension (a: Matrix)
+    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
+      dimMatCheck(a, b)
+      val newArr = Array.ofDim[Double](a.rows * b.cols)
+      // Note, might need to deal with transpose later.
+      blas.dgemm(
+        "N",
+        "N",
+        a.rows,
+        b.cols,
+        a.cols,
+        1.0,
+        a.raw,
+        a.rows,
+        b.raw,
+        b.rows,
+        1.0,
+        newArr,
+        a.rows
+      )
+      Matrix(newArr, (a.rows, b.cols))
+    end matmul
 
-        inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
-            val result: Array[Boolean] = new Array[Boolean](vec.length)
-            for i <- 0 until vec.length do result(i) = vec(i) || thatIdx(i)
-            result
-        end ||
-    end extension
+  end extension
+  extension (vec: Array[Boolean])
+    inline def countTrue: Int =
+      var sum = 0
+      for i <- 0 until vec.length do if vec(i) then sum = sum + 1
+      end for
+      sum
+    end countTrue
 
-    extension (vec: Array[Double])
+    inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
+      val result: Array[Boolean] = new Array[Boolean](vec.length)
+      for i <- 0 until vec.length do result(i) = vec(i) && thatIdx(i)
+      end for
+      result
+    end &&
 
-        inline def idxBoolean(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
-            dimCheck(vec, index)
-            val trues = index.countTrue
-            val newVec: Array[Double] = new Array[Double](trues)
-            var j = 0
-            for i <- 0 until index.length do
-                // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
-                if index(i) then
-                    newVec(j) = vec(i)
-                    j = 1 + j
-            end for
-            newVec
-        end idxBoolean
+    inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
+      val result: Array[Boolean] = new Array[Boolean](vec.length)
+      for i <- 0 until vec.length do result(i) = vec(i) || thatIdx(i)
+      end for
+      result
+    end ||
+  end extension
 
-        def increments: Array[Double] =
-            val out = new Array[Double](vec.length)
-            out(0) = vec(0)
-            var i = 1
-            while i < vec.length do
-                out(i) = vec(i) - vec(i - 1)
-                i = i + 1
-            end while
-            out
-        end increments
+  extension (vec: Array[Double])
 
-        inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using
-            inline boundsCheck: BoundsCheck
-        ): Double =
-            dimCheck(vec, thatVector)
-            val n = vec.length
-            var i = 0
+    inline def idxBoolean(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
+      dimCheck(vec, index)
+      val trues = index.countTrue
+      val newVec: Array[Double] = new Array[Double](trues)
+      var j = 0
+      for i <- 0 until index.length do
+        // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
+        if index(i) then
+          newVec(j) = vec(i)
+          j = 1 + j
+      end for
+      newVec
+    end idxBoolean
 
-            var sum_x = 0.0
-            var sum_y = 0.0
-            var sum_xy = 0.0
-            var sum_x2 = 0.0
-            var sum_y2 = 0.0
+    def increments: Array[Double] =
+      val out = new Array[Double](vec.length)
+      out(0) = vec(0)
+      var i = 1
+      while i < vec.length do
+        out(i) = vec(i) - vec(i - 1)
+        i = i + 1
+      end while
+      out
+    end increments
 
-            while i < n do
-                sum_x = sum_x + vec(i)
-                sum_y = sum_y + thatVector(i)
-                sum_xy = sum_xy + vec(i) * thatVector(i)
-                sum_x2 = sum_x2 + vec(i) * vec(i)
-                sum_y2 = sum_y2 + thatVector(i) * thatVector(i)
-                i = i + 1
-            end while
-            (n * sum_xy - (sum_x * sum_y)) / Math.sqrt(
-              (sum_x2 * n - sum_x * sum_x) * (sum_y2 * n - sum_y * sum_y)
-            )
-        end pearsonCorrelationCoefficient
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using
+        inline boundsCheck: BoundsCheck
+    ): Double =
+      dimCheck(vec, thatVector)
+      val n = vec.length
+      var i = 0
 
-        inline def spearmansRankCorrelation(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
-            dimCheck(vec, thatVector)
-            val theseRanks = vec.elementRanks
-            val thoseRanks = thatVector.elementRanks
-            theseRanks.pearsonCorrelationCoefficient(thoseRanks)
-        end spearmansRankCorrelation
+      var sum_x = 0.0
+      var sum_y = 0.0
+      var sum_xy = 0.0
+      var sum_x2 = 0.0
+      var sum_y2 = 0.0
 
-        // An alias - pearson is the most commonly requested type of correlation
-        inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
-            pearsonCorrelationCoefficient(thatVector)
+      while i < n do
+        sum_x = sum_x + vec(i)
+        sum_y = sum_y + thatVector(i)
+        sum_xy = sum_xy + vec(i) * thatVector(i)
+        sum_x2 = sum_x2 + vec(i) * vec(i)
+        sum_y2 = sum_y2 + thatVector(i) * thatVector(i)
+        i = i + 1
+      end while
+      (n * sum_xy - (sum_x * sum_y)) / Math.sqrt(
+        (sum_x2 * n - sum_x * sum_x) * (sum_y2 * n - sum_y * sum_y)
+      )
+    end pearsonCorrelationCoefficient
 
-        inline def elementRanks: Array[Double] =
-            val indexed: Array[(Double, Int)] = vec.zipWithIndex
-            indexed.sortInPlace()(Ordering.by(_._1))
+    inline def spearmansRankCorrelation(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+      dimCheck(vec, thatVector)
+      val theseRanks = vec.elementRanks
+      val thoseRanks = thatVector.elementRanks
+      theseRanks.pearsonCorrelationCoefficient(thoseRanks)
+    end spearmansRankCorrelation
 
-            val ranks: Array[Double] = new Array[Double](vec.length)
-            ranks(indexed.last._2) = vec.length
-            var currentValue: Double = indexed(0)._1
-            var r0: Int = 0
-            var rank: Int = 1
-            while rank < vec.length do
-                val temp: Double = indexed(rank)._1
-                val end: Int =
-                    if temp != currentValue then rank
-                    else if rank == vec.length - 1 then rank + 1
-                    else -1
-                if end > -1 then
-                    val avg: Double = (1.0 + (end + r0)) / 2.0
-                    var i: Int = r0;
-                    while i < end do
-                        ranks(indexed(i)._2) = avg
-                        i += 1
-                    end while
-                    r0 = rank
-                    currentValue = temp
-                end if
-                rank += 1
-            end while
-            ranks
-        end elementRanks
+    // An alias - pearson is the most commonly requested type of correlation
+    inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+      pearsonCorrelationCoefficient(thatVector)
 
-        def variance: Double =
-            // https://www.cuemath.com/sample-variance-formula/
-            val μ = vec.mean
-            vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
-        end variance
+    inline def elementRanks: Array[Double] =
+      val indexed: Array[(Double, Int)] = vec.zipWithIndex
+      indexed.sortInPlace()(Ordering.by(_._1))
 
-        inline def stdDev: Double =
-            // https://www.cuemath.com/data/standard-deviation/
-            val mu = vec.mean
-            val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
-            Math.sqrt(diffs_2.sum / (vec.length - 1))
-        end stdDev
+      val ranks: Array[Double] = new Array[Double](vec.length)
+      ranks(indexed.last._2) = vec.length
+      var currentValue: Double = indexed(0)._1
+      var r0: Int = 0
+      var rank: Int = 1
+      while rank < vec.length do
+        val temp: Double = indexed(rank)._1
+        val end: Int =
+          if temp != currentValue then rank
+          else if rank == vec.length - 1 then rank + 1
+          else -1
+        if end > -1 then
+          val avg: Double = (1.0 + (end + r0)) / 2.0
+          var i: Int = r0;
+          while i < end do
+            ranks(indexed(i)._2) = avg
+            i += 1
+          end while
+          r0 = rank
+          currentValue = temp
+        end if
+        rank += 1
+      end while
+      ranks
+    end elementRanks
 
-        inline def mean: Double = vec.sum / vec.length
+    def variance: Double =
+      // https://www.cuemath.com/sample-variance-formula/
+      val μ = vec.mean
+      vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+    end variance
 
-        inline def sum: Double =
-            var sum = 0.0
-            var i = 0;
-            while i < vec.length do
-                sum = sum + vec(i)
-                i = i + 1
-            end while
-            sum
-        end sum
+    inline def stdDev: Double =
+      // https://www.cuemath.com/data/standard-deviation/
+      val mu = vec.mean
+      val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
+      Math.sqrt(diffs_2.sum / (vec.length - 1))
+    end stdDev
 
-        inline def cumsum: Unit =
-            var i = 1
-            while i < vec.length do
-                vec(i) = vec(i - 1) + vec(i)
-                i = i + 1
-            end while
-        end cumsum
+    inline def mean: Double = vec.sum / vec.length
 
-        inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
-            dimCheck(vec, v1)
-            blas.ddot(vec.length, vec, 1, v1, 1)
-        end dot
+    inline def sum: Double =
+      var sum = 0.0
+      var i = 0;
+      while i < vec.length do
+        sum = sum + vec(i)
+        i = i + 1
+      end while
+      sum
+    end sum
 
-        inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
+    inline def cumsum: Unit =
+      var i = 1
+      while i < vec.length do
+        vec(i) = vec(i - 1) + vec(i)
+        i = i + 1
+      end while
+    end cumsum
 
-        inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
-            dimCheck(vec, vec2)
-            vec.clone.tap(_ -= vec2)
-        end -
+    inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+      dimCheck(vec, v1)
+      blas.ddot(vec.length, vec, 1, v1, 1)
+    end dot
 
-        inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
-            dimCheck(vec, vec2)
-            blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
-        end -=
+    inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
 
-        inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
-            dimCheck(vec, vec2)
-            vec.clone.tap(_ += vec2)
-        end +
+    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+      dimCheck(vec, vec2)
+      vec.clone.tap(_ -= vec2)
+    end -
 
-        inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
-            dimCheck(vec, vec2)
-            blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
-        end +=
+    inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, vec2)
+      blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
+    end -=
 
-        inline def *=(d: Double): Array[Double] =
-            vec.tap(v => blas.dscal(v.length, d, v, 1))
-        end *=
+    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+      dimCheck(vec, vec2)
+      vec.clone.tap(_ += vec2)
+    end +
 
-        inline def *(d: Double): Array[Double] =
-            vec.clone.tap(_ *= d)
-        end *
+    inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, vec2)
+      blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
+    end +=
 
-        inline def /=(d: Double): Array[Double] =
-            vec.tap(v => blas.dscal(v.length, 1.0 / d, v, 1))
-        end /=
+    inline def *=(d: Double): Array[Double] =
+      vec.tap(v => blas.dscal(v.length, d, v, 1))
+    end *=
 
-        inline def /(d: Double): Array[Double] =
-            vec.clone.tap(_ /= d)
-        end /
+    inline def *(d: Double): Array[Double] =
+      vec.clone.tap(_ *= d)
+    end *
 
-        inline def <(num: Double): Array[Boolean] =
-            logicalIdx((a, b) => a < b, num)
+    inline def /=(d: Double): Array[Double] =
+      vec.tap(v => blas.dscal(v.length, 1.0 / d, v, 1))
+    end /=
 
-        inline def <=(num: Double): Array[Boolean] =
-            logicalIdx((a, b) => a <= b, num)
+    inline def /(d: Double): Array[Double] =
+      vec.clone.tap(_ /= d)
+    end /
 
-        inline def >(num: Double): Array[Boolean] =
-            logicalIdx((a, b) => a > b, num)
+    inline def <(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a < b, num)
 
-        inline def >=(num: Double): Array[Boolean] =
-            logicalIdx((a, b) => a >= b, num)
+    inline def <=(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a <= b, num)
 
-        inline def logicalIdx(
-            inline op: (Double, Double) => Boolean,
-            inline num: Double
-        ): Array[Boolean] =
-            val n = vec.length
-            val idx = new Array[Boolean](n)
-            var i = 0
-            while i < n do
-                if op(vec(i), num) then idx(i) = true
-                i = i + 1
-            end while
-            idx
-        end logicalIdx
+    inline def >(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a > b, num)
 
-        def covariance(thatVector: Array[Double]): Double =
-            val μThis = vec.mean
-            val μThat = thatVector.mean
-            var cv: Double = 0
-            var i: Int = 0;
-            while i < vec.length do
-                cv += (vec(i) - μThis) * (thatVector(i) - μThat)
-                i += 1
-            end while
-            cv / (vec.length - 1)
-        end covariance
+    inline def >=(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a >= b, num)
 
-        // def max: Double =
-        //   vec(blas.idamax(vec.length, vec, 1)) // No JS version
-    end extension
+    inline def logicalIdx(
+        inline op: (Double, Double) => Boolean,
+        inline num: Double
+    ): Array[Boolean] =
+      val n = vec.length
+      val idx = new Array[Boolean](n)
+      var i = 0
+      while i < n do
+        if op(vec(i), num) then idx(i) = true
+        end if
+        i = i + 1
+      end while
+      idx
+    end logicalIdx
 
-    extension (vec: Array[Array[Double]])
-        inline def horizontalSum: Array[Double] =
-            val out = new Array[Double](vec.head.length)
-            var i = 0
-            while i < vec.head.length do
-                var sum = 0.0
-                var j = 0
-                while j < vec.length do
-                    sum += vec(j)(i)
-                    // pprint.pprintln(s"j : $j i : $i vecij : ${vec(j)(i)}  out : ${out(i)} sum : $sum")
-                    j = j + 1
-                end while
-                out(i) = sum
-                i = i + 1
-            end while
-            out
-    end extension
+    def covariance(thatVector: Array[Double]): Double =
+      val μThis = vec.mean
+      val μThat = thatVector.mean
+      var cv: Double = 0
+      var i: Int = 0;
+      while i < vec.length do
+        cv += (vec(i) - μThis) * (thatVector(i) - μThat)
+        i += 1
+      end while
+      cv / (vec.length - 1)
+    end covariance
+
+    // def max: Double =
+    //   vec(blas.idamax(vec.length, vec, 1)) // No JS version
+  end extension
+
+  extension (vec: Array[Array[Double]])
+    inline def horizontalSum: Array[Double] =
+      val out = new Array[Double](vec.head.length)
+      var i = 0
+      while i < vec.head.length do
+        var sum = 0.0
+        var j = 0
+        while j < vec.length do
+          sum += vec(j)(i)
+          // pprint.pprintln(s"j : $j i : $i vecij : ${vec(j)(i)}  out : ${out(i)} sum : $sum")
+          j = j + 1
+        end while
+        out(i) = sum
+        i = i + 1
+      end while
+      out
+  end extension
 end extensions

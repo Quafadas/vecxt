@@ -13,9 +13,9 @@ import narr.NArray
   */
 object cosineSimilarity:
 
-    inline def apply(v1: NArray[Double], v2: NArray[Double])(using inline boundsCheck: BoundsCheck): Double =
-        dimCheck(v1, v2)
-        v1.dot(v2) / (v1.norm * v2.norm)
-    end apply
+  inline def apply(v1: NArray[Double], v2: NArray[Double])(using inline boundsCheck: BoundsCheck): Double =
+    dimCheck(v1, v2)
+    v1.dot(v2) / (v1.norm * v2.norm)
+  end apply
 
 end cosineSimilarity

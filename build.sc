@@ -40,7 +40,7 @@ trait Common extends ScalaModule  with PublishModule {
 
 val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
 trait CommonJS extends ScalaJSModule {
-  def scalaJSVersion = "1.15.0"
+  def scalaJSVersion = "1.16.0"
   // def ivyDeps = super.ivyDeps() ++ Seq(ivy"com.raquo::ew::0.2.0")
   // def moduleKind = ModuleKind.
 }
@@ -100,6 +100,7 @@ object jsSite extends SiteJSModule {
   override def moduleKind = ModuleKind.NoModule
 }
 
+// note that scastic won't work, as I don't think we can start a JVM with the incubator flag.
 object site extends SiteModule {
 
   override val jsSiteModule = jsSite

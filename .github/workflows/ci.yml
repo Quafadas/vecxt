@@ -53,6 +53,8 @@ jobs:
         with:
           node-version: 18
           cache: npm
+      - name: formatCheck
+        run: ./mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 
       - if: matrix.project == 'js'
         run: npm install

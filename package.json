@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "@stdlib/blas": "^0.1.1"
+    "@stdlib/stdlib": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4"
   }
 }

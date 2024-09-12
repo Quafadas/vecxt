@@ -17,5 +17,5 @@
 package vecxt.rpt
 
 enum LossCalc:
-    case Agg, Occ
+  case Agg, Occ
 end LossCalc

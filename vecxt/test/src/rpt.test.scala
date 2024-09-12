@@ -22,78 +22,78 @@ import Limits.Limit
 import narr.*
 class ReinsurancePricingSuite extends munit.FunSuite:
 
-    def long_v = NArray[Double](8, 11, 16, 8, 11, 16, 8, 11, 16)
+  def long_v = NArray[Double](8, 11, 16, 8, 11, 16, 8, 11, 16)
 
-    test("reinsurance function - ret and limit") {
-        val v = long_v
-        val l = v.length
-        v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
-        assertEqualsDouble(v(0), 0.0, 0.0001)
-        assertEqualsDouble(v(1), 1.0, 0.0001)
-        assertEqualsDouble(v(2), 5.0, 0.0001)
-        assertEqualsDouble(v(l - 3), 0.0, 0.0001)
-        assertEqualsDouble(v(l - 2), 1.0, 0.0001)
-        assertEqualsDouble(v(l - 1), 5.0, 0.0001)
-    }
-    test("reinsurance function - ret only") {
-        val v = long_v
-        v.reinsuranceFunction(None, Some(Retention(10.0)))
-        assert(v(0) == 0.0)
-        assert(v(1) == 1.0)
-        assert(v(2) == 6.0)
-        assert(v(v.length - 3) == 0.0)
-        assert(v(v.length - 2) == 1.0)
-        assert(v(v.length - 1) == 6.0)
-    }
-    test("reinsurance function - limit only") {
-        val v = long_v
-        v.reinsuranceFunction(Some(Limit(15.0)), None)
-        assert(v(0) == 8.0)
-        assert(v(1) == 11.0)
-        assert(v(2) == 15.0)
-        assert(v(v.length - 3) == 8.0)
-        assert(v(v.length - 2) == 11.0)
-        assert(v(v.length - 1) == 15.0)
-    }
-    test("reinsurance function - no ret or limit") {
-        val v = NArray[Double](8, 11, 16)
-        v.reinsuranceFunction(None, None)
-        assert(v(0) == 8.0)
-        assert(v(1) == 11.0)
-        assert(v(2) == 16.0)
-    }
+  test("reinsurance function - ret and limit") {
+    val v = long_v
+    val l = v.length
+    v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
+    assertEqualsDouble(v(0), 0.0, 0.0001)
+    assertEqualsDouble(v(1), 1.0, 0.0001)
+    assertEqualsDouble(v(2), 5.0, 0.0001)
+    assertEqualsDouble(v(l - 3), 0.0, 0.0001)
+    assertEqualsDouble(v(l - 2), 1.0, 0.0001)
+    assertEqualsDouble(v(l - 1), 5.0, 0.0001)
+  }
+  test("reinsurance function - ret only") {
+    val v = long_v
+    v.reinsuranceFunction(None, Some(Retention(10.0)))
+    assert(v(0) == 0.0)
+    assert(v(1) == 1.0)
+    assert(v(2) == 6.0)
+    assert(v(v.length - 3) == 0.0)
+    assert(v(v.length - 2) == 1.0)
+    assert(v(v.length - 1) == 6.0)
+  }
+  test("reinsurance function - limit only") {
+    val v = long_v
+    v.reinsuranceFunction(Some(Limit(15.0)), None)
+    assert(v(0) == 8.0)
+    assert(v(1) == 11.0)
+    assert(v(2) == 15.0)
+    assert(v(v.length - 3) == 8.0)
+    assert(v(v.length - 2) == 11.0)
+    assert(v(v.length - 1) == 15.0)
+  }
+  test("reinsurance function - no ret or limit") {
+    val v = NArray[Double](8, 11, 16)
+    v.reinsuranceFunction(None, None)
+    assert(v(0) == 8.0)
+    assert(v(1) == 11.0)
+    assert(v(2) == 16.0)
+  }
 
-    test("franchise function - ret and limit") {
-        val v = NArray[Double](8, 11, 16)
-        v.franchiseFunction(Some(Limit(5.0)), Some(Retention(10.0)))
-        assert(v(0) == 0.0)
-        assert(v(1) == 11.0)
-        assert(v(2) == 15.0)
-    }
+  test("franchise function - ret and limit") {
+    val v = NArray[Double](8, 11, 16)
+    v.franchiseFunction(Some(Limit(5.0)), Some(Retention(10.0)))
+    assert(v(0) == 0.0)
+    assert(v(1) == 11.0)
+    assert(v(2) == 15.0)
+  }
 
-    test("franchise function - ret only") {
-        val v = NArray[Double](8, 11, 16)
-        v.franchiseFunction(None, Some(Retention(10.0)))
-        assert(v(0) == 0.0)
-        assert(v(1) == 11.0)
-        assert(v(2) == 16.0)
-    }
+  test("franchise function - ret only") {
+    val v = NArray[Double](8, 11, 16)
+    v.franchiseFunction(None, Some(Retention(10.0)))
+    assert(v(0) == 0.0)
+    assert(v(1) == 11.0)
+    assert(v(2) == 16.0)
+  }
 
-    test("franchise function - Limit only") {
-        val v = NArray[Double](8, 11, 16)
-        v.franchiseFunction(Some(Limit(10.0)), None)
-        assert(v(0) == 8.0)
-        assert(v(1) == 10.0)
-        assert(v(2) == 10.0)
-    }
+  test("franchise function - Limit only") {
+    val v = NArray[Double](8, 11, 16)
+    v.franchiseFunction(Some(Limit(10.0)), None)
+    assert(v(0) == 8.0)
+    assert(v(1) == 10.0)
+    assert(v(2) == 10.0)
+  }
 
-    test("franchise function - No ret or limit") {
-        val v = NArray[Double](8, 11, 16)
-        v.franchiseFunction(None, None)
-        assert(v(0) == 8.0)
-        assert(v(1) == 11.0)
-        assert(v(2) == 16.0)
-    }
+  test("franchise function - No ret or limit") {
+    val v = NArray[Double](8, 11, 16)
+    v.franchiseFunction(None, None)
+    assert(v(0) == 8.0)
+    assert(v(1) == 11.0)
+    assert(v(2) == 16.0)
+  }
 
 // test("Simple Agg 10") {
 //   val l_10Agg = makeLayer(1.0, aggLimit = 10.0.some)

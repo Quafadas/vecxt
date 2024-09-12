@@ -19,18 +19,17 @@ package vecxt.rpt
 import Retentions.*
 
 object Limits:
-    opaque type Limit = Double
+  opaque type Limit = Double
 
-    object Limit:
-        inline def apply(d: Double): Limit = d
-    end Limit
+  object Limit:
+    inline def apply(d: Double): Limit = d
+  end Limit
 
-    extension (x: Limit)
-        inline def limit: Double = x
+  extension (x: Limit) inline def limit: Double = x
 
-    extension (in: Double)
-        inline def >(l: Limit): Boolean = in > l
-        inline def +(l: Retention): Double = in + l.retention
+  extension (in: Double)
+    inline def >(l: Limit): Boolean = in > l
+    inline def +(l: Retention): Double = in + l.retention
 
-    end extension
+  end extension
 end Limits
