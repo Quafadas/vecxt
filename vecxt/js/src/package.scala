@@ -18,7 +18,8 @@ package vecxt
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
-import vecxt.Tensors.Matrix
+import vecxt.Matrix.*
+import vecxt.extensions.matmul
 
 export extensions.*
 export vecxt.rpt.Retentions.Retention

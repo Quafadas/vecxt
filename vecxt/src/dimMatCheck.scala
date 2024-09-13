@@ -1,6 +1,6 @@
 package vecxt
 
-import vecxt.Tensors.Matrix
+import vecxt.Matrix.*
 import narr.*
 
 protected[vecxt] object dimMatCheck:

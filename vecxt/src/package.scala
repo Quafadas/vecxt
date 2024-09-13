@@ -2,28 +2,28 @@ package vecxt
 
 import narr.*
 
-object Tensors:
+object Matrix:
 
   type TupleOfInts[T <: Tuple] <: Boolean = T match
     case EmptyTuple  => true // Base case: Empty tuple is valid
     case Int *: tail => TupleOfInts[tail] // Recursive case: Head is Int, check the tail
     case _           => false // If any element is not an Int, return false
 
-  opaque type Tensor = (NArray[Double], Tuple)
-  object Tensor:
-    def apply[T <: Tuple](a: NArray[Double], b: T)(using ev: TupleOfInts[T] =:= true): Tensor = (a, b)
-  end Tensor
+  // opaque type Tensor = (NArray[Double], Tuple)
+  // object Tensor:
+  //   def apply[T <: Tuple](a: NArray[Double], b: T)(using ev: TupleOfInts[T] =:= true): Tensor = (a, b)
+  // end Tensor
 
-  opaque type Vector1 = (NArray[Double], Tuple1[Int])
-  type Vector = Vector1 & Tensor
+  // opaque type Vector = (NArray[Double], Tuple1[Int])
+  // type Vector = Vector1 & Tensor
 
-  object Vector:
-    def apply(a: NArray[Double]): Vector = (a, Tuple1(a.size))
-  end Vector
+  // object Vector:
+  //   def apply(a: NArray[Double]): Vector = (a, Tuple1(a.size))
+  // end Vector
 
-  opaque type Matrix1 = (NArray[Double], Tuple2[Int, Int])
+  opaque type Matrix = (NArray[Double], Tuple2[Int, Int])
 
-  type Matrix = Matrix1 & Tensor
+  // type Matrix = Matrix1 & Tensor
 
   object Matrix:
     inline def apply[T <: Tuple2[Int, Int]](raw: NArray[Double], dim: T)(using inline boundsCheck: BoundsCheck)(using
@@ -84,26 +84,29 @@ object Tensors:
 
   end Matrix
 
-  opaque type StrictMatrix1[M <: Int, N <: Int] = (NArray[Double], Tuple2[M, N]) & Matrix
+  // opaque type StrictMatrix1[M <: Int, N <: Int] = (NArray[Double], Tuple2[M, N]) & Matrix
 
-  type StrictMatrix[M <: Int, N <: Int] = StrictMatrix1[M, N] & Tensor
-  object StrictMatrix:
-    def apply[M <: Int, N <: Int](
-        a: NArray[Double]
-    )(using ev: TupleOfInts[Tuple2[M, N]] =:= true, m: ValueOf[M], n: ValueOf[N]): StrictMatrix[M, N] =
-      val tup = (m.value, n.value)
-      (a, tup)
-    end apply
-  end StrictMatrix
+  // type StrictMatrix[M <: Int, N <: Int] = StrictMatrix1[M, N]
+  // object StrictMatrix:
+  //   def apply[M <: Int, N <: Int](
+  //       a: NArray[Double]
+  //   )(using ev: TupleOfInts[Tuple2[M, N]] =:= true, m: ValueOf[M], n: ValueOf[N]): StrictMatrix[M, N] =
+  //     val tup = (m.value, n.value)
+  //     (a, tup)
+  //   end apply
+  // end StrictMatrix
 
-  extension (t: Tensor)
-    def raw: NArray[Double] = t._1
+  extension (d: Array[Double]) def print: String = d.mkString("[", ",", "],")
+
+  extension (m: Matrix)
+
+    inline def raw: NArray[Double] = m._1
 
     /** Zero indexed element retrieval
       */
-    def elementAt[T <: Tuple](b: T)(using ev: TupleOfInts[T] =:= true) =
+    inline def elementAt[T <: Tuple](b: T)(using ev: TupleOfInts[T] =:= true) =
       val indexes = b.toList.asInstanceOf[List[Int]]
-      val dimensions = t._2.toList.asInstanceOf[List[Int]]
+      val dimensions = m._2.toList.asInstanceOf[List[Int]]
 
       assert(indexes.length == dimensions.length)
 
@@ -114,13 +117,9 @@ object Tensors:
         }
         .sum
 
-      t._1(linearIndex)
+      m._1(linearIndex)
     end elementAt
-  end extension
 
-  extension (d: Array[Double]) def arrPrint: String = d.mkString("[", ",", "],")
-
-  extension (m: Matrix)
     inline def :@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
 
     inline def scale(d: Double): Unit = m._1 *= d
@@ -128,6 +127,8 @@ object Tensors:
     inline def rows: Int = m._2._1
 
     inline def cols: Int = m._2._2
+
+    inline def shape: String = s"${m.rows} x ${m.cols}"
 
     inline def row(i: Int): NArray[Double] =
       val result = new NArray[Double](m.cols)
@@ -177,4 +178,4 @@ object Tensors:
     end transpose
   end extension
 
-end Tensors
+end Matrix

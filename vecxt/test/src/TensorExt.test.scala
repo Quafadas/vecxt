@@ -2,7 +2,7 @@ package vecxt
 
 import munit.FunSuite
 import narr.*
-import vecxt.Tensors.*
+import vecxt.Matrix.*
 import vecxt.extensions.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
@@ -69,19 +69,9 @@ class TensorExtensionSuite extends FunSuite:
   }
 
   test("Tensor raw array retrieval") {
-    val vec = Vector(NArray[Double](1.0, 2.0, 3.0))
-    assertVecEquals(vec.raw, NArray(1.0, 2.0, 3.0))
-
     val mat = Matrix(NArray[Double](1.0, 2.0, 3.0, 4.0), (2, 2))
     assertVecEquals(mat.raw, NArray(1.0, 2.0, 3.0, 4.0))
 
-  }
-
-  test("Tensor elementAt retrieval for 1D tensor") {
-    val tensor = Vector(NArray[Double](1.0, 2.0, 3.0))
-    assertEquals(tensor.elementAt(Tuple1(0)), 1.0)
-    assertEquals(tensor.elementAt(Tuple1(1)), 2.0)
-    assertEquals(tensor.elementAt(Tuple1(2)), 3.0)
   }
 
   test("Tensor elementAt retrieval for 2D tensor") {
@@ -92,46 +82,46 @@ class TensorExtensionSuite extends FunSuite:
     assertEquals(tensor.elementAt((1, 1)), 4.0)
   }
 
-  test("Tensor elementAt retrieval for 3D tensor") {
-    val tensor = Tensors.Tensor(NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0), (2, 2, 2))
-    assertEquals(tensor.elementAt((0, 0, 0)), 1.0)
-    assertEquals(tensor.elementAt((0, 0, 1)), 2.0)
-    assertEquals(tensor.elementAt((0, 1, 0)), 3.0)
-    assertEquals(tensor.elementAt((0, 1, 1)), 4.0)
-    assertEquals(tensor.elementAt((1, 0, 0)), 5.0)
-    assertEquals(tensor.elementAt((1, 0, 1)), 6.0)
-    assertEquals(tensor.elementAt((1, 1, 0)), 7.0)
-    assertEquals(tensor.elementAt((1, 1, 1)), 8.0)
-  }
+  // test("Tensor elementAt retrieval for 3D tensor") {
+  //   val tensor = Matrix(NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0), (2, 2, 2))
+  //   assertEquals(tensor.elementAt((0, 0, 0)), 1.0)
+  //   assertEquals(tensor.elementAt((0, 0, 1)), 2.0)
+  //   assertEquals(tensor.elementAt((0, 1, 0)), 3.0)
+  //   assertEquals(tensor.elementAt((0, 1, 1)), 4.0)
+  //   assertEquals(tensor.elementAt((1, 0, 0)), 5.0)
+  //   assertEquals(tensor.elementAt((1, 0, 1)), 6.0)
+  //   assertEquals(tensor.elementAt((1, 1, 0)), 7.0)
+  //   assertEquals(tensor.elementAt((1, 1, 1)), 8.0)
+  // }
 
-  test("Tensor creation") {
-    val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
-    val tensor = Tensors.Tensor(array, (2, 2))
-    assertEquals(tensor.raw, array)
-  }
+  // test("Tensor creation") {
+  //   val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
+  //   val tensor = Tensor(array, (2, 2))
+  //   assertEquals(tensor.raw, array)
+  // }
 
-  test("Vector creation") {
-    val array = NArray[Double](1.0, 2.0, 3.0)
-    val vector = Tensors.Vector(array)
-    assertEquals(vector.raw, array)
-  }
+  // test("Vector creation") {
+  //   val array = NArray[Double](1.0, 2.0, 3.0)
+  //   val vector = Vector(array)
+  //   assertEquals(vector.raw, array)
+  // }
 
   test("Matrix creation") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
-    val matrix = Tensors.Matrix(array, (2, 2))
+    val matrix = Matrix(array, (2, 2))
     assertEquals(matrix.raw, array)
   }
 
   test("Matrix rows and cols") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
-    val matrix = Tensors.Matrix(array, (2, 2))
+    val matrix = Matrix(array, (2, 2))
     assertEquals(matrix.rows, 2)
     assertEquals(matrix.cols, 2)
   }
 
   test("Matrix row extraction") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
-    val matrix = Tensors.Matrix(array, (2, 2))
+    val matrix = Matrix(array, (2, 2))
     val row = matrix.row(0)
     assertVecEquals(row, NArray[Double](1.0, 3.0))
 
@@ -141,7 +131,7 @@ class TensorExtensionSuite extends FunSuite:
 
   test("Matrix column extraction") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
-    val matrix = Tensors.Matrix(array, (2, 2))
+    val matrix = Matrix(array, (2, 2))
     val col1 = matrix.col(0)
     assertVecEquals(col1, NArray[Double](1.0, 2.0))
 
@@ -160,7 +150,7 @@ class TensorExtensionSuite extends FunSuite:
 
   test("matrix scale") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
-    val matrix = Tensors.Matrix(array, (2, 2))
+    val matrix = Matrix(array, (2, 2))
     val col1 = matrix.scale(2)
     assertVecEquals(matrix.raw, NArray[Double](2.0, 4.0, 6.0, 8.0))
   }

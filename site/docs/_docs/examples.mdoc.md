@@ -1,3 +1,6 @@
+---
+title: Vector Examples
+---
 # Vector Examples
 
 Some basic exampeles.

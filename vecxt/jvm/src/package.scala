@@ -17,9 +17,10 @@ package vecxt
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
-import vecxt.Tensors.Matrix
+import vecxt.Matrix.*
 
 export extensions.*
+// export vecxt.Matrix.*
 export vecxt.rpt.{Retentions, Limits, LossCalc}
 export vecxt.rpt.LossCalc.{Agg, Occ}
 export vecxt.rpt.Retentions.Retention
