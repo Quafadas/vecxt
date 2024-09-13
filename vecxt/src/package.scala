@@ -139,7 +139,7 @@ object Tensors:
       arrArr.mkString("\n")
     end print
 
-    inline def col(i: Int): NArray[Double] = 
+    inline def col(i: Int): NArray[Double] =
       val result = new NArray[Double](m.rows)
       val cols = m.cols
       var j = 0
@@ -150,7 +150,7 @@ object Tensors:
         k += 1
       end while
       result
-
+    end col
 
     inline def transpose: Matrix =
       val newArr = NArray.ofSize[Double](m._1.length)
