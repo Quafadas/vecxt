@@ -129,7 +129,7 @@ class TensorExtensionSuite extends FunSuite:
     assertEquals(matrix.cols, 2)
   }
 
-  test("Matrix row extraction".only) {
+  test("Matrix row extraction") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Tensors.Matrix(array, (2, 2))
     val row = matrix.row(0)
@@ -139,7 +139,7 @@ class TensorExtensionSuite extends FunSuite:
     assertVecEquals(row2, NArray[Double](2.0, 4.0))
   }
 
-  test("Matrix column extraction".only) {
+  test("Matrix column extraction") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Tensors.Matrix(array, (2, 2))
     val col1 = matrix.col(0)
