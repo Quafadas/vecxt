@@ -17,3 +17,5 @@ Consider browsing the [[vecxt]] api, and particulaly the extensions object. You'
 On Node, this shim ships with it's own C BLAS implementation.
 
 In browser / elsewhere, it's done in loop-unrolled native arrays.
+
+TODO: Investigate webassembly? 

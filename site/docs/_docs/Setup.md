@@ -25,7 +25,9 @@ You'll need this or better, available somewhere in your bundle / build / browser
   }
 }
 ```
-If you aren't using a bundler, you can add this script to your html.
+If you aren't using a bundler, consider loading vs an ESModule and remapping the imports at link time through your build tool.
+
+Worst case;
 
 ```html
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/stdlib-js/blas@umd/browser.js"></script>
