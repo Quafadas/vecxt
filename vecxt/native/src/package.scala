@@ -20,7 +20,7 @@ import scala.scalanative.unsafe.*
 import scala.util.chaining.*
 import vecxt.dimCheck
 import vecxt.BoundsCheck
-import vecxt.Tensors.Matrix
+import vecxt.Matrix.*
 import org.ekrich.blas.*
 
 export extensions.*
