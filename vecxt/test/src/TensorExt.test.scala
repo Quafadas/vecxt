@@ -165,4 +165,33 @@ class TensorExtensionSuite extends FunSuite:
     assertVecEquals(matrix.raw, NArray[Double](2.0, 4.0, 6.0, 8.0))
   }
 
+  test("invalid matrix fails to build") {
+    val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
+    intercept[InvalidMatrix](
+      Matrix(array, (2, 3))
+    )
+
+    intercept[InvalidMatrix](
+      Matrix((2, 3), array)
+    )
+
+    intercept[java.lang.AssertionError](
+      Matrix.fromColumns(
+        NArray(
+          NArray[Double](3.0, 2.0, 3.0),
+          NArray[Double](2.0, 1.0)
+        )
+      )
+    )
+    
+    intercept[java.lang.AssertionError](
+      Matrix.fromRows(
+        NArray(
+          NArray[Double](3.0, 2.0, 3.0),
+          NArray[Double](2.0, 1.0)
+        )
+      )
+    )
+  }
+
 end TensorExtensionSuite

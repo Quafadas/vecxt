@@ -1,6 +1,7 @@
 package vecxt
 
 import vecxt.Tensors.Matrix
+import narr.*
 
 protected[vecxt] object dimMatCheck:
   inline def apply(a: Matrix, b: Matrix)(using inline doCheck: BoundsCheck) =
@@ -8,10 +9,10 @@ protected[vecxt] object dimMatCheck:
 end dimMatCheck
 
 protected[vecxt] object dimMatInstantiateCheck:
-  inline def apply(a: Matrix)(using inline doCheck: BoundsCheck) =
+  inline def apply(raw: NArray[Double], dim: Tuple2[Int, Int])(using inline doCheck: BoundsCheck) =
     inline if doCheck then
-      if a.cols * a.rows != a.raw.size
-      then throw InvalidMatrix(a.rows, a.cols, a.raw.size)
+      if dim._1 * dim._2 != raw.size
+      then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatInstantiateCheck
 
 case class MatrixDimensionMismatch(aCols: Int, aRows: Int, bCols: Int, bRows: Int)

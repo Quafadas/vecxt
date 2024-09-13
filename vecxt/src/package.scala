@@ -26,14 +26,16 @@ object Tensors:
   type Matrix = Matrix1 & Tensor
 
   object Matrix:
-    inline def apply[T <: Tuple2[Int, Int]](a: NArray[Double], b: T)(using inline boundsCheck: BoundsCheck)(using
+    inline def apply[T <: Tuple2[Int, Int]](raw: NArray[Double], dim: T)(using inline boundsCheck: BoundsCheck)(using
+        ev: TupleOfInts[T] =:= true
+    ): Matrix =      
+      dimMatInstantiateCheck(raw, dim)
+      (raw, dim)
+    inline def apply[T <: Tuple2[Int, Int]](dim: T, raw: NArray[Double])(using inline boundsCheck: BoundsCheck)(using
         ev: TupleOfInts[T] =:= true
     ): Matrix =
-      (a, b)
-    inline def apply[T <: Tuple2[Int, Int]](b: T, a: NArray[Double])(using inline boundsCheck: BoundsCheck)(using
-        ev: TupleOfInts[T] =:= true
-    ): Matrix =
-      (a, b)
+      dimMatInstantiateCheck(raw, dim)
+      (raw, dim)
 
     inline def fromRows(a: NArray[NArray[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
       val rows = a.size
