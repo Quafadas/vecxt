@@ -27,10 +27,55 @@ object Tensors:
 
   object Matrix:
     def apply[T <: Tuple2[Int, Int]](a: NArray[Double], b: T)(using ev: TupleOfInts[T] =:= true): Matrix = (a, b)
+    def apply[T <: Tuple2[Int, Int]](b: T, a: NArray[Double])(using ev: TupleOfInts[T] =:= true): Matrix = (a, b)
 
-    // extension (t: Tensor)
-    //     @targetName("martixRaw")
-    //     def raw: Array[Double] = t.raw
+    def fromRows(a: NArray[NArray[Double]]): Matrix =
+      val rows = a.size
+      val cols = a(0).size
+
+      assert(a.forall(_.size == cols))
+
+      println("cols :" + cols)
+      println("rows : " + rows)
+      val newArr = NArray.ofSize[Double](rows * cols)
+      var idx = 0
+      var i = 0
+      while i < cols do
+        var j = 0
+        while j < rows do
+          newArr(idx) = a(j)(i)
+          // println(s"row: $i || col: $j || ${a(j)(i)} entered at index ${idx}")
+          j += 1
+          idx += 1
+        end while
+        i += 1
+      end while
+      Matrix(newArr, (rows, cols))
+    end fromRows
+
+    def fromColumns(a: NArray[NArray[Double]]): Matrix =
+      val cols = a.size
+      val rows = a(0).size
+      assert(a.forall(_.size == rows))
+      println("cols :" + cols)
+      println("rows : " + rows)
+      val newArr = NArray.ofSize[Double](rows * cols)
+      var idx = 0
+      var i = 0
+      while i < cols do
+        var j = 0
+        while j < rows do
+          // val idx = i * cols + j
+          newArr(idx) = a(i)(j)
+          // println(s"i: $i || j: $j || ${a(i)(j)} entered at index ${idx}")
+          j += 1
+          idx += 1
+        end while
+        i += 1
+      end while
+      Matrix(newArr, (rows, cols))
+    end fromColumns
+
   end Matrix
 
   opaque type StrictMatrix1[M <: Int, N <: Int] = (NArray[Double], Tuple2[M, N]) & Matrix
@@ -67,6 +112,8 @@ object Tensors:
     end elementAt
   end extension
 
+  extension (d: Array[Double]) def arrPrint: String = d.mkString("[", ",", "],")
+
   extension (m: Matrix)
     inline def :@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
 
@@ -75,13 +122,12 @@ object Tensors:
     inline def cols: Int = m._2._2
 
     inline def row(i: Int): NArray[Double] =
-      val start = i * m.cols
-      val end = (i + 1) * m.cols
       val result = new NArray[Double](m.cols)
-      var j = start
+      val cols = m.cols
+      var j = 0
       var k = 0
-      while j < end do
-        result(k) = m._1(j)
+      while j < m.cols do
+        result(k) = m._1(i + j * m.rows)
         j += 1
         k += 1
       end while

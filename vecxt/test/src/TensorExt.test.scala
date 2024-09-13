@@ -8,6 +8,32 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 class TensorExtensionSuite extends FunSuite:
 
+  test("Matrix creation from nested NArray") {
+    val nestedArr = NArray(
+      NArray[Double](1.0, 2.0, 3.5), // col 1
+      NArray[Double](3.0, 4.0, 5.0), // col 2
+      NArray[Double](6.0, 7.0, 8.0) // col 2
+    )
+    val matrix = Matrix.fromColumns(nestedArr)
+    assertVecEquals(matrix.raw, NArray[Double](1.0, 2.0, 3.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0))
+
+    val nestedArr3 = NArray(
+      NArray[Double](1.0, 2.0, 3.5), // col 1
+      NArray[Double](3.0, 4.0, 5.0) // col 2
+    )
+    val matrix3 = Matrix.fromColumns(nestedArr3)
+    assertVecEquals(matrix3.raw, NArray[Double](1.0, 2.0, 3.5, 3.0, 4.0, 5.0))
+
+    val nestedArr2 = NArray(
+      NArray[Double](1.0, 3.0), // row 1
+      NArray[Double](2.0, 4.0), // row 2
+      NArray[Double](3.5, 5.0) // row 3
+    )
+    val matrix2 = Matrix.fromRows(nestedArr2)
+    assertVecEquals(matrix2.raw, NArray[Double](1.0, 2.0, 3.5, 3.0, 4.0, 5.0))
+
+  }
+
   test("Matrix multiplication") {
     val mat1 = Matrix(NArray(0.0, 0.0, 1.0, 0.0), (2, 2))
     val mat2 = Matrix(NArray(0.0, 1.0, 0.0, 0.0), (2, 2))
@@ -31,8 +57,6 @@ class TensorExtensionSuite extends FunSuite:
   test("Matrix transpose") {
     val originalArray = NArray[Double](1, 2, 3, 4, 5, 6)
     val matrix = Matrix(originalArray, (2, 3))
-
-    println(matrix.print)
 
     val transposedMatrix = matrix.transpose
 
@@ -105,20 +129,24 @@ class TensorExtensionSuite extends FunSuite:
     assertEquals(matrix.cols, 2)
   }
 
-  test("Matrix row extraction") {
+  test("Matrix row extraction".only) {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Tensors.Matrix(array, (2, 2))
-    val row = matrix.row(1)
-    assertVecEquals(row, NArray[Double](3.0, 4.0))
+    val row = matrix.row(0)
+    assertVecEquals(row, NArray[Double](1.0, 3.0))
 
-    val row2 = matrix.row(0)
-    assertVecEquals(row2, NArray[Double](1.0, 2.0))
+    val row2 = matrix.row(1)
+    assertVecEquals(row2, NArray[Double](2.0, 4.0))
   }
 
-  test("Matrix column extraction") {
+  test("Matrix column extraction".only) {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Tensors.Matrix(array, (2, 2))
+    val col1 = matrix.col(0)
+    assertVecEquals(col1, NArray[Double](1.0, 2.0))
+
     val col = matrix.col(1)
-    assertVecEquals(col, NArray[Double](2.0, 4.0))
+    assertVecEquals(col, NArray[Double](3.0, 4.0))
+
   }
 end TensorExtensionSuite
