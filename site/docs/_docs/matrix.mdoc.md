@@ -18,11 +18,13 @@ val nestedArr = NArray(
 )
 
 val matrix = Matrix.fromRows(nestedArr)
-val matrix = Matrix.fromColumns(nestedArr)
+val matrix2 = Matrix.fromColumns(nestedArr)
 
 println(matrix.shape)
 
 println(matrix.print)
+
+println(matrix2.print)
 
 println(matrix.col(1).print)
 

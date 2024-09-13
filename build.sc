@@ -109,4 +109,8 @@ object site extends SiteModule {
 
   override def moduleDeps = Seq(vecxt.jvm)
 
+  override def allScalacOptions: Target[Seq[String]] = super.allScalacOptions() ++ vecIncubatorFlag
+
+  override def scalaDocOptions = super.scalaDocOptions
+
 }
