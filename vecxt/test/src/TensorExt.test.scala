@@ -183,7 +183,7 @@ class TensorExtensionSuite extends FunSuite:
         )
       )
     )
-    
+
     intercept[java.lang.AssertionError](
       Matrix.fromRows(
         NArray(
