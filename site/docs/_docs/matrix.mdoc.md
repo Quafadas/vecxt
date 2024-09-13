@@ -17,8 +17,8 @@ val nestedArr = NArray(
   NArray[Double](6.0, 7.0, 8.0)
 )
 
-private val matrix = Matrix.fromRows(nestedArr)
-private val matrix = Matrix.fromColumns(nestedArr)
+val matrix = Matrix.fromRows(nestedArr)
+val matrix = Matrix.fromColumns(nestedArr)
 
 println(matrix.shape)
 
