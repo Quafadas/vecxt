@@ -24,7 +24,7 @@ trait Common extends ScalaModule  with PublishModule {
 
   override def pomSettings = T {
     PomSettings(
-      description = "Automatically generate html tables from scala case classes",
+      description = "Making cross platform compute intense problems less vexing",
       organization = "io.github.quafadas",
       url = "https://github.com/Quafadas/vecxt",
       licenses = Seq(License.`Apache-2.0`),
