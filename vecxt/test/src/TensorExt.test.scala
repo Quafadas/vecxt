@@ -149,4 +149,20 @@ class TensorExtensionSuite extends FunSuite:
     assertVecEquals(col, NArray[Double](3.0, 4.0))
 
   }
+
+  test("That we have to provide ints for dimensions") {
+    // We should allow non-integer values in the dimensions of the Tuple.
+    val code = "Matrix((1, 1.0), NArray.ofSize[Double](6))"
+    val code2 = """Matrix((1, "s"), NArray.ofSize[Double](6))"""
+    compileErrors(code)
+    compileErrors(code2)
+  }
+
+  test("matrix scale") {
+    val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
+    val matrix = Tensors.Matrix(array, (2, 2))
+    val col1 = matrix.scale(2)
+    assertVecEquals(matrix.raw, NArray[Double](2.0, 4.0, 6.0, 8.0))
+  }
+
 end TensorExtensionSuite

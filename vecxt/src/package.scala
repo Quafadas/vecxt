@@ -26,17 +26,21 @@ object Tensors:
   type Matrix = Matrix1 & Tensor
 
   object Matrix:
-    def apply[T <: Tuple2[Int, Int]](a: NArray[Double], b: T)(using ev: TupleOfInts[T] =:= true): Matrix = (a, b)
-    def apply[T <: Tuple2[Int, Int]](b: T, a: NArray[Double])(using ev: TupleOfInts[T] =:= true): Matrix = (a, b)
+    inline def apply[T <: Tuple2[Int, Int]](a: NArray[Double], b: T)(using inline boundsCheck: BoundsCheck)(using
+        ev: TupleOfInts[T] =:= true
+    ): Matrix =
+      (a, b)
+    inline def apply[T <: Tuple2[Int, Int]](b: T, a: NArray[Double])(using inline boundsCheck: BoundsCheck)(using
+        ev: TupleOfInts[T] =:= true
+    ): Matrix =
+      (a, b)
 
-    def fromRows(a: NArray[NArray[Double]]): Matrix =
+    inline def fromRows(a: NArray[NArray[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
       val rows = a.size
       val cols = a(0).size
 
       assert(a.forall(_.size == cols))
 
-      println("cols :" + cols)
-      println("rows : " + rows)
       val newArr = NArray.ofSize[Double](rows * cols)
       var idx = 0
       var i = 0
@@ -53,12 +57,10 @@ object Tensors:
       Matrix(newArr, (rows, cols))
     end fromRows
 
-    def fromColumns(a: NArray[NArray[Double]]): Matrix =
+    inline def fromColumns(a: NArray[NArray[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
       val cols = a.size
       val rows = a(0).size
       assert(a.forall(_.size == rows))
-      println("cols :" + cols)
-      println("rows : " + rows)
       val newArr = NArray.ofSize[Double](rows * cols)
       var idx = 0
       var i = 0
@@ -117,6 +119,8 @@ object Tensors:
   extension (m: Matrix)
     inline def :@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
 
+    inline def scale(d: Double): Unit = m._1 *= d
+
     inline def rows: Int = m._2._1
 
     inline def cols: Int = m._2._2
@@ -163,7 +167,9 @@ object Tensors:
         end while
         i += 1
       end while
-      Matrix(newArr, (m.cols, m.rows))
+      Matrix(newArr, (m.cols, m.rows))(using
+        BoundsCheck.DoBoundsCheck.no
+      ) // we already have a valid matrix if we are transposing it, so this check is redundant if this method works as intended.
     end transpose
   end extension
 
