@@ -68,6 +68,8 @@ object Tensors:
   end extension
 
   extension (m: Matrix)
+    inline def :@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
+
     inline def rows: Int = m._2._1
 
     inline def cols: Int = m._2._2

@@ -11,8 +11,12 @@ class TensorExtensionSuite extends FunSuite:
   test("Matrix multiplication") {
     val mat1 = Matrix(NArray(0.0, 0.0, 1.0, 0.0), (2, 2))
     val mat2 = Matrix(NArray(0.0, 1.0, 0.0, 0.0), (2, 2))
+
+    val result2 = mat1 :@ mat2
+
     val result = mat1.matmul(mat2)
     assertVecEquals(result.raw, NArray(1.0, 0.0, 0.0, 0.0))
+    assertVecEquals(result2.raw, NArray(1.0, 0.0, 0.0, 0.0))
   }
 
   test("Matrix multiplication2") {
