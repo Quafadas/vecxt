@@ -106,7 +106,7 @@ object extensions:
     // end copy
   end extension
 
-  extension (vec: Float64Array)
+  extension (vec: NArray[Double])
 
     inline def idxBoolean(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, index)

@@ -55,6 +55,35 @@ result2.print
 
 val mat3 = mat2.transpose + mat1
 
+```
+
+## Slicing
+
+Index via a `Int`, `NArray[Int]` or a `Range` to slice a matrix. The `::` operator is used to select all elements in a dimension.
+
+```scala mdoc:to-string
+import vecxt.Matrix.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+import narr.*
+import vecxt.extensions.*
+
+val mat = Matrix.fromRows(
+  NArray(
+    NArray[Double](1.0, 2.0, 3.0),
+    NArray[Double](4.0, 5.0, 6.0),
+    NArray[Double](7.0, 8.0, 9.0)
+  )
+)
+mat(::, ::)
+mat(1, ::)
+
+mat(::, 1)
+
+mat(1, 1)
+
+mat(0 to 1, 0 to 1)
+
+mat(NArray.from[Int](Array(0, 2)), 0 to 1)
 
 
 ```

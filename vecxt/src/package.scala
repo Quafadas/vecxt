@@ -1,6 +1,7 @@
 package vecxt
 
 import narr.*
+import javax.print.attribute.standard.MediaSize.NA
 
 object Matrix:
 
@@ -24,6 +25,8 @@ object Matrix:
   // end Vector
 
   opaque type Matrix = (NArray[Double], Tuple2[Int, Int])
+
+  type RangeExtender = Range | Int | NArray[Int] | ::.type
 
   // type Matrix = Matrix1 & Tensor
 
@@ -62,6 +65,12 @@ object Matrix:
       end while
       Matrix(newArr, (rows, cols))
     end fromRows
+
+    inline def ones(dim: Tuple2[Int, Int]): Matrix =
+      val (rows, cols) = dim
+      val newArr = NArray.fill[Double](rows * cols)(1.0)
+      Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
+    end ones
 
     inline def zeros(dim: Tuple2[Int, Int]): Matrix =
       val (rows, cols) = dim
@@ -114,9 +123,40 @@ object Matrix:
   //   end apply
   // end StrictMatrix
 
-  extension (d: Array[Double]) def print: String = d.mkString("[", ",", "],")
+  extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "],")
 
   extension (m: Matrix)
+
+    private inline def range(r: RangeExtender, max: Int): NArray[Int] = r match
+      case _: ::.type     => NArray.from((0 until max).toArray)
+      case r: Range       => NArray.from(r.toArray)
+      case l: NArray[Int] => l
+      case i: Int         => NArray(i)
+
+    def apply(rowRange: RangeExtender, colRange: RangeExtender): Matrix =
+      val newRows = range(rowRange, m.rows)
+      val newCols = range(colRange, m.cols)
+      val newArr = NArray.ofSize[Double](newCols.size * newRows.size)
+
+      var idx = 0
+
+      var i = 0
+      while i < newCols.length do
+        val oldCol = newCols(i)
+        val stride = oldCol * m.cols
+        var j = 0
+        while j < newRows.length do
+          val oldRow = newRows(j)
+          newArr(idx) = m._1(stride + oldRow)
+          idx += 1
+          j += 1
+        end while
+        i += 1
+      end while
+
+      Matrix(newArr, (newRows.size, newCols.size))(using BoundsCheck.DoBoundsCheck.no)
+
+    end apply
 
     inline def raw: NArray[Double] = m._1
 

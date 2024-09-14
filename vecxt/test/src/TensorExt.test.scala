@@ -18,6 +18,11 @@ class TensorExtensionSuite extends FunSuite:
     assertVecEquals(tensor.raw, NArray[Double](1.0, 0.0, 0.0, 1.0))
   }
 
+  test("ones") {
+    val tensor = Matrix.ones((2, 2))
+    assertVecEquals(tensor.raw, NArray[Double](1.0, 1.0, 1.0, 1.0))
+  }
+
   test("Matrix creation from nested NArray") {
     val nestedArr = NArray(
       NArray[Double](1.0, 2.0, 3.5), // col 1
@@ -203,6 +208,34 @@ class TensorExtensionSuite extends FunSuite:
         )
       )
     )
+  }
+
+  test("slice syntax") {
+    val mat = Matrix.fromRows(
+      NArray(
+        NArray[Double](1.0, 2.0, 3.0),
+        NArray[Double](4.0, 5.0, 6.0),
+        NArray[Double](7.0, 8.0, 9.0)
+      )
+    )
+    val a = mat(::, ::)
+    assertVecEquals(a.raw, mat.raw)
+
+    val b = mat(1, ::)
+    assertVecEquals(NArray[Double](4.0, 5.0, 6.0), b.raw)
+
+    val c = mat(::, 1)
+    assertVecEquals(NArray[Double](2.0, 5.0, 8.0), c.raw)
+
+    val d = mat(1, 1)
+    assertVecEquals(NArray[Double](5.0), d.raw)
+
+    val e = mat(0 to 1, 0 to 1)
+    assertVecEquals(NArray[Double](1.0, 4.0, 2.0, 5.0), e.raw)
+
+    val f = mat(NArray.from[Int](Array(0, 2)), 0 to 1)
+    assertVecEquals(NArray[Double](1.0, 7.0, 2.0, 8.0), f.raw)
+
   }
 
 end TensorExtensionSuite
