@@ -20,17 +20,17 @@ val nestedArr = NArray(
 val matrix = Matrix.fromRows(nestedArr)
 val matrix2 = Matrix.fromColumns(nestedArr)
 
-println(matrix.shape)
+matrix.shape
 
-println(matrix.print)
+matrix.print
 
-println(matrix2.print)
+matrix2.print
 
-println(matrix.col(1).print)
+matrix.col(1).print
 
-println(matrix.row(2).print)
+matrix.row(2).print
 
-println(matrix.elementAt(1, 2))
+matrix.elementAt(1, 2)
 
 ```
 There are only a small number of operations currently supported on matricies, but this sets out a paradigm. If it holds up, then adding more is a detail grind, rather than a risky time investment...
