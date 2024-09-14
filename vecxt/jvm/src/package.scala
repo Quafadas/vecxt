@@ -219,6 +219,8 @@ object extensions:
       blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
     end -=
 
+    inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck) = vec + d
+
     inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ += vec2)
@@ -228,6 +230,8 @@ object extensions:
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
     end +=
+
+    inline def multInPlace(d: Double) = vec *= d
 
     inline def *=(d: Double): Array[Double] =
       vec.tap(v => blas.dscal(v.length, d, v, 1))

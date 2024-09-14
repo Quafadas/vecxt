@@ -4,6 +4,8 @@ import narr.*
 
 object Matrix:
 
+  import vecxt.extensions.*
+
   type TupleOfInts[T <: Tuple] <: Boolean = T match
     case EmptyTuple  => true // Base case: Empty tuple is valid
     case Int *: tail => TupleOfInts[tail] // Recursive case: Head is Int, check the tail
@@ -60,6 +62,22 @@ object Matrix:
       end while
       Matrix(newArr, (rows, cols))
     end fromRows
+
+    inline def zeros(dim: Tuple2[Int, Int]): Matrix =
+      val (rows, cols) = dim
+      val newArr = NArray.ofSize[Double](rows * cols)
+      Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
+    end zeros
+
+    inline def eye(dim: Int): Matrix =
+      val newArr = NArray.ofSize[Double](dim * dim)
+      var i = 0
+      while i < dim do
+        newArr(i * dim + i) = 1.0
+        i += 1
+      end while
+      Matrix(newArr, (dim, dim))(using BoundsCheck.DoBoundsCheck.no)
+    end eye
 
     inline def fromColumns(a: NArray[NArray[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
       val cols = a.size
@@ -120,9 +138,15 @@ object Matrix:
       m._1(linearIndex)
     end elementAt
 
-    inline def :@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
+    inline def @@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
 
-    inline def scale(d: Double): Unit = m._1 *= d
+    inline def *=(d: Double): Unit = m._1.multInPlace(d)
+
+    inline def +(m2: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
+      sameDimMatCheck(m, m2)
+      val newArr = m._1.add(m2._1)
+      Matrix(newArr, m._2)(using BoundsCheck.DoBoundsCheck.no)
+    end +
 
     inline def rows: Int = m._2._1
 

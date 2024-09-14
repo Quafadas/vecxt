@@ -20,6 +20,7 @@ import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 import vecxt.Matrix.*
 import vecxt.extensions.matmul
+import narr.*
 
 export extensions.*
 export vecxt.rpt.Retentions.Retention
@@ -267,6 +268,9 @@ object extensions:
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
     end +=
+
+    inline def add(d: NArray[Double])(using inline boundsCheck: BoundsCheck) = vec + d
+    inline def multInPlace(d: Double) = vec *= d
 
     inline def *=(d: Double): Unit =
       blas.dscal(vec.length, d, vec, 1)

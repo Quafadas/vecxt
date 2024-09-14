@@ -49,8 +49,12 @@ val result = mat1.matmul(mat2)
 println(result.print)
 
 // @ is a reserved character, so we can't just copy numpy syntax... experimental
-val result2 = mat1 :@ mat2
+val result2 = mat1 @@ mat2
 
 println(result2.print)
+
+val mat3 = mat2.transpose + mat1
+
+
 
 ```

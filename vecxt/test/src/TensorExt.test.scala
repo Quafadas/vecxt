@@ -8,6 +8,16 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 class TensorExtensionSuite extends FunSuite:
 
+  test("zeros") {
+    val tensor = Matrix.zeros(2, 2)
+    assertVecEquals(tensor.raw, NArray[Double](0.0, 0.0, 0.0, 0.0))
+  }
+
+  test("eye") {
+    val tensor = Matrix.eye(2)
+    assertVecEquals(tensor.raw, NArray[Double](1.0, 0.0, 0.0, 1.0))
+  }
+
   test("Matrix creation from nested NArray") {
     val nestedArr = NArray(
       NArray[Double](1.0, 2.0, 3.5), // col 1
@@ -38,7 +48,7 @@ class TensorExtensionSuite extends FunSuite:
     val mat1 = Matrix(NArray(0.0, 0.0, 1.0, 0.0), (2, 2))
     val mat2 = Matrix(NArray(0.0, 1.0, 0.0, 0.0), (2, 2))
 
-    val result2 = mat1 :@ mat2
+    val result2 = mat1 @@ mat2
 
     val result = mat1.matmul(mat2)
     assertVecEquals(result.raw, NArray(1.0, 0.0, 0.0, 0.0))
@@ -151,8 +161,15 @@ class TensorExtensionSuite extends FunSuite:
   test("matrix scale") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Matrix(array, (2, 2))
-    val col1 = matrix.scale(2)
+    val col1 = matrix *= (2)
     assertVecEquals(matrix.raw, NArray[Double](2.0, 4.0, 6.0, 8.0))
+  }
+
+  test("matrix ops") {
+    val mat1 = Matrix.eye(3) // multiplication in place
+    mat1 *= 2
+    val mat2 = Matrix.eye(3) + Matrix.eye(3) // addition
+    assertVecEquals(mat1.raw, mat2.raw)
   }
 
   test("invalid matrix fails to build") {

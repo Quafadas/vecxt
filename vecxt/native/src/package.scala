@@ -240,6 +240,9 @@ object extensions:
       blas.cblas_daxpy(vec.length, 1.0, vec2.at(0), 1, vec.at(0), 1)
     end +=
 
+    inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck) = vec + d
+    inline def multInPlace(d: Double) = vec *= d
+
     inline def *=(d: Double) =
       blas.cblas_dscal(vec.length, d, vec.at(0), 1)
     end *=

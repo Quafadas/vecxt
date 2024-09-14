@@ -8,6 +8,12 @@ protected[vecxt] object dimMatCheck:
     inline if doCheck then if a.cols != b.rows then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end dimMatCheck
 
+protected[vecxt] object sameDimMatCheck:
+  inline def apply(a: Matrix, b: Matrix)(using inline doCheck: BoundsCheck) =
+    inline if doCheck then
+      if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
+end sameDimMatCheck
+
 protected[vecxt] object dimMatInstantiateCheck:
   inline def apply(raw: NArray[Double], dim: Tuple2[Int, Int])(using inline doCheck: BoundsCheck) =
     inline if doCheck then
