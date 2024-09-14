@@ -74,16 +74,12 @@ val mat = Matrix.fromRows(
     NArray[Double](7.0, 8.0, 9.0)
   )
 )
-mat(::, ::)
-mat(1, ::)
-
-mat(::, 1)
-
-mat(1, 1)
-
-mat(0 to 1, 0 to 1)
-
-mat(NArray.from[Int](Array(0, 2)), 0 to 1)
+mat(::, ::).print
+mat(1, ::).print
+mat(::, 1).print
+mat(1, 1).print
+mat(0 to 1, 0 to 1).print
+mat(NArray.from[Int](Array(0, 2)), 0 to 1).print
 
 
 ```
