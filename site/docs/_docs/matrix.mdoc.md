@@ -46,12 +46,12 @@ val mat1 = Matrix(NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (2, 3))
 val mat2 = Matrix(NArray(7.0, 9.0, 11.0, 8.0, 10, 12.0), (3, 2))
 val result = mat1.matmul(mat2)
 
-println(result.print)
+result.print
 
 // @ is a reserved character, so we can't just copy numpy syntax... experimental
 val result2 = mat1 @@ mat2
 
-println(result2.print)
+result2.print
 
 val mat3 = mat2.transpose + mat1
 
