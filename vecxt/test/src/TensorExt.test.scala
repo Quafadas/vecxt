@@ -182,6 +182,10 @@ class TensorExtensionSuite extends FunSuite:
       Matrix((2, 3), array)
     )
 
+    intercept[MatrixDimensionMismatch](
+      Matrix.eye(1) + Matrix.eye(2)
+    )
+
     intercept[java.lang.AssertionError](
       Matrix.fromColumns(
         NArray(
