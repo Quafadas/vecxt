@@ -19,13 +19,6 @@ import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
 import vecxt.MatrixStuff.*
 
-export extensions.*
-// export vecxt.Matrix.*
-export vecxt.rpt.{Retentions, Limits, LossCalc}
-export vecxt.rpt.LossCalc.{Agg, Occ}
-export vecxt.rpt.Retentions.Retention
-export vecxt.rpt.Limits.Limit
-
 object extensions:
 
   extension (a: Matrix[Double])
