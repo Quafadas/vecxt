@@ -169,11 +169,11 @@ class MatrixDoubleSuite extends FunSuite:
   test("invalid matrix fails to build") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     intercept[InvalidMatrix](
-      Matrix[Double](array, (2, 3))
+      Matrix(array, (2, 3))
     )
 
     intercept[InvalidMatrix](
-      Matrix[Double]((2, 3), array)
+      Matrix((2, 3), array)
     )
 
     intercept[MatrixDimensionMismatch](

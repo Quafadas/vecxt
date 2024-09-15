@@ -28,12 +28,12 @@ object MatrixStuff:
 
   type RangeExtender = Range | Int | NArray[Int] | ::.type
 
-  type MatTypCheck[A <: MatTyp] = A match
-    case Boolean => true
-    case Double  => true
-    case _       => false
+  // type MatTypCheck[A <: MatTyp] = A match
+  //   case Boolean => true
+  //   case Double  => true
+  //   case _       => false
 
-  type MatTyp = Double | Boolean
+  // type MatTyp = Double | Boolean
 
   transparent inline def one[A] =
     inline erasedValue[A] match
@@ -43,30 +43,29 @@ object MatrixStuff:
     end match
   end one
 
-  opaque type Matrix[@specialized(Double, Boolean) A <: MatTyp] = (NArray[A], Tuple2[Int, Int])
+  opaque type Matrix[A] = (NArray[A], Tuple2[Int, Int])
 
   // type Matrix = Matrix1 & Tensor
 
   object Matrix:
-    inline def apply[T <: Tuple2[Int, Int], @specialized(Double, Boolean) A <: MatTyp](raw: NArray[A], dim: T)(using
-        inline boundsCheck: BoundsCheck,
-        ev: MatTypCheck[A] =:= true
-    ): Matrix[A] =
-      dimMatInstantiateCheck(raw, dim)
-      (raw, dim)
-    end apply
-
-    inline def apply[T <: Tuple2[Int, Int], @specialized(Double, Boolean) A <: MatTyp](dim: T, raw: NArray[A])(using
-        inline boundsCheck: BoundsCheck,
-        ev: MatTypCheck[A] =:= true
-    ): Matrix[A] =
-      dimMatInstantiateCheck(raw, dim)
-      (raw, dim)
-    end apply
-
-    inline def fromRows[@specialized(Double, Boolean) A <: MatTyp](a: NArray[NArray[A]])(using
+    inline def apply[T <: Tuple2[Int, Int], @specialized(Double, Boolean) A](raw: NArray[A], dim: T)(using
         inline boundsCheck: BoundsCheck
-    )(using classTag: ClassTag[A]): Matrix[A] =
+    ): Matrix[A] =
+      dimMatInstantiateCheck(raw, dim)
+      (raw, dim)
+    end apply
+
+    inline def apply[T <: Tuple2[Int, Int], @specialized(Double, Boolean) A](dim: T, raw: NArray[A])(using
+        inline boundsCheck: BoundsCheck
+    ): Matrix[A] =
+      dimMatInstantiateCheck(raw, dim)
+      (raw, dim)
+    end apply
+
+    inline def fromRows[@specialized(Double, Boolean) A](a: NArray[NArray[A]])(using
+        inline boundsCheck: BoundsCheck,
+        classTag: ClassTag[A]
+    ): Matrix[A] =
       val rows = a.size
       val cols = a(0).size
 
@@ -88,7 +87,7 @@ object MatrixStuff:
       Matrix(newArr, (rows, cols))
     end fromRows
 
-    inline def ones[@specialized(Double, Boolean) A <: MatTyp](dim: Tuple2[Int, Int])(using
+    inline def ones[@specialized(Double, Boolean) A](dim: Tuple2[Int, Int])(using
         classTag: ClassTag[A]
     ): Matrix[A] =
       val (rows, cols) = dim
@@ -96,7 +95,7 @@ object MatrixStuff:
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end ones
 
-    inline def zeros[@specialized(Double, Boolean) A <: MatTyp](dim: Tuple2[Int, Int])(using
+    inline def zeros[@specialized(Double, Boolean) A](dim: Tuple2[Int, Int])(using
         classTag: ClassTag[A]
     ): Matrix[A] =
       val (rows, cols) = dim
@@ -104,7 +103,7 @@ object MatrixStuff:
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end zeros
 
-    inline def eye[@specialized(Double, Boolean) A <: MatTyp](dim: Int)(using classTag: ClassTag[A]): Matrix[A] =
+    inline def eye[@specialized(Double, Boolean) A](dim: Int)(using classTag: ClassTag[A]): Matrix[A] =
       val newArr = NArray.ofSize[A](dim * dim)
       val oneVal = one[A]
       var i = 0
@@ -115,7 +114,7 @@ object MatrixStuff:
       Matrix(newArr, (dim, dim))(using BoundsCheck.DoBoundsCheck.no)
     end eye
 
-    inline def fromColumns[@specialized(Double, Boolean) A <: MatTyp](a: NArray[NArray[A]])(using
+    inline def fromColumns[@specialized(Double, Boolean) A](a: NArray[NArray[A]])(using
         inline boundsCheck: BoundsCheck,
         ct: ClassTag[A]
     ): Matrix[A] =
@@ -156,7 +155,7 @@ object MatrixStuff:
 
   extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "],")
 
-  extension [A <: MatTyp](m: Matrix[A])
+  extension [A](m: Matrix[A])
 
     inline def rows: Int = m._2._1
 
@@ -176,7 +175,7 @@ object MatrixStuff:
     end +
   end extension
 
-  extension [@specialized(Double, Boolean) A <: MatTyp](m: Matrix[A])
+  extension [@specialized(Double, Boolean) A](m: Matrix[A])
 
     private inline def range(r: RangeExtender, max: Int)(using ClassTag[A]): NArray[Int] = r match
       case _: ::.type     => NArray.from((0 until max).toArray)
