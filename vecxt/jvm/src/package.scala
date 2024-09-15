@@ -17,7 +17,7 @@ package vecxt
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
-import vecxt.Matrix.*
+import vecxt.MatrixStuff.*
 
 export extensions.*
 // export vecxt.Matrix.*
@@ -28,8 +28,8 @@ export vecxt.rpt.Limits.Limit
 
 object extensions:
 
-  extension (a: Matrix)
-    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
+  extension (a: Matrix[Double])
+    inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(a, b)
       val newArr = Array.ofDim[Double](a.rows * b.cols)
       // Note, might need to deal with transpose later.

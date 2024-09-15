@@ -16,7 +16,7 @@
 
 package vecxt
 
-import vecxt.Matrix.*
+import vecxt.MatrixStuff.*
 
 protected[vecxt] object dimCheck:
   inline def apply[A, B](a: Array[A], b: Array[B])(using inline doCheck: BoundsCheck) =
