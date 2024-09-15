@@ -20,15 +20,13 @@ import scala.scalanative.unsafe.*
 import scala.util.chaining.*
 import vecxt.dimCheck
 import vecxt.BoundsCheck
-import vecxt.Matrix.*
+import vecxt.MatrixStuff.*
 import org.ekrich.blas.*
-
-export extensions.*
 
 object extensions:
 
-  extension (a: Matrix)
-    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
+  extension (a: Matrix[Double])
+    inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(a, b)
       val newArr = Array.ofDim[Double](a.rows * b.cols)
       // Note, might need to deal with transpose later.

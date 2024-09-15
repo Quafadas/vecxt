@@ -5,9 +5,9 @@ import javax.print.attribute.standard.MediaSize.NA
 import scala.reflect.ClassTag
 import scala.compiletime.erasedValue
 
-object MatrixStuff:
+import vecxt.extensions.*
 
-  import vecxt.extensions.*
+object MatrixStuff:
 
   // type TupleOfInts[T <: Tuple] <: Boolean = T match
   //   case EmptyTuple  => true // Base case: Empty tuple is valid
@@ -35,13 +35,30 @@ object MatrixStuff:
 
   // type MatTyp = Double | Boolean
 
-  transparent inline def one[A] =
+  transparent inline def zero[A] =
     inline erasedValue[A] match
-      case _: Double  => 1.0.asInstanceOf[A]
+      case _: Double  => 0.0.asInstanceOf[A]
       case _: Boolean => false.asInstanceOf[A]
       case _: A       => ???
     end match
+  end zero
+
+  transparent inline def one[A] =
+    inline erasedValue[A] match
+      case _: Double  => 1.0.asInstanceOf[A]
+      case _: Boolean => true.asInstanceOf[A]
+      case _: A       => ???
+    end match
   end one
+
+  // Sparta : Double, Int, Float, Long, Boolean
+  transparent inline def supportedType[A] =
+    inline erasedValue[A] match
+      case _: Double  => true
+      case _: Boolean => true
+      case _: A       => false
+    end match
+  end supportedType
 
   opaque type Matrix[A] = (NArray[A], Tuple2[Int, Int])
 
@@ -99,12 +116,12 @@ object MatrixStuff:
         classTag: ClassTag[A]
     ): Matrix[A] =
       val (rows, cols) = dim
-      val newArr = NArray.ofSize[A](rows * cols)
+      val newArr = NArray.fill[A](rows * cols)(zero[A])
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end zeros
 
     inline def eye[@specialized(Double, Boolean) A](dim: Int)(using classTag: ClassTag[A]): Matrix[A] =
-      val newArr = NArray.ofSize[A](dim * dim)
+      val newArr = NArray.fill[A](dim * dim)(zero[A])
       val oneVal = one[A]
       var i = 0
       while i < dim do
@@ -171,8 +188,12 @@ object MatrixStuff:
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       val newArr = m._1.add(m2._1)
-      Matrix(newArr, m._2)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[(Int, Int), Double](newArr, m._2)(using BoundsCheck.DoBoundsCheck.no)
     end +
+
+    inline def *=(d: Double): Unit = m._1.multInPlace(d)
+
+    inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
   end extension
 
   extension [@specialized(Double, Boolean) A](m: Matrix[A])
@@ -226,12 +247,8 @@ object MatrixStuff:
       m._1(linearIndex)
     end elementAt
 
-    // inline def @@(b: Matrix[A])(using inline boundsCheck: BoundsCheck): Matrix[A] = m.matmul(b)
-
-    // inline def *=(d: Double): Unit = m._1.multInPlace(d)
-
     inline def row(i: Int)(using ClassTag[A]): NArray[A] =
-      val result = new NArray[A](m.cols)
+      val result = NArray.ofSize[A](m.cols)
       val cols = m.cols
       var j = 0
       var k = 0
@@ -244,12 +261,12 @@ object MatrixStuff:
     end row
 
     inline def print(using ClassTag[A]): String =
-      val arrArr = for i <- 0 until m.rows yield m.row(i).mkString(" ")
+      val arrArr = for i <- 0 until m.rows yield m.row(i).toString()
       arrArr.mkString("\n")
     end print
 
     inline def col(i: Int)(using ClassTag[A]): NArray[A] =
-      val result = new NArray[A](m.rows)
+      val result = NArray.ofSize[A](m.rows)
       val cols = m.cols
       var j = 0
       var k = 0

@@ -18,7 +18,7 @@ package vecxt
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
-import vecxt.Matrix.*
+import vecxt.MatrixStuff.*
 import vecxt.extensions.matmul
 import narr.*
 
@@ -27,10 +27,10 @@ export vecxt.rpt.Retentions.Retention
 
 object extensions:
 
-  extension (a: Matrix)
-    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
+  extension (a: Matrix[Double])
+    inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(a, b)
-      val newArr = Float64Array(a.rows * b.cols)
+      val newArr = NArray.ofSize[Double](a.rows * b.cols)
       // Note, might need to deal with transpose later.
       dgemm(
         "column-major",
@@ -48,7 +48,7 @@ object extensions:
         newArr,
         a.rows
       )
-      Matrix(newArr, (a.rows, b.cols))
+      Matrix[(Int, Int), Double](newArr, (a.rows, b.cols))
     end matmul
   end extension
 
