@@ -275,7 +275,7 @@ object extensions:
 
     inline def logicalIdx(
         inline op: (Double, Double) => Boolean,
-        inline num: Double
+        num: Double
     ): Array[Boolean] =
       val n = vec.length
       val idx = new Array[Boolean](n)
