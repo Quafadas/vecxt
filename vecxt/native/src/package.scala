@@ -288,7 +288,7 @@ object extensions:
       idx
     end logicalIdx
 
-    def covariance(thatVector: Array[Double]): Double =
+    inline def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean
       val μThat = thatVector.mean
       var cv: Double = 0
