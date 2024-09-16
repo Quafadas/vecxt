@@ -18,6 +18,7 @@ package vecxt
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
 import vecxt.MatrixStuff.*
+import narr.*
 
 object extensions:
 
@@ -68,7 +69,7 @@ object extensions:
     end ||
   end extension
 
-  extension (vec: Array[Double])
+  extension (vec: NArray[Double])
 
     inline def idxBoolean(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
       dimCheck(vec, index)
@@ -241,6 +242,18 @@ object extensions:
     inline def /(d: Double): Array[Double] =
       vec.clone.tap(_ /= d)
     end /
+
+    inline def lt(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a < b, num)
+
+    inline def gt(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a > b, num)
+
+    inline def lte(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a <= b, num)
+
+    inline def gte(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a >= b, num)
 
     inline def <(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)

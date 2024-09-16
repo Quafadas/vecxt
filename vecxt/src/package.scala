@@ -180,7 +180,7 @@ object MatrixStuff:
 
     inline def raw: NArray[A] = m._1
 
-    inline def shape: String = s"${m.rows} x ${m.cols}"
+    inline def shape: String = s"${m.rows} x ${m.cols}"    
   end extension
 
   extension (m: Matrix[Double])
@@ -194,6 +194,19 @@ object MatrixStuff:
     inline def *=(d: Double): Unit = m._1.multInPlace(d)
 
     inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
+
+    inline def >=( d: Double) : Matrix[Boolean] = 
+      Matrix[(Int, Int), Boolean](m.raw.gte(d), m._2)(using BoundsCheck.DoBoundsCheck.no)
+        
+    inline def >( d: Double) : Matrix[Boolean] = 
+      Matrix[(Int, Int), Boolean](m.raw.gt(d), m._2)(using BoundsCheck.DoBoundsCheck.no)
+
+    inline def <=( d: Double) : Matrix[Boolean]= 
+      Matrix[(Int, Int), Boolean](m.raw.lte(d), m._2)(using BoundsCheck.DoBoundsCheck.no)
+        
+    inline def <( d: Double) : Matrix[Boolean]=      
+      Matrix[(Int, Int), Boolean](m.raw.lt(d), m._2)(using BoundsCheck.DoBoundsCheck.no)
+
   end extension
 
   extension [@specialized(Double, Boolean) A](m: Matrix[A])

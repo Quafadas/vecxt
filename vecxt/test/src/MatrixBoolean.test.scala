@@ -48,4 +48,27 @@ class MatrixBooleanSuite extends FunSuite:
 
   }
 
+  test("logicals") {
+    val mat = Matrix.fromRows[Double](
+      NArray(
+        NArray[Double](1.0, 2.0),
+        NArray[Double](3.0, 4.0),
+      )
+    )
+
+    val lt = mat < 2.0    
+    assertVecEquals(NArray(true, false, false, false), lt.raw)
+
+    val gt = mat > 2.0    
+    assertVecEquals(NArray(false, true, false, true), gt.raw)
+
+    val gte = mat >= 2.0    
+    assertVecEquals(NArray(false, true, true, true), gte.raw)
+
+    val lte = mat <= 2.0    
+    assertVecEquals(NArray(true, false, true, false), lte.raw)
+
+  }
+
+
 end MatrixBooleanSuite

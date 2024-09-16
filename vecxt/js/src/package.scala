@@ -249,6 +249,18 @@ object extensions:
 
     inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
 
+    inline def lt(num: Double): NArray[Boolean] =
+      logicalIdx((a, b) => a < b, num)
+
+    inline def gt(num: Double): NArray[Boolean] =
+      logicalIdx((a, b) => a > b, num)
+
+    inline def lte(num: Double): NArray[Boolean] =
+      logicalIdx((a, b) => a <= b, num)
+
+    inline def gte(num: Double): NArray[Boolean] =
+      logicalIdx((a, b) => a >= b, num)    
+
     inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Float64Array =
       dimCheck(vec, vec2)
       vec.nativeSlice().tap(_ -= vec2)

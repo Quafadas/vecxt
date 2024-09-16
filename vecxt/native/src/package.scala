@@ -218,6 +218,18 @@ object extensions:
       blas.cblas_ddot(vec.length, vec.at(0), 1, v1.at(0), 1)
     end dot
 
+    inline def lt(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a < b, num)
+
+    inline def gt(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a > b, num)
+
+    inline def lte(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a <= b, num)
+
+    inline def gte(num: Double): Array[Boolean] =
+      logicalIdx((a, b) => a >= b, num)    
+
     inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)
