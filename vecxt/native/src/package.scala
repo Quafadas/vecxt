@@ -228,7 +228,7 @@ object extensions:
       logicalIdx((a, b) => a <= b, num)
 
     inline def gte(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a >= b, num)    
+      logicalIdx((a, b) => a >= b, num)
 
     inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, vec2)

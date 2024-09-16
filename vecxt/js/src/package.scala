@@ -259,7 +259,7 @@ object extensions:
       logicalIdx((a, b) => a <= b, num)
 
     inline def gte(num: Double): NArray[Boolean] =
-      logicalIdx((a, b) => a >= b, num)    
+      logicalIdx((a, b) => a >= b, num)
 
     inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Float64Array =
       dimCheck(vec, vec2)
