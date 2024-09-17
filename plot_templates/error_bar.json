@@ -1,0 +1,48 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {
+        "lower_confidence": 23.1311,
+        "upper_confidence": 43.5522,
+        "center": 32.4,
+        "benchmark": "A"
+      },
+      {
+        "lower_confidence": 23.9503,
+        "upper_confidence": 38.9775,
+        "center": 30.96667,
+        "benchmark": "B"
+      }
+    ]
+  },
+  "layer": [
+    {
+      "mark": "errorbar",
+      "encoding": {
+        "x": {
+          "field": "upper_confidence",
+          "type": "quantitative",
+          "scale": { "zero": false },
+          "title": "ops / s"
+        },
+        "x2": { "field": "lower_confidence" },
+        "y": { "field": "benchmark", "type": "ordinal" }
+      }
+    },
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "color": "black"
+      },
+      "encoding": {
+        "x": {
+          "field": "center",
+          "type": "quantitative"
+        },
+        "y": { "field": "benchmark", "type": "ordinal" }
+      }
+    }
+  ]
+}

@@ -5,3 +5,4 @@ out/*
 .vscode/*
 node_modules/*
 .scala-build
+benchmark_history.json
