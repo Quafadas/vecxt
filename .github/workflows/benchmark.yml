@@ -24,7 +24,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./cache
-          key: ${{ runner.os }}-benchmark-${{ github.ref }} // cache against branch name
+          key: ${{ runner.os }}-benchmark-${{ github.ref }}
+
 
       # Run `github-action-benchmark` action
       - name: Store benchmark result
@@ -38,6 +39,7 @@ jobs:
           skip-fetch-gh-pages: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Save the benchmark result to cache - we always want to do this, which is not the default cache behavior
       - name: Save branch results
         uses: actions/cache/save@v4
         with:
