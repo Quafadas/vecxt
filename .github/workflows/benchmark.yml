@@ -37,3 +37,9 @@ jobs:
           ref: ${{ github.sha }}
           skip-fetch-gh-pages: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save branch results
+        uses: actions/cache/save@v4
+        with:
+          path: out/benchmark/runJmh.dest/jmh-result.json
+          key: ${{ runner.os }}-benchmark-${{ github.head_ref }}
