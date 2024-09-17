@@ -1,0 +1,36 @@
+name: Benchmark
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  benchmark:
+    name: Performance check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: coursier/setup-action@main
+        with:
+          jvm: temurin@17
+          apps: mill
+      # Run benchmark with `go test -bench` and stores the output to a file
+      - name: Run benchmark
+        run:  mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
+      # Download previous benchmark result from cache (if exists)
+      - name: Download previous benchmark data
+        uses: actions/cache@v4
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark-${{ github.head_ref }} // cache against branch name
+      # Run `github-action-benchmark` action
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          # What benchmark tool the output.txt came from
+          tool: 'jmh'
+          # Where the output from the benchmark tool is stored
+          output-file-path: out/benchmark/runJmh.dest/jmh-result.json
+          # Where the previous data file is stored
+          external-data-json-path: ./cache/benchmark-data.json
+          # Workflow will fail when an alert happens
+          fail-on-alert: true
+      # Upload the updated cache file for the next job by actions/cache

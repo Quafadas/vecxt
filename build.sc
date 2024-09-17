@@ -2,6 +2,8 @@
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import $ivy.`io.github.quafadas::millSite::0.0.24`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
+import $ivy.`com.lihaoyi::mill-contrib-jmh:`
+
 
 import de.tobiasroeser.mill.vcs.version._
 import com.github.lolgab.mill.crossplatform._
@@ -10,6 +12,7 @@ import io.github.quafadas.millSite._
 import mill._, scalalib._, publish._
 import mill.scalajslib.api._
 import mill.scalanativelib._
+import contrib.jmh.JmhModule
 
 import mill.api.Result
 
@@ -39,6 +42,7 @@ trait Common extends ScalaModule  with PublishModule {
 }
 
 val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
+
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.16.0"
   // def ivyDeps = super.ivyDeps() ++ Seq(ivy"com.raquo::ew::0.2.0")
@@ -92,6 +96,12 @@ object vecxt extends CrossPlatform {
 
 }
 
+object benchmark extends JmhModule with ScalaModule {
+    def scalaVersion = vecxt.jvm.scalaVersion
+    def jmhCoreVersion = "1.37"
+    override def moduleDeps: Seq[JavaModule] = Seq(vecxt.jvm)
+}
+
 object jsSite extends SiteJSModule {
 
   override def moduleDeps = Seq(vecxt.js)
@@ -109,7 +119,7 @@ object site extends SiteModule {
 
   override def moduleDeps = Seq(vecxt.jvm)
 
-  override def allScalacOptions: Target[Seq[String]] = super.allScalacOptions() ++ vecIncubatorFlag
+  // override def allScalacOptions: Target[Seq[String]] = super.allScalacOptions() ++ vecIncubatorFlag
 
   override def scalaDocOptions = super.scalaDocOptions
 
