@@ -34,6 +34,7 @@ jobs:
           echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
           echo "DATESTAMP=${DATESTAMP}" >> $GITHUB_ENV
+          echo "NEW_FILENAME=bench_${BRANCH_NAME}_${SHORT_SHA}_${DATESTAMP}.json" >> $GITHUB_ENV
 
 
       - name: Switch to benchmark branch
@@ -50,22 +51,18 @@ jobs:
           # Original filename
           ORIGINAL_FILE="out/benchmark/runJmh.dest/jmh-result.json"
 
-          # Construct new filename with short hash, datestamp, and branch name
-          NEW_FILENAME="bench_${BRANCH_NAME}_${SHORT_SHA}_${DATESTAMP}.json"
-
           # Rename the file
-          mv $ORIGINAL_FILE benchmark_cache/$NEW_FILENAME
+          mv $ORIGINAL_FILE $NEW_FILENAME
 
           ls benchmark_cache
 
-          echo "File renamed to: benchmark_cache/$NEW_FILENAME"
+          echo "File renamed to: $NEW_FILENAME"
 
       - name: Modify JSON contents and wrap in new object
         run: |
             # Create benchmark_cache directory if it doesn't exist
             mkdir -p benchmark_cache
             ls benchmark_cache
-            NEW_FILENAME="benchmark_cache/bench_${BRANCH_NAME}_${SHORT_SHA}_${DATESTAMP}.json"
 
             # Read the original JSON array
             ORIGINAL_JSON=$(cat $NEW_FILENAME)
@@ -90,7 +87,7 @@ jobs:
               git add $NEW_FILENAME
 
               # Commit the changes
-              git commit -m "$NEW_FILENAME bechmark results"
+              git commit -m "$NEW_FILENAME benchmark results"
 
               # Push the changes to the benchmark branch
               git push origin benchmark
