@@ -33,20 +33,20 @@ import vecxt.BoundsCheck
 @State(Scope.Thread)
 class DgemmBenchmark extends BLASBenchmark:
 
-  var m, n, k: Int = _
-  var transa: String = _
-  var transb: String = _
-  var alpha: Double = _
-  var a: Array[Double] = _
-  var lda: Int = _
-  var b: Array[Double] = _
-  var ldb: Int = _
-  var beta: Double = _
-  var c, cclone: Array[Double] = _
-  var ldc: Int = _
+  var m, n, k: Int = uninitialized
+  var transa: String = uninitialized
+  var transb: String = uninitialized
+  var alpha: Double = uninitialized
+  var a: Array[Double] = uninitialized
+  var lda: Int = uninitialized
+  var b: Array[Double] = uninitialized
+  var ldb: Int = uninitialized
+  var beta: Double = uninitialized
+  var c, cclone: Array[Double] = uninitialized
+  var ldc: Int = uninitialized
 
-  var matA: Matrix = _
-  var matB: Matrix = _
+  var matA: Matrix = uninitialized
+  var matB: Matrix = uninitialized
 
   // format: off
   @Setup(Level.Trial)
@@ -69,7 +69,7 @@ class DgemmBenchmark extends BLASBenchmark:
   end setup
 
   @Benchmark
-  def runblas(bh: Blackhole) =
+  def java_dgemm(bh: Blackhole) =
     val cclone = Array.fill[Double](m*n)(0)
     blas.dgemm(
       transa,
@@ -87,15 +87,14 @@ class DgemmBenchmark extends BLASBenchmark:
       m
     );
     bh.consume(cclone);
-  end runblas
+  end java_dgemm
 
 
   @Benchmark
-  def mmult(bh: Blackhole) =
-
+  def vecxt_mmult(bh: Blackhole) =
     val cclone = (matA @@ matB)(using BoundsCheck.DoBoundsCheck.no)
     bh.consume(cclone);
-  end mmult
+  end vecxt_mmult
 
 
 
