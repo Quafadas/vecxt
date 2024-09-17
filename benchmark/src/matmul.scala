@@ -29,6 +29,7 @@ import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import vecxt.Matrix.*
 import vecxt.BoundsCheck
+import scala.compiletime.uninitialized
 
 @State(Scope.Thread)
 class DgemmBenchmark extends BLASBenchmark:
