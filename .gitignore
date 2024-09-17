@@ -1,0 +1,6 @@
+out/*
+.bloop/*
+.bsp/*
+.metals/*
+.vscode/*
+node_modules/*
