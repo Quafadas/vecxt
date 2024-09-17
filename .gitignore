@@ -21,6 +21,7 @@ tags
 metals.sbt
 .vscode
 sbt-launch.jar
+.scala-build
 
 # npm
 node_modules/
