@@ -4,3 +4,4 @@ out/*
 .metals/*
 .vscode/*
 node_modules/*
+.scala-build
