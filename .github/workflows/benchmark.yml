@@ -8,6 +8,10 @@ jobs:
     name: Performance check
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout current branch (full)
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
       - uses: coursier/setup-action@main
         with:
           jvm: temurin@17
