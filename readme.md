@@ -2,6 +2,8 @@
 
 Making cross platform, compute intense vector problems less... vexing.
 
+Vecxt aims to free you from the Architectural tyranny of having to choose which platform you run your
+
 ## What is it?
 
 Aims to provide convienent and intuitive syntax for vector computations, whilst guaranteeing best-in-class performance on all platforms.
@@ -39,3 +41,5 @@ Supported operationsa re currently very basic, but we share a single test suite 
 ## Why?
 
 Not?
+
+

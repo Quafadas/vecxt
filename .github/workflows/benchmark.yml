@@ -35,6 +35,16 @@ jobs:
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
           echo "DATESTAMP=${DATESTAMP}" >> $GITHUB_ENV
 
+
+      - name: Switch to benchmark branch
+        run: |
+                git config user.name "GitHub Action Benchmark"
+                git config user.email "action@github.com"
+
+                # Create new branch based on benchmark branch
+                git fetch origin benchmark
+                git checkout -b benchmark --track origin/benchmark || git checkout benchmark
+
       - name: Rename file
         run: |
           # Original filename
@@ -70,15 +80,8 @@ jobs:
 
             echo "File renamed and moved to: benchmark_cache/$NEW_FILENAME"
 
-      - name: Commit and push changes to benchmark branch
+      - name: Commit and push benchmark results
         run: |
-              git config user.name "GitHub Action Benchmark"
-              git config user.email "action@github.com"
-
-              # Create new branch based on benchmark branch
-              git fetch origin benchmark
-              git checkout -b benchmark --track origin/benchmark || git checkout benchmark
-
               # Stage the renamed and modified file
               git add $NEW_FILENAME
 
