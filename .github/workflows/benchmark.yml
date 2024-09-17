@@ -56,12 +56,15 @@ jobs:
           # Rename the file
           mv $ORIGINAL_FILE benchmark_cache/$NEW_FILENAME
 
+          ls benchmark_cache
+
           echo "File renamed to: benchmark_cache/$NEW_FILENAME"
 
       - name: Modify JSON contents and wrap in new object
         run: |
             # Create benchmark_cache directory if it doesn't exist
             mkdir -p benchmark_cache
+            ls benchmark_cache
             NEW_FILENAME="benchmark_cache/bench_${BRANCH_NAME}_${SHORT_SHA}_${DATESTAMP}.json"
 
             # Read the original JSON array
@@ -77,9 +80,9 @@ jobs:
               '{"branch": $branch, "commit": $commit, "date": $date, "host": $host, "data": $data}')
 
             # Overwrite the file with the new JSON object
-            echo $WRAPPED_JSON > benchmark_cache/$NEW_FILENAME
+            echo $WRAPPED_JSON > $NEW_FILENAME
 
-            echo "File renamed and moved to: benchmark_cache/$NEW_FILENAME"
+            echo "File renamed and moved to: $NEW_FILENAME"
 
       - name: Commit and push benchmark results
         run: |
