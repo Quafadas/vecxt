@@ -44,14 +44,14 @@ jobs:
           NEW_FILENAME="bench_${BRANCH_NAME}_${SHORT_SHA}_${DATESTAMP}.json"
 
           # Rename the file
-          mv $ORIGINAL_FILE $NEW_FILENAME
+          mv $ORIGINAL_FILE benchmark_cache/$NEW_FILENAME
 
-          echo "File renamed to: $NEW_FILENAME"
+          echo "File renamed to: benchmark_cache/$NEW_FILENAME"
 
       - name: Modify JSON contents and wrap in new object
         run: |
             # Read the contents of the new file
-            NEW_FILENAME="bench_${BRANCH_NAME}_${SHORT_SHA}_${DATESTAMP}.json"
+            NEW_FILENAME="benchmark_cache/bench_${BRANCH_NAME}_${SHORT_SHA}_${DATESTAMP}.json"
 
             # Read the original JSON array
             ORIGINAL_JSON=$(cat $NEW_FILENAME)
