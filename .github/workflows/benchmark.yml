@@ -66,9 +66,9 @@ jobs:
               '{"branch": $branch, "commit": $commit, "date": $date, "host": $host, "data": $data}')
 
             # Overwrite the file with the new JSON object
-            echo $WRAPPED_JSON > $NEW_FILENAME
+            echo $WRAPPED_JSON > benchmark_cache/$NEW_FILENAME
 
-            echo "Modified JSON contents and wrapped in object with host field in: $NEW_FILENAME"
+            echo "File renamed and moved to: benchmark_cache/$NEW_FILENAME"
 
       - name: Commit and push changes to benchmark branch
         run: |
