@@ -38,12 +38,12 @@ jobs:
 
       - name: Switch to benchmark branch
         run: |
-                git config user.name "GitHub Action Benchmark"
-                git config user.email "action@github.com"
+              git config user.name "GitHub Action Benchmark"
+              git config user.email "action@github.com"
 
-                # Create new branch based on benchmark branch
-                git fetch origin benchmark
-                git checkout -b benchmark --track origin/benchmark || git checkout benchmark
+              # Create new branch based on benchmark branch
+              git fetch origin benchmark
+              git checkout -b benchmark --track origin/benchmark || git checkout benchmark
 
       - name: Rename file
         run: |
@@ -60,7 +60,8 @@ jobs:
 
       - name: Modify JSON contents and wrap in new object
         run: |
-            # Read the contents of the new file
+            # Create benchmark_cache directory if it doesn't exist
+            mkdir -p benchmark_cache
             NEW_FILENAME="benchmark_cache/bench_${BRANCH_NAME}_${SHORT_SHA}_${DATESTAMP}.json"
 
             # Read the original JSON array
