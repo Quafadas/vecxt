@@ -19,6 +19,9 @@ import ujson._
     }
 
   // Write the combined JSON array to the output file
+  val mainOnly = allJson.map { json =>
+    json.Str("branch") == "main"
+  }
 
   os.write(outputFile, ujson.write(allJson, indent = 4))
 
