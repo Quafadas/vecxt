@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Thread)
 @Fork(value = 1)
-@Warmup(iterations = 0)
-@Measurement(iterations = 1)
+@Warmup(iterations = 3)
+@Measurement(iterations = 3)
 abstract class BLASBenchmark:
 
   var blas: BLAS = _;
