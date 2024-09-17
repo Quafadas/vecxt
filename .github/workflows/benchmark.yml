@@ -77,7 +77,7 @@ jobs:
 
               # Create new branch based on benchmark branch
               git fetch origin benchmark
-              git checkout benchmark
+              git checkout -b benchmark --track origin/benchmark || git checkout benchmark
 
               # Stage the renamed and modified file
               git add $NEW_FILENAME
