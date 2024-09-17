@@ -30,13 +30,10 @@ jobs:
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
-          # What benchmark tool the output.txt came from
           tool: 'jmh'
-          # Where the output from the benchmark tool is stored
           output-file-path: out/benchmark/runJmh.dest/jmh-result.json
-          # Where the previous data file is stored
           external-data-json-path: ./cache/benchmark-data.json
-          # Workflow will fail when an alert happens
           fail-on-alert: true
           ref: ${{ github.sha }}
-      # Upload the updated cache file for the next job by actions/cache
+          skip-fetch-gh-pages: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
