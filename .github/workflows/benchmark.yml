@@ -24,7 +24,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./cache
-          key: ${{ runner.os }}-benchmark-${{ github.head_ref }} // cache against branch name
+          key: ${{ runner.os }}-benchmark-${{ github.ref }} // cache against branch name
 
       # Run `github-action-benchmark` action
       - name: Store benchmark result
@@ -42,4 +42,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: out/benchmark/runJmh.dest/jmh-result.json
-          key: ${{ runner.os }}-benchmark-${{ github.head_ref }}
+          key: ${{ runner.os }}-benchmark-${{ github.ref }}
