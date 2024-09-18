@@ -18,6 +18,8 @@ package vecxt
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
 import vecxt.Matrix.*
+import jdk.incubator.vector.DoubleVector
+import jdk.incubator.vector.VectorSpecies
 
 export extensions.*
 // export vecxt.Matrix.*
@@ -230,6 +232,37 @@ object extensions:
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
     end +=
+
+    inline def +:+(d: Double): Array[Double] =
+      vec.clone.tap(_ +:+= d)
+    end +:+
+
+    inline def scalarPlus(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) += d
+        i += 1
+      end while
+    end scalarPlus
+
+    inline def +:+=(d: Double): Unit =
+      val species = DoubleVector.SPECIES_PREFERRED
+      val length = vec.length
+      var i: Int = 0
+      val scalarVec = DoubleVector.broadcast(species, d)
+
+      while i < species.loopBound(length) do
+        val vec1 = DoubleVector.fromArray(species, vec, i)
+        val resultVec = vec1.add(scalarVec)
+        resultVec.intoArray(vec, i)
+        i += species.length()
+      end while
+      // Handle any remaining elements (if any) with a scalar loop
+      while i < length do
+        vec(i) += d
+        i += 1
+      end while
+    end +:+=
 
     inline def multInPlace(d: Double) = vec *= d
 

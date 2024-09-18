@@ -264,6 +264,18 @@ object extensions:
       vec.nativeSlice().tap(_ += vec2)
     end +
 
+    inline def +:+(d: Double) =
+      vec.nativeSlice().tap(_ +:+= d)
+    end +:+
+
+    inline def +:+=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +:+=
+
     inline def +=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)

@@ -240,6 +240,18 @@ object extensions:
       blas.cblas_daxpy(vec.length, 1.0, vec2.at(0), 1, vec.at(0), 1)
     end +=
 
+    inline def +:+(d: Double) =
+      vec.clone.tap(_ +:+= d)
+    end +:+
+
+    inline def +:+=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +:+=
+
     inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck) = vec + d
     inline def multInPlace(d: Double) = vec *= d
 

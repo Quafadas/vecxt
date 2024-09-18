@@ -127,6 +127,11 @@ object Matrix:
 
   extension (m: Matrix)
 
+    def clone: Matrix =
+      val newArr = m._1.clone
+      Matrix(newArr, m._2)(using BoundsCheck.DoBoundsCheck.no)
+    end clone
+
     private inline def range(r: RangeExtender, max: Int): NArray[Int] = r match
       case _: ::.type     => NArray.from((0 until max).toArray)
       case r: Range       => NArray.from(r.toArray)
