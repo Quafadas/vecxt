@@ -28,3 +28,4 @@ node_modules/
 
 #mill
 out/
+benchmark_history.json

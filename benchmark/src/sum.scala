@@ -28,60 +28,85 @@ package vecxt.benchmark
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import vecxt.Matrix.*
-import vecxt.*
+import vecxt.BoundsCheck
 import scala.compiletime.uninitialized
-
-// format: off
-/**
- * Benchmark                      (n)   Mode  Cnt          Score           Error  Units
-AddBenchmark.vecxt_add          10  thrpt    3  233611146.871 ± 125859919.324  ops/s
-AddBenchmark.vecxt_add        1000  thrpt    3    7928734.492 ±  11559652.319  ops/s
-AddBenchmark.vecxt_add      100000  thrpt    3      74348.984 ±      1738.698  ops/s
-AddBenchmark.vecxt_add_vec      10  thrpt    3  285091547.069 ±   7669626.218  ops/s
-AddBenchmark.vecxt_add_vec    1000  thrpt    3    6512670.752 ±    780742.072  ops/s
-AddBenchmark.vecxt_add_vec  100000  thrpt    3      74825.602 ±      3966.400  ops/s
-  */
+import vecxt.*
+import jdk.incubator.vector.VectorSpecies
+import jdk.incubator.vector.VectorOperators
+import jdk.incubator.vector.DoubleVector
 
 @State(Scope.Thread)
-class AddScalarBenchmark extends BLASBenchmark:
+class SumBenchmark extends BLASBenchmark:
 
-  @Param(Array("10", "1000", "100000"))
-  var n: java.lang.String = uninitialized
+  @Param(Array("3", "100", "100000"))
+  var len: String = uninitialized;
 
-  var vec: Array[Double] = uninitialized
-  var vec2: Array[Double] = uninitialized
+  var arr: Array[Double] = uninitialized
 
   // format: off
   @Setup(Level.Trial)
   def setup: Unit =
-    vec = randomDoubleArray(n.toInt);
-    vec2 = randomDoubleArray(n.toInt);
+
+    arr = randomDoubleArray(len.toInt);
     ()
 
   end setup
 
   extension (vec: Array[Double])
+    inline def sum3 =
+      var i: Int = 0
+      val species = DoubleVector.SPECIES_PREFERRED
 
-    inline def scalarPlus(d: Double): Unit =
-      var i = 0
+      var acc = DoubleVector.zero(species)
+
+      while i < species.loopBound(vec.length) do
+        acc = acc.add(DoubleVector.fromArray(species, vec, i))
+        i += species.length()
+      end while
+
+      var temp = acc.reduceLanes(VectorOperators.ADD)
+      // var temp = 0.0
       while i < vec.length do
-        vec(i) += d
+        temp += vec(i)
         i += 1
       end while
-    end scalarPlus
+      temp
+    end sum3
 
+    inline def sum2 =
+      var sum: Double = 0.0
+      var i: Int = 0
+      val species = DoubleVector.SPECIES_PREFERRED
 
+      while i < species.loopBound(vec.length) do
+        sum = sum + DoubleVector.fromArray(species, vec, i).reduceLanes(VectorOperators.ADD)
+        i += species.length()
+      end while
+      while i < vec.length do
+        sum += vec(i)
+        i += 1
+      end while
+      sum
+    end sum2
   end extension
 
   @Benchmark
-  def vecxt_add(bh: Blackhole) =
-    val add1 = vec.scalarPlus(4.5)
-    bh.consume(add1);
-  end vecxt_add
+  def sum_loop(bh: Blackhole) =
+    val r = arr.sum
+    bh.consume(r);
+  end sum_loop
 
   @Benchmark
-  def vecxt_add_vec(bh: Blackhole) =
-    val add1 = vec2 +:+= 4.5
-    bh.consume(add1);
-  end vecxt_add_vec
-end AddBenchmark
+  def sum_vec(bh: Blackhole) =
+    val r = arr.sum2
+    bh.consume(r);
+  end sum_vec
+
+  @Benchmark
+  def sum_vec_alt(bh: Blackhole) =
+    val r = arr.sum3
+    bh.consume(r);
+  end sum_vec_alt
+
+
+end SumBenchmark

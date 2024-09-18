@@ -20,6 +20,7 @@ import scala.util.chaining.*
 import vecxt.Matrix.*
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
+import jdk.incubator.vector.VectorOperators
 
 export extensions.*
 // export vecxt.Matrix.*
