@@ -13,6 +13,8 @@ import mill._, scalalib._, publish._
 import mill.scalajslib.api._
 import mill.scalanativelib._
 import contrib.jmh.JmhModule
+import mill.util.Jvm
+
 
 import mill.api.Result
 
@@ -99,7 +101,37 @@ object vecxt extends CrossPlatform {
 object benchmark extends JmhModule with ScalaModule {
     def scalaVersion = vecxt.jvm.scalaVersion
     def jmhCoreVersion = "1.37"
+    override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
     override def moduleDeps: Seq[JavaModule] = Seq(vecxt.jvm)
+
+    override def generateBenchmarkSources = T{
+      val dest = T.ctx().dest
+
+      val javacOpts = javacOptions().toSeq
+
+      val sourcesDir = dest / "jmh_sources"
+      val resourcesDir = dest / "jmh_resources"
+
+      os.remove.all(sourcesDir)
+      os.makeDir.all(sourcesDir)
+      os.remove.all(resourcesDir)
+      os.makeDir.all(resourcesDir)
+
+      Jvm.runSubprocess(
+        "org.openjdk.jmh.generators.bytecode.JmhBytecodeGenerator",
+        (runClasspath() ++ generatorDeps()).map(_.path),
+        mainArgs = Seq(
+          compile().classes.path.toString,
+          sourcesDir.toString,
+          resourcesDir.toString,
+          "default"
+        ),
+        jvmArgs = javacOpts
+      )
+
+
+      (sourcesDir, resourcesDir)
+    }
 }
 
 object jsSite extends SiteJSModule {

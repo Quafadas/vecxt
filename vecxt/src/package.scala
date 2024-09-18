@@ -1,7 +1,6 @@
 package vecxt
 
 import narr.*
-import javax.print.attribute.standard.MediaSize.NA
 
 object Matrix:
 
@@ -128,7 +127,7 @@ object Matrix:
   extension (m: Matrix)
 
     def clone: Matrix =
-      val newArr = m._1.clone
+      val newArr = m._1.clone()
       Matrix(newArr, m._2)(using BoundsCheck.DoBoundsCheck.no)
     end clone
 

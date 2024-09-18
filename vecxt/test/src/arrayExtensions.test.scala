@@ -47,14 +47,13 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array scalar +:+ ") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0) +:+ 2.0
-
-    val v2 = NArray[Double](3.0, 4.0, 5.0)
-    v2.scalarPlus(2.0)
+    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0) +:+ 2.0
 
     assertEqualsDouble(v1(0), 3, 0.00001)
     assertEqualsDouble(v1(1), 4, 0.00001)
     assertEqualsDouble(v1(2), 5, 0.00001)
+    assertEqualsDouble(v1(3), 6, 0.00001)
+    assertEqualsDouble(v1(4), 7, 0.00001)
 
   }
 

@@ -237,28 +237,18 @@ object extensions:
       vec.clone.tap(_ +:+= d)
     end +:+
 
-    inline def scalarPlus(d: Double): Unit =
-      var i = 0
-      while i < vec.length do
-        vec(i) += d
-        i += 1
-      end while
-    end scalarPlus
-
     inline def +:+=(d: Double): Unit =
       val species = DoubleVector.SPECIES_PREFERRED
-      val length = vec.length
       var i: Int = 0
       val scalarVec = DoubleVector.broadcast(species, d)
 
-      while i < species.loopBound(length) do
+      while i < species.loopBound(vec.length) do
         val vec1 = DoubleVector.fromArray(species, vec, i)
-        val resultVec = vec1.add(scalarVec)
-        resultVec.intoArray(vec, i)
+        vec1.add(scalarVec).intoArray(vec, i)
         i += species.length()
       end while
-      // Handle any remaining elements (if any) with a scalar loop
-      while i < length do
+
+      while i < vec.length do
         vec(i) += d
         i += 1
       end while
