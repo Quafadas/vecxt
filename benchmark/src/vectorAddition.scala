@@ -61,7 +61,6 @@ class AddScalarBenchmark extends BLASBenchmark:
   end setup
 
   extension (vec: Array[Double])
-
     inline def scalarPlus(d: Double): Unit =
       var i = 0
       while i < vec.length do
@@ -84,4 +83,5 @@ class AddScalarBenchmark extends BLASBenchmark:
     val add1 = vec2 +:+= 4.5
     bh.consume(add1);
   end vecxt_add_vec
-end AddBenchmark
+end AddScalarBenchmark
+

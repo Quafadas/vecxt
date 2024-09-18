@@ -27,7 +27,7 @@ package vecxt.benchmark
 
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
-import vecxt.Matrix.*
+// import vecxt.Matrix.*
 import vecxt.BoundsCheck
 import scala.compiletime.uninitialized
 import vecxt.*
@@ -58,11 +58,11 @@ class SumBenchmark extends BLASBenchmark:
     inline def sum2 =
       var sum: Double = 0.0
       var i: Int = 0
-      val sp = Matrix.doubleSpecies
+      val sp = Matrix.Matrix.doubleSpecies
       val l = sp.length()
 
       while i < sp.loopBound(vec.length) do
-        sum = sum + DoubleVector.fromArray(Matrix.doubleSpecies, vec, i).reduceLanes(VectorOperators.ADD)
+        sum = sum + DoubleVector.fromArray(sp, vec, i).reduceLanes(VectorOperators.ADD)
         i += l
       end while
       while i < vec.length do
