@@ -1,6 +1,7 @@
 package vecxt
 
 import narr.*
+import jdk.incubator.vector.DoubleVector
 
 object Matrix:
 
@@ -30,6 +31,9 @@ object Matrix:
   // type Matrix = Matrix1 & Tensor
 
   object Matrix:
+
+    inline def doubleSpecies = DoubleVector.SPECIES_PREFERRED
+
     inline def apply[T <: Tuple2[Int, Int]](raw: NArray[Double], dim: T)(using inline boundsCheck: BoundsCheck)(using
         ev: TupleOfInts[T] =:= true
     ): Matrix =
@@ -125,11 +129,6 @@ object Matrix:
   extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "],")
 
   extension (m: Matrix)
-
-    def clone: Matrix =
-      val newArr = m._1.clone()
-      Matrix(newArr, m._2)(using BoundsCheck.DoBoundsCheck.no)
-    end clone
 
     private inline def range(r: RangeExtender, max: Int): NArray[Int] = r match
       case _: ::.type     => NArray.from((0 until max).toArray)

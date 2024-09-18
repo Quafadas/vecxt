@@ -53,34 +53,17 @@ class SumBenchmark extends BLASBenchmark:
   end setup
 
   extension (vec: Array[Double])
-    inline def sum3 =
-      var i: Int = 0
-      val species = DoubleVector.SPECIES_PREFERRED
 
-      var acc = DoubleVector.zero(species)
-
-      while i < species.loopBound(vec.length) do
-        acc = acc.add(DoubleVector.fromArray(species, vec, i))
-        i += species.length()
-      end while
-
-      var temp = acc.reduceLanes(VectorOperators.ADD)
-      // var temp = 0.0
-      while i < vec.length do
-        temp += vec(i)
-        i += 1
-      end while
-      temp
-    end sum3
 
     inline def sum2 =
       var sum: Double = 0.0
       var i: Int = 0
-      val species = DoubleVector.SPECIES_PREFERRED
+      val sp = Matrix.doubleSpecies
+      val l = sp.length()
 
-      while i < species.loopBound(vec.length) do
-        sum = sum + DoubleVector.fromArray(species, vec, i).reduceLanes(VectorOperators.ADD)
-        i += species.length()
+      while i < sp.loopBound(vec.length) do
+        sum = sum + DoubleVector.fromArray(Matrix.doubleSpecies, vec, i).reduceLanes(VectorOperators.ADD)
+        i += l
       end while
       while i < vec.length do
         sum += vec(i)
@@ -88,11 +71,24 @@ class SumBenchmark extends BLASBenchmark:
       end while
       sum
     end sum2
+
+    inline def sum3 =
+      var sum: Double = 0.0
+      var i: Int = 0
+      while i < vec.length do
+        sum = sum + vec(i)
+        i = i + 1
+      end while
+      sum
+    end sum3
+
   end extension
+
+
 
   @Benchmark
   def sum_loop(bh: Blackhole) =
-    val r = arr.sum
+    val r = arr.sum3
     bh.consume(r);
   end sum_loop
 
@@ -104,7 +100,7 @@ class SumBenchmark extends BLASBenchmark:
 
   @Benchmark
   def sum_vec_alt(bh: Blackhole) =
-    val r = arr.sum3
+    val r = arr.sum
     bh.consume(r);
   end sum_vec_alt
 

@@ -188,13 +188,23 @@ object extensions:
     inline def mean: Double = vec.sum / vec.length
 
     inline def sum: Double =
-      var sum = 0.0
-      var i = 0;
-      while i < vec.length do
-        sum = sum + vec(i)
-        i = i + 1
+      var i: Int = 0
+
+      var acc = DoubleVector.zero(Matrix.doubleSpecies)
+      val sp = Matrix.doubleSpecies
+      val l = sp.length()
+
+      while i < sp.loopBound(vec.length) do
+        acc = acc.add(DoubleVector.fromArray(Matrix.doubleSpecies, vec, i))
+        i += l
       end while
-      sum
+      var temp = acc.reduceLanes(VectorOperators.ADD)
+      // var temp = 0.0
+      while i < vec.length do
+        temp += vec(i)
+        i += 1
+      end while
+      temp
     end sum
 
     inline def cumsum: Unit =

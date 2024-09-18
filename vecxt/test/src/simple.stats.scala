@@ -37,8 +37,6 @@ class StatsSuite extends munit.FunSuite:
 
   test("sum") {
     val v = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
-    assertEqualsDouble(v.sum3, 55.0, 0.001)
-    assertEqualsDouble(v.sum2, 55.0, 0.001)
     assertEqualsDouble(v.sum, 55.0, 0.001)
   }
 
