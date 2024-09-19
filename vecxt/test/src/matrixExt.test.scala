@@ -91,10 +91,10 @@ class TensorExtensionSuite extends FunSuite:
 
   test("Tensor elementAt retrieval for 2D tensor") {
     val tensor = Matrix(NArray[Double](1.0, 2.0, 3.0, 4.0), (2, 2))
-    assertEquals(tensor.elementAt((0, 0)), 1.0)
-    assertEquals(tensor.elementAt((0, 1)), 2.0)
-    assertEquals(tensor.elementAt((1, 0)), 3.0)
-    assertEquals(tensor.elementAt((1, 1)), 4.0)
+    assertEquals(tensor((0, 0)), 1.0)
+    assertEquals(tensor((0, 1)), 2.0)
+    assertEquals(tensor((1, 0)), 3.0)
+    assertEquals(tensor((1, 1)), 4.0)
   }
 
   // test("Tensor elementAt retrieval for 3D tensor") {

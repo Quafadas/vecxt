@@ -24,6 +24,11 @@ object Matrix:
   //   def apply(a: NArray[Double]): Vector = (a, Tuple1(a.size))
   // end Vector
 
+  /** This is a matrix
+    *
+    * ._1 is the matrix values, stored as a single contiguous array ._2 is the dimensions ._2._1 is the number of rows
+    * ._2._2 is the number of columns
+    */
   opaque type Matrix = (NArray[Double], Tuple2[Int, Int])
 
   type RangeExtender = Range | Int | NArray[Int] | ::.type
@@ -131,7 +136,7 @@ object Matrix:
   extension (m: Matrix)
     inline def update(loc: Tuple2[Int, Int], value: Double)(using inline boundsCheck: BoundsCheck) =
       indexCheckMat(m, loc)
-      val idx = loc._1 * m._2._1 + loc._2
+      val idx = loc._1 * m._2._2 + loc._2
       m._1(idx) = value
     end update
 
@@ -170,7 +175,7 @@ object Matrix:
 
     /** Zero indexed element retrieval
       */
-    inline def elementAt[T <: Tuple](b: T)(using ev: TupleOfInts[T] =:= true) =
+    inline def apply(b: Tuple2[Int, Int]) =
       val indexes = b.toList.asInstanceOf[List[Int]]
       val dimensions = m._2.toList.asInstanceOf[List[Int]]
 
@@ -184,7 +189,7 @@ object Matrix:
         .sum
 
       m._1(linearIndex)
-    end elementAt
+    end apply
 
     inline def @@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
 

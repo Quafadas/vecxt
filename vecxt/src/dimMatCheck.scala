@@ -18,7 +18,9 @@ protected[vecxt] object indexCheckMat:
   inline def apply(a: Matrix, dim: Tuple2[Int, Int])(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
-        throw java.lang.IndexOutOfBoundsException(a.rows, a.cols, b.rows, b.cols)
+        throw java.lang.IndexOutOfBoundsException(
+          s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+        )
 end indexCheckMat
 
 protected[vecxt] object dimMatInstantiateCheck:
