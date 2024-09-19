@@ -106,7 +106,14 @@ object extensions:
     // end copy
   end extension
 
+  extension (vec: Float64Array)
+    
+    inline def update(idx: Int, d: Double)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit = 
+      indexCheck(vec, idx)
+      vec(idx) = d
+
   extension (vec: NArray[Double])
+
 
     inline def idxBoolean(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, index)
