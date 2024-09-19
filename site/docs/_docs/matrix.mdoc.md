@@ -30,7 +30,7 @@ matrix.col(1).print
 
 matrix.row(2).print
 
-matrix.elementAt(1, 2)
+matrix(1, 2)
 
 ```
 There are only a small number of operations currently supported on matricies, but this sets out a paradigm. If it holds up, then adding more is a detail grind, rather than a risky time investment...

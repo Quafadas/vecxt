@@ -147,6 +147,8 @@ object site extends SiteModule {
 
   override val jsSiteModule = jsSite
 
+  override def forkArgs: T[Seq[String]] = super.forkArgs() ++ vecIncubatorFlag
+
   def scalaVersion = vecxt.jvm.scalaVersion
 
   override def moduleDeps = Seq(vecxt.jvm)
