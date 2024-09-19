@@ -22,8 +22,10 @@ import vecxt.BoundsCheck.BoundsCheck
 
 protected[vecxt] object indexCheck:
   inline def apply[A](a: Float64Array, idx: Int)(using inline doCheck: BoundsCheck) =
-    inline if doCheck then if !(idx < a.length && idx >= 0) then throw java.lang.IndexOutOfBoundsException(s"Array of length : ${a.length} cannot be indexed at $idx")
-
+    inline if doCheck then
+      if !(idx < a.length && idx >= 0) then
+        throw java.lang.IndexOutOfBoundsException(s"Array of length : ${a.length} cannot be indexed at $idx")
+end indexCheck
 
 protected[vecxt] object dimCheck:
   inline def apply[A](a: Float64Array, b: scala.scalajs.js.Array[A])(using inline doCheck: BoundsCheck) =
