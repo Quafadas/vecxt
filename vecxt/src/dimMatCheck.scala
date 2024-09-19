@@ -14,12 +14,12 @@ protected[vecxt] object sameDimMatCheck:
       if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end sameDimMatCheck
 
-
 protected[vecxt] object indexCheckMat:
   inline def apply(a: Matrix, dim: Tuple2[Int, Int])(using inline doCheck: BoundsCheck) =
     inline if doCheck then
-      if !(dim._1 >=0 && dim._2 >=0 && dim._1 <= a.rows && dim._2 <= a.cols ) then throw java.lang.IndexOutOfBoundsException(a.rows, a.cols, b.rows, b.cols)
-
+      if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+        throw java.lang.IndexOutOfBoundsException(a.rows, a.cols, b.rows, b.cols)
+end indexCheckMat
 
 protected[vecxt] object dimMatInstantiateCheck:
   inline def apply(raw: NArray[Double], dim: Tuple2[Int, Int])(using inline doCheck: BoundsCheck) =

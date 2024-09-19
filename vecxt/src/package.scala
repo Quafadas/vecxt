@@ -110,8 +110,7 @@ object Matrix:
         i += 1
       end while
       Matrix(newArr, (rows, cols))
-    end fromColumns    
-
+    end fromColumns
 
   end Matrix
 
@@ -130,10 +129,11 @@ object Matrix:
   extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "],")
 
   extension (m: Matrix)
-    inline def update(loc: Tuple2[Int, Int], value: Double)(using inline boundsCheck: BoundsCheck) = 
+    inline def update(loc: Tuple2[Int, Int], value: Double)(using inline boundsCheck: BoundsCheck) =
       indexCheckMat(m, loc)
       val idx = loc._1 * m._2._1 + loc._2
       m._1(idx) = value
+    end update
 
     private inline def range(r: RangeExtender, max: Int): NArray[Int] = r match
       case _: ::.type     => NArray.from((0 until max).toArray)
