@@ -6,7 +6,7 @@ Freeing you from the tyranny of having to choose which platform you write your c
 
 ## What is it?
 
-Aims to provide convienent and intuitive syntax for vector computations with best-in-class inline-shim-to-blas performance.
+Aims to provide convienent and intuitive syntax for vector computations with best-in-class inline-shim-to-BLAS performance.
 
 ||JVM|JS|Native|
 ----|----|----|----|
