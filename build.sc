@@ -1,6 +1,6 @@
 
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
-import $ivy.`io.github.quafadas::millSite::0.0.29-1-2afe04-DIRTYf194c08c`
+import $ivy.`io.github.quafadas::millSite::0.0.30`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import $ivy.`com.lihaoyi::mill-contrib-jmh:`
 
