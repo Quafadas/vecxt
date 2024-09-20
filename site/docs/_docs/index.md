@@ -33,5 +33,5 @@ println((v1 + v2).mkString("[",",","]"))
 
 ## Non-Goals
 
-- General purpose linear algebra - see [slash](https://github.com/dragonfly-ai/slash) or [breeze](https://github.com/scalanlp/breeze/)
+- General mathematics - lets' try to keep a focus on linear algebra. See [slash](https://github.com/dragonfly-ai/slash) or [breeze](https://github.com/scalanlp/breeze/) for more general libraries
 - Visualisation - see [dedav4s](https://quafadas.github.io/dedav4s/)

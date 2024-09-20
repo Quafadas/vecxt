@@ -1,6 +1,6 @@
 
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
-import $ivy.`io.github.quafadas::millSite::0.0.29`
+import $ivy.`io.github.quafadas::millSite::0.0.29-1-2afe04-DIRTYf194c08c`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import $ivy.`com.lihaoyi::mill-contrib-jmh:`
 
@@ -95,19 +95,56 @@ object vecxt extends CrossPlatform {
     // native specific settings here
     object test extends ScalaNativeTests with SharedTests
   }
-
 }
+
+object vecxt_extensions extends CrossPlatform {
+  override def moduleDeps: Seq[CrossPlatform] = Seq(vecxt)
+  trait Shared extends CrossPlatformScalaModule with Common {
+    // common `core` settings here
+    trait SharedTests extends CommonTests {
+      // common `core` test settings here
+    }
+  }
+  object jvm extends Shared {
+    override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
+    def forkArgs = super.forkArgs() ++ vecIncubatorFlag
+    def ivyDeps = super.ivyDeps() ++ Agg(
+
+    )
+
+    object test extends ScalaTests with SharedTests {
+      def forkArgs = super.forkArgs() ++ vecIncubatorFlag
+    }
+  }
+  object js extends Shared with CommonJS {
+    override def ivyDeps: Target[Agg[Dep]] = super.ivyDeps() ++ Agg(
+      ivy"com.lihaoyi::scalatags::0.13.1",
+      ivy"com.raquo::laminar::17.0.0"
+    )
+    // js specific settings here
+    object test extends ScalaJSTests with SharedTests {
+        def moduleKind = ModuleKind.CommonJSModule
+    }
+  }
+
+  object native extends Shared with CommonNative {
+    // native specific settings here
+    object test extends ScalaNativeTests with SharedTests
+  }
+}
+
+
 
 object benchmark extends JmhModule with ScalaModule {
     def scalaVersion = vecxt.jvm.scalaVersion
     def jmhCoreVersion = "1.37"
-    override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
+    override def forkArgs: T[Seq[String]] = super.forkArgs() ++ vecIncubatorFlag
     override def moduleDeps: Seq[JavaModule] = Seq(vecxt.jvm)
 
     override def generateBenchmarkSources = T{
       val dest = T.ctx().dest
 
-      val javacOpts = javacOptions().toSeq
+      val forkedArgs = forkArgs().toSeq
 
       val sourcesDir = dest / "jmh_sources"
       val resourcesDir = dest / "jmh_resources"
@@ -126,7 +163,7 @@ object benchmark extends JmhModule with ScalaModule {
           resourcesDir.toString,
           "default"
         ),
-        jvmArgs = javacOpts
+        jvmArgs = forkedArgs
       )
 
 
@@ -136,10 +173,15 @@ object benchmark extends JmhModule with ScalaModule {
 
 object jsSite extends SiteJSModule {
 
-  override def moduleDeps = Seq(vecxt.js)
+  override def moduleDeps = Seq(vecxt.js, vecxt_extensions.js)
   override def scalaVersion = vecxt.js.scalaVersion
   override def scalaJSVersion = vecxt.js.scalaJSVersion
-  override def moduleKind = ModuleKind.NoModule
+  override def moduleKind = ModuleKind.ESModule
+  override def ivyDeps = super.ivyDeps() ++ Agg(
+    ivy"org.scala-js::scalajs-dom::2.8.0",
+    ivy"com.lihaoyi::scalatags::0.13.1",
+    ivy"com.raquo::laminar::17.0.0"
+  )
 }
 
 // note that scastic won't work, as I don't think we can start a JVM with the incubator flag.
