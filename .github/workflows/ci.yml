@@ -117,7 +117,7 @@ jobs:
       - name: Switch to main branch
         run: | 
           git fetch origin main
-          git checkout -f -b main
+          git checkout -f main
           ls
 
       - name: Copy benchmark results into docs generation
