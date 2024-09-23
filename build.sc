@@ -14,8 +14,6 @@ import mill.scalajslib.api._
 import mill.scalanativelib._
 import contrib.jmh.JmhModule
 import mill.util.Jvm
-
-
 import mill.api.Result
 
 trait Common extends ScalaModule  with PublishModule {
