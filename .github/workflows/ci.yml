@@ -113,7 +113,9 @@ jobs:
           ref: benchmark
 
       - name: Aggregate benchmark results
-        run: ./aggregate.sh
+        run: |
+            chmod +x aggregate.sh
+            ./aggregate.sh
 
       - name: Switch to main branch
         run: | 
