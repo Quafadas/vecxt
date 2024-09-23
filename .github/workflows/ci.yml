@@ -118,6 +118,7 @@ jobs:
         run: | 
           git fetch origin main
           git checkout -f main
+          git reset --hard origin main
           ls
 
       - name: Copy benchmark results into docs generation
