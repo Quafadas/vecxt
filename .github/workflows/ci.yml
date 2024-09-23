@@ -123,7 +123,7 @@ jobs:
           git checkout -f -b main
 
       - name: Copy benchmark results into docs generation
-        run: mkdir site/docs/_assets/benchmarks && cp benchmark_history.json site/docs/_assets/benchmarks/benchmark_history.json    
+        run: mkdir -r site/docs/_assets/benchmarks && cp benchmark_history.json site/docs/_assets/benchmarks/benchmark_history.json    
 
       - name: Generate static site
         run: ./mill site.publishDocs          
