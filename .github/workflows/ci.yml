@@ -110,7 +110,22 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-      - run: ./mill site.publishDocs
+          ref: benchmark
+
+      - name: Aggregate benchmark results
+        run: ./aggregate.sh
+
+      - name: Switch to main branch
+        run: | 
+          git fetch origin main
+          git checkout main
+
+      - name: Copy benchmark results into docs generation
+        run: mkdir site/docs/_assets/benchmarks && cp benchmark_history.json site/docs/_assets/benchmarks/benchmark_history.json    
+
+      - name: Generate static site
+        run: ./mill site.publishDocs          
+        
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - uses: actions/upload-artifact@v3
