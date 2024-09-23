@@ -14,7 +14,7 @@ for file in "$benchmarkCacheDir"/*.json; do
     echo "Processing $file"
 
         # Capture the root-level fields (branch and date) and merge them with each item in data[]
-    jsonString=$( jq 'select(.branch == "main") | {branch: .branch, date: .date, commit: .commit, host: .host } as $meta | .data[] | {benchmark: .benchmark, score: .primaryMetric.score, params: .params, scoreInterval: .primaryMetric.scoreConfidence, scoreUnit: .primaryMetric.scoreUnit} + $meta' "$file" )
+    jsonString=$( jq 'select(.branch == "main") | {branch: .branch, date: .date, commit: .commit, host: .host } as $meta | .data[] | {benchmark: .benchmark, score: .primaryMetric.score, params: .params, scoreLowerConfidence: .primaryMetric.scoreConfidence[0],scoreUpperConfidence: .primaryMetric.scoreConfidence[1], scoreUnit: .primaryMetric.scoreUnit} + $meta' "$file" )
 
 
     # Check if the JSON data was extracted successfully
