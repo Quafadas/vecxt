@@ -71,9 +71,9 @@ class IncrementBenchmark extends BLASBenchmark:
   end increment_normal
 
   @Benchmark
-  def sum_vec_alt(bh: Blackhole) =
+  def increment_vec(bh: Blackhole) =
     val r = arr.increments
     bh.consume(r);
-  end sum_vec_alt
+  end increment_vec
 
 end IncrementBenchmark
