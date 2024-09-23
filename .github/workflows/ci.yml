@@ -39,13 +39,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Java (temurin@17)
-        id: setup-java-temurin-17
-        if: matrix.java == 'temurin@17'
-        uses: actions/setup-java@v4
+      - uses: coursier/setup-action@main
         with:
-          distribution: temurin
-          java-version: 17
+          jvm: temurin@17
+          apps: mill scala-cli
 
       - name: Setup NodeJS v18 LTS
         if: matrix.project == 'js'
@@ -54,7 +51,7 @@ jobs:
           node-version: 18
           cache: npm
       - name: formatCheck
-        run: ./mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
+        run: mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 
       - if: matrix.project == 'js'
         run: npm install
@@ -64,14 +61,14 @@ jobs:
 
       - name: scalaJSLink
         if: matrix.project == 'js'
-        run: ./mill vecxt.${{ matrix.project }}.fastLinkJS
+        run: mill vecxt.${{ matrix.project }}.fastLinkJS
 
       - name: nativeLink
         if: matrix.project == 'native'
-        run: ./mill vecxt.${{ matrix.project }}.test.nativeLink
+        run: mill vecxt.${{ matrix.project }}.test.nativeLink
 
       - name: Test
-        run: ./mill vecxt.${{ matrix.project }}.test
+        run: mill vecxt.${{ matrix.project }}.test
 
   publish:
     if: github.repository == 'Quafadas/vecxt' && contains(github.ref, 'refs/tags/')
@@ -95,7 +92,7 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Publish to Maven Central
-        run: ./mill -i mill.scalalib.PublishModule/publishAll __.publishArtifacts --sonatypeUri https://s01.oss.sonatype.org/service/local --sonatypeCreds "${{ secrets.SONATYPE_USERNAME }}:${{ secrets.SONATYPE_PASSWORD }}" --gpgArgs "--passphrase=${{ secrets.PGP_PASSPHRASE}},--batch,--yes,-a,-b,--pinentry-mode,loopback" --readTimeout 1200000 --awaitTimeout 1200000 --release true --signed true
+        run: mill -i mill.scalalib.PublishModule/publishAll __.publishArtifacts --sonatypeUri https://s01.oss.sonatype.org/service/local --sonatypeCreds "${{ secrets.SONATYPE_USERNAME }}:${{ secrets.SONATYPE_PASSWORD }}" --gpgArgs "--passphrase=${{ secrets.PGP_PASSPHRASE}},--batch,--yes,-a,-b,--pinentry-mode,loopback" --readTimeout 1200000 --awaitTimeout 1200000 --release true --signed true
 
   site:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -121,12 +118,13 @@ jobs:
         run: | 
           git fetch origin main
           git checkout -f -b main
+          ls
 
       - name: Copy benchmark results into docs generation
         run: mkdir -p site/docs/_assets/benchmarks && cp benchmark_history.json site/docs/_assets/benchmarks/benchmark_history.json    
 
       - name: Generate static site
-        run: ./mill site.publishDocs          
+        run: mill site.publishDocs          
         
       - name: Setup Pages
         uses: actions/configure-pages@v4
