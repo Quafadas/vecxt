@@ -14,11 +14,11 @@ for file in "$benchmarkCacheDir"/*.json; do
     echo "Processing $file"
     
     # Read the JSON content
-    jsonString=$(cat "$file")
-    
     # Check if the branch is "main" and add to allJson array
-    branch=$(echo "$jsonString" | jq -r '.branch')
-    if [[ "$branch" == "main" ]]; then
+    jsonString=$( jq '[.[] | select(.branch == "main") | .data + {date: .date, branch: .branch}]' "$$file")
+    
+  
+    if [[ -n "$jsonString" && "$jsonString" != "[]" ]]; then
       allJson+=("$jsonString")
     fi
   fi
