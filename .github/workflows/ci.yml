@@ -120,7 +120,7 @@ jobs:
       - name: Switch to main branch
         run: | 
           git fetch origin main
-          git checkout main
+          git checkout -f -b main
 
       - name: Copy benchmark results into docs generation
         run: mkdir site/docs/_assets/benchmarks && cp benchmark_history.json site/docs/_assets/benchmarks/benchmark_history.json    
