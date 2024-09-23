@@ -29,3 +29,4 @@ node_modules/
 #mill
 out/
 benchmark_history.json
+site/docs/_assets/benchmarks/benchmark_history.json

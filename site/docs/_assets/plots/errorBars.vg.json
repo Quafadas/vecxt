@@ -1,28 +1,47 @@
 {
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "data": {
-        "url": "https://quafadas.github.io/vecxt/benchmarks/benchmark_history.json"
-    },
-    "encoding": {"y": {"field": "variety", "type": "ordinal"}},
-    "layer": [
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
       {
-        "mark": {"type": "point", "filled": true},
-        "encoding": {
-          "x": {
-            "aggregate": "mean",
-            "field": "yield",
-            "type": "quantitative",
-            "scale": {"zero": false},
-            "title": "Barley Yield"
-          },
-          "color": {"value": "black"}
-        }
-      },
-      {
-        "mark": {"type": "errorbar", "extent": "ci"},
-        "encoding": {
-          "x": {"field": "yield", "type": "quantitative", "title": "Barley Yield"}
-        }
+        "benchmark": "java_dgemm",
+        "score": 8619.293601669751,
+        "params": null,
+        "scoreInterval": [8399.14500549159, 8839.442197847913],
+        "scoreUnit": "ops/s",
+        "branch": "main",
+        "date": "20240917",
+        "commit": "6efb42c",
+        "host": "gha"
       }
     ]
-  }
+  },
+  "layer": [
+    {
+      "mark": "errorbar",
+      "encoding": {
+        "x": {
+          "field": "upper_confidence",
+          "type": "quantitative",
+          "scale": { "zero": false },
+          "title": "ops / s"
+        },
+        "x2": { "field": "lower_confidence" },
+        "y": { "field": "benchmark", "type": "ordinal" }
+      }
+    },
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "color": "black"
+      },
+      "encoding": {
+        "x": {
+          "field": "score",
+          "type": "quantitative"
+        },
+        "y": { "field": "benchmark", "type": "ordinal" }
+      }
+    }
+  ]
+}
