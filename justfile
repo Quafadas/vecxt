@@ -5,3 +5,6 @@ format:
 
 benchmark:
   mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
+
+benchmarkOnly:
+  mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json vecxt.benchmark.IncrementBenchmark

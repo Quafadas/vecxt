@@ -94,13 +94,24 @@ object extensions:
       newVec
     end idxBoolean
 
-    def increments: Array[Double] =
-      val out = new Array[Double](vec.length)
+
+    inline def increments: Array[Double] = 
+      val out = new Array[Double](vec.length)                         
       out(0) = vec(0)
+      val sp = Matrix.doubleSpecies
+      val l = sp.length()      
+
       var i = 1
-      while i < vec.length do
-        out(i) = vec(i) - vec(i - 1)
-        i = i + 1
+      while i < sp.loopBound(vec.length-2) do        
+        val v1 = DoubleVector.fromArray(Matrix.doubleSpecies, vec, i)
+        val v2 = DoubleVector.fromArray(Matrix.doubleSpecies, vec, i + 1 )
+        v2.sub(v1).intoArray(out, i)
+        i += l        
+      end while
+            
+      while i < vec.length do        
+        out(i) = vec(i) - vec(i-1)
+        i = i + 1        
       end while
       out
     end increments

@@ -19,6 +19,8 @@ package vecxt
 import narr.*
 import scala.util.chaining.*
 import vecxt.extensions.idxBoolean
+import vecxt.extensions.increments
+import vecxt.Matrix.print
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
@@ -44,6 +46,14 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(v1(0) == 1)
     assert(v1(1) == 3)
     assert(v1(2) == 6)
+  }
+
+  
+  test("increments".only) {
+    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
+    v1.increments.foreach(d => assertEqualsDouble(d, 1.0, 0.0001))
+    val v2 = NArray[Double](0.0, 2.0)
+    assertVecEquals(v2.increments, v2)
   }
 
   test("Array scalar +:+ ") {
