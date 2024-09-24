@@ -31,6 +31,12 @@ The goal is that we will then hook into our orphan branch in the github action a
 
 Our benchmark plots may then reference and polish that data  it is, that they want to plot.
 
+# Conclusion
 
+That there is a bug in scaladoc.
+
+https://github.com/scala/scala3/issues/21637
+
+But that otherwise, this is a good way to keep an eye on performance.
 
 

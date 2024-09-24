@@ -30,7 +30,7 @@ import org.openjdk.jmh.infra.Blackhole
 import vecxt.Matrix.*
 import vecxt.BoundsCheck
 import scala.compiletime.uninitialized
-
+import BoundsCheck.DoBoundsCheck.no
 @State(Scope.Thread)
 class DgemmBenchmark extends BLASBenchmark:
 
@@ -92,8 +92,8 @@ class DgemmBenchmark extends BLASBenchmark:
 
 
   @Benchmark
-  def vecxt_mmult(bh: Blackhole) =
-    val cclone = (matA @@ matB)(using BoundsCheck.DoBoundsCheck.no)
+  def vecxt_mmult(bh: Blackhole)=
+    val cclone = matA @@ matB
     bh.consume(cclone);
   end vecxt_mmult
 

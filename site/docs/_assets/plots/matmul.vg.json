@@ -2,7 +2,7 @@
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
   "width": "container",
   "data": {
-    "url": "../benchmarks/benchmark_history.json",
+    "url": "../../benchmarks/benchmark_history.json",
     "format": {
       "type": "json"
     }

@@ -96,7 +96,6 @@ object extensions:
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
-      out(0) = vec(0)
       val sp = Matrix.doubleSpecies
       val l = sp.length()
 
@@ -112,6 +111,7 @@ object extensions:
         out(i) = vec(i) - vec(i - 1)
         i = i + 1
       end while
+      out(0) = vec(0)
       out
     end increments
 
@@ -262,11 +262,11 @@ object extensions:
       val species = DoubleVector.SPECIES_PREFERRED
       var i: Int = 0
       val scalarVec = DoubleVector.broadcast(species, d)
+      val l = species.length()
 
       while i < species.loopBound(vec.length) do
-        val vec1 = DoubleVector.fromArray(species, vec, i)
-        vec1.add(scalarVec).intoArray(vec, i)
-        i += species.length()
+        DoubleVector.fromArray(species, vec, i).add(scalarVec).intoArray(vec, i)
+        i += l
       end while
 
       while i < vec.length do

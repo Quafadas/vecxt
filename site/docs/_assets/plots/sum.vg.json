@@ -1,0 +1,138 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "url": "../../benchmarks/benchmark_history.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "transform": [
+    {
+      "calculate": "replace(datum.benchmark, 'vecxt.benchmark.', '')",
+      "as": "benchmark"
+    },
+    {
+      "calculate": "datetime(substring(datum.date,0, 4)+ '-' + substring(datum.date,4, 6) + '-' + substring(datum.date,6, 8))",
+      "as": "date"
+    },
+    {
+      "joinaggregate": [
+        {
+          "op": "max",
+          "field": "date",
+          "as": "maxDate"
+        }
+      ]
+    },
+    {
+      "filter": {
+        "field": "benchmark",
+        "oneOf": ["SumBenchmark.sum_loop", "SumBenchmark.sum_vec"]
+      }
+    },
+    {
+      "window": [{ "op": "dense_rank", "as": "rank" }],
+      "sort": [{ "field": "date", "order": "descending" }]
+    },
+    { "filter": "datum.rank <= 1" }
+  ],
+  "vconcat": [
+    {
+      "layer": [
+        {
+          "mark": "errorbar",
+          "encoding": {
+            "x": {
+              "field": "scoreLowerConfidence",
+              "type": "quantitative",
+              "scale": { "zero": false },
+              "title": "ops / s"
+            },
+            "x2": { "field": "scoreUpperConfidence" },
+            "y": { "field": "benchmark", "type": "ordinal" }
+          }
+        },
+        {
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "color": "black"
+          },
+          "encoding": {
+            "x": {
+              "field": "score",
+              "type": "quantitative"
+            },
+            "y": { "field": "benchmark", "type": "ordinal" }
+          }
+        }
+      ],
+      "transform": [{ "filter": "(datum.params.len == '3')" }]
+    },
+    {
+      "layer": [
+        {
+          "mark": "errorbar",
+          "encoding": {
+            "x": {
+              "field": "scoreLowerConfidence",
+              "type": "quantitative",
+              "scale": { "zero": false },
+              "title": "ops / s"
+            },
+            "x2": { "field": "scoreUpperConfidence" },
+            "y": { "field": "benchmark", "type": "ordinal" }
+          }
+        },
+        {
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "color": "black"
+          },
+          "encoding": {
+            "x": {
+              "field": "score",
+              "type": "quantitative"
+            },
+            "y": { "field": "benchmark", "type": "ordinal" }
+          }
+        }
+      ],
+      "transform": [{ "filter": "(datum.params.len == '100')" }]
+    },
+
+    {
+      "layer": [
+        {
+          "mark": "errorbar",
+          "encoding": {
+            "x": {
+              "field": "scoreLowerConfidence",
+              "type": "quantitative",
+              "scale": { "zero": false },
+              "title": "ops / s"
+            },
+            "x2": { "field": "scoreUpperConfidence" },
+            "y": { "field": "benchmark", "type": "ordinal" }
+          }
+        },
+        {
+          "mark": {
+            "type": "point",
+            "filled": true,
+            "color": "black"
+          },
+          "encoding": {
+            "x": {
+              "field": "score",
+              "type": "quantitative"
+            },
+            "y": { "field": "benchmark", "type": "ordinal" }
+          }
+        }
+      ],
+      "transform": [{ "filter": "(datum.params.len == '100000')" }]
+    }
+  ]
+}
