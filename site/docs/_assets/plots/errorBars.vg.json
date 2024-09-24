@@ -1,31 +1,53 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": "container",
   "data": {
-    "values": [
-      {
-        "benchmark": "java_dgemm",
-        "score": 8619.293601669751,
-        "params": null,
-        "scoreInterval": [8399.14500549159, 8839.442197847913],
-        "scoreUnit": "ops/s",
-        "branch": "main",
-        "date": "20240917",
-        "commit": "6efb42c",
-        "host": "gha"
-      }
-    ]
+    "url": "../benchmarks/benchmark_history.json",
+    "format": {
+      "type": "json"
+    }
   },
+  "transform": [
+    {
+      "calculate": "replace(datum.benchmark, 'vecxt.benchmark.', '')",
+      "as": "benchmark"
+    },
+    {
+      "calculate": "datetime(substring(datum.date,0, 4)+ '-' + substring(datum.date,4, 6) + '-' + substring(datum.date,6, 8))",
+      "as": "date"
+    },
+    {
+      "joinaggregate": [
+        {
+          "op": "max",
+          "field": "date",
+          "as": "maxDate"
+        }
+      ]
+    },
+    {
+      "filter": {
+        "field": "benchmark",
+        "oneOf": ["DgemmBenchmark.java_dgemm", "DgemmBenchmark.vecxt_mmult"]
+      }
+    },
+    {
+      "window": [{ "op": "dense_rank", "as": "rank" }],
+      "sort": [{ "field": "date", "order": "descending" }]
+    },
+    { "filter": "datum.rank <= 1" }
+  ],
   "layer": [
     {
       "mark": "errorbar",
       "encoding": {
         "x": {
-          "field": "upper_confidence",
+          "field": "scoreLowerConfidence",
           "type": "quantitative",
           "scale": { "zero": false },
           "title": "ops / s"
         },
-        "x2": { "field": "lower_confidence" },
+        "x2": { "field": "scoreUpperConfidence" },
         "y": { "field": "benchmark", "type": "ordinal" }
       }
     },
