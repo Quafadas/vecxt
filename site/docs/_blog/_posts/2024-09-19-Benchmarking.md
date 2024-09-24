@@ -37,6 +37,6 @@ That there is a bug in scaladoc.
 
 https://github.com/scala/scala3/issues/21637
 
-But that otherwise, this is a good way to keep an eye on performance.
+But that otherwise, this is a good way to keep an eye on performance. During the benchmarking process, I caughrt several small errors. In hot loops, those small errors were adding up to significant frictional losses. It is good to have a way to measure this systemically.
 
 
