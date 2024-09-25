@@ -59,9 +59,9 @@ object extensions:
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
       val species = ByteVector.SPECIES_PREFERRED
-      val l = species.length()      
+      val l = species.length()
       var sum = 0
-      var i = 0      
+      var i = 0
       while i < species.loopBound(vec.length) do
         sum = sum + ByteVector.fromBooleanArray(species, vec, i).reduceLanes(VectorOperators.ADD)
         i += l
