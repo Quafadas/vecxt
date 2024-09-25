@@ -57,9 +57,21 @@ object extensions:
   end extension
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
+      val species = VectorSpecies.ofBoolean(VectorSpecies.PREFERRED)
+      val length = species.length()
       var sum = 0
-      for i <- 0 until vec.length do if vec(i) then sum = sum + 1
-      end for
+      var i = 0
+
+      while i < species.loopBound(vec.length) do
+        sum += DoubleVector.fromArray(species, vec, i).compare(VectorOperators.EQ, true).trueCount
+        i += length
+      end while
+
+      while i < vec.length do
+        if vec(i) then
+          sum += 1
+          i += 1
+      end while
       sum
     end countTrue
 
