@@ -138,6 +138,12 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(v2(2), 6, 0.00001)
   }
 
+  // Check the vector loop
+  test("countTrue") {
+    val arrLong = NArray.fill(100)(true)
+    assertEquals(arrLong.countTrue, 100)
+  }
+
   test("<=") {
     val v_idx2 = v_fill < 2.5
     assertEquals(v_idx2.countTrue, 3)
