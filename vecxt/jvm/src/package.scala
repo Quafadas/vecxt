@@ -18,6 +18,7 @@ package vecxt
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
 import vecxt.Matrix.*
+import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
@@ -56,15 +57,15 @@ object extensions:
 
   end extension
   extension (vec: Array[Boolean])
-    inline def countTrue: Int =
-      val species = VectorSpecies.ofBoolean(VectorSpecies.PREFERRED)
-      val length = species.length()
+    inline def countTrue: Int =         
+      val species = ByteVector.SPECIES_PREFERRED
+      val  l = species.length()   
       var sum = 0
       var i = 0
 
       while i < species.loopBound(vec.length) do
-        sum += DoubleVector.fromArray(species, vec, i).compare(VectorOperators.EQ, true).trueCount
-        i += length
+        sum  = sum + ByteVector.fromBooleanArray(species, vec, i).reduceLanes(VectorOperators.ADD)
+        i += l
       end while
 
       while i < vec.length do
