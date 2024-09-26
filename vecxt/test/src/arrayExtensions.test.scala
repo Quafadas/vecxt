@@ -18,7 +18,6 @@ package vecxt
 
 import narr.*
 import scala.util.chaining.*
-import vecxt.extensions.idxBoolean
 import vecxt.extensions.increments
 import vecxt.Matrix.print
 
@@ -38,6 +37,21 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(summed(0) == 1 + 2 + 3)
     assert(summed(1) == 2 + 4 + 6)
     assert(summed(2) == 3 + 6 + 9)
+
+  }
+
+  test("array indexing".only) {
+    // val v1 = NArray[Double](1.0, 2.0, 3.0)
+    // val vIdx = NArray[Boolean](true, false, true)
+    // val afterIndex = v1(vIdx)
+    // assertEqualsDouble(afterIndex(0), 1.0, 0.0001)
+    // assertEqualsDouble(afterIndex(1), 3.0, 0.0001)
+
+    val v2 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
+    val vIdx2 = NArray[Boolean](true, false, true, true, false, true, false, true, false)
+    val afterIndex2 = v2(vIdx2)
+    println(afterIndex2.print)
+    assertEqualsDouble(afterIndex2(4), 8.0, 0.0001)
 
   }
 
@@ -184,7 +198,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   test("Array indexing") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
     val vIdx = NArray[Boolean](true, false, true)
-    val afterIndex = v1.idxBoolean(vIdx)
+    val afterIndex = v1(vIdx)
 
     assertEquals(afterIndex.length, 2)
     assertEqualsDouble(afterIndex.head, 1, 0.0001)
@@ -238,7 +252,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(tvar(9))
     assert(tvar(6))
 
-    val v4 = v1.idxBoolean(tvar)
+    val v4 = v1(tvar)
     assertEquals(v4.length, 2)
     assertEquals(v4(0), 2.0)
     assertEquals(v4(1), 1.0)

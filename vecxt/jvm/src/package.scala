@@ -18,6 +18,8 @@ package vecxt
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
 import vecxt.Matrix.*
+
+import jdk.incubator.vector.VectorMask
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
@@ -76,35 +78,89 @@ object extensions:
     end countTrue
 
     inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
+      val species = ByteVector.SPECIES_PREFERRED
+      val l = species.length()
       val result: Array[Boolean] = new Array[Boolean](vec.length)
-      for i <- 0 until vec.length do result(i) = vec(i) && thatIdx(i)
-      end for
+      var i = 0
+
+      while i < species.loopBound(vec.length) do
+        ByteVector
+          .fromBooleanArray(species, vec, i)
+          .and(ByteVector.fromBooleanArray(species, thatIdx, i))
+          .intoBooleanArray(result, i)
+        i += l
+      end while
+
+      while i < vec.length do
+        result(i) = vec(i) && thatIdx(i)
+        i += 1
+      end while
       result
     end &&
 
     inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
+      val species = ByteVector.SPECIES_PREFERRED
+      val l = species.length()
       val result: Array[Boolean] = new Array[Boolean](vec.length)
-      for i <- 0 until vec.length do result(i) = vec(i) || thatIdx(i)
-      end for
+      var i = 0
+
+      while i < species.loopBound(vec.length) do
+        ByteVector
+          .fromBooleanArray(species, vec, i)
+          .or(ByteVector.fromBooleanArray(species, thatIdx, i))
+          .intoBooleanArray(result, i)
+        i += l
+      end while
+
+      while i < vec.length do
+        result(i) = vec(i) || thatIdx(i)
+        i += 1
+      end while
       result
     end ||
   end extension
 
   extension (vec: Array[Double])
 
-    inline def idxBoolean(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
+    inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, index)
-      val trues = index.countTrue
-      val newVec: Array[Double] = new Array[Double](trues)
+      val newVec: Array[Double] = new Array[Double](index.length)
+      val out = new Array[Double](vec.length)
+      val sp = Matrix.doubleSpecies
+      val l = sp.length()
+
+      var i = 0
       var j = 0
-      for i <- 0 until index.length do
-        // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
+      while i < sp.loopBound(vec.length) do
+        println(s"i: $i  || j: $j")
+        val mask = VectorMask.fromArray[java.lang.Double](sp, index, i)
+
+        val vals = DoubleVector
+          .fromArray(sp, vec, i)
+
+        // val selected = vals.selectFrom(vals, mask)
+
+        println(s"mask: ${mask.toArray().print}")
+        println(s"vals: ${vals.toArray().print}")
+        vals.intoArray(newVec, j, mask)
+        println(newVec.print)
+
+        i += l
+        j = j + mask.trueCount()
+
+      end while
+
+      while i < vec.length do
         if index(i) then
           newVec(j) = vec(i)
-          j = 1 + j
-      end for
+          j += 1
+        end if
+        i += 1
+      end while
+
       newVec
-    end idxBoolean
+
+    end apply
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
