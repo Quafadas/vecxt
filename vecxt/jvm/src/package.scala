@@ -383,29 +383,68 @@ object extensions:
     end /
 
     inline def <(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a < b, num)
+      logicalIdx( VectorOperators.LT, num)
 
     inline def <=(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a <= b, num)
+      logicalIdx( VectorOperators.LE, num)
 
     inline def >(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a > b, num)
+      logicalIdx(VectorOperators.GT, num)
 
     inline def >=(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a >= b, num)
+      logicalIdx(VectorOperators.GE, num)
 
     inline def logicalIdx(
-        inline op: (Double, Double) => Boolean,
-        inline num: Double
+        inline op:  VectorOperators.Comparison,
+        num: Double
     ): Array[Boolean] =
-      val n = vec.length
-      val idx = new Array[Boolean](n)
+      val species = Matrix.doubleSpecies
+      val l = species.length()
+      val idx = new Array[Boolean](vec.length)      
       var i = 0
-      while i < n do
-        if op(vec(i), num) then idx(i) = true
-        end if
-        i = i + 1
+
+      while i < species.loopBound(vec.length) do
+        DoubleVector.fromArray(species, vec, i).compare(op, num).intoArray(idx, i)        
+        i += l
       end while
+
+      inline op match
+        // case VectorOperators.EQ =>
+        //   while i < vec.length do
+        //     idx(i) = vec(i) == num
+        //     i += 1
+        //   end while
+        // case VectorOperators.NE =>
+        //   while i < vec.length do
+        //     idx(i) = vec(i) != num
+        //     i += 1
+        //   end while
+        case VectorOperators.LT =>
+          while i < vec.length do
+            idx(i) = vec(i) < num
+            i += 1
+          end while
+
+        case VectorOperators.LE =>
+          while i < vec.length do
+            idx(i) = vec(i) <= num
+            i += 1
+          end while
+        
+        case VectorOperators.GT => 
+          while i < vec.length do
+            idx(i) = vec(i) > num
+            i += 1
+          end while
+
+        case VectorOperators.GE =>
+          while i < vec.length do
+            idx(i) = vec(i) >= num
+            i += 1
+          end while
+        case _ => ???
+      end match
+
       idx
     end logicalIdx
 
