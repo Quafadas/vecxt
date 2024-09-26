@@ -113,7 +113,7 @@ object extensions:
 
   extension (vec: NArray[Double])
 
-    inline def idxBoolean(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
+    inline def apply(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, index)
       val trues = index.countTrue
       val newVec = Float64Array(trues)
@@ -125,7 +125,7 @@ object extensions:
           j = 1 + j
       end for
       newVec
-    end idxBoolean
+    end apply
 
     def increments: Float64Array =
       val out = Float64Array(vec.length)

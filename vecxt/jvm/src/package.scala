@@ -271,7 +271,28 @@ object extensions:
     def variance: Double =
       // https://www.cuemath.com/sample-variance-formula/
       val μ = vec.mean
-      vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+      // vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+      val sp = Matrix.doubleSpecies
+      val l = sp.length()
+      var tmp = DoubleVector.zero(sp)
+
+      var i = 0
+      while i < sp.loopBound(vec.length) do
+        val v = DoubleVector.fromArray(sp, vec, i)
+        val diff = v.sub(μ)
+        tmp = tmp.add(diff.mul(diff))
+        i += l
+      end while
+
+      var sumSqDiff = tmp.reduceLanes(VectorOperators.ADD)
+
+      while i < vec.length do
+        sumSqDiff = sumSqDiff + (vec(i) - μ) * (vec(i) - μ)
+        i += 1
+      end while
+
+      sumSqDiff / (vec.length - 1)
+
     end variance
 
     inline def stdDev: Double =

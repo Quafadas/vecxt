@@ -87,7 +87,7 @@ object extensions:
 
   extension (vec: Array[Double])
 
-    def idxBoolean(index: Array[Boolean]) =
+    def apply(index: Array[Boolean]) =
       val trues = index.countTrue
       val newVec = new Array[Double](trues)
       var j = 0
@@ -98,7 +98,7 @@ object extensions:
           j += 1
       end for
       newVec
-    end idxBoolean
+    end apply
 
     def increments: Array[Double] =
       val out = new Array[Double](vec.length)
