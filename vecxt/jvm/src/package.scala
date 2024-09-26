@@ -122,45 +122,66 @@ object extensions:
 
   extension (vec: Array[Double])
 
-    inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
       dimCheck(vec, index)
-      val newVec: Array[Double] = new Array[Double](index.length)
-      val out = new Array[Double](vec.length)
-      val sp = Matrix.doubleSpecies
-      val l = sp.length()
-
-      var i = 0
+      val trues = index.countTrue
+      val newVec: Array[Double] = new Array[Double](trues)
       var j = 0
-      while i < sp.loopBound(vec.length) do
-        println(s"i: $i  || j: $j")
-        val mask = VectorMask.fromArray[java.lang.Double](sp, index, i)
-
-        val vals = DoubleVector
-          .fromArray(sp, vec, i)
-
-        // val selected = vals.selectFrom(vals, mask)
-
-        println(s"mask: ${mask.toArray().print}")
-        println(s"vals: ${vals.toArray().print}")
-        vals.intoArray(newVec, j, mask)
-        println(newVec.print)
-
-        i += l
-        j = j + mask.trueCount()
-
-      end while
-
-      while i < vec.length do
+      for i <- 0 until index.length do
+        // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
         if index(i) then
           newVec(j) = vec(i)
-          j += 1
-        end if
-        i += 1
-      end while
-
+          j = 1 + j
+      end for
       newVec
-
     end apply
+
+
+    /**
+     * Apparently, left packing is  hard problem in SIMD land. 
+     * https://stackoverflow.com/questions/79025873/selecting-values-from-java-simd-doublevector
+     * 
+     */ 
+
+    // inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    //   dimCheck(vec, index)
+    //   val newVec: Array[Double] = new Array[Double](index.length)
+    //   val out = new Array[Double](vec.length)
+    //   val sp = Matrix.doubleSpecies
+    //   val l = sp.length()
+
+    //   var i = 0
+    //   var j = 0
+    //   while i < sp.loopBound(vec.length) do
+    //     println(s"i: $i  || j: $j")
+    //     val mask = VectorMask.fromArray[java.lang.Double](sp, index, i)
+
+    //     val vals = DoubleVector
+    //       .fromArray(sp, vec, i)
+
+    //     // val selected = vals.selectFrom(vals, mask)
+
+    //     println(s"mask: ${mask.toArray().print}")
+    //     println(s"vals: ${vals.toArray().print}")
+    //     vals.intoArray(newVec, j, mask)
+    //     println(newVec.print)
+
+    //     i += l
+    //     j = j + mask.trueCount()
+
+    //   end while
+
+    //   while i < vec.length do
+    //     if index(i) then
+    //       newVec(j) = vec(i)
+    //       j += 1
+    //     end if
+    //     i += 1
+    //   end while
+
+    //   newVec
+
+    // end apply
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
