@@ -136,12 +136,9 @@ object extensions:
       newVec
     end apply
 
-
-    /**
-     * Apparently, left packing is  hard problem in SIMD land. 
-     * https://stackoverflow.com/questions/79025873/selecting-values-from-java-simd-doublevector
-     * 
-     */ 
+    /** Apparently, left packing is hard problem in SIMD land.
+      * https://stackoverflow.com/questions/79025873/selecting-values-from-java-simd-doublevector
+      */
 
     // inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck): Array[Double] =
     //   dimCheck(vec, index)
@@ -382,11 +379,17 @@ object extensions:
       vec.clone.tap(_ /= d)
     end /
 
+    inline def =:=(num: Double): Array[Boolean] =
+      logicalIdx(VectorOperators.EQ, num)
+
+    inline def !:=(num: Double): Array[Boolean] =
+      logicalIdx(VectorOperators.NE, num)
+
     inline def <(num: Double): Array[Boolean] =
-      logicalIdx( VectorOperators.LT, num)
+      logicalIdx(VectorOperators.LT, num)
 
     inline def <=(num: Double): Array[Boolean] =
-      logicalIdx( VectorOperators.LE, num)
+      logicalIdx(VectorOperators.LE, num)
 
     inline def >(num: Double): Array[Boolean] =
       logicalIdx(VectorOperators.GT, num)
@@ -395,30 +398,30 @@ object extensions:
       logicalIdx(VectorOperators.GE, num)
 
     inline def logicalIdx(
-        inline op:  VectorOperators.Comparison,
+        inline op: VectorOperators.Comparison,
         num: Double
     ): Array[Boolean] =
       val species = Matrix.doubleSpecies
       val l = species.length()
-      val idx = new Array[Boolean](vec.length)      
+      val idx = new Array[Boolean](vec.length)
       var i = 0
 
       while i < species.loopBound(vec.length) do
-        DoubleVector.fromArray(species, vec, i).compare(op, num).intoArray(idx, i)        
+        DoubleVector.fromArray(species, vec, i).compare(op, num).intoArray(idx, i)
         i += l
       end while
 
       inline op match
-        // case VectorOperators.EQ =>
-        //   while i < vec.length do
-        //     idx(i) = vec(i) == num
-        //     i += 1
-        //   end while
-        // case VectorOperators.NE =>
-        //   while i < vec.length do
-        //     idx(i) = vec(i) != num
-        //     i += 1
-        //   end while
+        case VectorOperators.EQ =>
+          while i < vec.length do
+            idx(i) = vec(i) == num
+            i += 1
+          end while
+        case VectorOperators.NE =>
+          while i < vec.length do
+            idx(i) = vec(i) != num
+            i += 1
+          end while
         case VectorOperators.LT =>
           while i < vec.length do
             idx(i) = vec(i) < num
@@ -430,8 +433,8 @@ object extensions:
             idx(i) = vec(i) <= num
             i += 1
           end while
-        
-        case VectorOperators.GT => 
+
+        case VectorOperators.GT =>
           while i < vec.length do
             idx(i) = vec(i) > num
             i += 1

@@ -49,7 +49,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
     val v2 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
     val vIdx2 = NArray[Boolean](true, false, true, true, false, true, false, true, false)
-    val afterIndex2 = v2(vIdx2)    
+    val afterIndex2 = v2(vIdx2)
     assertEqualsDouble(afterIndex2(4), 8.0, 0.0001)
 
   }
@@ -160,8 +160,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   test("<= big") {
     val n = 50000
     val rand = scala.util.Random
-    val vec = NArray.tabulate(n)(_ => rand.nextDouble())    
-    assertEqualsDouble((vec <= 0.2).countTrue / n.toDouble, 0.2, 0.01 )
+    val vec = NArray.tabulate(n)(_ => rand.nextDouble())
+    assertEqualsDouble((vec <= 0.2).countTrue / n.toDouble, 0.2, 0.01)
   }
 
   test("<=") {
