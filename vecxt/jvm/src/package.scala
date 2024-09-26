@@ -18,6 +18,8 @@ package vecxt
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
 import vecxt.Matrix.*
+
+import jdk.incubator.vector.VectorMask
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
@@ -76,23 +78,51 @@ object extensions:
     end countTrue
 
     inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
+      val species = ByteVector.SPECIES_PREFERRED
+      val l = species.length()
       val result: Array[Boolean] = new Array[Boolean](vec.length)
-      for i <- 0 until vec.length do result(i) = vec(i) && thatIdx(i)
-      end for
+      var i = 0
+
+      while i < species.loopBound(vec.length) do
+        ByteVector
+          .fromBooleanArray(species, vec, i)
+          .and(ByteVector.fromBooleanArray(species, thatIdx, i))
+          .intoBooleanArray(result, i)
+        i += l
+      end while
+
+      while i < vec.length do
+        result(i) = vec(i) && thatIdx(i)
+        i += 1
+      end while
       result
     end &&
 
     inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
+      val species = ByteVector.SPECIES_PREFERRED
+      val l = species.length()
       val result: Array[Boolean] = new Array[Boolean](vec.length)
-      for i <- 0 until vec.length do result(i) = vec(i) || thatIdx(i)
-      end for
+      var i = 0
+
+      while i < species.loopBound(vec.length) do
+        ByteVector
+          .fromBooleanArray(species, vec, i)
+          .or(ByteVector.fromBooleanArray(species, thatIdx, i))
+          .intoBooleanArray(result, i)
+        i += l
+      end while
+
+      while i < vec.length do
+        result(i) = vec(i) || thatIdx(i)
+        i += 1
+      end while
       result
     end ||
   end extension
 
   extension (vec: Array[Double])
 
-    inline def idxBoolean(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
+    inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
       dimCheck(vec, index)
       val trues = index.countTrue
       val newVec: Array[Double] = new Array[Double](trues)
@@ -104,7 +134,51 @@ object extensions:
           j = 1 + j
       end for
       newVec
-    end idxBoolean
+    end apply
+
+    /** Apparently, left packing is hard problem in SIMD land.
+      * https://stackoverflow.com/questions/79025873/selecting-values-from-java-simd-doublevector
+      */
+
+    // inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    //   dimCheck(vec, index)
+    //   val newVec: Array[Double] = new Array[Double](index.length)
+    //   val out = new Array[Double](vec.length)
+    //   val sp = Matrix.doubleSpecies
+    //   val l = sp.length()
+
+    //   var i = 0
+    //   var j = 0
+    //   while i < sp.loopBound(vec.length) do
+    //     println(s"i: $i  || j: $j")
+    //     val mask = VectorMask.fromArray[java.lang.Double](sp, index, i)
+
+    //     val vals = DoubleVector
+    //       .fromArray(sp, vec, i)
+
+    //     // val selected = vals.selectFrom(vals, mask)
+
+    //     println(s"mask: ${mask.toArray().print}")
+    //     println(s"vals: ${vals.toArray().print}")
+    //     vals.intoArray(newVec, j, mask)
+    //     println(newVec.print)
+
+    //     i += l
+    //     j = j + mask.trueCount()
+
+    //   end while
+
+    //   while i < vec.length do
+    //     if index(i) then
+    //       newVec(j) = vec(i)
+    //       j += 1
+    //     end if
+    //     i += 1
+    //   end while
+
+    //   newVec
+
+    // end apply
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
@@ -197,7 +271,28 @@ object extensions:
     def variance: Double =
       // https://www.cuemath.com/sample-variance-formula/
       val μ = vec.mean
-      vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+      // vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+      val sp = Matrix.doubleSpecies
+      val l = sp.length()
+      var tmp = DoubleVector.zero(sp)
+
+      var i = 0
+      while i < sp.loopBound(vec.length) do
+        val v = DoubleVector.fromArray(sp, vec, i)
+        val diff = v.sub(μ)
+        tmp = tmp.add(diff.mul(diff))
+        i += l
+      end while
+
+      var sumSqDiff = tmp.reduceLanes(VectorOperators.ADD)
+
+      while i < vec.length do
+        sumSqDiff = sumSqDiff + (vec(i) - μ) * (vec(i) - μ)
+        i += 1
+      end while
+
+      sumSqDiff / (vec.length - 1)
+
     end variance
 
     inline def stdDev: Double =
@@ -305,30 +400,75 @@ object extensions:
       vec.clone.tap(_ /= d)
     end /
 
+    inline def =:=(num: Double): Array[Boolean] =
+      logicalIdx(VectorOperators.EQ, num)
+
+    inline def !:=(num: Double): Array[Boolean] =
+      logicalIdx(VectorOperators.NE, num)
+
     inline def <(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a < b, num)
+      logicalIdx(VectorOperators.LT, num)
 
     inline def <=(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a <= b, num)
+      logicalIdx(VectorOperators.LE, num)
 
     inline def >(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a > b, num)
+      logicalIdx(VectorOperators.GT, num)
 
     inline def >=(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a >= b, num)
+      logicalIdx(VectorOperators.GE, num)
 
     inline def logicalIdx(
-        inline op: (Double, Double) => Boolean,
-        inline num: Double
+        inline op: VectorOperators.Comparison,
+        num: Double
     ): Array[Boolean] =
-      val n = vec.length
-      val idx = new Array[Boolean](n)
+      val species = Matrix.doubleSpecies
+      val l = species.length()
+      val idx = new Array[Boolean](vec.length)
       var i = 0
-      while i < n do
-        if op(vec(i), num) then idx(i) = true
-        end if
-        i = i + 1
+
+      while i < species.loopBound(vec.length) do
+        DoubleVector.fromArray(species, vec, i).compare(op, num).intoArray(idx, i)
+        i += l
       end while
+
+      inline op match
+        case VectorOperators.EQ =>
+          while i < vec.length do
+            idx(i) = vec(i) == num
+            i += 1
+          end while
+        case VectorOperators.NE =>
+          while i < vec.length do
+            idx(i) = vec(i) != num
+            i += 1
+          end while
+        case VectorOperators.LT =>
+          while i < vec.length do
+            idx(i) = vec(i) < num
+            i += 1
+          end while
+
+        case VectorOperators.LE =>
+          while i < vec.length do
+            idx(i) = vec(i) <= num
+            i += 1
+          end while
+
+        case VectorOperators.GT =>
+          while i < vec.length do
+            idx(i) = vec(i) > num
+            i += 1
+          end while
+
+        case VectorOperators.GE =>
+          while i < vec.length do
+            idx(i) = vec(i) >= num
+            i += 1
+          end while
+        case _ => ???
+      end match
+
       idx
     end logicalIdx
 

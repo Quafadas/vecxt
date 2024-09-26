@@ -36,44 +36,46 @@ import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
 
 @State(Scope.Thread)
-class CountTrueBenchmark extends BLASBenchmark:
+class LogicalBenchmark extends BLASBenchmark:
 
   @Param(Array("3", "128", "100000"))
   var len: String = uninitialized;
 
-  var arr: Array[Boolean] = uninitialized
+  var arr: Array[Double] = uninitialized
+  
 
   // format: off
   @Setup(Level.Trial)
   def setup: Unit =
-    arr = randomBooleanArray(len.toInt);
+    arr = randomDoubleArray(len.toInt);    
     ()
   end setup
 
-  extension (vec: Array[Boolean])
-    inline def countTrue2: Int =
-      var sum = 0
+  extension (vec: Array[Double])
+    inline def lte2(num: Double) =
+      val idx: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
+
       while i < vec.length do
-        if vec(i) then sum += 1
-        end if
+        idx(i) = vec(i) <= num
         i += 1
       end while
-      sum
-
+      idx
   end extension
 
   @Benchmark
-  def countTrue_loop(bh: Blackhole) =
-    val r = arr.countTrue2
+  def lte_vec(bh: Blackhole) =
+    val r = arr <= 4.0
     bh.consume(r);
-  end countTrue_loop
-
+  end lte_vec
+  
+  
 
   @Benchmark
-  def countTrue_loop_vec(bh: Blackhole) =
-    val r = arr.countTrue
+  def lte_loop(bh: Blackhole) =
+    val r = arr.lte2(4.0)
     bh.consume(r);
-  end countTrue_loop_vec
-end CountTrueBenchmark
-
+  end lte_loop
+  
+end LogicalBenchmark
+  

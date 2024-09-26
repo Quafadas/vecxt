@@ -38,6 +38,14 @@ abstract class BLASBenchmark:
     return res;
   end randomDoubleArray
 
+  protected def randomBooleanArray(n: Int): Array[Boolean] =
+    val res = new Array[Boolean](n);
+
+    for i <- 0 until n do res(i) = rand.nextDouble() < 0.5;
+    end for
+    return res;
+  end randomBooleanArray
+
   protected def randomFloat(): Float =
     return rand.nextFloat();
 

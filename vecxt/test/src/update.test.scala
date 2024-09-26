@@ -2,7 +2,6 @@ package vecxt
 
 import narr.*
 import scala.util.chaining.*
-import vecxt.extensions.idxBoolean
 import vecxt.Matrix.*
 
 class UpdateSuite extends munit.FunSuite:

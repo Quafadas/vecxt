@@ -36,44 +36,43 @@ import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
 
 @State(Scope.Thread)
-class CountTrueBenchmark extends BLASBenchmark:
+class OrBooleanBenchmark extends BLASBenchmark:
 
   @Param(Array("3", "128", "100000"))
   var len: String = uninitialized;
 
   var arr: Array[Boolean] = uninitialized
+  var arr2: Array[Boolean] = uninitialized
 
   // format: off
   @Setup(Level.Trial)
   def setup: Unit =
     arr = randomBooleanArray(len.toInt);
+    arr2 = randomBooleanArray(len.toInt);
     ()
   end setup
 
   extension (vec: Array[Boolean])
-    inline def countTrue2: Int =
-      var sum = 0
+    inline def or2(thatIdx: Array[Boolean]) =
+      val result: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
+
       while i < vec.length do
-        if vec(i) then sum += 1
-        end if
+        result(i) = vec(i) || thatIdx(i)
         i += 1
       end while
-      sum
-
+      result
   end extension
 
   @Benchmark
-  def countTrue_loop(bh: Blackhole) =
-    val r = arr.countTrue2
+  def or_loop(bh: Blackhole) =
+    val r = arr.or2(arr2)
     bh.consume(r);
-  end countTrue_loop
-
+  end or_loop
 
   @Benchmark
-  def countTrue_loop_vec(bh: Blackhole) =
-    val r = arr.countTrue
+  def or_vec(bh: Blackhole) =
+    val r = arr || arr2
     bh.consume(r);
-  end countTrue_loop_vec
-end CountTrueBenchmark
-
+  end or_vec
+end OrBooleanBenchmark
