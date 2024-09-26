@@ -211,7 +211,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(afterIndex.last, 3.0, 0.0001)
   }
 
-  test("variance".only) {
+  test("variance") {
     // https://www.storyofmathematics.com/sample-variance/#:~:text=7.%20Divide%20the%20number%20you%20get%20in%20step%206%20by example 3
     val ages = NArray[Double](26.0, 48.0, 67.0, 39.0, 25.0, 25.0, 36.0, 44.0, 44.0, 47.0, 53.0, 52.0, 52.0, 51.0, 52.0,
       40.0, 77.0, 44.0, 40.0, 45.0, 48.0, 49.0, 19.0, 54.0, 82.0)
