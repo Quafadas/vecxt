@@ -134,6 +134,17 @@ object Matrix:
   extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "],")
 
   extension (m: Matrix)
+
+    /** element retrieval
+      */
+    inline def apply(b: Tuple2[Int, Int])(using inline boundsCheck: BoundsCheck) =
+      indexCheckMat(m, b)
+      val idx = b._1 * m._2._2 + b._2
+      m._1(idx)
+    end apply
+
+    /** element update
+      */
     inline def update(loc: Tuple2[Int, Int], value: Double)(using inline boundsCheck: BoundsCheck) =
       indexCheckMat(m, loc)
       val idx = loc._1 * m._2._2 + loc._2
@@ -155,12 +166,12 @@ object Matrix:
 
       var i = 0
       while i < newCols.length do
-        val oldCol = newCols(i)
-        val stride = oldCol * m.cols
+        val colpos = newCols(i)
+        val stride = colpos * m.cols
         var j = 0
         while j < newRows.length do
-          val oldRow = newRows(j)
-          newArr(idx) = m._1(stride + oldRow)
+          val rowPos = newRows(j)
+          newArr(idx) = m._1(stride + rowPos)
           idx += 1
           j += 1
         end while
@@ -172,24 +183,6 @@ object Matrix:
     end apply
 
     inline def raw: NArray[Double] = m._1
-
-    /** Zelement retrieval
-      */
-    inline def apply(b: Tuple2[Int, Int]) =
-      val indexes = b.toList.asInstanceOf[List[Int]]
-      val dimensions = m._2.toList.asInstanceOf[List[Int]]
-
-      assert(indexes.length == dimensions.length)
-
-      val linearIndex = indexes
-        .zip(dimensions.scanRight(1)(_ * _).tail)
-        .map { case (index, stride) =>
-          index * stride
-        }
-        .sum
-
-      m._1(linearIndex)
-    end apply
 
     inline def @@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
 
@@ -211,11 +204,9 @@ object Matrix:
       val result = new NArray[Double](m.cols)
       val cols = m.cols
       var j = 0
-      var k = 0
       while j < m.cols do
-        result(k) = m._1(i + j * m.rows)
+        result(j) = m._1(i + j * m.rows)
         j += 1
-        k += 1
       end while
       result
     end row
@@ -229,11 +220,9 @@ object Matrix:
       val result = new NArray[Double](m.rows)
       val cols = m.cols
       var j = 0
-      var k = 0
       while j < m.rows do
-        result(k) = m._1(i * m.cols + j)
+        result(j) = m._1(i * m.cols + j)
         j += 1
-        k += 1
       end while
       result
     end col

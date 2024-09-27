@@ -54,7 +54,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   }
 
-  test("check vector operator precendance".only) {
+  test("check vector operator precendance") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
     val v2 = NArray[Double](3.0, 2.0, 1.0)
 
