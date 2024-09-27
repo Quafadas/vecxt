@@ -17,7 +17,7 @@ import mill.util.Jvm
 import mill.api.Result
 
 trait Common extends ScalaModule  with PublishModule {
-  def scalaVersion = "3.3.3"
+  def scalaVersion = "3.3.4"
 
   def publishVersion = VcsVersion.vcsState().format()
 
@@ -54,7 +54,7 @@ trait CommonNative extends ScalaNativeModule {
   def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.ekrich::sblas::0.5.0"
   )
-  def scalaNativeVersion: mill.T[String] = "0.4.16"
+  def scalaNativeVersion: mill.T[String] = "0.4.17"
 }
 
 trait CommonTests extends TestModule.Munit {
@@ -186,17 +186,10 @@ object jsSite extends SiteJSModule {
 object site extends SiteModule {
 
   override val jsSiteModule = jsSite
-
   override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
-
   override def forkArgs: T[Seq[String]] = super.forkArgs() ++ vecIncubatorFlag
-
   def scalaVersion = vecxt.jvm.scalaVersion
-
   override def moduleDeps = Seq(vecxt.jvm)
-
-  // override def allScalacOptions: Target[Seq[String]] = super.allScalacOptions() ++ vecIncubatorFlag
-
   override def scalaDocOptions = super.scalaDocOptions
 
 }
