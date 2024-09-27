@@ -8,11 +8,12 @@ This has the same algorithm as the [motivation](motivation.mdoc.md) example, but
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/stdlib-js/blas@umd/browser.js"></script>
 
-```scala mdoc
+```scala mdoc:js sc:nocompile
 
 import vecxt.*
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
+import org.scalajs.dom
 
 def algo(a: NArray[Double], b :NArray[Double], c: Double ) = (a + b)  / c
 
@@ -21,11 +22,17 @@ val b = NArray(4.0, 5.0, 6.0, 2.0)
 val c = 2.0
 
 // you'll have to look in the browser console to see this.
-println("BLAS in browser!")
-println(algo(a, b, c).mkString("[",",","]"))
+val p1 = dom.document.createElement("p")
+val p2 = dom.document.createElement("p")
 
-// Need to be able to disable the snippet compiler, for this to work.
-// node.innerHTML = algo(a, b, c).mkString(", ")
+println("boo")
+
+p1.innerHTML = a.mkString("BLAS in browser! ")
+p2.innerHTML = b.mkString(algo(a, b, c).mkString("[",", ", "]"))
+
+node.appendChild(p1)
+node.appendChild(p2)
+
 
 ```
 You can place the `algo` method in the shared part of your project, and use it on all platforms.
