@@ -44,6 +44,7 @@
     {
       "layer": [
         {
+          "title": "n = 3",
           "mark": "errorbar",
           "encoding": {
             "x": {
@@ -76,6 +77,7 @@
     {
       "layer": [
         {
+          "title": "n = 1000",
           "mark": "errorbar",
           "encoding": {
             "x": {
@@ -109,6 +111,7 @@
     {
       "layer": [
         {
+          "title": "n = 100000",
           "mark": "errorbar",
           "encoding": {
             "x": {

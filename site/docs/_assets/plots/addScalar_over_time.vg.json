@@ -1,5 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
   "data": {
     "url": "../../benchmarks/benchmark_history.json",
     "format": {
@@ -30,7 +31,7 @@
     {
       "layer": [
         {
-          "title": "n = 10",
+          "title": "n = 3",
           "mark": {
             "type": "line",
             "color": "black"
