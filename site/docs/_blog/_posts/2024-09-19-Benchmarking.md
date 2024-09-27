@@ -17,9 +17,9 @@ From first principles, I thought about 3 problems;
 
 ## Trigger
 
-I concluded I wanted a manual trigger. Each push to main is too much - a lot of redundant data and duplicated work on each commit. In future perhaps switch to benchmark on  release. As the suite is being built out, I think manual makes more sense.
+I concluded I wanted a manual trigger. Each push to main is too much. Benchmareking is by definition compute intense, and doing it continuously is rather wasteful outside of something truly mission critical. In future perhaps switch to benchmark on  release. Currently, manual makes more sense.
 
-## Where shoudl the data be stored
+## Where should the data be stored
 
 JMH itself doesn't give you more than the results. We need extra metadata. ChatGPT wrote me a shell script which appends the date, commit and branch that the results were generated from into the results html. This will be our metadata.
 
@@ -27,16 +27,25 @@ This file is then pushed to an orphaned  [branch](https://github.com/Quafadas/ve
 
 ## Consumption
 
-The goal is that we will then hook into our orphan branch in the github action and aggregate the results into a single benchmarking.json file. This file will be added to the static assets of the site.
+During the github pages build step (i.e. in GHA) This file will be added to the static assets of the site, we switch into our orphan branch in the github action and aggregate the results into a single benchmarking.json file, we further post process data data from the step above to flatten all results into a single array.
 
-Our benchmark plots may then reference and polish that data  it is, that they want to plot.
+It may be found [here](../../benchmarks/benchmark_history.json);
 
-# Conclusion
+Now we're in a position to plot some benchmarks.
 
-That there is a bug in scaladoc.
+```javascript
+<div id="vis" style="width: 50vw;height: 10vh"></div>
 
-https://github.com/scala/scala3/issues/21637
+<script type="module">
+  import vegaEmbed from "https://cdn.jsdelivr.net/npm/vega-embed@6/+esm?bundle-deps=true";
+  var spec = "../../plots/addScalar.vg.json";
+  vegaEmbed('#vis', spec).then(function(result) {
+    // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
+  }).catch(console.error);
+</script>
+```
 
-But that otherwise, this is a good way to keep an eye on performance. During the benchmarking process, I caughrt several small errors. In hot loops, those small errors were adding up to significant frictional losses. It is good to have a way to measure this systemically.
+This javascript embeds a vega plot into the page. Now, we need only to provide a plotfile per visualisation. Ideally, we would abstract over the visualisations we need - my pet project dedav4s would be great for this, but scalaJS in mdoc is currently a challenge.
+
 
 

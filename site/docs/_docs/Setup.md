@@ -16,21 +16,24 @@ To enable the SIMD implementation, you'll need (at the time of writing) to enabl
 
 # JS
 
-You'll need this or better, available somewhere in your bundle / build / browser / whatever.
+The best way is without a bundler using ESModules. Use this import map to load the module out of JSdelivr.
+
+```json
+{
+  "imports": {
+    "@stdlib/blas/base": "https://cdn.jsdelivr.net/npm/@stdlib/blas@0.2.0/base/+esm"
+  }
+}
+```
+
+If you gotta bundle, you gotta bundle
 
 ```json
 {
   "dependencies": {
-    "@stdlib/blas": "^0.1.1"
+    "@stdlib/blas": "^0.2.0"
   }
 }
-```
-If you aren't using a bundler, consider loading vs an ESModule and remapping the imports at link time through your build tool.
-
-Worst case;
-
-```html
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/stdlib-js/blas@umd/browser.js"></script>
 ```
 
 # Native

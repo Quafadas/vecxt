@@ -173,7 +173,7 @@ object Matrix:
 
     inline def raw: NArray[Double] = m._1
 
-    /** Zero indexed element retrieval
+    /** Zelement retrieval
       */
     inline def apply(b: Tuple2[Int, Int]) =
       val indexes = b.toList.asInstanceOf[List[Int]]

@@ -2,11 +2,14 @@
 title: Cross Platform
 ---
 
+
+You may need to refresh the page.
+https://github.com/scala/scala3/issues/21637
+
 # Cross Platform
 
 This has the same algorithm as the [motivation](motivation.mdoc.md) example, but is expressed in a cross platform `NArray`, and runs in scalaJS - check your browser console to observer the output.
 
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/stdlib-js/blas@umd/browser.js"></script>
 
 ```scala mdoc:js sc:nocompile
 
@@ -27,12 +30,60 @@ val p2 = dom.document.createElement("p")
 
 println("boo")
 
-p1.innerHTML = a.mkString("BLAS in browser! ")
-p2.innerHTML = b.mkString(algo(a, b, c).mkString("[",", ", "]"))
+p1.textContent = "BLAS in browser!"
+p2.textContent = algo(a, b, c).mkString("[",", ", "]")
 
 node.appendChild(p1)
 node.appendChild(p2)
 
 
 ```
-You can place the `algo` method in the shared part of your project, and use it on all platforms.
+This simple `algo` method is expressed in terms of `NArray`. It can be shared across JS, native and the JVM.
+
+# Math ML
+
+https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Matrix_math_for_the_web
+
+It should be possible, to make lovely renders of our matricies in browser, for the purposes of communication.
+
+Although it currently requires a rather hacky workaround, PRs are in flight for (hopefully scala js and laminar)
+
+```scala mdoc:js sc:nocompile
+import org.scalajs.dom
+import com.raquo.laminar.api.L._
+import com.raquo.laminar.DomApi
+
+import narr.*
+
+import vecxt.Matrix.*
+import vecxt.extensions.*
+import vecxt_extensions.MathTagsLaminar.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+
+val base = NArray[Double](11, 12, 13, 14, 15)
+val mat1 = Matrix.fromRows(
+    NArray(
+        base,
+        base +:+ 10.0,
+        base +:+ 20.0,
+        base +:+ 30.0,
+        base +:+ 40.0
+    )
+)
+val nodeId = "matrixExample"
+node.id = "nodeId"
+
+render(dom.document.querySelector("#nodeId"),
+    foreignHtmlElement(
+        DomApi.unsafeParseHtmlString(
+            p(
+                math(
+                    xmlns1 := "http://www.w3.org/1998/Math/MathML",
+                    mat1.printMl
+                )
+            ).toString.dropRight(1).drop(20)
+        )
+    )
+
+)
+```

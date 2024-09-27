@@ -53,6 +53,11 @@ val result2 = mat1 @@ mat2
 
 result2.print
 
+// opperator precedence...
+val result3 = Matrix.eye(2) + mat1 @@ mat2
+
+result3.print
+
 val mat3 = mat2.transpose + mat1
 
 ```

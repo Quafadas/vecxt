@@ -17,4 +17,4 @@ Here is the comparison of the standard `while` loop with the vectorised version.
 
 The case here is nuanced. The looped version is significantly faster, for small array sizes.
 
-It could be, that the vectorised version is somehow inefficiently initiated. Whilst the case is more nuanced, I'm targeting larger data sizes, and so the vectorised version is left in.
+It could be, that the vectorised version is somehow inefficiently initiated. Whilst the case is more nuanced, I'm targeting larger data sizes, and so the vectorised version is left in, where it holds a cca 20% throughput advantage.

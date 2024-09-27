@@ -54,6 +54,18 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   }
 
+  test("check vector operator precendance".only) {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v2 = NArray[Double](3.0, 2.0, 1.0)
+
+    val v3 = v1 + v2 * 2.0
+    val v4 = v2 * 2.0 + v1
+
+    assertEqualsDouble(v3(0), 7, 0.00001)
+    assertEqualsDouble(v4(0), 7, 0.00001)
+
+  }
+
   test("sum") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
     assertEqualsDouble(v1.sum, 6.0, 0.0001)

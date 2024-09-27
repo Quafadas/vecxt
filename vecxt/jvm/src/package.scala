@@ -366,16 +366,7 @@ object extensions:
     end +:+
 
     inline def +:+=(d: Double): Unit =
-      val species = DoubleVector.SPECIES_PREFERRED
       var i: Int = 0
-      val scalarVec = DoubleVector.broadcast(species, d)
-      val l = species.length()
-
-      while i < species.loopBound(vec.length) do
-        DoubleVector.fromArray(species, vec, i).add(scalarVec).intoArray(vec, i)
-        i += l
-      end while
-
       while i < vec.length do
         vec(i) += d
         i += 1

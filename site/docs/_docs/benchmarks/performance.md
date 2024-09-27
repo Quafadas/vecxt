@@ -1,8 +1,12 @@
+---
+title: General Performance
+---
+
 # Performance
 
 The core aim of this library, is to provide platform native, friction free performance. I'm confident that I can't do better than this - at least outside of an absurd about of effort.
 
-In general cross platform performance is a hard problem. We sidestep it as far as possible by simply providing compiletime `@inline`-shim-to-BLAS implementations.
+In general cross platform performance is a hard problem. We sidestep where possible by simply providing compiletime `@inline`-shim-to-BLAS implementations.
 
 
 ||JVM|JS|Native|Cross|
@@ -15,18 +19,12 @@ Consider browsing the [[vecxt]] api, and particulaly the extensions object. You'
 
 ### JVM
 
-On the JVM, firstly, we have the JVM. It does a really good job of optimising code.
+On the JVM, firstly, we have the JVM. JVM Good. Further this library also targets the "project Panama", "Vector", or "SIMD" apis, which aim to provide hardware accelerated performance. Each function has been benchmarked for performance vs a `while` loop.
 
-As we target performance, this library also targets the "project Panama", "Vector", or "SIMD" apis, which aim to provide hardware accelerated performance.
-
-The BLAS shim uses that API to hit C levels of performance for BLAS operations.
-
-Where I can benchmark a performance improvement vs a "while" loop, I've begun adding my own vectorised implementation for hot operations.
+The BLAS shim uses that API to hit C levels of performance for BLAS operations and is written by a MS researcher. It's good.
 
 ### JS
 
-On Node, this shim ships with it's own C BLAS implementation.
-
-In browser / elsewhere, it's done in loop-unrolled native arrays.
+On Node, this shim ships with it's own C BLAS implementation. The BLAS implementation it's done in loop-unrolled native arrays.
 
 TODO: Investigate webassembly?

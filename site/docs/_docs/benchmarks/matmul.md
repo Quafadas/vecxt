@@ -23,34 +23,28 @@ So the benchmark boils down to a personal preference for which of these two piec
 
 
 ```scala sc:nocompile
-extension (vec: Array[Double])
+  val a : Matrix[Double] = ??? // some matrix
+  val b : Matrix[Double] = ??? // some matrix
 
-  @Benchmark
-  def vecxt_mmult(bh: Blackhole)=
-    val cclone = matA @@ matB
-    bh.consume(cclone);
-  end vecxt_mmult
+  //vecxt
+  val multplied = a @@ b
 
-  @Benchmark
-  def java_dgemm(bh: Blackhole) =
-    val cclone = Array.fill[Double](m*n)(0)
+  //blas
+  val multiplied2 =
     blas.dgemm(
-      transa,
-      transb,
-      m,
-      n,
-      k,
-      alpha,
-      a,
-      if transa.equals("N") then m else k,
-      b,
-      if transb.equals("N") then k else n,
-      beta,
-      cclone,
-      m
+      "N",
+      "N",
+      a.rows,
+      b.cols,
+      a.cols,
+      1.0,
+      a.raw,
+      a.rows,
+      b.raw,
+      b.rows,
+      1.0,
+      newArr,
+      a.rows
     );
-    bh.consume(cclone);
-  end java_dgemm
-
-
 ```
+It is true, that some amount of flexibility is given up in terms of multiplying transposes etc. If that turns out to be painful, further extension methods could be considered.

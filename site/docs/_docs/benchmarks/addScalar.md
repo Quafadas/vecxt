@@ -15,6 +15,6 @@ Here is the comparison of the standard `while` loop with the vectorised version.
 
 # Conclusion
 
-The case here is nuanced. The looped version is significantly faster, for small array sizes.
+To my surprise, the vectorised version is slower than the standard `while` loop, in nearly each case and across the two environments I have to test in.
 
-It could be, that the vectorised version is somehow inefficiently initiated. Whilst the case is more nuanced, I'm targeting larger data sizes, and so the vectorised version is left in.
+It could be, that the JDK is simply very good at optimising this case. Feedback welcomed - but as the standard while loop outperforms the vectorised version, the standard while loop is left included.

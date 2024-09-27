@@ -8,6 +8,15 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 class TensorExtensionSuite extends FunSuite:
 
+  test("operator precedance".only) {
+    val mat1 = Matrix.eye(2)
+    val mat2 = Matrix(mat1.raw * 2, (mat1.rows, mat1.cols))
+
+    val mat3 = mat1 + mat1 @@ mat2
+    assertEqualsDouble(mat3(0, 0), 3.0, 0.00001)
+
+  }
+
   test("zeros") {
     val tensor = Matrix.zeros(2, 2)
     assertVecEquals(tensor.raw, NArray[Double](0.0, 0.0, 0.0, 0.0))
