@@ -22,7 +22,7 @@ trait Common extends ScalaModule  with PublishModule {
   def publishVersion = VcsVersion.vcsState().format()
 
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"ai.dragonfly::narr::0.105"
+    ivy"io.github.quafadas::narr::0.0.5"
   )
 
   override def pomSettings = T {
@@ -52,14 +52,14 @@ trait CommonJS extends ScalaJSModule {
 
 trait CommonNative extends ScalaNativeModule {
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.ekrich::sblas::0.5.0"
+    ivy"org.ekrich::sblas::0.7.0"
   )
-  def scalaNativeVersion: mill.T[String] = "0.4.17"
+  def scalaNativeVersion: mill.T[String] = "0.5.5"
 }
 
 trait CommonTests extends TestModule.Munit {
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.scalameta::munit::1.0.0-M10",
+    ivy"org.scalameta::munit::1.0.1",
   )
 }
 
@@ -117,11 +117,11 @@ object vecxt_extensions extends CrossPlatform {
   object js extends Shared with CommonJS {
     override def ivyDeps: Target[Agg[Dep]] = super.ivyDeps() ++ Agg(
       ivy"com.lihaoyi::scalatags::0.13.1",
-      ivy"com.raquo::laminar::17.0.0"
+      ivy"com.raquo::laminar::17.1.0"
     )
     // js specific settings here
     object test extends ScalaJSTests with SharedTests {
-        def moduleKind = ModuleKind.CommonJSModule
+      def moduleKind = ModuleKind.CommonJSModule
     }
   }
 
