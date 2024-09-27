@@ -83,7 +83,7 @@ class AddScalarBenchmark extends BLASBenchmark:
 
   @Benchmark
   def vecxt_add(bh: Blackhole) =
-    vec.scalarPlusVec(4.5)
+    vec +:+= (4.5)
     bh.consume(vec);
   end vecxt_add
 
