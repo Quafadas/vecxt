@@ -28,6 +28,6 @@ And over time
 
 # Conclusion
 
-To my surprise, the vectorised version is slower than the standard `while` loop, in nearly each case and across the two environments I have to test in.
+To my surprise, the vectorised version is slower than the standard `while` loop, in nearly each case and across the two environments I have to test in. Although the volatility of the vectorised version is lower, the throughput is significantly lowe
 
 It could be, that the JDK is simply very good at optimising this case. Feedback welcomed - but as the standard while loop outperforms the vectorised version, the standard `while loop` version is left included.

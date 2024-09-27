@@ -3,7 +3,7 @@ title: Matrix Examples
 ---
 # Matrix Examples
 
-Some basic examples. Mdoc calls `toString()` on each line, which actually, we don't want, but can't prevent for an opaque type. It is an annoyance which I believe to be justified - to be clear, you shouldn't use `toString()` to find out about matricies.
+Some examples. You shouldn't use `toString()` to find out about matricies. Mdoc calls it on each line anyway - not much i can do about that.
 
 ```scala mdoc:to-string
 
@@ -30,10 +30,11 @@ matrix.col(1).print
 
 matrix.row(2).print
 
-matrix(1, 2)
+// Note that indexing is done via a tuple.
+matrix((1, 2))
 
 ```
-There are only a small number of operations currently supported on matricies, but this sets out a paradigm. If it holds up, then adding more is a detail grind, rather than a risky time investment...
+More matrix operations...
 
 ```scala mdoc:to-string
 
@@ -59,6 +60,7 @@ val result3 = Matrix.eye(2) + mat1 @@ mat2
 result3.print
 
 val mat3 = mat2.transpose + mat1
+mat3.print
 
 ```
 

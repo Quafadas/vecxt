@@ -21,6 +21,10 @@ And as long as the errors bars overlap, then these two implementations are equiv
 
 So the benchmark boils down to a personal preference for which of these two pieces of code I'd rather write . They do exactly the same thing.
 
+```scala mdoc:js sc:nocompile
+import vecxt.facades._
+showJsDocs("../../plots/matmul.vg.json", node)
+```
 
 ```scala sc:nocompile
   val a : Matrix[Double] = ??? // some matrix
