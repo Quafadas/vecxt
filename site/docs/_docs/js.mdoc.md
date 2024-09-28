@@ -13,7 +13,7 @@ This has the same algorithm as the [motivation](motivation.mdoc.md) example, but
 
 ```scala mdoc:js sc:nocompile
 
-import vecxt.*
+import vecxt.all.*
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import org.scalajs.dom

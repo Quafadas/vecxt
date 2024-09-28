@@ -2,7 +2,7 @@ package vecxt_extensions
 
 import scalatags.Text.all.* // Imports commonly used ScalaTags elements like `Tag`, `attrs`, etc.
 import scalatags.Text.tags
-import vecxt.Matrix.*
+import vecxt.all.*
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.tags.*

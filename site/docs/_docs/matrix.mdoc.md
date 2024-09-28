@@ -7,7 +7,7 @@ Some examples. You shouldn't use `toString()` to find out about matricies. Mdoc 
 
 ```scala mdoc:to-string
 
-import vecxt.Matrix.*
+import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import narr.*
 
