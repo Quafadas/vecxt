@@ -2,10 +2,13 @@ package vecxt
 
 import narr.*
 import jdk.incubator.vector.DoubleVector
+import vecxt.arrays.*
+import vecxt.BoundsCheck.BoundsCheck
+import org.ekrich.blas.unsafe.blas
+import org.ekrich.blas.unsafe.blasEnums
+import scala.scalanative.unsafe.*
 
 object matrix:
-
-  import vecxt.extensions.*
 
   type TupleOfInts[T <: Tuple] <: Boolean = T match
     case EmptyTuple  => true // Base case: Empty tuple is valid
@@ -121,6 +124,8 @@ object matrix:
 
   extension (m: Matrix)
 
+    inline def numel: Int = m._1.length
+
     /** element retrieval
       */
     inline def apply(b: Tuple2[Int, Int])(using inline boundsCheck: BoundsCheck) =
@@ -228,6 +233,29 @@ object matrix:
         BoundsCheck.DoBoundsCheck.no
       ) // we already have a valid matrix if we are transposing it, so this check is redundant if this method works as intended.
     end transpose
-  end extension
 
-end Matrix
+    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
+      dimMatCheck(m, b)
+      val newArr = Array.ofDim[Double](m.rows * b.cols)
+      // Note, might need to deal with transpose later.
+      blas.cblas_dgemm(
+        blasEnums.CblasColMajor,
+        blasEnums.CblasNoTrans,
+        blasEnums.CblasNoTrans,
+        m.rows,
+        b.cols,
+        m.cols,
+        1.0,
+        m.raw.at(0),
+        m.rows,
+        b.raw.at(0),
+        b.rows,
+        1.0,
+        newArr.at(0),
+        m.rows
+      )
+      Matrix(newArr, (m.rows, b.cols))
+    end matmul
+
+  end extension
+end matrix

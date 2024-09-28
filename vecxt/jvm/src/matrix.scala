@@ -6,7 +6,7 @@ import vecxt.BoundsCheck
 import vecxt.dimMatInstantiateCheck
 import vecxt.sameDimMatCheck
 import vecxt.rangeExtender.*
-import vecxt.array.*
+import vecxt.arrays.*
 
 import vecxt.indexCheckMat
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas

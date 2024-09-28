@@ -1,7 +1,7 @@
 package vecxt
 
-import vecxt.array.norm
-import vecxt.array.dot
+import vecxt.arrays.norm
+import vecxt.arrays.dot
 import narr.NArray
 import vecxt.BoundsCheck.BoundsCheck
 

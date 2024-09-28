@@ -18,39 +18,10 @@ package vecxt
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
-import vecxt.Matrix.*
-import vecxt.extensions.matmul
 import narr.*
+import vecxt.BoundsCheck.BoundsCheck
 
-export extensions.*
-export vecxt.rpt.Retentions.Retention
-
-object extensions:
-
-  extension (a: Matrix)
-    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
-      dimMatCheck(a, b)
-      val newArr = Float64Array(a.rows * b.cols)
-      // Note, might need to deal with transpose later.
-      dgemm(
-        "column-major",
-        "no-transpose",
-        "no-transpose",
-        a.rows,
-        b.cols,
-        a.cols,
-        1.0,
-        a.raw,
-        a.rows,
-        b.raw,
-        b.rows,
-        1.0,
-        newArr,
-        a.rows
-      )
-      Matrix(newArr, (a.rows, b.cols))
-    end matmul
-  end extension
+object arrays:
 
   extension (v: Float64Array)
     inline def nativeSort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
@@ -286,8 +257,8 @@ object extensions:
       blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
     end +=
 
-    inline def add(d: NArray[Double])(using inline boundsCheck: BoundsCheck) = vec + d
-    inline def multInPlace(d: Double) = vec *= d
+    inline def add(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] = vec + d
+    inline def multInPlace(d: Double): Unit = vec *= d
 
     inline def *=(d: Double): Unit =
       blas.dscal(vec.length, d, vec, 1)
@@ -366,4 +337,4 @@ object extensions:
       end while
       out
   end extension
-end extensions
+end arrays

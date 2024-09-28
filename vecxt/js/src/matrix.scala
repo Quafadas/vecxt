@@ -2,15 +2,16 @@ package vecxt
 
 import narr.*
 import jdk.incubator.vector.DoubleVector
+import scala.scalajs.js.typedarray.Float64Array
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.arrays.*
 
 object matrix:
 
-  import vecxt.extensions.*
-
-  type TupleOfInts[T <: Tuple] <: Boolean = T match
-    case EmptyTuple  => true // Base case: Empty tuple is valid
-    case Int *: tail => TupleOfInts[tail] // Recursive case: Head is Int, check the tail
-    case _           => false // If any element is not an Int, return false
+  // type TupleOfInts[T <: Tuple] <: Boolean = T match
+  //   case EmptyTuple  => true // Base case: Empty tuple is valid
+  //   case Int *: tail => TupleOfInts[tail] // Recursive case: Head is Int, check the tail
+  //   case _           => false // If any element is not an Int, return false
 
   // opaque type Tensor = (NArray[Double], Tuple)
   // object Tensor:
@@ -39,14 +40,14 @@ object matrix:
 
     inline def doubleSpecies = DoubleVector.SPECIES_PREFERRED
 
-    inline def apply[T <: Tuple2[Int, Int]](raw: NArray[Double], dim: T)(using inline boundsCheck: BoundsCheck)(using
-        ev: TupleOfInts[T] =:= true
+    inline def apply[T <: Tuple2[Int, Int]](raw: NArray[Double], dim: T)(using
+        inline boundsCheck: BoundsCheck
     ): Matrix =
       dimMatInstantiateCheck(raw, dim)
       (raw, dim)
     end apply
-    inline def apply[T <: Tuple2[Int, Int]](dim: T, raw: NArray[Double])(using inline boundsCheck: BoundsCheck)(using
-        ev: TupleOfInts[T] =:= true
+    inline def apply[T <: Tuple2[Int, Int]](dim: T, raw: NArray[Double])(using
+        inline boundsCheck: BoundsCheck
     ): Matrix =
       dimMatInstantiateCheck(raw, dim)
       (raw, dim)
@@ -214,6 +215,44 @@ object matrix:
       end while
       result
     end col
-  end extension
 
-end Matrix
+    inline def transpose: Matrix =
+      val newArr = NArray.ofSize[Double](m._1.length)
+      var i = 0
+      while i < m.cols do
+        var j = 0
+        while j < m.rows do
+          newArr(i * m.rows + j) = m._1(j * m.cols + i)
+          j += 1
+        end while
+        i += 1
+      end while
+      Matrix(newArr, (m.cols, m.rows))(using
+        BoundsCheck.DoBoundsCheck.no
+      ) // we already have a valid matrix if we are transposing it, so this check is redundant if this method works as intended.
+    end transpose
+
+    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
+      dimMatCheck(m, b)
+      val newArr = Float64Array(m.rows * b.cols)
+      // Note, might need to deal with transpose later.
+      dgemm(
+        "column-major",
+        "no-transpose",
+        "no-transpose",
+        m.rows,
+        b.cols,
+        m.cols,
+        1.0,
+        m.raw,
+        m.rows,
+        b.raw,
+        b.rows,
+        1.0,
+        newArr,
+        m.rows
+      )
+      Matrix(newArr, (m.rows, b.cols))
+    end matmul
+  end extension
+end matrix

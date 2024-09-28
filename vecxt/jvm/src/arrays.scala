@@ -26,7 +26,7 @@ import jdk.incubator.vector.VectorOperators
 
 import vecxt.BoundsCheck.BoundsCheck
 
-object array:
+object arrays:
 
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
@@ -466,4 +466,4 @@ object array:
       end while
       out
   end extension
-end array
+end arrays

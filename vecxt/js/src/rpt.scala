@@ -2,10 +2,8 @@ package vecxt.reinsurance
 
 import Limits.Limit
 import Retentions.Retention
-import vecxt.extensions
+import vecxt.arrays.*
 import scala.scalajs.js.typedarray.Float64Array
-
-export extensions.*
 
 /*
 
@@ -15,7 +13,7 @@ export extensions.*
 
   Note: mutates the input array
  */
-object extensions:
+object rpt:
 
   extension (vec: Float64Array)
     inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
@@ -94,4 +92,4 @@ object extensions:
     end franchiseFunction
 
   end extension
-end extensions
+end rpt

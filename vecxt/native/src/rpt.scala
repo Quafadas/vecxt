@@ -2,9 +2,7 @@ package vecxt.reinsurance
 
 import Limits.Limit
 import Retentions.Retention
-import vecxt.extensions
-
-export extensions.*
+import vecxt.arrays
 
 /*
 
@@ -97,4 +95,4 @@ object rpt:
     end franchiseFunction
 
   end extension
-end extensions
+end rpt

@@ -18,7 +18,7 @@ package vecxt
 
 import narr.*
 import scala.util.chaining.*
-import vecxt.array.*
+import vecxt.arrays.*
 import vecxt.matrix.print
 
 class ArrayExtensionSuite extends munit.FunSuite:

@@ -3,7 +3,7 @@ package vecxt
 import narr.*
 import vecxt.matrix.*
 import vecxt.BoundsCheck
-import vecxt.array.multInPlace
+import vecxt.arrays.multInPlace
 import vecxt.matrix.matmul
 import vecxt.BoundsCheck.BoundsCheck
 

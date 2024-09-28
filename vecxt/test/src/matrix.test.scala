@@ -3,7 +3,7 @@ package vecxt
 import munit.FunSuite
 import narr.*
 import vecxt.matrix.*
-import vecxt.array.*
+import vecxt.arrays.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 class TensorExtensionSuite extends FunSuite:

@@ -3,7 +3,7 @@ package vecxt.reinsurance
 import vecxt.reinsurance.*
 import vecxt.reinsurance.Limits.*
 import vecxt.reinsurance.Retentions.*
-import vecxt.array.*
+import vecxt.arrays.*
 
 /*
 

@@ -25,6 +25,8 @@ trait Common extends ScalaModule  with PublishModule {
     ivy"io.github.quafadas::narr::0.0.5"
   )
 
+  override def scalacOptions: Target[Seq[String]] = super.scalacOptions() ++ Seq("-explain-cyclic")
+
   override def pomSettings = T {
     PomSettings(
       description = "Making cross platform compute intense problems less vexing",
