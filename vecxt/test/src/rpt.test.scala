@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package vecxt.rpt
+package vecxt.reinsurance
 
+import vecxt.reinsurance.rpt.*
 import Retentions.Retention
 import Limits.Limit
 

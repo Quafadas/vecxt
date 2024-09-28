@@ -3,7 +3,7 @@ package vecxt
 import narr.*
 import jdk.incubator.vector.DoubleVector
 
-object Matrix:
+object matrix:
 
   import vecxt.extensions.*
 
@@ -118,20 +118,6 @@ object Matrix:
     end fromColumns
 
   end Matrix
-
-  // opaque type StrictMatrix1[M <: Int, N <: Int] = (NArray[Double], Tuple2[M, N]) & Matrix
-
-  // type StrictMatrix[M <: Int, N <: Int] = StrictMatrix1[M, N]
-  // object StrictMatrix:
-  //   def apply[M <: Int, N <: Int](
-  //       a: NArray[Double]
-  //   )(using ev: TupleOfInts[Tuple2[M, N]] =:= true, m: ValueOf[M], n: ValueOf[N]): StrictMatrix[M, N] =
-  //     val tup = (m.value, n.value)
-  //     (a, tup)
-  //   end apply
-  // end StrictMatrix
-
-  extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "],")
 
   extension (m: Matrix)
 

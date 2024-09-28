@@ -2,7 +2,8 @@ package vecxt
 
 import narr.*
 import scala.util.chaining.*
-import vecxt.Matrix.*
+import vecxt.matrix.*
+import vecxt.array.*
 
 class UpdateSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes

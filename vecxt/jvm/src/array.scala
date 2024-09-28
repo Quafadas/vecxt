@@ -17,7 +17,6 @@ package vecxt
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
-import vecxt.Matrix.*
 
 import jdk.incubator.vector.VectorMask
 import jdk.incubator.vector.ByteVector
@@ -25,39 +24,10 @@ import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 
-export extensions.*
-// export vecxt.Matrix.*
-export vecxt.rpt.{Retentions, Limits, LossCalc}
-export vecxt.rpt.LossCalc.{Agg, Occ}
-export vecxt.rpt.Retentions.Retention
-export vecxt.rpt.Limits.Limit
+import vecxt.BoundsCheck.BoundsCheck
 
-object extensions:
+object array:
 
-  extension (a: Matrix)
-    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
-      dimMatCheck(a, b)
-      val newArr = Array.ofDim[Double](a.rows * b.cols)
-      // Note, might need to deal with transpose later.
-      blas.dgemm(
-        "N",
-        "N",
-        a.rows,
-        b.cols,
-        a.cols,
-        1.0,
-        a.raw,
-        a.rows,
-        b.raw,
-        b.rows,
-        1.0,
-        newArr,
-        a.rows
-      )
-      Matrix(newArr, (a.rows, b.cols))
-    end matmul
-
-  end extension
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
       val species = ByteVector.SPECIES_PREFERRED
@@ -182,13 +152,13 @@ object extensions:
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
-      val sp = Matrix.doubleSpecies
+      val sp = DoubleVector.SPECIES_PREFERRED
       val l = sp.length()
 
       var i = 1
       while i < sp.loopBound(vec.length - 2) do
-        val v1 = DoubleVector.fromArray(Matrix.doubleSpecies, vec, i)
-        val v2 = DoubleVector.fromArray(Matrix.doubleSpecies, vec, i + 1)
+        val v1 = DoubleVector.fromArray(sp, vec, i)
+        val v2 = DoubleVector.fromArray(sp, vec, i + 1)
         v2.sub(v1).intoArray(out, i)
         i += l
       end while
@@ -272,7 +242,7 @@ object extensions:
       // https://www.cuemath.com/sample-variance-formula/
       val μ = vec.mean
       // vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
-      val sp = Matrix.doubleSpecies
+      val sp = DoubleVector.SPECIES_PREFERRED
       val l = sp.length()
       var tmp = DoubleVector.zero(sp)
 
@@ -306,13 +276,13 @@ object extensions:
 
     inline def sum: Double =
       var i: Int = 0
+      val sp = DoubleVector.SPECIES_PREFERRED
+      var acc = DoubleVector.zero(sp)
 
-      var acc = DoubleVector.zero(Matrix.doubleSpecies)
-      val sp = Matrix.doubleSpecies
       val l = sp.length()
 
       while i < sp.loopBound(vec.length) do
-        acc = acc.add(DoubleVector.fromArray(Matrix.doubleSpecies, vec, i))
+        acc = acc.add(DoubleVector.fromArray(sp, vec, i))
         i += l
       end while
       var temp = acc.reduceLanes(VectorOperators.ADD)
@@ -413,7 +383,7 @@ object extensions:
         inline op: VectorOperators.Comparison,
         num: Double
     ): Array[Boolean] =
-      val species = Matrix.doubleSpecies
+      val species = DoubleVector.SPECIES_PREFERRED
       val l = species.length()
       val idx = new Array[Boolean](vec.length)
       var i = 0
@@ -496,4 +466,4 @@ object extensions:
       end while
       out
   end extension
-end extensions
+end array

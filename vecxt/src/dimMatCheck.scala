@@ -1,7 +1,8 @@
 package vecxt
 
-import vecxt.Matrix.*
+import vecxt.matrix.*
 import narr.*
+import vecxt.BoundsCheck.BoundsCheck
 
 protected[vecxt] object dimMatCheck:
   inline def apply(a: Matrix, b: Matrix)(using inline doCheck: BoundsCheck) =

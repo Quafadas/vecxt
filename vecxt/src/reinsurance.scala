@@ -14,9 +14,24 @@
  * limitations under the License.
  */
 
-package vecxt.rpt
+package vecxt.reinsurance
 
-import Retentions.*
+import vecxt.reinsurance.Retentions.Retention
+
+object Retentions:
+  opaque type Retention = Double
+
+  object Retention:
+    inline def apply(d: Double): Retention = d
+  end Retention
+
+  extension (x: Retention) inline def retention: Double = x
+
+  extension (loss: Double)
+    inline def -(l: Retention): Double = loss - l
+    inline def <(l: Retention): Boolean = loss < l
+  end extension
+end Retentions
 
 object Limits:
   opaque type Limit = Double
@@ -33,3 +48,7 @@ object Limits:
 
   end extension
 end Limits
+
+enum LossCalc:
+  case Agg, Occ
+end LossCalc
