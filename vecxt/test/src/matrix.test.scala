@@ -119,7 +119,7 @@ class TensorExtensionSuite extends FunSuite:
     assertVecEquals(result.raw, NArray(58.0, 139.0, 64.0, 154.0))
   }
 
-  test("Matrix transpose".only) {
+  test("Matrix transpose") {
     val orig = Matrix.fromRows(
       NArray(
         NArray(2.0, 0.0, -1.0),
