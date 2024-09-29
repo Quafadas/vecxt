@@ -19,12 +19,19 @@ package vecxt
 import narr.*
 import scala.util.chaining.*
 import vecxt.arrays.*
-import vecxt.matrix.print
+import vecxt.arrayUtil.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
 
   lazy val v_fill = NArray[Double](0, 1, 2, 3, 4)
+
+  test("print") {
+    val v1 = NArray[Double](1, 2, 3)
+    val v2 = NArray[Double](4, 5, 6)
+    val out = (v1 + v2).printArr
+    assert(out.contains("5"))
+  }
 
   test("Array horizontal sum") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)

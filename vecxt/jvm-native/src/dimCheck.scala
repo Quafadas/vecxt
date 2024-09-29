@@ -19,6 +19,11 @@ package vecxt
 import vecxt.matrix.*
 import vecxt.BoundsCheck.BoundsCheck
 
+protected[vecxt] object dimCheckLen:
+  inline def apply[A, B](a: Array[A], b: Int)(using inline doCheck: BoundsCheck) =
+    inline if doCheck then if a.length != b then throw VectorDimensionMismatch(a.length, b)
+end dimCheckLen
+
 protected[vecxt] object dimCheck:
   inline def apply[A, B](a: Array[A], b: Array[B])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)

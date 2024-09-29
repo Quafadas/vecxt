@@ -55,8 +55,7 @@ import com.raquo.laminar.DomApi
 
 import narr.*
 
-import vecxt.Matrix.*
-import vecxt.extensions.*
+import vecxt.all.*
 import vecxt_extensions.MathTagsLaminar.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 

@@ -16,8 +16,8 @@ It is left to the developer, to decide whether, or where BoundsChecks are desira
 In this case, we disable bounds checks, maximising performance.
 
 ```scala
-import vecxt._
-import BoundsCheck.DoBoundsCheck.no
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.no
 
 val v1 = Array[Double](1, 2, 3)
 val v2 = Array[Double](4, 5, 6)
@@ -29,8 +29,8 @@ println(v1 + v2)
 In this case, we disable bounds checks, maximising performance, and generate undefined runtime behaviour. It may fail, it may not, but the results will be unpredictable, wrong and potentially hard to track - it is _your_ responsibility.
 
 ```scala
-import vecxt._
-import BoundsCheck.DoBoundsCheck.no
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.no
 
 val v1 = Array[Double](1, 2, 3, 7)
 val v2 = Array[Double](4, 5, 6)
@@ -58,11 +58,11 @@ Finally, one may opt in, or out at any individual callsite, should it be desirab
 
 ```scala
 import vecxt.all.*
-import BoundsCheck.DoBoundsCheck.no
+import vecxt.BoundsCheck.DoBoundsCheck.no
 
 val v1 = Array[Double](1, 2, 3, 7)
 val v2 = Array[Double](4, 5, 6)
 
-println(v1.+(v2)(using BoundsCheck.DoBoundsCheck.yes) )
+println(v1.+(v2)(using vecxt.BoundsCheck.DoBoundsCheck.yes) )
 
 ```

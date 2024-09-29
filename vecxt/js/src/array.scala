@@ -21,7 +21,12 @@ import scala.util.chaining.*
 import narr.*
 import vecxt.BoundsCheck.BoundsCheck
 
+object arrayUtil:
+// extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "]")
+end arrayUtil
+
 object arrays:
+  extension (d: Float64Array) def printArr: String = d.mkString("[", ",", "]")
 
   extension (v: Float64Array)
     inline def nativeSort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
@@ -77,7 +82,7 @@ object arrays:
     // end copy
   end extension
 
-  extension (vec: Float64Array)
+  extension (vec: NArray[Double])
     inline def update(idx: Int, d: Double)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       indexCheck(vec, idx)
       vec(idx) = d

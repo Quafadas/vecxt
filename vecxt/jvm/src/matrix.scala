@@ -14,13 +14,6 @@ import vecxt.BoundsCheck.BoundsCheck
 
 object matrix:
 
-  export vecxt.matrixUtil.*
-
-  type TupleOfInts[T <: Tuple] <: Boolean = T match
-    case EmptyTuple  => true // Base case: Empty tuple is valid
-    case Int *: tail => TupleOfInts[tail] // Recursive case: Head is Int, check the tail
-    case _           => false // If any element is not an Int, return false
-
   // opaque type Tensor = (NArray[Double], Tuple)
   // object Tensor:
   //   def apply[T <: Tuple](a: NArray[Double], b: T)(using ev: TupleOfInts[T] =:= true): Tensor = (a, b)
@@ -39,10 +32,6 @@ object matrix:
     * ._2._2 is the number of columns
     */
   opaque type Matrix = (NArray[Double], Tuple2[Int, Int])
-
-  // type RangeExtender = Range | Int | NArray[Int] | ::.type
-
-  // type Matrix = Matrix1 & Tensor
 
   object Matrix:
 
@@ -132,19 +121,16 @@ object matrix:
 
     inline def numel: Int = m._1.length
 
-    /** element retrieval
-      */
-    inline def apply(b: Tuple2[Int, Int])(using inline boundsCheck: BoundsCheck) =
-      indexCheckMat(m, b)
-      val idx = b._1 * m._2._2 + b._2
-      m._1(idx)
-    end apply
+    inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck) =
+      dimCheckLen(m.raw, b)
+      (b / m.rows, b % m.rows)
+    end tupleFromIdx
 
     /** element update
       */
     inline def update(loc: Tuple2[Int, Int], value: Double)(using inline boundsCheck: BoundsCheck) =
       indexCheckMat(m, loc)
-      val idx = loc._1 * m._2._2 + loc._2
+      val idx = loc._2 * m.rows + loc._1
       m._1(idx) = value
     end update
 
@@ -158,7 +144,7 @@ object matrix:
       var i = 0
       while i < newCols.length do
         val colpos = newCols(i)
-        val stride = colpos * m.cols
+        val stride = colpos * m.rows
         var j = 0
         while j < newRows.length do
           val rowPos = newRows(j)
@@ -173,6 +159,14 @@ object matrix:
 
     end apply
 
+    /** element retrieval
+      */
+    inline def apply(b: Tuple2[Int, Int])(using inline boundsCheck: BoundsCheck) =
+      indexCheckMat(m, b)
+      val idx = b._2 * m.rows + b._1
+      m._1(idx)
+    end apply
+
     inline def raw: NArray[Double] = m._1
 
     inline def +(m2: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
@@ -184,8 +178,6 @@ object matrix:
     inline def rows: Int = m._2._1
 
     inline def cols: Int = m._2._2
-
-    inline def shape: String = s"${m.rows} x ${m.cols}"
 
     inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
       dimMatCheck(m, b)

@@ -124,19 +124,17 @@ object matrix:
 
     inline def numel: Int = m._1.length
 
-    /** element retrieval
-      */
-    inline def apply(b: Tuple2[Int, Int])(using inline boundsCheck: BoundsCheck) =
-      indexCheckMat(m, b)
-      val idx = b._1 * m._2._2 + b._2
-      m._1(idx)
-    end apply
+    inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck) =
+      val r: NArray[Double] = m.raw
+      dimCheckLen(r, b)
+      (b / m.rows, b % m.rows)
+    end tupleFromIdx
 
     /** element update
       */
     inline def update(loc: Tuple2[Int, Int], value: Double)(using inline boundsCheck: BoundsCheck) =
       indexCheckMat(m, loc)
-      val idx = loc._1 * m._2._2 + loc._2
+      val idx = loc._2 * m.rows + loc._1
       m._1(idx) = value
     end update
 
@@ -171,11 +169,15 @@ object matrix:
 
     end apply
 
+    /** element retrieval
+      */
+    inline def apply(b: Tuple2[Int, Int])(using inline boundsCheck: BoundsCheck) =
+      indexCheckMat(m, b)
+      val idx = b._2 * m.rows + b._1
+      m._1(idx)
+    end apply
+
     inline def raw: NArray[Double] = m._1
-
-    inline def @@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
-
-    inline def *=(d: Double): Unit = m._1.multInPlace(d)
 
     inline def +(m2: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
       sameDimMatCheck(m, m2)
@@ -186,51 +188,6 @@ object matrix:
     inline def rows: Int = m._2._1
 
     inline def cols: Int = m._2._2
-
-    inline def shape: String = s"${m.rows} x ${m.cols}"
-
-    inline def row(i: Int): NArray[Double] =
-      val result = new NArray[Double](m.cols)
-      val cols = m.cols
-      var j = 0
-      while j < m.cols do
-        result(j) = m._1(i + j * m.rows)
-        j += 1
-      end while
-      result
-    end row
-
-    inline def print: String =
-      val arrArr = for i <- 0 until m.rows yield m.row(i).mkString(" ")
-      arrArr.mkString("\n")
-    end print
-
-    inline def col(i: Int): NArray[Double] =
-      val result = new NArray[Double](m.rows)
-      val cols = m.cols
-      var j = 0
-      while j < m.rows do
-        result(j) = m._1(i * m.cols + j)
-        j += 1
-      end while
-      result
-    end col
-
-    inline def transpose: Matrix =
-      val newArr = NArray.ofSize[Double](m._1.length)
-      var i = 0
-      while i < m.cols do
-        var j = 0
-        while j < m.rows do
-          newArr(i * m.rows + j) = m._1(j * m.cols + i)
-          j += 1
-        end while
-        i += 1
-      end while
-      Matrix(newArr, (m.cols, m.rows))(using
-        BoundsCheck.DoBoundsCheck.no
-      ) // we already have a valid matrix if we are transposing it, so this check is redundant if this method works as intended.
-    end transpose
 
     inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
       dimMatCheck(m, b)

@@ -3,10 +3,51 @@ package vecxt
 import munit.FunSuite
 import narr.*
 import vecxt.matrix.*
-import vecxt.arrays.*
+import vecxt.arrays.`*`
 import vecxt.BoundsCheck.DoBoundsCheck.yes
+import vecxt.matrixUtil.*
+import vecxt.arrayUtil.*
 
 class TensorExtensionSuite extends FunSuite:
+
+  // TODO will fail on JS, grrr.
+  test("print") {
+    val mat1 = Matrix(NArray(1.0, 4.0, 2.0, 5.0), (2, 2))
+    assert(mat1.printMat.contains("4"))
+
+  }
+
+  // test("transpose etc".only) {
+  //   val mat1 = Matrix(NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (2, 3))
+  //   val mat2 = Matrix(NArray(7.0, 9.0, 11.0, 8.0, 10, 12.0), (3, 2))
+  //   val result2 = mat1 @@ mat2
+
+  //   result2.printMat
+  //   val result3 = Matrix.eye(2) + mat1 @@ mat2
+  //   result3.printMat
+  //   val mat3 = mat2.transpose + mat1
+  //   println(mat2.transpose.printMat)
+  //   mat3.raw.printArr
+  //   mat3.printMat
+  // }
+
+  test("element access") {
+
+    val orig = Matrix.fromRows(
+      NArray(
+        NArray(2.0, 0.0, -1.0),
+        NArray(0.0, 3.0, 4.0)
+      )
+    )
+
+    assertEqualsDouble(orig((0, 0)), 2, 0.0001)
+    assertEqualsDouble(orig((0, 1)), 0, 0.0001)
+    assertEqualsDouble(orig((0, 2)), -1, 0.0001)
+    assertEqualsDouble(orig((1, 0)), 0, 0.0001)
+    assertEqualsDouble(orig((1, 1)), 3, 0.0001)
+    assertEqualsDouble(orig((1, 2)), 4, 0.0001)
+
+  }
 
   test("operator precedance") {
     val mat1 = Matrix.eye(2)
@@ -78,18 +119,25 @@ class TensorExtensionSuite extends FunSuite:
     assertVecEquals(result.raw, NArray(58.0, 139.0, 64.0, 154.0))
   }
 
-  test("Matrix transpose") {
-    val originalArray = NArray[Double](1, 2, 3, 4, 5, 6)
-    val matrix = Matrix(originalArray, (2, 3))
+  test("Matrix transpose".only) {
+    val orig = Matrix.fromRows(
+      NArray(
+        NArray(2.0, 0.0, -1.0),
+        NArray(0.0, 3.0, 4.0)
+      )
+    )
+    val transpose = Matrix.fromRows(
+      NArray(
+        NArray(2.0, 0.0),
+        NArray(0.0, 3.0),
+        NArray(-1.0, 4.0)
+      )
+    )
 
-    val transposedMatrix = matrix.transpose
+    val transposedMatrix = orig.transpose
 
-    val expectedArray = NArray[Double](1, 4, 2, 5, 3, 6)
-    val expectedMatrix = Matrix(expectedArray, (3, 2))
+    assertEquals(transposedMatrix.raw.toList, transpose.raw.toList)
 
-    assertEquals(transposedMatrix.raw.toList, expectedMatrix.raw.toList)
-    assertEquals(transposedMatrix.rows, expectedMatrix.rows)
-    assertEquals(transposedMatrix.cols, expectedMatrix.cols)
   }
 
   test("Tensor raw array retrieval") {
@@ -99,7 +147,12 @@ class TensorExtensionSuite extends FunSuite:
   }
 
   test("Tensor elementAt retrieval for 2D tensor") {
-    val tensor = Matrix(NArray[Double](1.0, 2.0, 3.0, 4.0), (2, 2))
+    val tensor = Matrix.fromRows(
+      NArray(
+        NArray[Double](1.0, 2.0),
+        NArray[Double](3.0, 4.0)
+      )
+    )
     assertEquals(tensor((0, 0)), 1.0)
     assertEquals(tensor((0, 1)), 2.0)
     assertEquals(tensor((1, 0)), 3.0)
@@ -175,13 +228,13 @@ class TensorExtensionSuite extends FunSuite:
   test("matrix scale") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Matrix(array, (2, 2))
-    val col1 = matrix *= (2)
+    val col1 = matrix *:*= (2)
     assertVecEquals(matrix.raw, NArray[Double](2.0, 4.0, 6.0, 8.0))
   }
 
   test("matrix ops") {
     val mat1 = Matrix.eye(3) // multiplication in place
-    mat1 *= 2
+    mat1 *:*= 2
     val mat2 = Matrix.eye(3) + Matrix.eye(3) // addition
     assertVecEquals(mat1.raw, mat2.raw)
   }

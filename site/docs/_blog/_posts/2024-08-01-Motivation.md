@@ -21,7 +21,7 @@ For example if your data acquisition is serverside, but do parts of a calculatio
 
 ```scala mdoc
 
-import vecxt.*
+import vecxt.all.*
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 

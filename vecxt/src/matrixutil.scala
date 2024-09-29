@@ -6,37 +6,38 @@ import vecxt.BoundsCheck
 import vecxt.arrays.multInPlace
 import vecxt.matrix.matmul
 import vecxt.BoundsCheck.BoundsCheck
-
+// import vecxt.arrayUtil.printArr
 object matrixUtil:
-
-  extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "],")
 
   extension (m: Matrix)
     inline def transpose: Matrix =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+      val newMat = Matrix.zeros(m.cols, m.rows)
+      var idx = 0
 
-      val newArr = NArray.ofSize[Double](m.numel)
-      var i = 0
-      while i < m.cols do
-        var j = 0
-        while j < m.rows do
-          newArr(i * m.rows + j) = m.raw(j * m.cols + i)
-          j += 1
-        end while
-        i += 1
+      while idx < newMat.numel do
+        val positionNew = m.tupleFromIdx(idx)
+        newMat(positionNew) = m((positionNew._2, positionNew._1))
+
+        idx += 1
       end while
-      Matrix(newArr, (m.cols, m.rows))(using
-        BoundsCheck.DoBoundsCheck.no
-      ) // we already have a valid matrix if we are transposing it, so this check is redundant if this method works as intended.
+      newMat
     end transpose
 
     inline def row(i: Int): NArray[Double] =
+      // println(s"row $i")
       m(i, ::).raw
     end row
 
-    inline def print: String =
-      val arrArr = for i <- 0 until m.rows yield m.row(i).mkString(" ")
+    inline def printMat: String =
+      val arrArr =
+        for i <- 0 until m.rows
+        yield
+        // println(m.row(i).printArr)
+        m.row(i).mkString(" ")
+      end arrArr
       arrArr.mkString("\n")
-    end print
+    end printMat
 
     inline def col(i: Int): NArray[Double] =
       m(::, i).raw
@@ -44,7 +45,9 @@ object matrixUtil:
 
     inline def @@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
 
-    inline def *=(d: Double): Unit = m.raw.multInPlace(d)
+    inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
+
+    inline def shape: String = s"${m.rows} x ${m.cols}"
 
   end extension
 end matrixUtil
