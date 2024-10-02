@@ -301,7 +301,7 @@ object arrays:
 
     // https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda#:~:text=A%20simple%20and%20common%20parallel%20algorithm#:~:text=A%20simple%20and%20common%20parallel%20algorithm
     inline def cumsum: Unit =
-      val spd: VectorSpecies[java.lang.Double] = DoubleVector.SPECIES_128
+      val spd: VectorSpecies[java.lang.Double] = DoubleVector.SPECIES_PREFERRED
       val spi: VectorSpecies[java.lang.Integer] =
         VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(spd.vectorBitSize() / 2))
 
