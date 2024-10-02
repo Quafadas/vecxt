@@ -59,7 +59,7 @@ class SumBenchmark extends BLASBenchmark:
     inline def sum2 =
       var sum: Double = 0.0
       var i: Int = 0
-      val sp = Matrix.Matrix.doubleSpecies
+      val sp = DoubleVector.SPECIES_PREFERRED
       val l = sp.length()
 
       while i < sp.loopBound(vec.length) do
