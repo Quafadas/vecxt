@@ -92,8 +92,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
     val v1 =
       NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
 
-    // println("cumsum2")
-    // println(v1.cumsum2.print)
+    println("cumsum2")
+    println(v1.cumsum2.printArr)
 
     // println("cumsum")
     // println(v1.tap(_.cumsum).printArr)
@@ -102,7 +102,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("cumsum equal cumsum2".only) {
-    val v2 = NArray.tabulate[Double](17)(i => i.toDouble)
+    val v2 = NArray.tabulate[Double](129)(i => i.toDouble)
     println(v2.cumsum2.printArr)
     assertVecEquals(v2.cumsum2, v2.tap(_.cumsum))
 

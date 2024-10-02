@@ -312,7 +312,9 @@ object arrays:
       // println(vec.length)
 
       var dBound = Math.log(vec.length) / Math.log(2)
-      println(dBound - 1)
+      val simdFor = Math.pow(2, dBound.toInt).toInt
+      // println(s"simdFor ${simdFor}")
+      // println(s"dboud ${dBound - 1}")
 
       var d: Int = 0
       while d < (dBound - 1) do
@@ -331,7 +333,7 @@ object arrays:
           val part1Idx = idxs.add(dPow2 - 1)
           val part2Idx = idxs.add(dPow2_1 - 1)
 
-          val mask = part2Idx.lt(vec.length - 1).cast(spd)
+          val mask = part2Idx.lt(simdFor).cast(spd)
           // println(s"indexes")
           // println(s"k: $k")
           // println(idxs.toArray().mkString(","))
@@ -351,15 +353,17 @@ object arrays:
           part1.add(part2).intoArray(vec, 0, x_idx.toArray(), 0, mask)
           // println(s"new vec")
           // println(vec.mkString(","))
-          k += intLength
+          // println(s" $k complete ")
+          // println("=====")
+          k += (intLength * dPow2_1)
         end while
         d += 1
       end while
       // println(Math.pow(2, dBound.toInt))
 
-      println("UP SWEEP COMPLETE")
-      println(vec.mkString("[", ",", "]"))
-      println("-----")
+      // println("UP SWEEP COMPLETE")
+      // println(vec.mkString("[", ",", "]"))
+      // println("-----")
 
       d = d - 1
 
@@ -373,50 +377,52 @@ object arrays:
         val dPow2 = Math.pow(2, d).toInt
         val dPow2_2 = Math.pow(2, d - 2).toInt
         val dPow2_1 = Math.pow(2, d - 1).toInt
-        println("---dssss")
-        println(s"d : $d")
-        println(s"dPow2_1 : $dPow2_1")
+        // println("---dssss")
+        // println(s"d : $d")
+        // println(s"dPow2_1 : $dPow2_1")
         var k = 0
         while k < spi.loopBound(vec.length - 1) do
 
           val idxs = IntVector.broadcast(spi, k).addIndex(dPow2)
           val idxsInsert = IntVector.broadcast(spi, k).addIndex(dPow2).add(dPow2_1).sub(1)
-          println("idxs")
-          println(idxs.sub(1).toArray().mkString(","))
-          println(idxsInsert.toArray().mkString(","))
+          // println("idxs")
+          // println(idxs.sub(1).toArray().mkString(","))
+          // println(idxsInsert.toArray().mkString(","))
 
           val mask = idxs.compare(
             VectorOperators.LT,
-            vec.length - 1
+            simdFor
           )
 
           val finalM = mask.and(asMask).cast(spd)
 
-          println("mask")
-          println(finalM.toArray().mkString(","))
+          // println("mask")
+          // println(finalM.toArray().mkString(","))
 
           val xtract = DoubleVector.fromArray(spd, vec, 0, idxs.sub(1).toArray(), 0, finalM)
-          println("xtract")
-          println(xtract.toArray().mkString(","))
+          // println("xtract")
+          // println(xtract.toArray().mkString(","))
           val current = DoubleVector.fromArray(spd, vec, 0, idxsInsert.toArray(), 0, finalM)
-          println("current")
-          println(current.toArray().mkString(","))
+          // println("current")
+          // println(current.toArray().mkString(","))
 
           current.add(xtract).intoArray(vec, 0, idxsInsert.toArray(), 0, finalM)
-          println("ITRT END")
-          println(vec.mkString(","))
-          println("----- END")
+          // println("ITRT END")
+          // println(vec.mkString(","))
+          // println("----- END")
 
-          k += intLength
+          k += intLength * dPow2_1
         end while
         d -= 1
       end while
 
       var i = Math.pow(2, dBound.toInt).toInt
+      println(s"tail at $i")
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
         i = i + 1
       end while
+      println(vec.toArray.mkString("[", ",", "]"))
     end cumsum
 
     def cumsum2: Array[Double] =
