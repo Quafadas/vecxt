@@ -313,7 +313,7 @@ object arrays:
 
       var dBound = Math.log(vec.length) / Math.log(2)
       val simdFor = Math.pow(2, dBound.toInt).toInt
-      // println(s"simdFor ${simdFor}")
+      println(s"simdFor ${simdFor}")
       // println(s"dboud ${dBound - 1}")
 
       var d: Int = 0
@@ -377,29 +377,30 @@ object arrays:
         val dPow2 = Math.pow(2, d).toInt
         val dPow2_2 = Math.pow(2, d - 2).toInt
         val dPow2_1 = Math.pow(2, d - 1).toInt
-        // println("---dssss")
-        // println(s"d : $d")
-        // println(s"dPow2_1 : $dPow2_1")
+        println("---d")
+        println(s"d : $d")
+        println(s"dPow2_1 : $dPow2_1")
         var k = 0
         while k < spi.loopBound(vec.length - 1) do
 
-          val idxs = IntVector.broadcast(spi, k).addIndex(dPow2)
-          val idxsInsert = IntVector.broadcast(spi, k).addIndex(dPow2).add(dPow2_1).sub(1)
-          // println("idxs")
-          // println(idxs.sub(1).toArray().mkString(","))
-          // println(idxsInsert.toArray().mkString(","))
+          val idxBase = IntVector.broadcast(spi, k).addIndex(dPow2)
+          val idxs = idxBase.sub(1)
+          val idxsInsert = idxBase.add(dPow2_1 - 1)
+          println("idxs")
+          println(idxs.toArray().mkString(","))
+          println(idxsInsert.toArray().mkString(","))
 
-          val mask = idxs.compare(
+          val mask = idxBase.compare(
             VectorOperators.LT,
             simdFor
           )
 
-          val finalM = mask.and(asMask).cast(spd)
+          val finalM = if k == 0 then mask.and(asMask).cast(spd) else (mask.cast(spd))
 
-          // println("mask")
-          // println(finalM.toArray().mkString(","))
+          println("mask")
+          println(finalM.toArray().mkString(","))
 
-          val xtract = DoubleVector.fromArray(spd, vec, 0, idxs.sub(1).toArray(), 0, finalM)
+          val xtract = DoubleVector.fromArray(spd, vec, 0, idxs.toArray(), 0, finalM)
           // println("xtract")
           // println(xtract.toArray().mkString(","))
           val current = DoubleVector.fromArray(spd, vec, 0, idxsInsert.toArray(), 0, finalM)
@@ -407,9 +408,9 @@ object arrays:
           // println(current.toArray().mkString(","))
 
           current.add(xtract).intoArray(vec, 0, idxsInsert.toArray(), 0, finalM)
-          // println("ITRT END")
-          // println(vec.mkString(","))
-          // println("----- END")
+          println("ITRT END")
+          println(vec.mkString(","))
+          println("----- END")
 
           k += intLength * dPow2_1
         end while
