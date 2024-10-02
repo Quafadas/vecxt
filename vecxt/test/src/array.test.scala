@@ -88,6 +88,18 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(v1(2) == 6)
   }
 
+  test("cumsum2".only) {
+    val v1 =
+      NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
+
+    println("cumsum2")
+    println(v1.cumsum2.printArr)
+
+    println("cumsum")
+    println(v1.tap(_.cumsum).printArr)
+
+  }
+
   test("increments") {
     val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
     v1.increments.foreach(d => assertEqualsDouble(d, 1.0, 0.0001))
