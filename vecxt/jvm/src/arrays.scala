@@ -301,7 +301,7 @@ object arrays:
 
     // https://developer.nvidia.com/gpugems/gpugems3/part-vi-gpu-computing/chapter-39-parallel-prefix-sum-scan-cuda#:~:text=A%20simple%20and%20common%20parallel%20algorithm#:~:text=A%20simple%20and%20common%20parallel%20algorithm
     inline def cumsum: Unit =
-      val spd: VectorSpecies[java.lang.Double] = DoubleVector.SPECIES_PREFERRED
+      val spd: VectorSpecies[java.lang.Double] = DoubleVector.SPECIES_128
       val spi: VectorSpecies[java.lang.Integer] =
         VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(spd.vectorBitSize() / 2))
 
@@ -385,7 +385,7 @@ object arrays:
 
           val idxBase = IntVector.broadcast(spi, k).addIndex(dPow2)
           val idxs = idxBase.sub(1)
-          val idxsInsert = idxBase.add(dPow2_1 - 1)
+          val idxsInsert = idxs.add(dPow2_1)
           println("idxs")
           println(idxs.toArray().mkString(","))
           println(idxsInsert.toArray().mkString(","))
@@ -395,7 +395,8 @@ object arrays:
             simdFor
           )
 
-          val finalM = if k == 0 then mask.and(asMask).cast(spd) else (mask.cast(spd))
+          val finalM = mask.and(asMask).cast(spd)
+          // val finalM = if k == 0 then mask.and(asMask).cast(spd) else (mask.cast(spd))
 
           println("mask")
           println(finalM.toArray().mkString(","))
