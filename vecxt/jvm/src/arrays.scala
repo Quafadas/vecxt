@@ -312,7 +312,7 @@ object arrays:
       // println(vec.length)
 
       var dBound = Math.log(vec.length) / Math.log(2)
-      // println(dBound - 1)
+      println(dBound - 1)
 
       var d: Int = 0
       while d < (dBound - 1) do
@@ -361,16 +361,26 @@ object arrays:
       println(vec.mkString("[", ",", "]"))
       println("-----")
 
-      while d > 1 do
+      d = d - 1
+
+      val notfirst = Array.fill[Boolean](spd.length())(true)
+      notfirst(0) = false
+
+      val asMask = VectorMask.fromArray(spi, notfirst, 0)
+
+      while d > 0 do
+
         val dPow2 = Math.pow(2, d).toInt
         val dPow2_2 = Math.pow(2, d - 2).toInt
         val dPow2_1 = Math.pow(2, d - 1).toInt
+        println("---dssss")
         println(s"d : $d")
+        println(s"dPow2_1 : $dPow2_1")
         var k = 0
         while k < spi.loopBound(vec.length - 1) do
-          println(s"dPow2_1 : $dPow2_1")
-          val idxs = IntVector.broadcast(spi, k).addIndex(dPow2_1)
-          val idxsInsert = IntVector.broadcast(spi, k).addIndex(dPow2_1).add(dPow2_2).sub(1)
+
+          val idxs = IntVector.broadcast(spi, k).addIndex(dPow2)
+          val idxsInsert = IntVector.broadcast(spi, k).addIndex(dPow2).add(dPow2_1).sub(1)
           println("idxs")
           println(idxs.sub(1).toArray().mkString(","))
           println(idxsInsert.toArray().mkString(","))
@@ -378,11 +388,9 @@ object arrays:
           val mask = idxs.compare(
             VectorOperators.LT,
             vec.length - 1
-          ) // .and(idxs.lanewise(VectorOperators.GT, vec.length - 1)).and(idxs. (0)).cast(spd)
+          )
 
-          val mask2 = idxs.compare(VectorOperators.GT, 0)
-
-          val finalM = mask.and(mask2).cast(spd)
+          val finalM = mask.and(asMask).cast(spd)
 
           println("mask")
           println(finalM.toArray().mkString(","))
