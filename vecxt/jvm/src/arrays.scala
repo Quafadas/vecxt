@@ -305,7 +305,7 @@ object arrays:
       val spi: VectorSpecies[java.lang.Integer] =
         VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(spd.vectorBitSize() / 2))
 
-      def doubleLength = spd.length()
+      // def doubleLength = spd.length()
       // println(doubleLength)
       def intLength = spi.length()
       // println(intLength)
@@ -313,7 +313,7 @@ object arrays:
 
       var dBound = Math.log(vec.length) / Math.log(2)
       val simdFor = Math.pow(2, dBound.toInt).toInt
-      println(s"simdFor ${simdFor}")
+      // println(s"simdFor ${simdFor}")
       // println(s"dboud ${dBound - 1}")
 
       var d: Int = 0
@@ -377,18 +377,18 @@ object arrays:
         val dPow2 = Math.pow(2, d).toInt
         val dPow2_2 = Math.pow(2, d - 2).toInt
         val dPow2_1 = Math.pow(2, d - 1).toInt
-        println("---d")
-        println(s"d : $d")
-        println(s"dPow2_1 : $dPow2_1")
+        // println("---d")
+        // println(s"d : $d")
+        // println(s"dPow2_1 : $dPow2_1")
         var k = 0
         while k < spi.loopBound(vec.length - 1) do
 
           val idxBase = IntVector.broadcast(spi, k).addIndex(dPow2)
           val idxs = idxBase.sub(1)
           val idxsInsert = idxs.add(dPow2_1)
-          println("idxs")
-          println(idxs.toArray().mkString(","))
-          println(idxsInsert.toArray().mkString(","))
+          // println("idxs")
+          // println(idxs.toArray().mkString(","))
+          // println(idxsInsert.toArray().mkString(","))
 
           val mask = idxBase.compare(
             VectorOperators.LT,
@@ -398,8 +398,8 @@ object arrays:
           val finalM = mask.and(asMask).cast(spd)
           // val finalM = if k == 0 then mask.and(asMask).cast(spd) else (mask.cast(spd))
 
-          println("mask")
-          println(finalM.toArray().mkString(","))
+          // println("mask")
+          // println(finalM.toArray().mkString(","))
 
           val xtract = DoubleVector.fromArray(spd, vec, 0, idxs.toArray(), 0, finalM)
           // println("xtract")
@@ -409,9 +409,9 @@ object arrays:
           // println(current.toArray().mkString(","))
 
           current.add(xtract).intoArray(vec, 0, idxsInsert.toArray(), 0, finalM)
-          println("ITRT END")
-          println(vec.mkString(","))
-          println("----- END")
+          // println("ITRT END")
+          // println(vec.mkString(","))
+          // println("----- END")
 
           k += intLength * dPow2_1
         end while
@@ -419,12 +419,12 @@ object arrays:
       end while
 
       var i = Math.pow(2, dBound.toInt).toInt
-      println(s"tail at $i")
+      // println(s"tail at $i")
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
         i = i + 1
       end while
-      println(vec.toArray.mkString("[", ",", "]"))
+      // println(vec.toArray.mkString("[", ",", "]"))
     end cumsum
 
     def cumsum2: Array[Double] =

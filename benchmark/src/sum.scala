@@ -34,6 +34,7 @@ import vecxt.*
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
+import vecxt.arrays.cumsum
 
 @State(Scope.Thread)
 class SumBenchmark extends BLASBenchmark:
@@ -79,9 +80,7 @@ class SumBenchmark extends BLASBenchmark:
         sum = sum + vec(i)
         i = i + 1
       end while
-      sum
     end sum3
-
   end extension
 
 

@@ -36,7 +36,7 @@ import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
 
 @State(Scope.Thread)
-class IncrementBenchmark extends BLASBenchmark:
+class CumsumBenchmark extends BLASBenchmark:
 
   @Param(Array("3", "100", "100000"))
   var len: String = uninitialized;
@@ -46,34 +46,36 @@ class IncrementBenchmark extends BLASBenchmark:
   // format: off
   @Setup(Level.Trial)
   def setup: Unit =
+
     arr = randomDoubleArray(len.toInt);
     ()
+
   end setup
 
+
   extension (vec: Array[Double])
-    inline def increments_loop: Array[Double] =
-      val out = new Array[Double](vec.length)
-      out(0) = vec(0)
-      var i = 1
-      while i < vec.length do
-        out(i) = vec(i) - vec(i - 1)
-        i = i + 1
-      end while
-      out
-    end increments_loop
+      def cumsum2: Unit = 
+        var i = 1
+        while i < vec.length do
+          vec(i) = vec(i - 1) + vec(i)
+          i = i + 1
+        end while        
+      end cumsum2
 
   end extension
 
-  @Benchmark
-  def increment_normal(bh: Blackhole) =
-    val r = arr.increments_loop
-    bh.consume(r);
-  end increment_normal
+
 
   @Benchmark
-  def increment_vec(bh: Blackhole) =
-    val r = arr.increments
+  def cumsum_loop(bh: Blackhole) =
+    val r = arr.cumsum2
     bh.consume(r);
-  end increment_vec
+  end cumsum_loop
 
-end IncrementBenchmark
+  @Benchmark
+  def cumsum_vec(bh: Blackhole) =
+    val r = arr.cumsum
+    bh.consume(r);
+  end cumsum_vec
+
+end CumsumBenchmark
