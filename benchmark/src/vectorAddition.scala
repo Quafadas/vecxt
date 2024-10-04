@@ -27,9 +27,8 @@ package vecxt.benchmark
 
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
-import vecxt.Matrix.*
 import jdk.incubator.vector.DoubleVector
-import vecxt.*
+import vecxt.all.*
 import scala.compiletime.uninitialized
 
 // format: off

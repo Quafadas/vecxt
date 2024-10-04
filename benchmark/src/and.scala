@@ -30,7 +30,7 @@ import org.openjdk.jmh.infra.Blackhole
 // import vecxt.Matrix.*
 import vecxt.BoundsCheck
 import scala.compiletime.uninitialized
-import vecxt.*
+import vecxt.all.*
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
