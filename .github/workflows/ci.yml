@@ -102,7 +102,7 @@ jobs:
       - uses: coursier/setup-action@main
         with:
           jvm: temurin@17
-          apps: ./millw scala-cli
+          apps: scala-cli
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
