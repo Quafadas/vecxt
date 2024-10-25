@@ -1,7 +1,6 @@
 package vecxt
 
 import narr.*
-import jdk.incubator.vector.DoubleVector
 import vecxt.arrays.*
 import vecxt.BoundsCheck.BoundsCheck
 import org.ekrich.blas.unsafe.blas

@@ -11,7 +11,6 @@ inline def range(r: RangeExtender, max: Int): NArray[Int] = r match
   case i: Int         => NArray(i)
 
 // import narr.*
-// import jdk.incubator.vector.DoubleVector
 
 // object Matrix:
 

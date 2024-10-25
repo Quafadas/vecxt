@@ -1,7 +1,6 @@
 package vecxt
 
 import narr.*
-import jdk.incubator.vector.DoubleVector
 import scala.scalajs.js.typedarray.Float64Array
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.arrays.*
@@ -37,8 +36,6 @@ object matrix:
   // type Matrix = Matrix1 & Tensor
 
   object Matrix:
-
-    inline def doubleSpecies = DoubleVector.SPECIES_PREFERRED
 
     inline def apply[T <: Tuple2[Int, Int]](raw: NArray[Double], dim: T)(using
         inline boundsCheck: BoundsCheck

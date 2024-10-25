@@ -97,7 +97,7 @@ object vecxt extends CrossPlatform {
   }
 }
 
-object vecxt_extensions extends CrossPlatform {
+object vecxtensions extends CrossPlatform {
   override def moduleDeps: Seq[CrossPlatform] = Seq(vecxt)
   trait Shared extends CrossPlatformScalaModule with Common {
     // common `core` settings here
@@ -173,7 +173,7 @@ object benchmark extends JmhModule with ScalaModule {
 
 object jsSite extends SiteJSModule {
 
-  override def moduleDeps = Seq(vecxt.js, vecxt_extensions.js)
+  override def moduleDeps = Seq(vecxt.js, vecxtensions.js)
   override def scalaVersion = vecxt.js.scalaVersion
   override def scalaJSVersion = vecxt.js.scalaJSVersion
   override def moduleKind = ModuleKind.ESModule
