@@ -15,10 +15,9 @@ jobs:
       - uses: coursier/setup-action@main
         with:
           jvm: temurin@17
-          apps: mill
       # Run benchmark with `go test -bench` and stores the output to a file
       - name: Run benchmark
-        run:  mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
+        run:  ./millw benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
 
       - name: Set variables
         run: |
