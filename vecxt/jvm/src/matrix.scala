@@ -14,28 +14,15 @@ import vecxt.BoundsCheck.BoundsCheck
 
 object matrix:
 
-  // opaque type Tensor = (NArray[Double], Tuple)
-  // object Tensor:
-  //   def apply[T <: Tuple](a: NArray[Double], b: T)(using ev: TupleOfInts[T] =:= true): Tensor = (a, b)
-  // end Tensor
-
-  // opaque type Vector = (NArray[Double], Tuple1[Int])
-  // type Vector = Vector1 & Tensor
-
-  // object Vector:
-  //   def apply(a: NArray[Double]): Vector = (a, Tuple1(a.size))
-  // end Vector
-
   /** This is a matrix
     *
     * ._1 is the matrix values, stored as a single contiguous array ._2 is the dimensions ._2._1 is the number of rows
-    * ._2._2 is the number of columns
+    * ._2._2 is the number of columns. You can access the raw array with the .raw method which inlines to the tuple
+    * call.
     */
   opaque type Matrix = (NArray[Double], Tuple2[Int, Int])
 
   object Matrix:
-
-    inline def doubleSpecies = DoubleVector.SPECIES_PREFERRED
 
     inline def apply[T <: Tuple2[Int, Int]](raw: NArray[Double], dim: T)(using
         inline boundsCheck: BoundsCheck

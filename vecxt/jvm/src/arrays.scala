@@ -28,14 +28,16 @@ import vecxt.BoundsCheck.BoundsCheck
 
 object arrays:
 
+  final val spd = DoubleVector.SPECIES_PREFERRED
+  final val spb = ByteVector.SPECIES_PREFERRED
+
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
-      val species = ByteVector.SPECIES_PREFERRED
-      val l = species.length()
+      val l = spb.length()
       var sum = 0
       var i = 0
-      while i < species.loopBound(vec.length) do
-        sum = sum + ByteVector.fromBooleanArray(species, vec, i).reduceLanes(VectorOperators.ADD)
+      while i < spb.loopBound(vec.length) do
+        sum = sum + ByteVector.fromBooleanArray(spb, vec, i).reduceLanes(VectorOperators.ADD)
         i += l
       end while
 
@@ -48,15 +50,14 @@ object arrays:
     end countTrue
 
     inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
-      val species = ByteVector.SPECIES_PREFERRED
-      val l = species.length()
+      val l = spb.length()
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
 
-      while i < species.loopBound(vec.length) do
+      while i < spb.loopBound(vec.length) do
         ByteVector
-          .fromBooleanArray(species, vec, i)
-          .and(ByteVector.fromBooleanArray(species, thatIdx, i))
+          .fromBooleanArray(spb, vec, i)
+          .and(ByteVector.fromBooleanArray(spb, thatIdx, i))
           .intoBooleanArray(result, i)
         i += l
       end while
@@ -152,13 +153,12 @@ object arrays:
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
-      val sp = DoubleVector.SPECIES_PREFERRED
-      val l = sp.length()
+      val l = spd.length()
 
       var i = 1
-      while i < sp.loopBound(vec.length - 2) do
-        val v1 = DoubleVector.fromArray(sp, vec, i)
-        val v2 = DoubleVector.fromArray(sp, vec, i + 1)
+      while i < spd.loopBound(vec.length - 2) do
+        val v1 = DoubleVector.fromArray(spd, vec, i)
+        val v2 = DoubleVector.fromArray(spd, vec, i + 1)
         v2.sub(v1).intoArray(out, i)
         i += l
       end while
@@ -242,13 +242,13 @@ object arrays:
       // https://www.cuemath.com/sample-variance-formula/
       val μ = vec.mean
       // vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
-      val sp = DoubleVector.SPECIES_PREFERRED
-      val l = sp.length()
-      var tmp = DoubleVector.zero(sp)
+
+      val l = spd.length()
+      var tmp = DoubleVector.zero(spd)
 
       var i = 0
-      while i < sp.loopBound(vec.length) do
-        val v = DoubleVector.fromArray(sp, vec, i)
+      while i < spd.loopBound(vec.length) do
+        val v = DoubleVector.fromArray(spd, vec, i)
         val diff = v.sub(μ)
         tmp = tmp.add(diff.mul(diff))
         i += l
@@ -276,13 +276,12 @@ object arrays:
 
     inline def sum: Double =
       var i: Int = 0
-      val sp = DoubleVector.SPECIES_PREFERRED
-      var acc = DoubleVector.zero(sp)
+      var acc = DoubleVector.zero(spd)
 
-      val l = sp.length()
+      val l = spd.length()
 
-      while i < sp.loopBound(vec.length) do
-        acc = acc.add(DoubleVector.fromArray(sp, vec, i))
+      while i < spd.loopBound(vec.length) do
+        acc = acc.add(DoubleVector.fromArray(spd, vec, i))
         i += l
       end while
       var temp = acc.reduceLanes(VectorOperators.ADD)
