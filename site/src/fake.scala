@@ -1,5 +1,5 @@
-package fake
+package sitehelp
 
-object totally:
+object BnechmarkPlotParts:
   def s = ???
 end totally
