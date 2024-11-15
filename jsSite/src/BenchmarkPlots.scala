@@ -74,4 +74,40 @@ object BenchmarkPlots:
     write(thePlot)
   end andBooleanBenchmark
 
+  def OrBooleanBenchmark =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      (transform =
+        BenchmarkPlotElements.transform(
+          List("OrBooleanBenchmark.or_loop", "OrBooleanBenchmark.or_vec")
+        )
+      ) ++
+      (vconcat =
+        List(
+          BenchmarkPlotElements.layer(3, "len"),
+          BenchmarkPlotElements.layer(128, "len"),
+          BenchmarkPlotElements.layer(100000, "len")
+        )
+      )
+    write(thePlot)
+  end OrBooleanBenchmark
+
+  def lteBenchmark =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      (transform =
+        BenchmarkPlotElements.transform(
+          List("LogicalBenchmark.lte_vec", "LogicalBenchmark.lte_loop")
+        )
+      ) ++
+      (vconcat =
+        List(
+          BenchmarkPlotElements.layer(3, "len"),
+          BenchmarkPlotElements.layer(128, "len"),
+          BenchmarkPlotElements.layer(100000, "len")
+        )
+      )
+    write(thePlot)
+  end lteBenchmark
+
 end BenchmarkPlots
