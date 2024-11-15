@@ -110,6 +110,24 @@ object BenchmarkPlots:
     write(thePlot)
   end lteBenchmark
 
+  def varianceBenchmark =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      (transform =
+        BenchmarkPlotElements.transform(
+          List("VarianceBenchmark.var_loop", "VarianceBenchmark.var_vec")
+        )
+      ) ++
+      (vconcat =
+        List(
+          BenchmarkPlotElements.layer(3, "len"),
+          BenchmarkPlotElements.layer(128, "len"),
+          BenchmarkPlotElements.layer(100000, "len")
+        )
+      )
+    write(thePlot)
+  end varianceBenchmark
+
   def matMulBenchmark =
     val thePlot = BenchmarkPlotElements.schema ++
       BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++

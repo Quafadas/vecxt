@@ -27,7 +27,7 @@ package vecxt.benchmark
 
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
-// import vecxt.Matrix.*
+import vecxt.arrays.*
 import vecxt.BoundsCheck
 import scala.compiletime.uninitialized
 import vecxt.*
@@ -46,7 +46,7 @@ class VarianceBenchmark extends BLASBenchmark:
   // format: off
   @Setup(Level.Trial)
   def setup: Unit =
-    arr = randomDoubleArray(len.toInt);    
+    arr = randomDoubleArray(len.toInt);
     ()
   end setup
 
@@ -55,14 +55,14 @@ class VarianceBenchmark extends BLASBenchmark:
       // https://www.cuemath.com/sample-variance-formula/
       val μ = vec.mean
       vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
-  
-  
+
+
 
   @Benchmark
   def var_loop(bh: Blackhole) =
     val r = arr.variance2
     bh.consume(r);
-  end var_loop  
+  end var_loop
 
 
   @Benchmark
