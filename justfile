@@ -7,7 +7,8 @@ benchmark:
   mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
 
 benchmarkOnly:
-  mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json vecxt.benchmark.AddScalarBenchmark
+  mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json vecxt.benchmark.VarianceBenchmark
+
 
 setJvm:
   eval "$(cs java --jvm 21 --env)"
