@@ -38,11 +38,11 @@ end Process
 
 class PlotChecks extends munit.FunSuite:
 
-  // test("some test data") {
-  //   val argy = Fake.fakeData.arr.filter(d => d("benchmark").str.contains("AddScalarBenchmark.vecxt_add_vec"))
-  //   println(argy)
+  test("some test data") {
+    val argy = Fake.fakeData.arr.filter(d => d("benchmark").str.contains("CountTrueBenchmark"))
+    println(argy)
 
-  // }
+  }
 
   test("Add scalar plot") {
     assertEquals(

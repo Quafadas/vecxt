@@ -101,7 +101,7 @@ object BenchmarkPlotElements:
     )
     *: windowAndSortAndFilterLatest
 
-  def timeLayer(n: Int) = (
+  def timeLayer(n: Int, benchmarkVariableName: String) = (
     layer = Tuple2(
       (
         title = s"n = $n",
@@ -146,11 +146,11 @@ object BenchmarkPlotElements:
       )
     ),
     transform = List(
-      (filter = s"(datum.params.n == '$n')")
+      (filter = s"(datum.params.$benchmarkVariableName == '$n')")
     )
   )
 
-  def layer(n: Int, yZeroScale: Boolean = false) =
+  def layer(n: Int, benchmarkVariableName: String, yZeroScale: Boolean = false) =
 
     val yScale = (
       field = "benchmark",
@@ -199,7 +199,7 @@ object BenchmarkPlotElements:
         )
       ),
       transform = List(
-        (filter = s"(datum.params.n == '$n')")
+        (filter = s"(datum.params.$benchmarkVariableName == '$n')")
       )
     )
   end layer

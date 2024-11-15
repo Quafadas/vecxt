@@ -15,9 +15,9 @@ object BenchmarkPlots:
       ) ++
       (vconcat =
         List(
-          BenchmarkPlotElements.layer(10),
-          BenchmarkPlotElements.layer(1000),
-          BenchmarkPlotElements.layer(100000)
+          BenchmarkPlotElements.layer(10, "n"),
+          BenchmarkPlotElements.layer(1000, "n"),
+          BenchmarkPlotElements.layer(100000, "n")
         )
       )
     write(thePlot)
@@ -25,14 +25,14 @@ object BenchmarkPlots:
 
   def addScalarBenchmarkOverTime: String =
     val thePlot = BenchmarkPlotElements.schema ++
-      // BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
-      BenchmarkPlotElements.fakeData ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      // BenchmarkPlotElements.fakeData ++
       (transform = BenchmarkPlotElements.timeTransform(List("AddScalarBenchmark.vecxt_add_vec"))) ++
       (vconcat =
         List(
-          BenchmarkPlotElements.timeLayer(10),
-          BenchmarkPlotElements.timeLayer(1000),
-          BenchmarkPlotElements.timeLayer(100000)
+          BenchmarkPlotElements.timeLayer(10, "n"),
+          BenchmarkPlotElements.timeLayer(1000, "n"),
+          BenchmarkPlotElements.timeLayer(100000, "n")
         )
       )
     write(thePlot)
@@ -48,9 +48,9 @@ object BenchmarkPlots:
       ) ++
       (vconcat =
         List(
-          BenchmarkPlotElements.layer(3),
-          BenchmarkPlotElements.layer(128),
-          BenchmarkPlotElements.layer(100000)
+          BenchmarkPlotElements.layer(3, "len"),
+          BenchmarkPlotElements.layer(128, "len"),
+          BenchmarkPlotElements.layer(100000, "len")
         )
       )
     write(thePlot)
