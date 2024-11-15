@@ -31,14 +31,16 @@ object arrays:
   final val spd = DoubleVector.SPECIES_PREFERRED
   final val spb = ByteVector.SPECIES_PREFERRED
 
+  final val spdl = spd.length()
+  final val spbl = spb.length()
+
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
-      val l = spb.length()
       var sum = 0
       var i = 0
       while i < spb.loopBound(vec.length) do
         sum = sum + ByteVector.fromBooleanArray(spb, vec, i).reduceLanes(VectorOperators.ADD)
-        i += l
+        i += spbl
       end while
 
       while i < vec.length do
@@ -50,7 +52,6 @@ object arrays:
     end countTrue
 
     inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
-      val l = spb.length()
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
 
@@ -59,7 +60,7 @@ object arrays:
           .fromBooleanArray(spb, vec, i)
           .and(ByteVector.fromBooleanArray(spb, thatIdx, i))
           .intoBooleanArray(result, i)
-        i += l
+        i += spbl
       end while
 
       while i < vec.length do
@@ -70,17 +71,16 @@ object arrays:
     end &&
 
     inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
-      val species = ByteVector.SPECIES_PREFERRED
-      val l = species.length()
+
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
 
-      while i < species.loopBound(vec.length) do
+      while i < spb.loopBound(vec.length) do
         ByteVector
-          .fromBooleanArray(species, vec, i)
-          .or(ByteVector.fromBooleanArray(species, thatIdx, i))
+          .fromBooleanArray(spb, vec, i)
+          .or(ByteVector.fromBooleanArray(spb, thatIdx, i))
           .intoBooleanArray(result, i)
-        i += l
+        i += spbl
       end while
 
       while i < vec.length do
@@ -153,14 +153,13 @@ object arrays:
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
-      val l = spd.length()
 
       var i = 1
       while i < spd.loopBound(vec.length - 2) do
         val v1 = DoubleVector.fromArray(spd, vec, i)
         val v2 = DoubleVector.fromArray(spd, vec, i + 1)
         v2.sub(v1).intoArray(out, i)
-        i += l
+        i += spdl
       end while
 
       while i < vec.length do
@@ -251,7 +250,7 @@ object arrays:
         val v = DoubleVector.fromArray(spd, vec, i)
         val diff = v.sub(μ)
         tmp = tmp.add(diff.mul(diff))
-        i += l
+        i += spdl
       end while
 
       var sumSqDiff = tmp.reduceLanes(VectorOperators.ADD)
@@ -278,11 +277,9 @@ object arrays:
       var i: Int = 0
       var acc = DoubleVector.zero(spd)
 
-      val l = spd.length()
-
       while i < spd.loopBound(vec.length) do
         acc = acc.add(DoubleVector.fromArray(spd, vec, i))
-        i += l
+        i += spdl
       end while
       var temp = acc.reduceLanes(VectorOperators.ADD)
       // var temp = 0.0
@@ -382,14 +379,12 @@ object arrays:
         inline op: VectorOperators.Comparison,
         num: Double
     ): Array[Boolean] =
-      val species = DoubleVector.SPECIES_PREFERRED
-      val l = species.length()
       val idx = new Array[Boolean](vec.length)
       var i = 0
 
-      while i < species.loopBound(vec.length) do
-        DoubleVector.fromArray(species, vec, i).compare(op, num).intoArray(idx, i)
-        i += l
+      while i < spd.loopBound(vec.length) do
+        DoubleVector.fromArray(spd, vec, i).compare(op, num).intoArray(idx, i)
+        i += spdl
       end while
 
       inline op match
