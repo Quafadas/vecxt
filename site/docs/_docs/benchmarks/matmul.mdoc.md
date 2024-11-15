@@ -12,7 +12,7 @@ And as long as the errors bars overlap, then these two implementations are equiv
 ```scala mdoc:js sc:nocompile
 import vecxt.plot.*
 import vecxt.facades.*
-showJsDocs.fromSpec(BenchmarkPlots.matmulLayer, node)
+showJsDocs.fromSpec(BenchmarkPlots.matMulBenchmark, node)
 ```
 
 
