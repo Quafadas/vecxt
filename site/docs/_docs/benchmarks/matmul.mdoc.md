@@ -25,6 +25,8 @@ So the benchmark boils down to a personal preference for which of these two piec
 import vecxt.facades._
 showJsDocs("../../plots/matmul.vg.json", node)
 ```
+Hmmm.
+
 
 ```scala sc:nocompile
   val a : Matrix[Double] = ??? // some matrix

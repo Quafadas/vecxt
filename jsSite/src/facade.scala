@@ -45,6 +45,20 @@ object showJsDocs:
     embed(child, parsed, opts)
     ()
   end apply
+
+  def fromSpec(spec: String, node: Element, width: Int = 50) =
+    val child = dom.document.createElement("div")
+    val anId = "vega" + Random.alphanumeric.take(8).mkString("")
+    child.id = anId
+    node.appendChild(child)
+    child.setAttribute("style", s"width:${width}vmin;height:${width}vmin")
+
+    val opts = EmbedOptions()
+    val parsed = JSON.parse(spec)
+    embed(child, parsed, opts)
+    ()
+  end fromSpec
+
 end showJsDocs
 
 type Theme = "excel" | "ggplot2" | "quartz" | "vox" | "dark"
@@ -79,9 +93,7 @@ class EmbedOptions(
     var editorUrl: js.UndefOr[String] = js.undefined,
     var height: js.UndefOr[Double] = js.undefined,
     var hover: js.UndefOr[Boolean] = true,
-    var loader: js.UndefOr[
-      /* import warning: transforms.QualifyReferences#resolveTypeRef many Couldn't qualify Loader */ Any
-    ] = js.undefined,
+    var loader: js.UndefOr[Any] = js.undefined,
     var logLevel: js.UndefOr[Double] = js.undefined,
     var mode: js.UndefOr[String] = js.undefined,
     var padding: js.UndefOr[Double] = js.undefined,
@@ -90,9 +102,7 @@ class EmbedOptions(
     var sourceHeader: js.UndefOr[String] = js.undefined,
     var theme: js.UndefOr[Theme] = js.undefined,
     var tooltip: js.UndefOr[Any] = js.undefined,
-    var viewClass: js.UndefOr[
-      /* import warning: ResolveTypeQueries.resolve Couldn't resolve typeof View */ Any
-    ] = js.undefined,
+    var viewClass: js.UndefOr[Any] = js.undefined,
     var width: js.UndefOr[Double] = js.undefined,
     var renderer: js.UndefOr[renderer] = js.undefined
 ) extends js.Object

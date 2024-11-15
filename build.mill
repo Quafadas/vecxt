@@ -1,3 +1,4 @@
+import mill.scalalib.publish.Scope.Test
 
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import $ivy.`io.github.quafadas:millSite_mill0.12_2.13:0.0.36`
@@ -17,7 +18,7 @@ import mill.util.Jvm
 import mill.api.Result
 
 trait Common extends ScalaModule  with PublishModule {
-  def scalaVersion = "3.3.4"
+  def scalaVersion = "3.6.1"
 
   def publishVersion = VcsVersion.vcsState().format()
 
@@ -180,8 +181,18 @@ object jsSite extends SiteJSModule {
   override def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.scala-js::scalajs-dom::2.8.0",
     ivy"com.lihaoyi::scalatags::0.13.1",
-    ivy"com.raquo::laminar::17.0.0"
+    ivy"com.raquo::laminar::17.0.0",
+    ivy"com.lihaoyi::upickle::4.0.2"
   )
+
+  object test extends ScalaJSTests with CommonTests {
+    def moduleKind = ModuleKind.CommonJSModule
+  }
+}
+
+object integration extends ScalaModule with CommonTests {
+  def scalaVersion: T[String] = vecxt.jvm.scalaVersion
+
 }
 
 // note that scastic won't work, as I don't think we can start a JVM with the incubator flag.

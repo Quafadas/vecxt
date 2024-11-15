@@ -52,17 +52,17 @@ class SumBenchmark extends BLASBenchmark:
 
   end setup
 
+  final val spd = DoubleVector.SPECIES_PREFERRED
   extension (vec: Array[Double])
 
 
     inline def sum2 =
       var sum: Double = 0.0
       var i: Int = 0
-      val sp = Matrix.doubleSpecies
-      val l = sp.length()
+      val l = spd.length()
 
-      while i < sp.loopBound(vec.length) do
-        sum = sum + DoubleVector.fromArray(sp, vec, i).reduceLanes(VectorOperators.ADD)
+      while i < spd.loopBound(vec.length) do
+        sum = sum + DoubleVector.fromArray(spd, vec, i).reduceLanes(VectorOperators.ADD)
         i += l
       end while
       while i < vec.length do
