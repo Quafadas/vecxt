@@ -13,8 +13,8 @@ ivy"io.github.quafadas::vecxt::{{projectVersion}}"
 ```
 
 ```scala
-import vecxt._
-import BoundsCheck.DoBoundsCheck.no
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.no
 
 val v1 = Array[Double](1, 2, 3)
 val v2 = Array[Double](4, 5, 6)

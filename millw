@@ -5,7 +5,7 @@
 # If no version is given, it falls back to the value of DEFAULT_MILL_VERSION
 #
 # Project page: https://github.com/lefou/millw
-# Script Version: 0.4.11
+# Script Version: 0.4.12
 #
 # If you want to improve this script, please also contribute your changes back!
 #
@@ -238,4 +238,4 @@ unset MILL_REPO_URL
 
 # We don't quote MILL_FIRST_ARG on purpose, so we can expand the empty value without quotes
 # shellcheck disable=SC2086
-exec "${MILL}" $MILL_FIRST_ARG -D "mill.main.cli=${MILL_MAIN_CLI}" -j 0 "$@"
+exec "${MILL}" $MILL_FIRST_ARG -D "mill.main.cli=${MILL_MAIN_CLI}" "$@"

@@ -1,6 +1,7 @@
+import mill.scalalib.publish.Scope.Test
 
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
-import $ivy.`io.github.quafadas::millSite::0.0.30`
+import $ivy.`io.github.quafadas:millSite_mill0.12_2.13:0.0.36`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import $ivy.`com.lihaoyi::mill-contrib-jmh:`
 
@@ -17,13 +18,15 @@ import mill.util.Jvm
 import mill.api.Result
 
 trait Common extends ScalaModule  with PublishModule {
-  def scalaVersion = "3.3.3"
+  def scalaVersion = "3.6.1"
 
   def publishVersion = VcsVersion.vcsState().format()
 
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"ai.dragonfly::narr::0.105"
+    ivy"io.github.quafadas::narr::0.0.5"
   )
+
+  override def scalacOptions: Target[Seq[String]] = super.scalacOptions() ++ Seq("-explain-cyclic")
 
   override def pomSettings = T {
     PomSettings(
@@ -44,7 +47,7 @@ trait Common extends ScalaModule  with PublishModule {
 val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
 
 trait CommonJS extends ScalaJSModule {
-  def scalaJSVersion = "1.16.0"
+  def scalaJSVersion = "1.17.0"
   // def ivyDeps = super.ivyDeps() ++ Seq(ivy"com.raquo::ew::0.2.0")
   // def moduleKind = ModuleKind.
 }
@@ -52,14 +55,14 @@ trait CommonJS extends ScalaJSModule {
 
 trait CommonNative extends ScalaNativeModule {
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.ekrich::sblas::0.5.0"
+    ivy"org.ekrich::sblas::0.7.0"
   )
-  def scalaNativeVersion: mill.T[String] = "0.4.16"
+  def scalaNativeVersion: mill.T[String] = "0.5.5"
 }
 
 trait CommonTests extends TestModule.Munit {
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.scalameta::munit::1.0.0-M10",
+    ivy"org.scalameta::munit::1.0.1",
   )
 }
 
@@ -95,7 +98,7 @@ object vecxt extends CrossPlatform {
   }
 }
 
-object vecxt_extensions extends CrossPlatform {
+object vecxtensions extends CrossPlatform {
   override def moduleDeps: Seq[CrossPlatform] = Seq(vecxt)
   trait Shared extends CrossPlatformScalaModule with Common {
     // common `core` settings here
@@ -117,11 +120,11 @@ object vecxt_extensions extends CrossPlatform {
   object js extends Shared with CommonJS {
     override def ivyDeps: Target[Agg[Dep]] = super.ivyDeps() ++ Agg(
       ivy"com.lihaoyi::scalatags::0.13.1",
-      ivy"com.raquo::laminar::17.0.0"
+      ivy"com.raquo::laminar::17.1.0"
     )
     // js specific settings here
     object test extends ScalaJSTests with SharedTests {
-        def moduleKind = ModuleKind.CommonJSModule
+      def moduleKind = ModuleKind.CommonJSModule
     }
   }
 
@@ -171,30 +174,35 @@ object benchmark extends JmhModule with ScalaModule {
 
 object jsSite extends SiteJSModule {
 
-  override def moduleDeps = Seq(vecxt.js, vecxt_extensions.js)
+  override def moduleDeps = Seq(vecxt.js, vecxtensions.js)
   override def scalaVersion = vecxt.js.scalaVersion
   override def scalaJSVersion = vecxt.js.scalaJSVersion
   override def moduleKind = ModuleKind.ESModule
   override def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.scala-js::scalajs-dom::2.8.0",
     ivy"com.lihaoyi::scalatags::0.13.1",
-    ivy"com.raquo::laminar::17.0.0"
+    ivy"com.raquo::laminar::17.0.0",
+    ivy"com.lihaoyi::upickle::4.0.2"
   )
+
+  object test extends ScalaJSTests with CommonTests {
+    def moduleKind = ModuleKind.CommonJSModule
+  }
+}
+
+object integration extends ScalaModule with CommonTests {
+  def scalaVersion: T[String] = vecxt.jvm.scalaVersion
+
 }
 
 // note that scastic won't work, as I don't think we can start a JVM with the incubator flag.
 object site extends SiteModule {
 
   override val jsSiteModule = jsSite
-
+  override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
   override def forkArgs: T[Seq[String]] = super.forkArgs() ++ vecIncubatorFlag
-
   def scalaVersion = vecxt.jvm.scalaVersion
-
   override def moduleDeps = Seq(vecxt.jvm)
-
-  // override def allScalacOptions: Target[Seq[String]] = super.allScalacOptions() ++ vecIncubatorFlag
-
   override def scalaDocOptions = super.scalaDocOptions
 
 }

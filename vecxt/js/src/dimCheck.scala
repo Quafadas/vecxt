@@ -19,6 +19,12 @@ package vecxt
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import vecxt.BoundsCheck.BoundsCheck
+import narr.*
+
+protected[vecxt] object dimCheckLen:
+  inline def apply(a: Float64Array, b: Int)(using inline doCheck: BoundsCheck) =
+    inline if doCheck then if a.length != b then throw VectorDimensionMismatch(a.length, b)
+end dimCheckLen
 
 protected[vecxt] object indexCheck:
   inline def apply[A](a: Float64Array, idx: Int)(using inline doCheck: BoundsCheck) =

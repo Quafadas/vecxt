@@ -1,0 +1,134 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
+  "data": {
+    "url": "../../benchmarks/benchmark_history.json",
+    "format": {
+      "type": "json"
+    }
+  },
+  "transform": [
+    {
+      "calculate": "replace(datum.benchmark, 'vecxt.benchmark.', '')",
+      "as": "benchmark"
+    },
+    {
+      "calculate": "datetime(substring(datum.date,0, 4)+ '-' + substring(datum.date,4, 6) + '-' + substring(datum.date,6, 8))",
+      "as": "date"
+    },
+    {
+      "filter": {
+        "field": "benchmark",
+        "oneOf": ["AddScalarBenchmark.vecxt_add_vec"]
+      }
+    },
+    {
+      "window": [{ "op": "dense_rank", "as": "rank" }],
+      "sort": [{ "field": "date", "order": "descending" }]
+    }
+  ],
+  "vconcat": [
+    {
+      "layer": [
+        {
+          "title": "n = 3",
+          "mark": {
+            "type": "line",
+            "color": "black"
+          },
+          "encoding": {
+            "y": {
+              "field": "score",
+              "type": "quantitative",
+              "scale": { "zero": false },
+              "title": "ops/s"
+            },
+            "x": { "field": "date", "timeUnit": "date" }
+          }
+        },
+        {
+          "mark": { "opacity": 0.3, "type": "area", "color": "#85C5A6" },
+          "encoding": {
+            "x": { "field": "date", "timeUnit": "date" },
+            "y": {
+              "field": "scoreUpperConfidence",
+              "type": "quantitative"
+            },
+            "y2": {
+              "field": "scoreLowerConfidence"
+            }
+          }
+        }
+      ],
+      "transform": [{ "filter": "(datum.params.n == '10')" }]
+    },
+    {
+      "layer": [
+        {
+          "title": "n = 1000",
+          "mark": {
+            "type": "line",
+            "color": "black"
+          },
+          "encoding": {
+            "y": {
+              "field": "score",
+              "type": "quantitative",
+              "scale": { "zero": false }
+            },
+            "x": { "field": "date", "timeUnit": "date" }
+          }
+        },
+        {
+          "mark": { "opacity": 0.3, "type": "area", "color": "#85C5A6" },
+          "encoding": {
+            "x": { "field": "date", "timeUnit": "date" },
+            "y": {
+              "field": "scoreUpperConfidence",
+              "type": "quantitative",
+              "title": "ops/s"
+            },
+            "y2": {
+              "field": "scoreLowerConfidence"
+            }
+          }
+        }
+      ],
+      "transform": [{ "filter": "(datum.params.n == '1000')" }]
+    },
+    {
+      "layer": [
+        {
+          "title": "n = 1000000",
+          "mark": {
+            "type": "line",
+            "color": "black"
+          },
+          "encoding": {
+            "y": {
+              "field": "score",
+              "type": "quantitative",
+              "scale": { "zero": false },
+              "title": "ops/s"
+            },
+            "x": { "field": "date", "timeUnit": "date" }
+          }
+        },
+        {
+          "mark": { "opacity": 0.3, "type": "area", "color": "#85C5A6" },
+          "encoding": {
+            "x": { "field": "date", "timeUnit": "date" },
+            "y": {
+              "field": "scoreUpperConfidence",
+              "type": "quantitative"
+            },
+            "y2": {
+              "field": "scoreLowerConfidence"
+            }
+          }
+        }
+      ],
+      "transform": [{ "filter": "(datum.params.n == '100000')" }]
+    }
+  ]
+}

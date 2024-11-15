@@ -1,10 +1,8 @@
-package vecxt.rpt
+package vecxt.reinsurance
 
 import Limits.Limit
 import Retentions.Retention
-import vecxt.extensions
-
-export extensions.*
+import vecxt.arrays
 
 /*
 
@@ -14,7 +12,7 @@ export extensions.*
 
   Note: mutates the input array
  */
-object extensions:
+object rpt:
   extension (vec: Array[Double])
     inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
       (limitOpt, retentionOpt) match
@@ -97,4 +95,4 @@ object extensions:
     end franchiseFunction
 
   end extension
-end extensions
+end rpt

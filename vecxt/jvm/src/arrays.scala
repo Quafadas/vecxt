@@ -17,7 +17,6 @@ package vecxt
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import scala.util.chaining.*
-import vecxt.Matrix.*
 
 import jdk.incubator.vector.VectorMask
 import jdk.incubator.vector.ByteVector
@@ -25,48 +24,23 @@ import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 
-export extensions.*
-// export vecxt.Matrix.*
-export vecxt.rpt.{Retentions, Limits, LossCalc}
-export vecxt.rpt.LossCalc.{Agg, Occ}
-export vecxt.rpt.Retentions.Retention
-export vecxt.rpt.Limits.Limit
+import vecxt.BoundsCheck.BoundsCheck
 
-object extensions:
+object arrays:
 
-  extension (a: Matrix)
-    inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
-      dimMatCheck(a, b)
-      val newArr = Array.ofDim[Double](a.rows * b.cols)
-      // Note, might need to deal with transpose later.
-      blas.dgemm(
-        "N",
-        "N",
-        a.rows,
-        b.cols,
-        a.cols,
-        1.0,
-        a.raw,
-        a.rows,
-        b.raw,
-        b.rows,
-        1.0,
-        newArr,
-        a.rows
-      )
-      Matrix(newArr, (a.rows, b.cols))
-    end matmul
+  final val spd = DoubleVector.SPECIES_PREFERRED
+  final val spb = ByteVector.SPECIES_PREFERRED
 
-  end extension
+  final val spdl = spd.length()
+  final val spbl = spb.length()
+
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
-      val species = ByteVector.SPECIES_PREFERRED
-      val l = species.length()
       var sum = 0
       var i = 0
-      while i < species.loopBound(vec.length) do
-        sum = sum + ByteVector.fromBooleanArray(species, vec, i).reduceLanes(VectorOperators.ADD)
-        i += l
+      while i < spb.loopBound(vec.length) do
+        sum = sum + ByteVector.fromBooleanArray(spb, vec, i).reduceLanes(VectorOperators.ADD)
+        i += spbl
       end while
 
       while i < vec.length do
@@ -78,17 +52,15 @@ object extensions:
     end countTrue
 
     inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
-      val species = ByteVector.SPECIES_PREFERRED
-      val l = species.length()
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
 
-      while i < species.loopBound(vec.length) do
+      while i < spb.loopBound(vec.length) do
         ByteVector
-          .fromBooleanArray(species, vec, i)
-          .and(ByteVector.fromBooleanArray(species, thatIdx, i))
+          .fromBooleanArray(spb, vec, i)
+          .and(ByteVector.fromBooleanArray(spb, thatIdx, i))
           .intoBooleanArray(result, i)
-        i += l
+        i += spbl
       end while
 
       while i < vec.length do
@@ -99,17 +71,16 @@ object extensions:
     end &&
 
     inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
-      val species = ByteVector.SPECIES_PREFERRED
-      val l = species.length()
+
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
 
-      while i < species.loopBound(vec.length) do
+      while i < spb.loopBound(vec.length) do
         ByteVector
-          .fromBooleanArray(species, vec, i)
-          .or(ByteVector.fromBooleanArray(species, thatIdx, i))
+          .fromBooleanArray(spb, vec, i)
+          .or(ByteVector.fromBooleanArray(spb, thatIdx, i))
           .intoBooleanArray(result, i)
-        i += l
+        i += spbl
       end while
 
       while i < vec.length do
@@ -182,15 +153,13 @@ object extensions:
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
-      val sp = Matrix.doubleSpecies
-      val l = sp.length()
 
       var i = 1
-      while i < sp.loopBound(vec.length - 2) do
-        val v1 = DoubleVector.fromArray(Matrix.doubleSpecies, vec, i)
-        val v2 = DoubleVector.fromArray(Matrix.doubleSpecies, vec, i + 1)
+      while i < spd.loopBound(vec.length - 2) do
+        val v1 = DoubleVector.fromArray(spd, vec, i)
+        val v2 = DoubleVector.fromArray(spd, vec, i + 1)
         v2.sub(v1).intoArray(out, i)
-        i += l
+        i += spdl
       end while
 
       while i < vec.length do
@@ -272,16 +241,16 @@ object extensions:
       // https://www.cuemath.com/sample-variance-formula/
       val μ = vec.mean
       // vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
-      val sp = Matrix.doubleSpecies
-      val l = sp.length()
-      var tmp = DoubleVector.zero(sp)
+
+      val l = spd.length()
+      var tmp = DoubleVector.zero(spd)
 
       var i = 0
-      while i < sp.loopBound(vec.length) do
-        val v = DoubleVector.fromArray(sp, vec, i)
+      while i < spd.loopBound(vec.length) do
+        val v = DoubleVector.fromArray(spd, vec, i)
         val diff = v.sub(μ)
         tmp = tmp.add(diff.mul(diff))
-        i += l
+        i += spdl
       end while
 
       var sumSqDiff = tmp.reduceLanes(VectorOperators.ADD)
@@ -306,14 +275,11 @@ object extensions:
 
     inline def sum: Double =
       var i: Int = 0
+      var acc = DoubleVector.zero(spd)
 
-      var acc = DoubleVector.zero(Matrix.doubleSpecies)
-      val sp = Matrix.doubleSpecies
-      val l = sp.length()
-
-      while i < sp.loopBound(vec.length) do
-        acc = acc.add(DoubleVector.fromArray(Matrix.doubleSpecies, vec, i))
-        i += l
+      while i < spd.loopBound(vec.length) do
+        acc = acc.add(DoubleVector.fromArray(spd, vec, i))
+        i += spdl
       end while
       var temp = acc.reduceLanes(VectorOperators.ADD)
       // var temp = 0.0
@@ -366,16 +332,7 @@ object extensions:
     end +:+
 
     inline def +:+=(d: Double): Unit =
-      val species = DoubleVector.SPECIES_PREFERRED
       var i: Int = 0
-      val scalarVec = DoubleVector.broadcast(species, d)
-      val l = species.length()
-
-      while i < species.loopBound(vec.length) do
-        DoubleVector.fromArray(species, vec, i).add(scalarVec).intoArray(vec, i)
-        i += l
-      end while
-
       while i < vec.length do
         vec(i) += d
         i += 1
@@ -422,14 +379,12 @@ object extensions:
         inline op: VectorOperators.Comparison,
         num: Double
     ): Array[Boolean] =
-      val species = Matrix.doubleSpecies
-      val l = species.length()
       val idx = new Array[Boolean](vec.length)
       var i = 0
 
-      while i < species.loopBound(vec.length) do
-        DoubleVector.fromArray(species, vec, i).compare(op, num).intoArray(idx, i)
-        i += l
+      while i < spd.loopBound(vec.length) do
+        DoubleVector.fromArray(spd, vec, i).compare(op, num).intoArray(idx, i)
+        i += spdl
       end while
 
       inline op match
@@ -505,4 +460,4 @@ object extensions:
       end while
       out
   end extension
-end extensions
+end arrays

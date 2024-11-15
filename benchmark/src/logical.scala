@@ -30,7 +30,7 @@ import org.openjdk.jmh.infra.Blackhole
 // import vecxt.Matrix.*
 import vecxt.BoundsCheck
 import scala.compiletime.uninitialized
-import vecxt.*
+import vecxt.all.*
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
@@ -42,12 +42,12 @@ class LogicalBenchmark extends BLASBenchmark:
   var len: String = uninitialized;
 
   var arr: Array[Double] = uninitialized
-  
+
 
   // format: off
   @Setup(Level.Trial)
   def setup: Unit =
-    arr = randomDoubleArray(len.toInt);    
+    arr = randomDoubleArray(len.toInt);
     ()
   end setup
 
@@ -68,14 +68,14 @@ class LogicalBenchmark extends BLASBenchmark:
     val r = arr <= 4.0
     bh.consume(r);
   end lte_vec
-  
-  
+
+
 
   @Benchmark
   def lte_loop(bh: Blackhole) =
     val r = arr.lte2(4.0)
     bh.consume(r);
   end lte_loop
-  
+
 end LogicalBenchmark
-  
+

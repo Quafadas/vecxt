@@ -17,11 +17,11 @@ For example if your data acquisition is serverside, but do parts of a calculatio
 
 # JVM
 
-[[vecxt]] is cross platform, this example runs on the JVM, see [Cross Platform](js.mdoc.md) for the same example running in scalaJS.
+[[vecxt]] is cross platform, this example runs on the JVM, see [Cross Platform](/js.mdoc.md) for the same example running in scalaJS.
 
 ```scala mdoc
 
-import vecxt.*
+import vecxt.all.*
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 

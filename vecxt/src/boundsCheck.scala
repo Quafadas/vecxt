@@ -24,5 +24,3 @@ object BoundsCheck:
     inline given no: BoundsCheck = false
   end DoBoundsCheck
 end BoundsCheck
-
-export BoundsCheck.{BoundsCheck, DoBoundsCheck}

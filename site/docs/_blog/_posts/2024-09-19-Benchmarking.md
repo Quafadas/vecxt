@@ -4,7 +4,7 @@ title: Benchmarking
 
 # Benchmarking
 
-This project, was my first foray into something that is performance sensitive. We will be using JMH (for the JVM) and mills JMH plugin. I investigated this action for CI;
+This project, was my first foray into something that is performance sensitive. All the benchmarks we publish here, are run in CI. We will be using JMH (for the JVM) and mills JMH plugin. I investigated this action for CI;
 
 https://github.com/benchmark-action/github-action-benchmark
 
@@ -17,9 +17,9 @@ From first principles, I thought about 3 problems;
 
 ## Trigger
 
-I concluded I wanted a manual trigger. Each push to main is too much - a lot of redundant data and duplicated work on each commit. In future perhaps switch to benchmark on  release. As the suite is being built out, I think manual makes more sense.
+I concluded I wanted a manual trigger. Each push to main is too much. Benchmareking is by definition compute intense, and doing it continuously is rather wasteful outside of something truly mission critical. In future perhaps switch to benchmark on  release. Currently, manual makes more sense.
 
-## Where shoudl the data be stored
+## Where should the data be stored
 
 JMH itself doesn't give you more than the results. We need extra metadata. ChatGPT wrote me a shell script which appends the date, commit and branch that the results were generated from into the results html. This will be our metadata.
 
@@ -27,16 +27,17 @@ This file is then pushed to an orphaned  [branch](https://github.com/Quafadas/ve
 
 ## Consumption
 
-The goal is that we will then hook into our orphan branch in the github action and aggregate the results into a single benchmarking.json file. This file will be added to the static assets of the site.
+During the github pages build step (i.e. in GHA) This file will be added to the static assets of the site, we switch into our orphan branch in the github action and aggregate the results into a single benchmarking.json file, we further post process data data from the step above to flatten all results into a single array.
 
-Our benchmark plots may then reference and polish that data  it is, that they want to plot.
+It may be found [here](../../benchmarks/benchmark_history.json);
 
-# Conclusion
+Now we're in a position to plot some benchmarks. The plotting mechanism is a little experimental. We serialize named tuples into vega specs. This allows us to build "the same" spec out of parts, and lightly customise them. The plots themselves reference the data that is continuously updated out of the CI.
 
-That there is a bug in scaladoc.
+Finally, we use mdoc JS to provide the div, and then the hook to actually run the plots.
 
-https://github.com/scala/scala3/issues/21637
+# Conlusion
 
-But that otherwise, this is a good way to keep an eye on performance. During the benchmarking process, I caughrt several small errors. In hot loops, those small errors were adding up to significant frictional losses. It is good to have a way to measure this systemically.
+We have built a pipline which ensures that we can ensure this library maintains compelling performance characteristics, by measuring, collecting the data, and plotting the data to prove it.
+
 
 

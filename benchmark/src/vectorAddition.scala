@@ -27,8 +27,8 @@ package vecxt.benchmark
 
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
-import vecxt.Matrix.*
-import vecxt.*
+import jdk.incubator.vector.DoubleVector
+import vecxt.all.*
 import scala.compiletime.uninitialized
 
 // format: off
@@ -61,26 +61,34 @@ class AddScalarBenchmark extends BLASBenchmark:
   end setup
 
   extension (vec: Array[Double])
-    inline def scalarPlus(d: Double): Unit =
-      var i = 0
+    inline def scalarPlusVec(d: Double): Unit =
+      val species = DoubleVector.SPECIES_PREFERRED
+      var i: Int = 0
+      val l = species.length()
+
+      while i < species.loopBound(vec.length) do
+        DoubleVector.fromArray(species, vec, i).add(DoubleVector.broadcast(species, d)).intoArray(vec, i)
+        i += l
+      end while
+
       while i < vec.length do
         vec(i) += d
         i += 1
       end while
-    end scalarPlus
+    end scalarPlusVec
 
 
   end extension
 
   @Benchmark
   def vecxt_add(bh: Blackhole) =
-    vec.scalarPlus(4.5)
+    vec +:+= (4.5)
     bh.consume(vec);
   end vecxt_add
 
   @Benchmark
   def vecxt_add_vec(bh: Blackhole) =
-    vec2 +:+= 4.5
+    vec2.scalarPlusVec(4.5)
     bh.consume(vec2);
   end vecxt_add_vec
 end AddScalarBenchmark
