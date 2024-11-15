@@ -16,7 +16,7 @@ Doing an "and" operation
 ```scala mdoc:js sc:nocompile
 import vecxt.plot.*
 import vecxt.facades.*
-showJsDocs.fromSpec(BenchmarkPlots.countTrueBenchmark, node)
+showJsDocs.fromSpec(BenchmarkPlots.andBooleanBenchmark, node)
 
 ```
 
