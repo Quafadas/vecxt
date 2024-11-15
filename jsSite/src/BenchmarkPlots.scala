@@ -56,4 +56,22 @@ object BenchmarkPlots:
     write(thePlot)
   end countTrueBenchmark
 
+  def andBooleanBenchmark =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      (transform =
+        BenchmarkPlotElements.transform(
+          List("AndBooleanBenchmark.and_loop", "AndBooleanBenchmark.and_loop_vec")
+        )
+      ) ++
+      (vconcat =
+        List(
+          BenchmarkPlotElements.layer(3, "len"),
+          BenchmarkPlotElements.layer(128, "len"),
+          BenchmarkPlotElements.layer(100000, "len")
+        )
+      )
+    write(thePlot)
+  end andBooleanBenchmark
+
 end BenchmarkPlots

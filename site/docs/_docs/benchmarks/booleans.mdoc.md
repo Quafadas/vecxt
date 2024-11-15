@@ -11,5 +11,14 @@ showJsDocs.fromSpec(BenchmarkPlots.countTrueBenchmark, node)
 
 ```
 
+Doing an "and" operation
+
+```scala mdoc:js sc:nocompile
+import vecxt.plot.*
+import vecxt.facades.*
+showJsDocs.fromSpec(BenchmarkPlots.countTrueBenchmark, node)
+
+```
+
 # Conclusion
 Boolean processing gains massive benefits from SIMD.
