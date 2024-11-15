@@ -4,7 +4,7 @@ title: Benchmarking
 
 # Benchmarking
 
-This project, was my first foray into something that is performance sensitive. We will be using JMH (for the JVM) and mills JMH plugin. I investigated this action for CI;
+This project, was my first foray into something that is performance sensitive. All the benchmarks we publish here, are run in CI. We will be using JMH (for the JVM) and mills JMH plugin. I investigated this action for CI;
 
 https://github.com/benchmark-action/github-action-benchmark
 
@@ -31,21 +31,13 @@ During the github pages build step (i.e. in GHA) This file will be added to the 
 
 It may be found [here](../../benchmarks/benchmark_history.json);
 
-Now we're in a position to plot some benchmarks.
+Now we're in a position to plot some benchmarks. The plotting mechanism is a little experimental. We serialize named tuples into vega specs. This allows us to build "the same" spec out of parts, and lightly customise them. The plots themselves reference the data that is continuously updated out of the CI.
 
-```javascript
-<div id="vis" style="width: 50vw;height: 10vh"></div>
+Finally, we use mdoc JS to provide the div, and then the hook to actually run the plots.
 
-<script type="module">
-  import vegaEmbed from "https://cdn.jsdelivr.net/npm/vega-embed@6/+esm?bundle-deps=true";
-  var spec = "../../plots/addScalar.vg.json";
-  vegaEmbed('#vis', spec).then(function(result) {
-    // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
-  }).catch(console.error);
-</script>
-```
+# Conlusion
 
-This javascript embeds a vega plot into the page. Now, we need only to provide a plotfile per visualisation. Ideally, we would abstract over the visualisations we need - my pet project dedav4s would be great for this, but scalaJS in mdoc is currently a challenge.
+We have built a pipline which ensures that we can ensure this library maintains compelling performance characteristics, by measuring, collecting the data, and plotting the data to prove it.
 
 
 

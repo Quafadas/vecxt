@@ -38,4 +38,6 @@ showJsDocs.fromSpec(BenchmarkPlots.lteBenchmark, node)
 
 
 # Conclusion
-Boolean processing gains massive benefits from SIMD.
+Boolean processing gains massive benefits from SIMD, so boolean logicals like AND and OR see monster performance gains. It's a fairl niche workload though :-).
+
+On the flip side, the comparison on two doubles, the current SIMD implementation turns out to be far slower.
