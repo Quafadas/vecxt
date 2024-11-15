@@ -2,7 +2,7 @@
 
 - [ ] solidify benchmarking
  - [x] reusable plot elements
-  - [ ] via named tuples and upickle?
+  - [x] via named tuples and upickle?
   - [ ] unit testing
 - [ ] Beautiful display in scala JS through MathMl
  - [ ] PR to scala JS dom in progress

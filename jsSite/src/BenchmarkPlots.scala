@@ -110,4 +110,16 @@ object BenchmarkPlots:
     write(thePlot)
   end lteBenchmark
 
+  def matMulBenchmark =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      (
+        transform = BenchmarkPlotElements.transform(
+          List("DgemmBenchmark.java_dgemm", "DgemmBenchmark.vecxt_mmult")
+        )
+      ) ++ BenchmarkPlotElements.matmulLayer
+
+    write(thePlot)
+  end matMulBenchmark
+
 end BenchmarkPlots

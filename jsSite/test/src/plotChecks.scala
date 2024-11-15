@@ -38,11 +38,11 @@ end Process
 
 class PlotChecks extends munit.FunSuite:
 
-  test("some test data") {
-    val argy = Fake.fakeData.arr.filter(d => d("benchmark").str.contains("CountTrueBenchmark"))
-    println(argy)
+  // test("some test data") {
+  //   val argy = Fake.fakeData.arr.filter(d => d("benchmark").str.contains("CountTrueBenchmark"))
+  //   println(argy)
 
-  }
+  // }
 
   test("Add scalar plot") {
     assertEquals(
@@ -55,9 +55,16 @@ class PlotChecks extends munit.FunSuite:
 
     assertEquals(
       BenchmarkPlots.addScalarBenchmarkOverTime,
-      """{"$schema":"https://vega.github.io/schema/vega-lite/v5.json","data":{"url":"../../benchmarks/benchmark_history.json","format":{"type":"json"}},"transform":[{"calculate":"replace(datum.benchmark, 'vecxt.benchmark.', '')","as":"benchmark"},{"calculate":"datetime(substring(datum.date,0, 4)+ '-' + substring(datum.date,4, 6) + '-' + substring(datum.date,6, 8))","as":"date"},{"filter":{"field":"benchmark","oneOf":["AddScalarBenchmark.vecxt_add_vec"]}},{"window":[{"op":"dense_rank","as":"rank"}],"sort":[{"field":"date","order":"descending"}]}],"vconcat":[{"layer":[{"title":"n = 3","mark":{"type":"line","color":"black"},"encoding":{"y":{"field":"score","type":"quantitative","scale":{"zero":false},"title":"ops/s"},"x":{"field":"date","timeUnit":"date"}}},{"mark":{"opacity":0.3,"type":"area","color":"#85C5A6"},"encoding":{"x":{"field":"date","timeUnit":"date"},"y":{"field":"scoreUpperConfidence","type":"quantitative"},"y2":{"field":"scoreLowerConfidence"}}}],"transform":[{"filter":"(datum.params.n == '10')"}]},{"layer":[{"title":"n = 1000","mark":{"type":"line","color":"black"},"encoding":{"y":{"field":"score","type":"quantitative","scale":{"zero":false}},"x":{"field":"date","timeUnit":"date"}}},{"mark":{"opacity":0.3,"type":"area","color":"#85C5A6"},"encoding":{"x":{"field":"date","timeUnit":"date"},"y":{"field":"scoreUpperConfidence","type":"quantitative","title":"ops/s"},"y2":{"field":"scoreLowerConfidence"}}}],"transform":[{"filter":"(datum.params.n == '1000')"}]},{"layer":[{"title":"n = 1000000","mark":{"type":"line","color":"black"},"encoding":{"y":{"field":"score","type":"quantitative","scale":{"zero":false},"title":"ops/s"},"x":{"field":"date","timeUnit":"date"}}},{"mark":{"opacity":0.3,"type":"area","color":"#85C5A6"},"encoding":{"x":{"field":"date","timeUnit":"date"},"y":{"field":"scoreUpperConfidence","type":"quantitative"},"y2":{"field":"scoreLowerConfidence"}}}],"transform":[{"filter":"(datum.params.n == '100000')"}]}]}"""
+      """{"$schema":"https://vega.github.io/schema/vega-lite/v5.json","data":{"url":"../../benchmarks/benchmark_history.json","format":{"type":"json"}},"transform":[{"calculate":"replace(datum.benchmark, 'vecxt.benchmark.', '')","as":"benchmark"},{"calculate":"datetime(substring(datum.date,0, 4)+ '-' + substring(datum.date,4, 6) + '-' + substring(datum.date,6, 8))","as":"date"},{"filter":{"field":"benchmark","oneOf":["AddScalarBenchmark.vecxt_add_vec"]}},{"window":[{"op":"dense_rank","as":"rank"}],"sort":[{"field":"date","order":"descending"}]}],"vconcat":[{"layer":[{"title":"n = 10","mark":{"type":"line","color":"black"},"encoding":{"y":{"field":"score","type":"quantitative","scale":{"zero":false},"title":"ops/s"},"x":{"field":"date","timeUnit":"date"}}},{"mark":{"opacity":0.3,"type":"area","color":"#85C5A6"},"encoding":{"x":{"field":"date","timeUnit":"date"},"y":{"field":"scoreUpperConfidence","type":"quantitative"},"y2":{"field":"scoreLowerConfidence"}}}],"transform":[{"filter":"(datum.params.n == '10')"}]},{"layer":[{"title":"n = 1000","mark":{"type":"line","color":"black"},"encoding":{"y":{"field":"score","type":"quantitative","scale":{"zero":false},"title":"ops/s"},"x":{"field":"date","timeUnit":"date"}}},{"mark":{"opacity":0.3,"type":"area","color":"#85C5A6"},"encoding":{"x":{"field":"date","timeUnit":"date"},"y":{"field":"scoreUpperConfidence","type":"quantitative"},"y2":{"field":"scoreLowerConfidence"}}}],"transform":[{"filter":"(datum.params.n == '1000')"}]},{"layer":[{"title":"n = 100000","mark":{"type":"line","color":"black"},"encoding":{"y":{"field":"score","type":"quantitative","scale":{"zero":false},"title":"ops/s"},"x":{"field":"date","timeUnit":"date"}}},{"mark":{"opacity":0.3,"type":"area","color":"#85C5A6"},"encoding":{"x":{"field":"date","timeUnit":"date"},"y":{"field":"scoreUpperConfidence","type":"quantitative"},"y2":{"field":"scoreLowerConfidence"}}}],"transform":[{"filter":"(datum.params.n == '100000')"}]}]}"""
     )
 
+  }
+
+  test("mat mul plot") {
+    assertEquals(
+      BenchmarkPlots.matMulBenchmark,
+      """{"$schema":"https://vega.github.io/schema/vega-lite/v5.json","data":{"url":"../../benchmarks/benchmark_history.json","format":{"type":"json"}},"transform":[{"calculate":"replace(datum.benchmark, 'vecxt.benchmark.', '')","as":"benchmark"},{"calculate":"datetime(substring(datum.date,0, 4)+ '-' + substring(datum.date,4, 6) + '-' + substring(datum.date,6, 8))","as":"date"},{"joinaggregate":[{"op":"max","field":"date","as":"maxDate"}]},{"filter":{"field":"benchmark","oneOf":["DgemmBenchmark.java_dgemm","DgemmBenchmark.vecxt_mmult"]}},{"window":[{"op":"dense_rank","as":"rank"}],"sort":[{"field":"date","order":"descending"}]},{"filter":"datum.rank <= 1"}],"layer":[{"mark":"errorbar","encoding":{"x":{"field":"scoreLowerConfidence","type":"quantitative","scale":{"zero":false},"title":"ops / s"},"y":{"field":"benchmark","type":"ordinal","scale":{"zero":false}},"x2":{"field":"scoreUpperConfidence"}}},{"mark":{"type":"point","filled":true,"color":"black"},"encoding":{"x":{"field":"score","type":"quantitative"},"y":{"field":"benchmark","type":"ordinal"}}}]}"""
+    )
   }
 
 end PlotChecks

@@ -151,6 +151,18 @@ object BenchmarkPlotElements:
   )
 
   def layer(n: Int, benchmarkVariableName: String, yZeroScale: Boolean = false) =
+    (
+      layer = Tuple2(
+        (title = s"n = $n") ++ errorbar(yZeroScale),
+        markPart
+      ),
+      transform = List(
+        (filter = s"(datum.params.$benchmarkVariableName == '$n')")
+      )
+    )
+  end layer
+
+  def errorbar(yZeroScale: Boolean = false) =
 
     val yScale = (
       field = "benchmark",
@@ -161,47 +173,47 @@ object BenchmarkPlotElements:
     )
 
     (
-      layer = Tuple2(
-        (
-          title = s"n = $n",
-          mark = "errorbar",
-          encoding = (
-            x = (
-              field = "scoreLowerConfidence",
-              `type` = "quantitative",
-              scale = (
-                zero = false
-              ),
-              title = "ops / s"
-            ),
-            y = yScale,
-            x2 = (
-              field = "scoreUpperConfidence"
-            )
-          )
-        ),
-        (
-          mark = (
-            `type` = "point",
-            filled = true,
-            color = "black"
+      mark = "errorbar",
+      encoding = (
+        x = (
+          field = "scoreLowerConfidence",
+          `type` = "quantitative",
+          scale = (
+            zero = false
           ),
-          encoding = (
-            x = (
-              field = "score",
-              `type` = "quantitative"
-            ),
-            y = (
-              field = "benchmark",
-              `type` = "ordinal"
-            )
-          )
+          title = "ops / s"
+        ),
+        y = yScale,
+        x2 = (
+          field = "scoreUpperConfidence"
         )
-      ),
-      transform = List(
-        (filter = s"(datum.params.$benchmarkVariableName == '$n')")
       )
     )
-  end layer
+  end errorbar
+
+  val markPart = (
+    mark = (
+      `type` = "point",
+      filled = true,
+      color = "black"
+    ),
+    encoding = (
+      x = (
+        field = "score",
+        `type` = "quantitative"
+      ),
+      y = (
+        field = "benchmark",
+        `type` = "ordinal"
+      )
+    )
+  )
+
+  val matmulLayer = (
+    layer = Tuple2(
+      errorbar(yZeroScale = false),
+      markPart
+    )
+  )
 
 end BenchmarkPlotElements

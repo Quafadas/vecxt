@@ -9,24 +9,14 @@ The benchmark code is [here](https://github.com/Quafadas/vecxt/blob/main/benchma
 
 And as long as the errors bars overlap, then these two implementations are equivalent.
 
-<div id="vis" style="width: 50vw;height: 10vh"></div>
+```scala mdoc:js sc:nocompile
+import vecxt.plot.*
+import vecxt.facades.*
+showJsDocs.fromSpec(BenchmarkPlots.matmulLayer, node)
+```
 
-<script type="module">
-  import vegaEmbed from "https://cdn.jsdelivr.net/npm/vega-embed@6/+esm?bundle-deps=true";
-  var spec = "../../plots/matmul.vg.json";
-  vegaEmbed('#vis', spec).then(function(result) {
-    // Access the Vega view instance (https://vega.github.io/vega/docs/api/view/) as result.view
-  }).catch(console.error);
-</script>
 
 So the benchmark boils down to a personal preference for which of these two pieces of code I'd rather write . They do exactly the same thing.
-
-```scala mdoc:js sc:nocompile
-import vecxt.facades._
-showJsDocs("../../plots/matmul.vg.json", node)
-```
-Hmmm.
-
 
 ```scala sc:nocompile
   val a : Matrix[Double] = ??? // some matrix
