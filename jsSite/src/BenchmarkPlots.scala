@@ -128,6 +128,24 @@ object BenchmarkPlots:
     write(thePlot)
   end varianceBenchmark
 
+  def incrementsBenchmark =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      (transform =
+        BenchmarkPlotElements.transform(
+          List("IncrementBenchmark.increment_normal", "IncrementBenchmark.increment_vec")
+        )
+      ) ++
+      (vconcat =
+        List(
+          BenchmarkPlotElements.layer(3, "len"),
+          BenchmarkPlotElements.layer(100, "len"),
+          BenchmarkPlotElements.layer(100000, "len")
+        )
+      )
+    write(thePlot)
+  end incrementsBenchmark
+
   def matMulBenchmark =
     val thePlot = BenchmarkPlotElements.schema ++
       BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
