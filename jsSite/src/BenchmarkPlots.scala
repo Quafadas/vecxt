@@ -145,7 +145,7 @@ object BenchmarkPlots:
       BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
       (
         transform = BenchmarkPlotElements.transform(
-          List("SumBenchmark.sum_loop", "SumBenchmark.sum_vec")
+          List("SumBenchmark.sum_loop", "SumBenchmark.sum_vec_alt")
         )
       ) ++ (vconcat =
         List(
@@ -162,11 +162,11 @@ object BenchmarkPlots:
     val thePlot = BenchmarkPlotElements.schema ++
       BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
       // BenchmarkPlotElements.fakeData ++
-      (transform = BenchmarkPlotElements.timeTransform(List("SumBenchmark.sum_vec"))) ++
+      (transform = BenchmarkPlotElements.timeTransform(List("SumBenchmark.sum_vec_alt"))) ++
       (vconcat =
         List(
           BenchmarkPlotElements.timeLayer(3, "len"),
-          BenchmarkPlotElements.timeLayer(1000, "len"),
+          BenchmarkPlotElements.timeLayer(100, "len"),
           BenchmarkPlotElements.timeLayer(100000, "len")
         )
       )
