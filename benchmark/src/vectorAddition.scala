@@ -45,6 +45,10 @@ AddBenchmark.vecxt_add_vec  100000  thrpt    3      74825.602 ±      3966.400  
 @State(Scope.Thread)
 class AddScalarBenchmark extends BLASBenchmark:
 
+  final val species = DoubleVector.SPECIES_PREFERRED
+  final val l = species.length()
+
+
   @Param(Array("10", "1000", "100000"))
   var n: java.lang.String = uninitialized
 
@@ -62,12 +66,10 @@ class AddScalarBenchmark extends BLASBenchmark:
 
   extension (vec: Array[Double])
     inline def scalarPlusVec(d: Double): Unit =
-      val species = DoubleVector.SPECIES_PREFERRED
       var i: Int = 0
-      val l = species.length()
-
+      val toAdd = DoubleVector.broadcast(species, d)
       while i < species.loopBound(vec.length) do
-        DoubleVector.fromArray(species, vec, i).add(DoubleVector.broadcast(species, d)).intoArray(vec, i)
+        DoubleVector.fromArray(species, vec, i).add(toAdd).intoArray(vec, i)
         i += l
       end while
 
