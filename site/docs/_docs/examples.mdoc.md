@@ -30,4 +30,6 @@ cosineSimilarity(v1, v2)
 (v1 < 2).printArr
 (v1 <= 2).printArr
 
+(v1(v1 <= 2)).printArr
+
 ```

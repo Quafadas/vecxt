@@ -1,4 +1,13 @@
+Getting setup xPlatform might take a little effort.
+
 # JVM
+
+
+Adding this flag, to your JVM startup commands.
+
+`--add-modules=jdk.incubator.vector`
+
+At the time of writing this is the incubating `vector` API flags and you need JVM 18+.
 
 If you are running on the JVM, The shim to a java SIMD [netlib](https://github.com/luhenry/netlib) will generate warnings when it's instantiated. That shim looks for potential execution pathways upon instantiation, and prefers;
 
@@ -10,9 +19,6 @@ The console warnings on startup will tell you the implementations you are missin
 
 My understanding, is that for level 1 BLAS operations (i.e. this library), the performance of the SIMD implementation is comparable to native - i.e. C performance.
 
-To enable the SIMD implementation, you'll need (at the time of writing) to enable the incubating `vector` API flags and be using JVM 18+. Consider adding this flag, to your JVM startup commands.
-
-`--add-modules=jdk.incubator.vector`
 
 # JS
 
