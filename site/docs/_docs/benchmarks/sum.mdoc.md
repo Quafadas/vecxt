@@ -1,26 +1,25 @@
+---
+title: Sum
+---
 
 You may need to refresh the page.
 https://github.com/scala/scala3/issues/21637
 
 Here is the comparison of the standard `while` loop with the vectorised version.
-<div id="vis" style="width: 50vw;height: 10vh"></div>
 
-<script type="module">
-  import vegaEmbed from "https://cdn.jsdelivr.net/npm/vega-embed@6/+esm";
-  var spec = "../../plots/sum.vg.json";
-  vegaEmbed('#vis', spec)
-</script>
+```scala mdoc:js sc:nocompile
+import vecxt.plot.*
+import vecxt.facades.*
+showJsDocs.fromSpec(BenchmarkPlots.sumBenchmark, node)
+```
 
 And the function left in vexct over time (against regressions)
 
-<div id="visTime" style="width: 50vw;height: 10vh"></div>
-
-<script type="module">
-  import vegaEmbed from "https://cdn.jsdelivr.net/npm/vega-embed@6/+esm";
-  var spec = "../../plots/sum_over_time.vg.json";
-  vegaEmbed('#visTime', spec)
-</script>
-
+```scala mdoc:js sc:nocompile
+import vecxt.plot.*
+import vecxt.facades.*
+showJsDocs.fromSpec(BenchmarkPlots.sumBenchmarkOverTime, node)
+```
 
 The two implementations are;
 

@@ -140,4 +140,36 @@ object BenchmarkPlots:
     write(thePlot)
   end matMulBenchmark
 
+  def sumBenchmark =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      (
+        transform = BenchmarkPlotElements.transform(
+          List("SumBenchmark.sum_loop", "SumBenchmark.sum_vec")
+        )
+      ) ++ (vconcat =
+        List(
+          BenchmarkPlotElements.layer(3, "len"),
+          BenchmarkPlotElements.layer(100, "len"),
+          BenchmarkPlotElements.layer(100000, "len")
+        )
+      )
+
+    write(thePlot)
+  end sumBenchmark
+
+  def sumBenchmarkOverTime: String =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      // BenchmarkPlotElements.fakeData ++
+      (transform = BenchmarkPlotElements.timeTransform(List("SumBenchmark.sum_vec"))) ++
+      (vconcat =
+        List(
+          BenchmarkPlotElements.timeLayer(3, "len"),
+          BenchmarkPlotElements.timeLayer(1000, "len"),
+          BenchmarkPlotElements.timeLayer(100000, "len")
+        )
+      )
+    write(thePlot)
+  end sumBenchmarkOverTime
 end BenchmarkPlots

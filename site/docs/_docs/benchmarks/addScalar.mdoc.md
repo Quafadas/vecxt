@@ -1,3 +1,6 @@
+---
+title: scalar addition
+---
 
 You may need to refresh the page.
 https://github.com/scala/scala3/issues/21637
