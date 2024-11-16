@@ -56,7 +56,7 @@ import com.raquo.laminar.DomApi
 import narr.*
 
 import vecxt.all.*
-import vecxt_extensions.MathTagsLaminar.*
+import vecxtensions.MathTagsLaminar.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 val base = NArray[Double](11, 12, 13, 14, 15)

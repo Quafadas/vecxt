@@ -1,4 +1,4 @@
-package vecxt_extensions
+package vecxtensions
 
 import scalatags.Text.all.* // Imports commonly used ScalaTags elements like `Tag`, `attrs`, etc.
 import scalatags.Text.tags
@@ -7,6 +7,7 @@ import vecxt.all.*
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.tags.*
 import com.raquo.laminar.codecs.StringAsIsCodec
+import vecxt.BoundsCheck.DoBoundsCheck.no
 
 object MathTagsLaminar:
 
@@ -18,7 +19,7 @@ object MathTagsLaminar:
             yield mtr(
               for (j <- 0 until m.cols)
                 yield mtd(
-                  mn(m.raw(i * m.cols + j))
+                  mn(m((j, i)))
                 )
             )
         )
