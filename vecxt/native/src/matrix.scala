@@ -161,9 +161,9 @@ object matrix:
       Matrix(newArr, m._2)(using BoundsCheck.DoBoundsCheck.no)
     end +
 
-    inline def rows: Int = m._2._1
+    inline def rows: Row = m._2._1
 
-    inline def cols: Int = m._2._2
+    inline def cols: Col = m._2._2
 
     inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
       dimMatCheck(m, b)
