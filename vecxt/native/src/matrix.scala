@@ -7,6 +7,7 @@ import org.ekrich.blas.unsafe.blas
 import org.ekrich.blas.unsafe.blasEnums
 import scala.scalanative.unsafe.*
 import vecxt.matrixUtil.*
+import vecxt.rangeExtender.MatrixRange.range
 
 object matrix:
   /** This is a matrix
@@ -118,12 +119,6 @@ object matrix:
       val idx = loc._2 * m.rows + loc._1
       m._1(idx) = value
     end update
-
-    private inline def range(r: RangeExtender, max: Int): NArray[Int] = r match
-      case _: ::.type     => NArray.from((0 until max).toArray)
-      case r: Range       => NArray.from(r.toArray)
-      case l: NArray[Int] => l
-      case i: Int         => NArray(i)
 
     def apply(rowRange: RangeExtender, colRange: RangeExtender): Matrix =
       val newRows = range(rowRange, m.rows)

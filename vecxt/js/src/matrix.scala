@@ -4,6 +4,8 @@ import narr.*
 import scala.scalajs.js.typedarray.Float64Array
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.arrays.*
+import vecxt.rangeExtender.MatrixRange.range
+import vecxt.rangeExtender.MatrixRange.RangeExtender
 
 object matrix:
 
@@ -30,8 +32,6 @@ object matrix:
     * ._2._2 is the number of columns
     */
   opaque type Matrix = (NArray[Double], Tuple2[Int, Int])
-
-  type RangeExtender = Range | Int | NArray[Int] | ::.type
 
   // type Matrix = Matrix1 & Tensor
 
@@ -134,12 +134,6 @@ object matrix:
       val idx = loc._2 * m.rows + loc._1
       m._1(idx) = value
     end update
-
-    private inline def range(r: RangeExtender, max: Int): NArray[Int] = r match
-      case _: ::.type     => NArray.from((0 until max).toArray)
-      case r: Range       => NArray.from(r.toArray)
-      case l: NArray[Int] => l
-      case i: Int         => NArray(i)
 
     def apply(rowRange: RangeExtender, colRange: RangeExtender): Matrix =
       val newRows = range(rowRange, m.rows)
