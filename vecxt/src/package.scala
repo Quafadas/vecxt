@@ -1,9 +1,6 @@
-package vecxt.all
+package vecxt
 
-export vecxt.matrix.*
-export vecxt.arrays.*
-export vecxt.cosineSimilarity
-export vecxt.matrixUtil.*
-export vecxt.arrayUtil.*
+type Row = Int
+type Col = Int
 
-type Col_Row = Tuple2[Int, Int]
+type RowCol = Tuple2[Row, Col]

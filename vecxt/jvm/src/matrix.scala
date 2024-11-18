@@ -20,17 +20,17 @@ object matrix:
     * ._2._2 is the number of columns. You can access the raw array with the .raw method which inlines to the tuple
     * call.
     */
-  opaque type Matrix = (NArray[Double], Tuple2[Int, Int])
+  opaque type Matrix = (NArray[Double], RowCol)
 
   object Matrix:
 
-    inline def apply[T <: Tuple2[Int, Int]](raw: NArray[Double], dim: T)(using
+    inline def apply(raw: NArray[Double], dim: RowCol)(using
         inline boundsCheck: BoundsCheck
     ): Matrix =
       dimMatInstantiateCheck(raw, dim)
       (raw, dim)
     end apply
-    inline def apply[T <: Tuple2[Int, Int]](dim: T, raw: NArray[Double])(using
+    inline def apply(dim: RowCol, raw: NArray[Double])(using
         inline boundsCheck: BoundsCheck
     ): Matrix =
       dimMatInstantiateCheck(raw, dim)
@@ -59,13 +59,13 @@ object matrix:
       Matrix(newArr, (rows, cols))
     end fromRows
 
-    inline def ones(dim: Tuple2[Int, Int]): Matrix =
+    inline def ones(dim: RowCol): Matrix =
       val (rows, cols) = dim
       val newArr = NArray.fill[Double](rows * cols)(1.0)
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end ones
 
-    inline def zeros(dim: Tuple2[Int, Int]): Matrix =
+    inline def zeros(dim: RowCol): Matrix =
       val (rows, cols) = dim
       val newArr = NArray.ofSize[Double](rows * cols)
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
@@ -115,7 +115,7 @@ object matrix:
 
     /** element update
       */
-    inline def update(loc: Tuple2[Int, Int], value: Double)(using inline boundsCheck: BoundsCheck) =
+    inline def update(loc: RowCol, value: Double)(using inline boundsCheck: BoundsCheck) =
       indexCheckMat(m, loc)
       val idx = loc._2 * m.rows + loc._1
       m._1(idx) = value
@@ -148,7 +148,7 @@ object matrix:
 
     /** element retrieval
       */
-    inline def apply(b: Tuple2[Int, Int])(using inline boundsCheck: BoundsCheck) =
+    inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck) =
       indexCheckMat(m, b)
       val idx = b._2 * m.rows + b._1
       m._1(idx)
