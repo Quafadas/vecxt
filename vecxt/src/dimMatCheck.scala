@@ -1,22 +1,23 @@
 package vecxt
 
 import vecxt.matrix.*
+import vecxt.MatrixInstance.*
 import narr.*
 import vecxt.BoundsCheck.BoundsCheck
 
 protected[vecxt] object dimMatCheck:
-  inline def apply(a: Matrix, b: Matrix)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](a: Matrix[A], b: Matrix[A])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.cols != b.rows then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end dimMatCheck
 
 protected[vecxt] object sameDimMatCheck:
-  inline def apply(a: Matrix, b: Matrix)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](a: Matrix[A], b: Matrix[A])(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end sameDimMatCheck
 
 protected[vecxt] object indexCheckMat:
-  inline def apply(a: Matrix, dim: RowCol)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](a: Matrix[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
         throw java.lang.IndexOutOfBoundsException(
@@ -25,7 +26,7 @@ protected[vecxt] object indexCheckMat:
 end indexCheckMat
 
 protected[vecxt] object dimMatInstantiateCheck:
-  inline def apply(raw: NArray[Double], dim: RowCol)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](raw: NArray[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if dim._1 * dim._2 != raw.size
       then throw InvalidMatrix(dim._1, dim._2, raw.size)

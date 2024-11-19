@@ -2,17 +2,27 @@ package vecxt
 
 import narr.*
 import vecxt.matrix.*
+import vecxt.MatrixInstance.*
 import vecxt.BoundsCheck
 import vecxt.arrays.multInPlace
-import vecxt.matrix.matmul
+import vecxt.matrix.*
 import vecxt.BoundsCheck.BoundsCheck
+import scala.reflect.ClassTag
+import vecxt.arrayUtil.printArr
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
 
-  extension (m: Matrix)
-    inline def transpose: Matrix =
+  extension [A](m: Matrix[A])
+
+    private inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck) =
+      // dimCheckLen(m.raw, b)
+      (b / m.rows, b % m.rows)
+    end tupleFromIdx
+
+    inline def transpose(using ClassTag[A]): Matrix[A] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
-      val newMat = Matrix.zeros(m.cols, m.rows)
+      val newArr = NArray.ofSize[A](m.numel)
+      val newMat = Matrix(newArr, (m.cols.asInstanceOf[Row], m.rows.asInstanceOf[Col]))
       var idx = 0
 
       while idx < newMat.numel do
@@ -24,30 +34,25 @@ object matrixUtil:
       newMat
     end transpose
 
-    inline def row(i: Int): NArray[Double] =
+    inline def row(i: Int)(using ClassTag[A]): NArray[A] =
       // println(s"row $i")
-      m(i, ::).raw
+      val m2 = m(i, ::)
+      m2.raw
     end row
 
-    inline def printMat: String =
+    inline def printMat(using ClassTag[A]): String =
       val arrArr =
         for i <- 0 until m.rows
         yield
         // println(m.row(i).printArr)
-        m.row(i).mkString(" ")
+        m.row(i).asInstanceOf[Array[Double]].printArr
       end arrArr
       arrArr.mkString("\n")
     end printMat
 
-    inline def col(i: Int): NArray[Double] =
+    inline def col(i: Int)(using ClassTag[A]): NArray[A] =
       m(::, i).raw
     end col
-
-    inline def @@(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix = m.matmul(b)
-
-    inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
-
-    inline def shape: String = s"${m.rows} x ${m.cols}"
 
   end extension
 end matrixUtil

@@ -4,11 +4,13 @@ import narr.*
 import scala.util.chaining.*
 import vecxt.matrix.*
 import vecxt.arrays.*
+import vecxt.MatrixHelper.*
+import vecxt.MatrixInstance.*
 
 class UpdateSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
 
-  val simpleMat = FunFixture[Matrix](
+  val simpleMat = FunFixture[Matrix[Double]](
     setup = test =>
       val row1 = NArray[Double](1.0, 2.0)
       Matrix.fromRows(

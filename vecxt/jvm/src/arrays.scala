@@ -357,6 +357,14 @@ object arrays:
       vec.clone.tap(_ /= d)
     end /
 
+    inline def lt(num: Double): Array[Boolean] = vec < num
+
+    inline def gt(num: Double): Array[Boolean] = vec > num
+
+    inline def lte(num: Double): Array[Boolean] = vec <= num
+
+    inline def gte(num: Double): Array[Boolean] = vec >= num
+
     inline def =:=(num: Double): Array[Boolean] =
       logicalIdx(VectorOperators.EQ, num)
 

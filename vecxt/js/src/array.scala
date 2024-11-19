@@ -22,7 +22,7 @@ import narr.*
 import vecxt.BoundsCheck.BoundsCheck
 
 object arrayUtil:
-// extension [A](d: Array[A]) def print: String = d.mkString("[", ",", "]")
+  extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
 end arrayUtil
 
 object arrays:
