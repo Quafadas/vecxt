@@ -1,13 +1,12 @@
 package vecxt
 
-import narr._
-import vecxt.BoundsCheck.BoundsCheck
-import vecxt.arrays._
-
-import scala.compiletime._
+import scala.compiletime.*
 import scala.reflect.ClassTag
 
-import matrix._
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.matrix.*
+
+import narr.*
 
 object MatrixHelper:
   extension (m: Matrix.type)

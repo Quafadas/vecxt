@@ -1,7 +1,8 @@
 package vecxt
 
-import narr._
 import vecxt.matrix.Matrix
+
+import narr.*
 
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
 object JsNativeDoubleArrays:

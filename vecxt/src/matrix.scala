@@ -1,16 +1,7 @@
 package vecxt
-
-import jdk.incubator.vector.DoubleVector
-import narr._
-import vecxt.BoundsCheck
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.arrays._
-import vecxt.dimMatInstantiateCheck
-import vecxt.indexCheckMat
-import vecxt.rangeExtender._
-import vecxt.sameDimMatCheck
 
-import scala.reflect.ClassTag
+import narr.*
 
 object matrix:
 

@@ -15,15 +15,14 @@
  */
 package vecxt
 
-import dev.ludovic.netlib.blas.JavaBLAS.{getInstance => blas}
-import jdk.incubator.vector.ByteVector
-import jdk.incubator.vector.DoubleVector
-import jdk.incubator.vector.VectorMask
-import jdk.incubator.vector.VectorOperators
-import jdk.incubator.vector.VectorSpecies
+import scala.util.chaining.*
+
 import vecxt.BoundsCheck.BoundsCheck
 
-import scala.util.chaining._
+import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
+import jdk.incubator.vector.ByteVector
+import jdk.incubator.vector.DoubleVector
+import jdk.incubator.vector.VectorOperators
 
 object arrays:
 

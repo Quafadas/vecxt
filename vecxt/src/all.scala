@@ -1,22 +1,24 @@
-package vecxt.all
+package vecxt
 
-// arrays
-export vecxt.arrayUtil.*
-export vecxt.arrays.*
-export vecxt.DoubleArrays.*
-export vecxt.JsNativeDoubleArrays.*
+object all:
+  // arrays
+  export vecxt.arrayUtil.*
+  export vecxt.arrays.*
+  export vecxt.DoubleArrays.*
+  export vecxt.JsNativeDoubleArrays.*
 
-// matricies
+  // matricies
 
-export vecxt.matrix.*
-export vecxt.matrixUtil.*
-export vecxt.MatrixHelper.*
-export vecxt.MatrixInstance.*
-export vecxt.JvmDoubleMatrix.*
-export vecxt.JsDoubleMatrix.*
-export vecxt.NativeDoubleMatrix.*
-export vecxt.DoubleMatrix.*
-export vecxt.JvmNativeDoubleMatrix.*
+  export vecxt.matrix.*
+  export vecxt.matrixUtil.*
+  export vecxt.MatrixHelper.*
+  export vecxt.MatrixInstance.*
+  export vecxt.JvmDoubleMatrix.*
+  export vecxt.JsDoubleMatrix.*
+  export vecxt.NativeDoubleMatrix.*
+  export vecxt.DoubleMatrix.*
+  export vecxt.JvmNativeDoubleMatrix.*
 
-// Random
-export vecxt.cosineSimilarity
+  // Random
+  export vecxt.cosineSimilarity
+end all

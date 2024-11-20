@@ -15,12 +15,10 @@
  */
 
 package vecxt
-
-import narr._
-import vecxt.BoundsCheck.BoundsCheck
-
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
+
+import vecxt.BoundsCheck.BoundsCheck
 
 protected[vecxt] object dimCheckLen:
   inline def apply(a: Float64Array, b: Int)(using inline doCheck: BoundsCheck) =

@@ -17,7 +17,7 @@
 package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.matrix._
+import vecxt.matrix.*
 
 protected[vecxt] object dimCheckLen:
   inline def apply[A](a: Array[A], b: Int)(using inline doCheck: BoundsCheck) =

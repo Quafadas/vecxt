@@ -1,15 +1,13 @@
 package vecxt
 
-import dev.ludovic.netlib.blas.JavaBLAS.{getInstance => blas}
-import narr._
-import vecxt.BoundsCheck.BoundsCheck
-import vecxt.DoubleArrays._
-import vecxt.MatrixInstance._
-import vecxt.arrays._
-
 import scala.reflect.ClassTag
 
-import matrix._
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.DoubleArrays.*
+import vecxt.MatrixInstance.*
+import vecxt.matrix.*
+
+import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 
 object JvmDoubleMatrix:
   extension (m: Matrix[Double])

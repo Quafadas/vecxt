@@ -15,12 +15,13 @@
  */
 package vecxt
 
-import narr._
-import vecxt.BoundsCheck.BoundsCheck
-
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
-import scala.util.chaining._
+import scala.util.chaining.*
+
+import vecxt.BoundsCheck.BoundsCheck
+
+import narr.*
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")

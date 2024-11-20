@@ -1,9 +1,6 @@
 package vecxt.reinsurance
-
-import vecxt.arrays._
-import vecxt.reinsurance.Limits._
-import vecxt.reinsurance.Retentions._
-import vecxt.reinsurance._
+import vecxt.reinsurance.Limits.*
+import vecxt.reinsurance.Retentions.*
 
 /*
 

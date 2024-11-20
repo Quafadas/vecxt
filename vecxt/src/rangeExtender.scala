@@ -1,6 +1,6 @@
 package vecxt.rangeExtender
 
-import narr._
+import narr.*
 
 export MatrixRange.*
 

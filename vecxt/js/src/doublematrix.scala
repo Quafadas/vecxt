@@ -1,16 +1,13 @@
 package vecxt
 
-import narr._
-import vecxt.BoundsCheck.BoundsCheck
-import vecxt.MatrixHelper._
-import vecxt.MatrixInstance._
-import vecxt.arrays._
-import vecxt.rangeExtender.MatrixRange.RangeExtender
-import vecxt.rangeExtender.MatrixRange.range
-
 import scala.scalajs.js.typedarray.Float64Array
 
-import matrix._
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixInstance.*
+import vecxt.arrays.*
+import vecxt.matrix.*
+
+import narr.*
 
 object JsDoubleMatrix:
 

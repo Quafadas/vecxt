@@ -1,11 +1,8 @@
 package vecxt.reinsurance
-
-import vecxt.arrays._
-
 import scala.scalajs.js.typedarray.Float64Array
 
-import Limits.Limit
-import Retentions.Retention
+import vecxt.reinsurance.Limits.Limit
+import vecxt.reinsurance.Retentions.Retention
 
 /*
 

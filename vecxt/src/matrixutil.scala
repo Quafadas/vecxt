@@ -1,15 +1,13 @@
 package vecxt
 
-import narr._
-import vecxt.BoundsCheck
-import vecxt.BoundsCheck.BoundsCheck
-import vecxt.MatrixInstance._
-import vecxt.arrayUtil.printArr
-import vecxt.arrays.multInPlace
-import vecxt.matrix._
-import vecxt.matrix._
-
 import scala.reflect.ClassTag
+
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixInstance.*
+import vecxt.arrayUtil.printArr
+import vecxt.matrix.*
+
+import narr.*
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
 

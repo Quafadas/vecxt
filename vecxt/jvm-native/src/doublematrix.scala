@@ -1,14 +1,7 @@
 package vecxt
-
-import narr._
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.DoubleArrays._
-import vecxt.MatrixInstance._
-import vecxt.arrays._
-
-import scala.reflect.ClassTag
-
-import matrix._
+import vecxt.arrays.*
+import vecxt.matrix.*
 
 object JvmNativeDoubleMatrix:
   extension (m: Matrix[Double])
