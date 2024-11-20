@@ -27,3 +27,11 @@ inline def assertVecEquals(v1: NArray[Double], v2: NArray[Double])(implicit loc:
     i += 1
   end while
 end assertVecEquals
+
+inline def assertVecEquals[A](v1: NArray[A], v2: NArray[A])(implicit loc: munit.Location): Unit =
+  var i: Int = 0;
+  while i < v1.length do
+    munit.Assertions.assertEquals(v1(i), v2(i))
+    i += 1
+  end while
+end assertVecEquals

@@ -3,6 +3,7 @@ package vecxtensions
 import scalatags.Text.all.* // Imports commonly used ScalaTags elements like `Tag`, `attrs`, etc.
 import scalatags.Text.tags
 import vecxt.all.*
+import narr.*
 
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.tags.*
@@ -11,7 +12,7 @@ import vecxt.BoundsCheck.DoBoundsCheck.no
 
 object MathTagsLaminar:
 
-  extension (m: Matrix)
+  extension (m: Matrix[Double])
     def printMl =
       mfenced(
         mtable(

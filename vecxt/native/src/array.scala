@@ -237,33 +237,6 @@ object arrays:
       vec.clone.tap(_ *= d)
     end *
 
-    inline def <(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a < b, num)
-
-    inline def <=(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a <= b, num)
-
-    inline def >(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a > b, num)
-
-    inline def >=(num: Double): Array[Boolean] =
-      logicalIdx((a, b) => a >= b, num)
-
-    inline def logicalIdx(
-        inline op: (Double, Double) => Boolean,
-        inline num: Double
-    ): Array[Boolean] =
-      val n = vec.length
-      val idx = new Array[Boolean](n)
-      var i = 0
-      while i < n do
-        if op(vec(i), num) then idx(i) = true
-        end if
-        i = i + 1
-      end while
-      idx
-    end logicalIdx
-
     def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean
       val μThat = thatVector.mean

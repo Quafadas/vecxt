@@ -1,0 +1,1 @@
+It can be confusing, why certain methods are placed in certain objects. It boils down to constraints and keeping the compiler happy.
