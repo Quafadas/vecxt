@@ -4,7 +4,7 @@ import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import $ivy.`io.github.quafadas:millSite_mill0.12_2.13:0.0.36`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import $ivy.`com.lihaoyi::mill-contrib-jmh:`
-
+import $ivy.`com.goyeau::mill-scalafix::0.4.2`
 
 import de.tobiasroeser.mill.vcs.version._
 import com.github.lolgab.mill.crossplatform._
@@ -16,8 +16,9 @@ import mill.scalanativelib._
 import contrib.jmh.JmhModule
 import mill.util.Jvm
 import mill.api.Result
+import com.goyeau.mill.scalafix.ScalafixModule
 
-trait Common extends ScalaModule  with PublishModule {
+trait Common extends ScalaModule  with PublishModule with ScalafixModule {
   def scalaVersion = "3.6.1"
 
   def publishVersion = VcsVersion.vcsState().format()
