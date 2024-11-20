@@ -1,8 +1,9 @@
 package vecxt.reinsurance
 
+import vecxt.arrays
+
 import Limits.Limit
 import Retentions.Retention
-import vecxt.arrays
 
 /*
 

@@ -1,14 +1,15 @@
 package vecxt
 
-import narr.*
-import vecxt.arrays.*
-import vecxt.matrix.*
-import vecxt.BoundsCheck.BoundsCheck
+import narr._
 import org.ekrich.blas.unsafe.blas
 import org.ekrich.blas.unsafe.blasEnums
-import scala.scalanative.unsafe.*
-import vecxt.matrixUtil.*
-import vecxt.MatrixInstance.*
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixInstance._
+import vecxt.arrays._
+import vecxt.matrix._
+import vecxt.matrixUtil._
+
+import scala.scalanative.unsafe._
 // import vecxt.rangeExtender.MatrixRange.range
 
 object NativeDoubleMatrix:

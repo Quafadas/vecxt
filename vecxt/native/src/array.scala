@@ -15,14 +15,15 @@
  */
 package vecxt
 
-import org.ekrich.blas.unsafe.*
-import scala.scalanative.unsafe.*
-import scala.util.chaining.*
-import vecxt.dimCheck
+import org.ekrich.blas._
+import org.ekrich.blas.unsafe._
 import vecxt.BoundsCheck
-import vecxt.matrix.*
-import org.ekrich.blas.*
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.dimCheck
+import vecxt.matrix._
+
+import scala.scalanative.unsafe._
+import scala.util.chaining._
 
 object arrays:
 

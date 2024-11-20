@@ -1,6 +1,6 @@
 package vecxt.reinsurance
 
-import narr.*
+import narr._
 // import narr.native.Extensions.sort
 
 extension [N <: Int](thisVector: NArray[Double])

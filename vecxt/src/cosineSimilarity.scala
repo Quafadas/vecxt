@@ -1,9 +1,9 @@
 package vecxt
 
-import vecxt.arrays.norm
-import vecxt.arrays.dot
 import narr.NArray
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.arrays.dot
+import vecxt.arrays.norm
 
 /** Compute the cosine similarity between two vectors
   *

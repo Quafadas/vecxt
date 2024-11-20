@@ -1,16 +1,17 @@
 package vecxt
 
-import narr.*
-import matrix.*
-import vecxt.MatrixHelper.*
-import vecxt.MatrixInstance.*
+import narr._
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.arrays.*
-import vecxt.rangeExtender.MatrixRange.range
+import vecxt.JsDoubleMatrix._
+import vecxt.JvmDoubleMatrix._
+import vecxt.MatrixHelper._
+import vecxt.MatrixInstance._
+import vecxt.NativeDoubleMatrix._
+import vecxt.arrays._
 import vecxt.rangeExtender.MatrixRange.RangeExtender
-import vecxt.JvmDoubleMatrix.*
-import vecxt.JsDoubleMatrix.*
-import vecxt.NativeDoubleMatrix.*
+import vecxt.rangeExtender.MatrixRange.range
+
+import matrix._
 
 object DoubleMatrix:
 

@@ -1,6 +1,6 @@
 package vecxt
 
-import narr.*
+import narr._
 import vecxt.matrix.Matrix
 
 // These use project panama (SIMD) on the JVM, so need own JS native implementation

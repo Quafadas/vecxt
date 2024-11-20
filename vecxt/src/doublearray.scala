@@ -1,8 +1,9 @@
 package vecxt
 
-import narr.*
-import arrays.*
-import vecxt.JsNativeDoubleArrays.*
+import narr._
+import vecxt.JsNativeDoubleArrays._
+
+import arrays._
 
 object DoubleArrays:
   extension (vec: NArray[Double])

@@ -1,13 +1,15 @@
 package vecxt
 
-import matrix.*
-import narr.*
+import narr._
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.rangeExtender.*
-import vecxt.arrays.*
-import scala.reflect.ClassTag
+import vecxt.arrays._
+import vecxt.rangeExtender._
+
 import scala.annotation.targetName
-import scala.compiletime.*
+import scala.compiletime._
+import scala.reflect.ClassTag
+
+import matrix._
 
 object MatrixInstance:
   extension [A](m: Matrix[A])
