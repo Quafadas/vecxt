@@ -47,8 +47,8 @@ class DgemmBenchmark extends BLASBenchmark:
   var c, cclone: Array[Double] = uninitialized
   var ldc: Int = uninitialized
 
-  var matA: Matrix = uninitialized
-  var matB: Matrix = uninitialized
+  var matA: Matrix[Double] = uninitialized
+  var matB: Matrix[Double] = uninitialized
 
   // format: off
   @Setup(Level.Trial)
