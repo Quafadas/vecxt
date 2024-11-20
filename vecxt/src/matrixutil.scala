@@ -43,8 +43,11 @@ object matrixUtil:
       val arrArr =
         for i <- 0 until m.rows
         yield
-        // println(m.row(i).printArr)
-        m.row(i).asInstanceOf[Array[Double]].printArr
+          val aRow = m.row(i)
+          val els =
+            for (el <- aRow)
+              yield el.toString
+          els.mkString(" ")
       end arrArr
       arrArr.mkString("\n")
     end printMat
