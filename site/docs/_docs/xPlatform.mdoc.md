@@ -60,7 +60,7 @@ import vecxtensions.MathTagsLaminar.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 val base = NArray[Double](11, 12, 13, 14, 15)
-val mat1 = Matrix.fromRows(
+val mat1 = Matrix.fromRows[Double](
     NArray(
         base,
         base +:+ 10.0,
