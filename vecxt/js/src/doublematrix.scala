@@ -10,7 +10,7 @@ import vecxt.arrays.*
 import vecxt.rangeExtender.MatrixRange.range
 import vecxt.rangeExtender.MatrixRange.RangeExtender
 
-object DoubleMatrix:
+object JsDoubleMatrix:
 
   extension (m: Matrix[Double])
 
@@ -48,4 +48,16 @@ object DoubleMatrix:
       Matrix[Double](newArr, (m.rows, b.cols))
     end matmul
   end extension
-end DoubleMatrix
+end JsDoubleMatrix
+
+object JvmDoubleMatrix:
+
+end JvmDoubleMatrix
+
+object NativeDoubleMatrix:
+
+end NativeDoubleMatrix
+
+object JvmNativeDoubleMatrix:
+
+end JvmNativeDoubleMatrix

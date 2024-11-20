@@ -11,7 +11,7 @@ import vecxt.BoundsCheck.DoBoundsCheck.no
 
 object MathTagsLaminar:
 
-  extension (m: Matrix)
+  extension [A](m: Matrix[A])
     def printMl =
       mfenced(
         mtable(

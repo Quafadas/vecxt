@@ -281,34 +281,6 @@ object arrays:
       vec.nativeSlice().tap(_ /= d)
     end /
 
-    inline def <(num: Double): js.Array[Boolean] =
-      logicalIdx((a, b) => a < b, num)
-
-    inline def <=(num: Double): js.Array[Boolean] =
-      logicalIdx((a, b) => a <= b, num)
-
-    inline def >(num: Double): js.Array[Boolean] =
-      logicalIdx((a, b) => a > b, num)
-
-    inline def >=(num: Double): js.Array[Boolean] =
-      logicalIdx((a, b) => a >= b, num)
-
-    inline def logicalIdx(
-        inline op: (Double, Double) => Boolean,
-        inline num: Double
-    ): js.Array[Boolean] =
-      val n = vec.length
-      val idx = new js.Array[Boolean](n).tap(_.fill(false))
-
-      var i = 0
-      while i < n do
-        if op(vec(i), num) then idx(i) = true
-        end if
-        i = i + 1
-      end while
-      idx
-    end logicalIdx
-
     def covariance(thatVector: Float64Array): Double =
       val μThis = vec.mean
       val μThat = thatVector.mean

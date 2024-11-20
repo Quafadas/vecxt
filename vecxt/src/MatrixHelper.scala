@@ -5,17 +5,10 @@ import narr.*
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.arrays.*
 import scala.reflect.ClassTag
-import scala.annotation.targetName
 import scala.compiletime.*
 
 object MatrixHelper:
   extension (m: Matrix.type)
-
-    inline def zeros[@specialized(Double, Boolean, Int) A: ClassTag](dim: RowCol): Matrix[A] =
-      val (rows, cols) = dim
-      val newArr = NArray.ofSize[A](rows * cols)
-      Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
-    end zeros
 
     inline def fromRows[A](
         a: NArray[NArray[A]]
@@ -81,35 +74,62 @@ object MatrixHelper:
       end match
     end one
 
-    transparent inline def eye[A: ClassTag](dim: Int): Matrix[A] =
+    inline def eye[A: ClassTag](dim: Int): Matrix[A] =
       inline erasedValue[A] match
-        case _: Int     => eyeOf(one[A], dim)
-        case _: Double  => eyeOf(one[A], dim)
-        case _: Boolean => eyeOf(one[A], dim)
+        case _: Int     => eyeOf(one[A], dim)(zero[A])
+        case _: Double  => eyeOf(one[A], dim)(zero[A])
+        case _: Boolean => eyeOf(one[A], dim)(zero[A])
         case _          => error("Unsupported eye type")
 
-    transparent inline def ones[A: ClassTag](dim: RowCol): Matrix[A] =
+    inline def ones[A: ClassTag](dim: RowCol): Matrix[A] =
       inline erasedValue[A] match
         case _: Int     => fill(one[A], dim)
         case _: Double  => fill(one[A], dim)
         case _: Boolean => fill(one[A], dim)
         case _          => error("Unsupported type for ones")
 
-    transparent inline def fill[A](singleton: A, dim: RowCol)(using ClassTag[A]): Matrix[A] =
+    inline def fill[A](singleton: A, dim: RowCol)(using ClassTag[A]): Matrix[A] =
       val (rows, cols) = dim
       val newArr = NArray.fill[A](rows * cols)(singleton)
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end fill
 
-    transparent inline def eyeOf[A: ClassTag](singleton: A, dim: Int) =
-      val newArr = NArray.ofSize[A](dim * dim)
+    inline def eyeOf[A: ClassTag](singleton: A, dim: Int)(zero: A): Matrix[A] =
+      val size = dim * dim
+      val newArr: NArray[A] = NArray.ofSize[A](size)
+      var j = 0
+      while j < size do
+        newArr(j) = zero
+        j += 1
+      end while
+
       var i = 0
       while i < dim do
         newArr(i * dim + i) = singleton
         i += 1
       end while
-      Matrix(newArr, (dim, dim))(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[A](newArr, (dim, dim))(using BoundsCheck.DoBoundsCheck.no)
     end eyeOf
+
+    inline def zeros[A: ClassTag](dim: RowCol): Matrix[A] =
+      inline erasedValue[A] match
+        case _: Int     => fill(zero[A], dim)
+        case _: Double  => fill(zero[A], dim)
+        case _: Boolean => fill(zero[A], dim)
+        case _          => error("Unsupported type for ones")
+
+    inline def zerosOf[A: ClassTag](zero: A, dim: RowCol): Matrix[A] =
+      val (rows, cols) = dim
+      val size = rows * cols
+      val newArr = NArray.ofSize[A](size)
+      var j = 0
+      while j < size do
+        newArr(j) = zero
+        j += 1
+      end while
+      Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
+    end zerosOf
+
   end extension
 
 end MatrixHelper

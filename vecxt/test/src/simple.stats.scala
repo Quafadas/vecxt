@@ -17,7 +17,7 @@
 package vecxt
 
 import narr.*
-import vecxt.arrays.*
+import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck
 
 class StatsSuite extends munit.FunSuite:

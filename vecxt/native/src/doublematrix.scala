@@ -1,13 +1,44 @@
-// package vecxt
+package vecxt
 
-// import narr.*
-// import vecxt.arrays.*
-// import vecxt.BoundsCheck.BoundsCheck
-// import org.ekrich.blas.unsafe.blas
-// import org.ekrich.blas.unsafe.blasEnums
-// import scala.scalanative.unsafe.*
-// import vecxt.matrixUtil.*
+import narr.*
+import vecxt.arrays.*
+import vecxt.matrix.*
+import vecxt.BoundsCheck.BoundsCheck
+import org.ekrich.blas.unsafe.blas
+import org.ekrich.blas.unsafe.blasEnums
+import scala.scalanative.unsafe.*
+import vecxt.matrixUtil.*
+import vecxt.MatrixInstance.*
 // import vecxt.rangeExtender.MatrixRange.range
+
+object NativeDoubleMatrix:
+  extension (m: Matrix[Double])
+    inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      dimMatCheck(m, b)
+      val newArr = Array.ofDim[Double](m.rows * b.cols)
+      // Note, might need to deal with transpose later.
+      blas.cblas_dgemm(
+        blasEnums.CblasColMajor,
+        blasEnums.CblasNoTrans,
+        blasEnums.CblasNoTrans,
+        m.rows,
+        b.cols,
+        m.cols,
+        1.0,
+        m.raw.at(0),
+        m.rows,
+        b.raw.at(0),
+        b.rows,
+        1.0,
+        newArr.at(0),
+        m.rows
+      )
+      Matrix(newArr, (m.rows, b.cols))
+end NativeDoubleMatrix
+
+object JvmDoubleMatrix:
+
+end JvmDoubleMatrix
 
 // object matrix:
 //   /** This is a matrix

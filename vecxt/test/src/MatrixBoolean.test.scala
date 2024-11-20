@@ -4,9 +4,6 @@ import munit.FunSuite
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import vecxt.all.*
-import vecxt.MatrixHelper.*
-import vecxt.MatrixInstance.*
-import vecxt.DoubleMatrix.*
 
 class MatrixBooleanSuite extends FunSuite:
 
@@ -58,16 +55,16 @@ class MatrixBooleanSuite extends FunSuite:
     )
 
     val lt = mat < 2.0
-    assertVecEquals(NArray(true, false, false, false), lt.raw)
+    assertVecEquals[Boolean](NArray[Boolean](true, false, false, false), lt.raw)
 
     val gt = mat > 2.0
-    assertVecEquals(NArray(false, true, false, true), gt.raw)
+    assertVecEquals[Boolean](NArray[Boolean](false, true, false, true), gt.raw)
 
     val gte = mat >= 2.0
-    assertVecEquals(NArray(false, true, true, true), gte.raw)
+    assertVecEquals[Boolean](NArray[Boolean](false, true, true, true), gte.raw)
 
     val lte = mat <= 2.0
-    assertVecEquals(NArray(true, false, true, false), lte.raw)
+    assertVecEquals[Boolean](NArray[Boolean](true, false, true, false), lte.raw)
 
   }
 

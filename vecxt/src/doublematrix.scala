@@ -8,9 +8,12 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.arrays.*
 import vecxt.rangeExtender.MatrixRange.range
 import vecxt.rangeExtender.MatrixRange.RangeExtender
-import vecxt.DoubleMatrix.matmul
+import vecxt.JvmDoubleMatrix.*
+import vecxt.JsDoubleMatrix.*
+import vecxt.NativeDoubleMatrix.*
 
-object CommonDoubleMatrix:
+object DoubleMatrix:
+
   extension (m: Matrix[Double])
 
     inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
@@ -30,4 +33,4 @@ object CommonDoubleMatrix:
     //   Matrix(m.raw.lt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
   end extension
-end CommonDoubleMatrix
+end DoubleMatrix
