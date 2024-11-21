@@ -92,7 +92,7 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Publish to Maven Central
-        run: ./millw -i mill.scalalib.PublishModule/publishAll __.publishArtifacts --sonatypeUri https://s01.oss.sonatype.org/service/local --sonatypeCreds "${{ secrets.SONATYPE_USERNAME }}:${{ secrets.SONATYPE_PASSWORD }}" --gpgArgs "--passphrase=${{ secrets.PGP_PASSPHRASE}},--batch,--yes,-a,-b,--pinentry-mode,loopback" --readTimeout 1200000 --awaitTimeout 1200000 --release true --signed true
+        run: ./millw -i mill.scalalib.PublishModule/publishAll --sonatypeUri https://s01.oss.sonatype.org/service/local --sonatypeCreds "${{ secrets.SONATYPE_USERNAME }}:${{ secrets.SONATYPE_PASSWORD }}" --gpgArgs "--passphrase=${{ secrets.PGP_PASSPHRASE}},--batch,--yes,-a,-b,--pinentry-mode,loopback" --readTimeout 1200000 --awaitTimeout 1200000 --release true --signed true
 
   site:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
