@@ -213,6 +213,18 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals(row2, NArray[Double](2.0, 4.0))
   }
 
+  test("update") {
+    val mat = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0), (2, 2))
+    mat((0, 0)) = 5.0
+    assertEquals(mat.raw(0), 5.0)
+
+    mat((1, 1)) = 6.0
+    assertEquals(mat.raw(3), 6.0)
+
+    mat((1, 0)) = 7.0
+    assertEquals(mat.raw(1), 7.0)
+  }
+
   test("Matrix column extraction") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Matrix[Double](array, (2, 2))

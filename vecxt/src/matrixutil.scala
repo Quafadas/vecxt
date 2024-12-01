@@ -25,8 +25,8 @@ object matrixUtil:
       var idx = 0
 
       while idx < newMat.numel do
-        val positionNew = m.tupleFromIdx(idx)
-        newMat(positionNew) = m((positionNew._2, positionNew._1))
+        val (row, col) = m.tupleFromIdx(idx)
+        newMat((row, col)) = m((col, row))
 
         idx += 1
       end while

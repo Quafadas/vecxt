@@ -12,7 +12,7 @@ protected[vecxt] object dimMatCheck:
 end dimMatCheck
 
 protected[vecxt] object sameDimMatCheck:
-  inline def apply[A](a: Matrix[A], b: Matrix[A])(using inline doCheck: BoundsCheck) =
+  inline def apply[A, B](a: Matrix[A], b: Matrix[B])(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end sameDimMatCheck
