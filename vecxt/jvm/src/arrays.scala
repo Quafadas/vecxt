@@ -93,7 +93,26 @@ object arrays:
   end extension
 
   extension (vec: Array[Int])
-    inline def -(vec2: Array[Int]): Array[Int] =
+
+    inline def sum: Int =
+      var i: Int = 0
+      var acc = IntVector.zero(spi)
+
+      while i < spd.loopBound(vec.length) do
+        acc = acc.add(IntVector.fromArray(spi, vec, i))
+        i += spil
+      end while
+      var temp = acc.reduceLanes(VectorOperators.ADD)
+      // var temp = 0.0
+      while i < vec.length do
+        temp += vec(i)
+        i += 1
+      end while
+      temp
+    end sum
+
+    inline def -(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+      dimCheck(vec, vec2)
       val newVec = Array.ofDim[Int](vec.length)
       var i = 0
 
@@ -110,6 +129,7 @@ object arrays:
         i += 1
       end while
       newVec
+    end -
 
   end extension
 
