@@ -24,6 +24,7 @@ import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
+import scala.util.control.Breaks.*
 
 object arrays:
 
@@ -36,21 +37,38 @@ object arrays:
   final val spil = spi.length()
 
   extension (vec: Array[Boolean])
-    inline def countTrue: Int =
-      var sum = 0
+    inline def all: Boolean =
+      var acc = ByteVector.broadcast(spb, 1.toByte)
       var i = 0
       while i < spb.loopBound(vec.length) do
-        sum = sum + ByteVector.fromBooleanArray(spb, vec, i).reduceLanes(VectorOperators.ADD)
+        acc = acc.and(ByteVector.fromBooleanArray(spb, vec, i))
         i += spbl
       end while
 
+      var out = acc.reduceLanes(VectorOperators.AND) > 0
+
+      if out then
+        while i < vec.length do
+          if !vec(i) then out = false
+          end if
+          i += 1
+        end while
+
+      end if
+      out
+    end all
+
+    // TODO this may be sub-optimal - we want to move the accumulator out of the hot loop.
+    inline def trues: Int =
+      var i = 0
+      var sum = 0
       while i < vec.length do
         if vec(i) then sum += 1
         end if
         i += 1
       end while
       sum
-    end countTrue
+    end trues
 
     inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
       val result: Array[Boolean] = new Array[Boolean](vec.length)
@@ -93,6 +111,75 @@ object arrays:
   end extension
 
   extension (vec: Array[Int])
+    inline def =:=(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.EQ, num)
+
+    inline def !:=(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.NE, num)
+
+    inline def <(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.LT, num)
+
+    inline def <=(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.LE, num)
+
+    inline def >(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.GT, num)
+
+    inline def >=(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.GE, num)
+
+    inline def logicalIdx(
+        inline op: VectorOperators.Comparison,
+        num: Int
+    ): Array[Boolean] =
+      val idx = new Array[Boolean](vec.length)
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector.fromArray(spi, vec, i).compare(op, num).intoArray(idx, i)
+        i += spil
+      end while
+
+      inline op match
+        case VectorOperators.EQ =>
+          while i < vec.length do
+            idx(i) = vec(i) == num
+            i += 1
+          end while
+        case VectorOperators.NE =>
+          while i < vec.length do
+            idx(i) = vec(i) != num
+            i += 1
+          end while
+        case VectorOperators.LT =>
+          while i < vec.length do
+            idx(i) = vec(i) < num
+            i += 1
+          end while
+
+        case VectorOperators.LE =>
+          while i < vec.length do
+            idx(i) = vec(i) <= num
+            i += 1
+          end while
+
+        case VectorOperators.GT =>
+          while i < vec.length do
+            idx(i) = vec(i) > num
+            i += 1
+          end while
+
+        case VectorOperators.GE =>
+          while i < vec.length do
+            idx(i) = vec(i) >= num
+            i += 1
+          end while
+        case _ => ???
+      end match
+
+      idx
+    end logicalIdx
 
     inline def increments: Array[Int] =
       val out = new Array[Int](vec.length)
@@ -157,7 +244,7 @@ object arrays:
 
     inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
       dimCheck(vec, index)
-      val trues = index.countTrue
+      val trues = index.trues
       val newVec: Array[Double] = new Array[Double](trues)
       var j = 0
       for i <- 0 until index.length do

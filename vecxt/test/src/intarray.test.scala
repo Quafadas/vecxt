@@ -23,7 +23,7 @@ import vecxt.all.*
 class IntArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
 
-  lazy val v_fill = NArray[Double](0, 1, 2, 3, 4)
+  lazy val v_fill = NArray[Int](0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
   test("-") {
     val v1 = NArray.tabulate[Int](21)(i => i)
@@ -44,6 +44,11 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     v1.increments.foreach(d => assertEquals(d, 1))
     val v2 = NArray[Int](0, 2)
     assertVecEquals(v2.increments, v2)
+  }
+
+  test("<") {
+    val check = v_fill < 5
+    assertVecEquals(check, NArray(true, true, true, true, true, false, false, false, false, false))
   }
 
 end IntArrayExtensionSuite
