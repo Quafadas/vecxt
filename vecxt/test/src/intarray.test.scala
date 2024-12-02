@@ -44,6 +44,9 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     v1.increments.foreach(d => assertEquals(d, 1))
     val v2 = NArray[Int](0, 2)
     assertVecEquals(v2.increments, v2)
+
+    val v3 = NArray[Int](45, 47, 48, 51, 54, 56, 54)
+    assertVecEquals(v3.increments, NArray(45, 2, 1, 3, 3, 2, -2))
   }
 
   test("<") {
