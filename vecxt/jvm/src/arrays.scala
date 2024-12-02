@@ -23,14 +23,17 @@ import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
+import jdk.incubator.vector.IntVector
 
 object arrays:
 
+  final val spi = IntVector.SPECIES_PREFERRED
   final val spd = DoubleVector.SPECIES_PREFERRED
   final val spb = ByteVector.SPECIES_PREFERRED
 
   final val spdl = spd.length()
   final val spbl = spb.length()
+  final val spil = spi.length()
 
   extension (vec: Array[Boolean])
     inline def countTrue: Int =
@@ -87,6 +90,27 @@ object arrays:
       end while
       result
     end ||
+  end extension
+
+  extension (vec: Array[Int])
+    inline def -(vec2: Array[Int]): Array[Int] =
+      val newVec = Array.ofDim[Int](vec.length)
+      var i = 0
+
+      while i < spb.loopBound(vec.length) do
+        IntVector
+          .fromArray(spi, vec, i)
+          .sub(IntVector.fromArray(spi, vec2, i))
+          .intoArray(newVec, i)
+        i += spil
+      end while
+
+      while i < vec.length do
+        newVec(i) = vec(i) - vec2(i)
+        i += 1
+      end while
+      newVec
+
   end extension
 
   extension (vec: Array[Double])
