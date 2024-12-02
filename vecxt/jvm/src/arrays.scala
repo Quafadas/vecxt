@@ -94,11 +94,31 @@ object arrays:
 
   extension (vec: Array[Int])
 
+    inline def increments: Array[Int] =
+      val out = new Array[Int](vec.length)
+
+      var i = 1
+      while i < spd.loopBound(vec.length - 2) do
+        val v1 = IntVector.fromArray(spi, vec, i)
+        val v2 = IntVector.fromArray(spi, vec, i + 1)
+        v2.sub(v1).intoArray(out, i)
+        i += spil
+      end while
+
+      while i < vec.length do
+        out(i) = vec(i) - vec(i - 1)
+        i = i + 1
+      end while
+      out(0) = vec(0)
+      out
+
+    end increments
+
     inline def sum: Int =
       var i: Int = 0
       var acc = IntVector.zero(spi)
 
-      while i < spd.loopBound(vec.length) do
+      while i < spi.loopBound(vec.length) do
         acc = acc.add(IntVector.fromArray(spi, vec, i))
         i += spil
       end while
@@ -116,7 +136,7 @@ object arrays:
       val newVec = Array.ofDim[Int](vec.length)
       var i = 0
 
-      while i < spb.loopBound(vec.length) do
+      while i < spi.loopBound(vec.length) do
         IntVector
           .fromArray(spi, vec, i)
           .sub(IntVector.fromArray(spi, vec2, i))

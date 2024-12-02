@@ -1,11 +1,11 @@
 /*
  * Copyright 2023 quafadas
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,4 +31,19 @@ class IntArrayExtensionSuite extends munit.FunSuite:
 
     assertVecEquals((v1 - v2), NArray.fill[Int](v1.length)(-1))
   }
+
+  test("sum") {
+    val v1 = NArray.tabulate[Int](10)(i => i)
+
+    assertEquals(v1.sum, 45)
+  }
+
+  test("increments") {
+
+    val v1 = NArray[Int](1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    v1.increments.foreach(d => assertEquals(d, 1))
+    val v2 = NArray[Int](0, 2)
+    assertVecEquals(v2.increments, v2)
+  }
+
 end IntArrayExtensionSuite
