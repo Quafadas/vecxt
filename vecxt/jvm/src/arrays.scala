@@ -185,7 +185,7 @@ object arrays:
       val out = new Array[Int](vec.length)
 
       var i = 1
-      while i < spd.loopBound(vec.length - 2) do
+      while i < spi.loopBound(vec.length - 2) do
         val v1 = IntVector.fromArray(spi, vec, i)
         val v2 = IntVector.fromArray(spi, vec, i + 1)
         v2.sub(v1).intoArray(out, i)
