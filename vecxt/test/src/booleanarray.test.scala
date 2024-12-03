@@ -38,7 +38,7 @@ class BooleanArrayExtensionSuite extends munit.FunSuite:
 
   test("any") {
     val v1 = NArray[Boolean](false, false, false)
-    assert(v1.any)
+    assert(!v1.any)
 
     val v2 = NArray[Boolean](true, false, true)
     assert(v2.any)

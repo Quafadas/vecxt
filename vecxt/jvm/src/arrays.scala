@@ -59,7 +59,7 @@ object arrays:
     end all
 
     inline def any: Boolean =
-      var acc = ByteVector.broadcast(spb, 1.toByte)
+      var acc = ByteVector.zero(spb)
       var i = 0
       while i < spb.loopBound(vec.length) do
         acc = acc.or(ByteVector.fromBooleanArray(spb, vec, i))
@@ -68,7 +68,7 @@ object arrays:
 
       var out = acc.reduceLanes(VectorOperators.OR) > 0
 
-      if out then
+      if !out then
         while i < vec.length do
           if vec(i) then out = true
           end if
