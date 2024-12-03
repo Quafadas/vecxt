@@ -58,6 +58,27 @@ object arrays:
       out
     end all
 
+    inline def any: Boolean =
+      var acc = ByteVector.broadcast(spb, 1.toByte)
+      var i = 0
+      while i < spb.loopBound(vec.length) do
+        acc = acc.or(ByteVector.fromBooleanArray(spb, vec, i))
+        i += spbl
+      end while
+
+      var out = acc.reduceLanes(VectorOperators.OR) > 0
+
+      if out then
+        while i < vec.length do
+          if vec(i) then out = true
+          end if
+          i += 1
+        end while
+
+      end if
+      out
+    end any
+
     // TODO this may be sub-optimal - we want to move the accumulator out of the hot loop.
     inline def trues: Int =
       var i = 0
