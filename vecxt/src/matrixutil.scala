@@ -52,12 +52,16 @@ object matrixUtil:
     end diag
 
     inline def diag(col: Col, startFrom: Vertical, direction: Horizontal)(using ClassTag[A]): NArray[A] =
-      val minDim = Math.min(m.rows, m.cols - col)
+      val minDim = direction match
+        case Horizontal.Right => Math.min(m.rows, m.cols - col)
+        case Horizontal.Left  => Math.min(m.rows, col + 1)
+
       val newArr = NArray.ofSize[A](minDim)
       var i = 0
       while i < minDim do
-        val thisRow = if startFrom == Vertical.Top then 0 + i else m.rows - i - 1
+        val thisRow = if startFrom == Vertical.Top then i else m.rows - i - 1
         val colIdx = if direction == Horizontal.Left then col - i else col + i
+
         newArr(i) = m((thisRow, colIdx))(using vecxt.BoundsCheck.DoBoundsCheck.no)
         i += 1
       end while
@@ -65,12 +69,16 @@ object matrixUtil:
     end diag
 
     inline def diag(row: Row, startFrom: Horizontal, direction: Vertical)(using ClassTag[A]): NArray[A] =
-      val minDim = Math.min(m.rows - row, m.cols)
+      val minDim = direction match
+        case Vertical.Top    => Math.min(m.cols, row + 1)
+        case Vertical.Bottom => Math.min(m.rows - row, m.cols)
+
+      println(minDim)
       val newArr = NArray.ofSize[A](minDim)
       var i = 0
       while i < minDim do
-        val thisCol = if startFrom == Horizontal.Left then 0 + i else m.cols - i - 1
-        val rowIdx = if startFrom == Horizontal.Left then row - i else row + i
+        val thisCol = if startFrom == Horizontal.Right then m.cols - i - 1 else i
+        val rowIdx = if direction == Vertical.Bottom then i else row - i
         newArr(i) = m((rowIdx, thisCol))(using vecxt.BoundsCheck.DoBoundsCheck.no)
         i += 1
       end while
