@@ -10,6 +10,13 @@ import vecxt.matrix.*
 import narr.*
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
+  enum Vertical:
+    case Top, Bottom
+  end Vertical
+
+  enum Horizontal:
+    case Left, Right
+  end Horizontal
 
   extension [A](m: Matrix[A])
 
@@ -32,6 +39,43 @@ object matrixUtil:
       end while
       newMat
     end transpose
+
+    inline def diag(using ClassTag[A]): NArray[A] =
+      val minDim = Math.min(m.rows, m.cols)
+      val newArr = NArray.ofSize[A](minDim)
+      var i = 0
+      while i < minDim do
+        newArr(i) = m((i, i))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        i += 1
+      end while
+      newArr
+    end diag
+
+    inline def diag(col: Col, startFrom: Vertical, direction: Horizontal)(using ClassTag[A]): NArray[A] =
+      val minDim = Math.min(m.rows, m.cols - col)
+      val newArr = NArray.ofSize[A](minDim)
+      var i = 0
+      while i < minDim do
+        val thisRow = if startFrom == Vertical.Top then 0 + i else m.rows - i - 1
+        val colIdx = if direction == Horizontal.Left then col - i else col + i
+        newArr(i) = m((thisRow, colIdx))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        i += 1
+      end while
+      newArr
+    end diag
+
+    inline def diag(row: Row, startFrom: Horizontal, direction: Vertical)(using ClassTag[A]): NArray[A] =
+      val minDim = Math.min(m.rows - row, m.cols)
+      val newArr = NArray.ofSize[A](minDim)
+      var i = 0
+      while i < minDim do
+        val thisCol = if startFrom == Horizontal.Left then 0 + i else m.cols - i - 1
+        val rowIdx = if startFrom == Horizontal.Left then row - i else row + i
+        newArr(i) = m((rowIdx, thisCol))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        i += 1
+      end while
+      newArr
+    end diag
 
     inline def row(i: Int)(using ClassTag[A]): NArray[A] =
       // println(s"row $i")
