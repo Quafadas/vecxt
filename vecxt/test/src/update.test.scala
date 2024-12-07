@@ -73,11 +73,11 @@ class UpdateSuite extends munit.FunSuite:
     val vec = NArray[Double](1.0, 2.0, 3.0, 4.0)
     intercept[java.lang.IndexOutOfBoundsException] {
       vec(5) = 3.5
-      println(vec.mkString(","))
+      // println(vec.mkString(","))
     }
     intercept[java.lang.IndexOutOfBoundsException] {
       vec(-1) = 3.5
-      println(vec.mkString(","))
+      // println(vec.mkString(","))
     }
   }
 

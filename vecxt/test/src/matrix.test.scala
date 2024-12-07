@@ -56,7 +56,7 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
-  test("diagonal".only) {
+  test("diagonal") {
     val orig = Matrix.fromRows[Double](
       NArray(
         NArray(2.0, 0.0, -1.0),
@@ -88,7 +88,6 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals(diag7, NArray[Double](5.0, 3.0, 2.0))
 
     val diag8 = orig.diag(1: Row, Horizontal.Right, Vertical.Top)
-    println(diag8.printArr)
     assertVecEquals(diag8, NArray[Double](4.0, 0.0))
   }
 
@@ -105,7 +104,6 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals(diag, NArray[Double](2.0, 3.0))
 
     val diag5 = orig.diag(1: Row, Horizontal.Left, Vertical.Top)
-    println(diag5.printArr)
     assertVecEquals(diag5, NArray[Double](1.0, 0.0))
   }
 

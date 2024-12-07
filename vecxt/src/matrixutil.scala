@@ -72,8 +72,6 @@ object matrixUtil:
       val minDim = direction match
         case Vertical.Top    => Math.min(m.cols, row + 1)
         case Vertical.Bottom => Math.min(m.rows - row, m.cols)
-
-      println(minDim)
       val newArr = NArray.ofSize[A](minDim)
       var i = 0
       while i < minDim do

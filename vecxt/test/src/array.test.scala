@@ -173,6 +173,9 @@ class ArrayExtensionSuite extends munit.FunSuite:
   test("countTrue") {
     val arrLong = NArray.fill(100)(true)
     assertEquals(arrLong.trues, 100)
+
+    arrLong(50) = false
+    assertEquals(arrLong.trues, 99)
   }
 
   test("<= big") {
