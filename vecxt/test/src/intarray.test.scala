@@ -48,9 +48,19 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assertVecEquals(v3.increments, NArray(45, 2, 1, 3, 3, 2, -2))
   }
 
-  test("<") {
+  test("logical comparisons") {
     val check = v_fill < 5
     assertVecEquals(check, NArray(true, true, true, true, true, false, false, false, false, false))
+
+    val checkGt = v_fill > 5
+    assertVecEquals(checkGt, NArray(false, false, false, false, false, false, true, true, true, true))
+
+    val checkGte = v_fill >= 5
+    assertVecEquals(checkGte, NArray(false, false, false, false, false, true, true, true, true, true))
+
+    val checkLte = v_fill <= 5
+    assertVecEquals(checkLte, NArray(true, true, true, true, true, true, false, false, false, false))
+
   }
 
 end IntArrayExtensionSuite

@@ -36,6 +36,7 @@ object arrays:
   final val spil = spi.length()
 
   extension (vec: Array[Boolean])
+    // Inefficient as it doesn't break if a false is found.
     inline def all: Boolean =
       var acc = ByteVector.broadcast(spb, 1.toByte)
       var i = 0
