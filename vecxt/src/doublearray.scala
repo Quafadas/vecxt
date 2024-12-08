@@ -1,7 +1,6 @@
 package vecxt
 
 import narr.*
-
 import vecxt.JsNativeDoubleArrays.*
 
 import arrays.*

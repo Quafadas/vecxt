@@ -6,7 +6,6 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.DoubleArrays.*
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
-import vecxt.arrays.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 
@@ -40,7 +39,7 @@ object JvmDoubleMatrix:
     // inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
     inline def >=(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](m.raw gte d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Boolean](m.raw.gte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def >(d: Double): Matrix[Boolean] =
       Matrix[Boolean](m.raw.gt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
