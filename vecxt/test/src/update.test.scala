@@ -30,6 +30,42 @@ class UpdateSuite extends munit.FunSuite:
     assertEquals(vec(2), 3.5)
   }
 
+  test("matrix update with function") {
+    val mat = Matrix.fromRows(
+      NArray(
+        NArray(1.0, 2.0),
+        NArray(3.0, 4.0)
+      )
+    )
+    mat(_ > 2.0) = 5.0
+    assertEqualsDouble(mat(0, 0), 1.0, 0.0000001)
+    assertEqualsDouble(mat(0, 1), 2.0, 0.0000001)
+    assertEqualsDouble(mat(1, 0), 5.0, 0.0000001)
+    assertEqualsDouble(mat(1, 1), 5.0, 0.0000001)
+  }
+
+  test("matrix update from boolean matrix") {
+    val mat = Matrix.fromRows[Double](
+      NArray(
+        NArray(1.0, 2.0),
+        NArray(3.0, 4.0)
+      )
+    )
+    val boolMat: Matrix[Boolean] = Matrix.fromRows[Boolean](
+      NArray(
+        NArray(true, false),
+        NArray(false, true)
+      )
+    )
+
+    mat(boolMat) = 5.0
+
+    assertEqualsDouble(mat(0, 0), 5.0, 0.0000001)
+    assertEqualsDouble(mat(0, 1), 2.0, 0.0000001)
+    assertEqualsDouble(mat(1, 0), 3.0, 0.0000001)
+    assertEqualsDouble(mat(1, 1), 5.0, 0.0000001)
+  }
+
   // TODO
   // This fails on JS. I don't think it should - but it's also a very painful difference in the way JS arrays react to i
   // index out of bounds problems. I don't know how to overload it meaninfully.
@@ -37,11 +73,11 @@ class UpdateSuite extends munit.FunSuite:
     val vec = NArray[Double](1.0, 2.0, 3.0, 4.0)
     intercept[java.lang.IndexOutOfBoundsException] {
       vec(5) = 3.5
-      println(vec.mkString(","))
+      // println(vec.mkString(","))
     }
     intercept[java.lang.IndexOutOfBoundsException] {
       vec(-1) = 3.5
-      println(vec.mkString(","))
+      // println(vec.mkString(","))
     }
   }
 

@@ -6,6 +6,7 @@ object all:
   export vecxt.arrays.*
   export vecxt.DoubleArrays.*
   export vecxt.JsNativeDoubleArrays.*
+  export vecxt.JsNativeBooleanArrays.*
 
   // matricies
 

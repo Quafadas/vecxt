@@ -19,7 +19,7 @@ import mill.api.Result
 import com.goyeau.mill.scalafix.ScalafixModule
 
 trait Common extends ScalaModule  with PublishModule with ScalafixModule {
-  def scalaVersion = "3.6.1"
+  def scalaVersion = "3.5.2"
 
   def publishVersion = VcsVersion.vcsState().format()
 

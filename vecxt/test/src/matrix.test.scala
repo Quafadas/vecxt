@@ -56,6 +56,57 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
+  test("diagonal") {
+    val orig = Matrix.fromRows[Double](
+      NArray(
+        NArray(2.0, 0.0, -1.0),
+        NArray(1.0, 3.0, 4.0),
+        NArray(0.0, 9.0, 5.0)
+      )
+    )
+
+    val diag = orig.diag
+    assertVecEquals(diag, NArray[Double](2.0, 3.0, 5.0))
+
+    val diag2 = orig.diag(1: Col, Vertical.Top, Horizontal.Right)
+    assertVecEquals(diag2, NArray[Double](0.0, 4.0))
+
+    val diag3 = orig.diag(1: Col, Vertical.Top, Horizontal.Left)
+
+    assertVecEquals(diag3, NArray[Double](0.0, 1.0))
+
+    val diag4 = orig.diag(1: Col, Vertical.Bottom, Horizontal.Left)
+    assertVecEquals(diag4, NArray[Double](9.0, 1.0))
+
+    val diag5 = orig.diag(1: Row, Horizontal.Left, Vertical.Top)
+    assertVecEquals(diag5, NArray[Double](1.0, 0.0))
+
+    val diag6 = orig.diag(orig.cols - 1, Vertical.Top, Horizontal.Left)
+    assertVecEquals(diag6, NArray[Double](-1.0, 3.0, 0.0))
+
+    val diag7 = orig.diag(orig.cols - 1, Vertical.Bottom, Horizontal.Left)
+    assertVecEquals(diag7, NArray[Double](5.0, 3.0, 2.0))
+
+    val diag8 = orig.diag(1: Row, Horizontal.Right, Vertical.Top)
+    assertVecEquals(diag8, NArray[Double](4.0, 0.0))
+  }
+
+  test("diagonal irregular") {
+    val orig = Matrix.fromRows[Double](
+      NArray(
+        NArray(2.0, 0.0),
+        NArray(1.0, 3.0),
+        NArray(0.0, 9.0)
+      )
+    )
+
+    val diag = orig.diag
+    assertVecEquals(diag, NArray[Double](2.0, 3.0))
+
+    val diag5 = orig.diag(1: Row, Horizontal.Left, Vertical.Top)
+    assertVecEquals(diag5, NArray[Double](1.0, 0.0))
+  }
+
   test("operator precedance") {
     val mat1 = Matrix.eye[Double](2)
     val mat2 = Matrix[Double](mat1.raw * 2, (mat1.rows, mat1.cols))
@@ -211,6 +262,18 @@ class MatrixExtensionSuite extends FunSuite:
 
     val row2 = matrix.row(1)
     assertVecEquals(row2, NArray[Double](2.0, 4.0))
+  }
+
+  test("update") {
+    val mat = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0), (2, 2))
+    mat((0, 0)) = 5.0
+    assertEquals(mat.raw(0), 5.0)
+
+    mat((1, 1)) = 6.0
+    assertEquals(mat.raw(3), 6.0)
+
+    mat((1, 0)) = 7.0
+    assertEquals(mat.raw(1), 7.0)
   }
 
   test("Matrix column extraction") {

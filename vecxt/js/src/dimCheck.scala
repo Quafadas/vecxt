@@ -17,8 +17,13 @@
 package vecxt
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
-
+import narr.*
 import vecxt.BoundsCheck.BoundsCheck
+
+case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
+    extends Exception(
+      s"Expected Vector dimensions to match. First dimension was : $requiredDimension, second was : $givenDimension ."
+    )
 
 protected[vecxt] object dimCheckLen:
   inline def apply(a: Float64Array, b: Int)(using inline doCheck: BoundsCheck) =
@@ -36,10 +41,10 @@ protected[vecxt] object dimCheck:
   inline def apply[A](a: Float64Array, b: scala.scalajs.js.Array[A])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
-  inline def apply(a: Float64Array, b: Float64Array)(using inline doCheck: BoundsCheck) =
+  inline def apply(a: NArray[Double], b: NArray[Double])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
+  inline def apply(a: NArray[Int], b: NArray[Int])(using inline doCheck: BoundsCheck) =
+    inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
 end dimCheck
-case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
-    extends Exception(
-      s"Expected Vector dimensions to match. First dimension was : $requiredDimension, second was : $givenDimension ."
-    )

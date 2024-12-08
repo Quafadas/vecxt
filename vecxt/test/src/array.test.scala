@@ -172,47 +172,50 @@ class ArrayExtensionSuite extends munit.FunSuite:
   // Check the vector loop
   test("countTrue") {
     val arrLong = NArray.fill(100)(true)
-    assertEquals(arrLong.countTrue, 100)
+    assertEquals(arrLong.trues, 100)
+
+    arrLong(50) = false
+    assertEquals(arrLong.trues, 99)
   }
 
   test("<= big") {
     val n = 50000
     val rand = scala.util.Random
     val vec = NArray.tabulate(n)(_ => rand.nextDouble())
-    assertEqualsDouble((vec <= 0.2).countTrue / n.toDouble, 0.2, 0.01)
+    assertEqualsDouble((vec <= 0.2).trues / n.toDouble, 0.2, 0.01)
   }
 
   test("<=") {
     val v_idx2 = v_fill < 2.5
-    assertEquals(v_idx2.countTrue, 3)
+    assertEquals(v_idx2.trues, 3)
   }
 
   test("<") {
     val v_idx2 = v_fill < 3.0
-    assertEquals(v_idx2.countTrue, 3)
+    assertEquals(v_idx2.trues, 3)
   }
 
   test(">") {
     val v_idx2 = v_fill > 2.5
-    assertEquals(v_idx2.countTrue, 2)
+    assertEquals(v_idx2.trues, 2)
   }
 
   test(">=") {
     val v_idx2 = v_fill >= 3.0
-    assertEquals(v_idx2.countTrue, 2)
+    assertEquals(v_idx2.trues, 2)
   }
 
   test("&&") {
     val v_idx2 = (v_fill < 3.0) && (v_fill > 1.0)
-    assertEquals(v_idx2.countTrue, 1)
+    assertEquals(v_idx2.trues, 1)
   }
 
   test("||") {
     val v_idx2 = (v_fill < 3.0) || (v_fill > 1.0)
-    assertEquals(v_idx2.countTrue, 5)
+    assertEquals(v_idx2.trues, 5)
 
     val v_idx3 = (v_fill < 1.0) || (v_fill > 4.0)
-    assertEquals(v_idx3.countTrue, 1)
+    assertEquals(v_idx3.trues, 1)
   }
 
   test("norm") {
@@ -260,7 +263,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     import vecxt.reinsurance.tVarIdx
     val v1 = NArray.tabulate[Double](100)(_.toDouble)
     val tvar = v1.tVarIdx(0.95)
-    assertEquals(tvar.countTrue, 5)
+    assertEquals(tvar.trues, 5)
     for i <- 0 until 5 do assert(tvar(i))
     end for
     for i <- 5 until 100 do assert(!tvar(i))
@@ -272,7 +275,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     val v1 = NArray.from(Array(6.0, 2.0, 5.0, 5.0, 10.0, 1.0, 2.0, 3.0, 5.0, 8.0))
     val tvar = v1.tVarIdx(0.9)
 
-    assertEquals(tvar.countTrue, 1)
+    assertEquals(tvar.trues, 1)
     assert(tvar(5))
   }
 
@@ -280,7 +283,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     import vecxt.reinsurance.tVarIdx
     val v1 = NArray.from(Array(6.0, 8.0, 5.0, 5.0, 10.0, 10.0, 2.0, 3.0, 5.0, 1.0))
     val tvar = v1.tVarIdx(0.8)
-    assertEquals(tvar.countTrue, 2)
+    assertEquals(tvar.trues, 2)
     assert(tvar(9))
     assert(tvar(6))
 

@@ -1,25 +1,46 @@
 package vecxt
 
-import scala.reflect.ClassTag
-
+import narr.*
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.matrix.*
+import vecxt.arrays.*
 import vecxt.rangeExtender.*
 
-import narr.*
+import scala.annotation.targetName
+import scala.compiletime.*
+import scala.reflect.ClassTag
+
+import matrix.*
 
 object MatrixInstance:
   extension [A](m: Matrix[A])
-
-    inline def numel: Int = m.raw.length
-
-    /** element update
-      */
-    inline def update(loc: RowCol, value: A)(using inline boundsCheck: BoundsCheck) =
-      indexCheckMat(m, loc)
-      val idx = loc._2 * m.rows + loc._1
+    inline def update(rc: RowCol, value: A)(using inline boundsCheck: BoundsCheck): Unit =
+      indexCheckMat(m, (rc._1, rc._2): RowCol)
+      val idx = rc._2 * m.rows + rc._1
       m.raw(idx) = value
     end update
+
+    @targetName("updateIdx")
+    inline def update(idx: Matrix[Boolean], value: A)(using inline boundsCheck: BoundsCheck): Unit =
+      sameDimMatCheck(idx, m)
+      var i = 0
+      while i < m.numel do
+        if idx.raw(i) then m.raw(i) = value
+        end if
+        i += 1
+      end while
+    end update
+
+    @targetName("updateFct")
+    inline def update(inline fct: A => Boolean, value: A) =
+      var i = 0
+      while i < m.numel do
+        if fct(m.raw(i)) then m.raw(i) = value
+        end if
+        i += 1
+      end while
+    end update
+
+    inline def numel: Int = m.raw.length
 
     def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)

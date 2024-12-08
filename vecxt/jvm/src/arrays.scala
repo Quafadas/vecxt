@@ -23,31 +23,73 @@ import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
+import jdk.incubator.vector.IntVector
+import scala.util.control.Breaks.*
 
 object arrays:
 
+  final val spi = IntVector.SPECIES_PREFERRED
   final val spd = DoubleVector.SPECIES_PREFERRED
   final val spb = ByteVector.SPECIES_PREFERRED
 
   final val spdl = spd.length()
   final val spbl = spb.length()
+  final val spil = spi.length()
 
   extension (vec: Array[Boolean])
-    inline def countTrue: Int =
-      var sum = 0
+    inline def all: Boolean =
+      var acc = ByteVector.broadcast(spb, 1.toByte)
       var i = 0
       while i < spb.loopBound(vec.length) do
-        sum = sum + ByteVector.fromBooleanArray(spb, vec, i).reduceLanes(VectorOperators.ADD)
+        acc = acc.and(ByteVector.fromBooleanArray(spb, vec, i))
         i += spbl
       end while
 
+      var out = acc.reduceLanes(VectorOperators.AND) > 0
+
+      if out then
+        while i < vec.length do
+          if !vec(i) then out = false
+          end if
+          i += 1
+        end while
+
+      end if
+      out
+    end all
+
+    inline def any: Boolean =
+      var acc = ByteVector.zero(spb)
+      var i = 0
+      while i < spb.loopBound(vec.length) do
+        acc = acc.or(ByteVector.fromBooleanArray(spb, vec, i))
+        i += spbl
+      end while
+
+      var out = acc.reduceLanes(VectorOperators.OR) > 0
+
+      if !out then
+        while i < vec.length do
+          if vec(i) then out = true
+          end if
+          i += 1
+        end while
+
+      end if
+      out
+    end any
+
+    // TODO this may be sub-optimal - we want to move the accumulator out of the hot loop.
+    inline def trues: Int =
+      var i = 0
+      var sum = 0
       while i < vec.length do
         if vec(i) then sum += 1
         end if
         i += 1
       end while
       sum
-    end countTrue
+    end trues
 
     inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
       val result: Array[Boolean] = new Array[Boolean](vec.length)
@@ -89,11 +131,141 @@ object arrays:
     end ||
   end extension
 
+  extension (vec: Array[Int])
+    inline def =:=(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.EQ, num)
+
+    inline def !:=(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.NE, num)
+
+    inline def <(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.LT, num)
+
+    inline def <=(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.LE, num)
+
+    inline def >(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.GT, num)
+
+    inline def >=(num: Int): Array[Boolean] =
+      logicalIdx(VectorOperators.GE, num)
+
+    inline def logicalIdx(
+        inline op: VectorOperators.Comparison,
+        num: Int
+    ): Array[Boolean] =
+      val idx = new Array[Boolean](vec.length)
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector.fromArray(spi, vec, i).compare(op, num).intoArray(idx, i)
+        i += spil
+      end while
+
+      inline op match
+        case VectorOperators.EQ =>
+          while i < vec.length do
+            idx(i) = vec(i) == num
+            i += 1
+          end while
+        case VectorOperators.NE =>
+          while i < vec.length do
+            idx(i) = vec(i) != num
+            i += 1
+          end while
+        case VectorOperators.LT =>
+          while i < vec.length do
+            idx(i) = vec(i) < num
+            i += 1
+          end while
+
+        case VectorOperators.LE =>
+          while i < vec.length do
+            idx(i) = vec(i) <= num
+            i += 1
+          end while
+
+        case VectorOperators.GT =>
+          while i < vec.length do
+            idx(i) = vec(i) > num
+            i += 1
+          end while
+
+        case VectorOperators.GE =>
+          while i < vec.length do
+            idx(i) = vec(i) >= num
+            i += 1
+          end while
+        case _ => ???
+      end match
+
+      idx
+    end logicalIdx
+
+    inline def increments: Array[Int] =
+      val out = new Array[Int](vec.length)
+
+      var i = 1
+      while i < spi.loopBound(vec.length - 2) do
+        val v1 = IntVector.fromArray(spi, vec, i - 1)
+        val v2 = IntVector.fromArray(spi, vec, i)
+        v2.sub(v1).intoArray(out, i)
+        i += spil
+      end while
+
+      while i < vec.length do
+        out(i) = vec(i) - vec(i - 1)
+        i = i + 1
+      end while
+      out(0) = vec(0)
+      out
+
+    end increments
+
+    inline def sum: Int =
+      var i: Int = 0
+      var acc = IntVector.zero(spi)
+
+      while i < spi.loopBound(vec.length) do
+        acc = acc.add(IntVector.fromArray(spi, vec, i))
+        i += spil
+      end while
+      var temp = acc.reduceLanes(VectorOperators.ADD)
+      // var temp = 0.0
+      while i < vec.length do
+        temp += vec(i)
+        i += 1
+      end while
+      temp
+    end sum
+
+    inline def -(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+      dimCheck(vec, vec2)
+      val newVec = Array.ofDim[Int](vec.length)
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector
+          .fromArray(spi, vec, i)
+          .sub(IntVector.fromArray(spi, vec2, i))
+          .intoArray(newVec, i)
+        i += spil
+      end while
+
+      while i < vec.length do
+        newVec(i) = vec(i) - vec2(i)
+        i += 1
+      end while
+      newVec
+    end -
+
+  end extension
+
   extension (vec: Array[Double])
 
     inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
       dimCheck(vec, index)
-      val trues = index.countTrue
+      val trues = index.trues
       val newVec: Array[Double] = new Array[Double](trues)
       var j = 0
       for i <- 0 until index.length do
@@ -154,8 +326,8 @@ object arrays:
 
       var i = 1
       while i < spd.loopBound(vec.length - 2) do
-        val v1 = DoubleVector.fromArray(spd, vec, i)
-        val v2 = DoubleVector.fromArray(spd, vec, i + 1)
+        val v1 = DoubleVector.fromArray(spd, vec, i - 1)
+        val v2 = DoubleVector.fromArray(spd, vec, i)
         v2.sub(v1).intoArray(out, i)
         i += spdl
       end while
