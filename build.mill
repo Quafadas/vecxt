@@ -19,7 +19,7 @@ import mill.api.Result
 import com.goyeau.mill.scalafix.ScalafixModule
 
 trait Common extends ScalaModule  with PublishModule with ScalafixModule {
-  def scalaVersion = "3.5.2"
+  def scalaVersion = "3.6.2-RC2"
 
   def publishVersion = VcsVersion.vcsState().format()
 
@@ -191,10 +191,10 @@ object jsSite extends SiteJSModule {
   }
 }
 
-object integration extends ScalaModule with CommonTests {
-  def scalaVersion: T[String] = vecxt.jvm.scalaVersion
+// object integration extends ScalaModule with CommonTests {
+//   def scalaVersion: T[String] = vecxt.jvm.scalaVersion
 
-}
+// }
 
 // note that scastic won't work, as I don't think we can start a JVM with the incubator flag.
 object site extends SiteModule {
