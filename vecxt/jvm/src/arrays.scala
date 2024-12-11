@@ -241,23 +241,49 @@ object arrays:
 
     inline def -(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
       dimCheck(vec, vec2)
-      val newVec = Array.ofDim[Int](vec.length)
+      vec.clone.tap(_ -= vec2)
+    end -
+
+    inline def -=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, vec2)
       var i = 0
 
       while i < spi.loopBound(vec.length) do
         IntVector
           .fromArray(spi, vec, i)
           .sub(IntVector.fromArray(spi, vec2, i))
-          .intoArray(newVec, i)
+          .intoArray(vec, i)
         i += spil
       end while
 
       while i < vec.length do
-        newVec(i) = vec(i) - vec2(i)
+        vec(i) = vec(i) - vec2(i)
         i += 1
       end while
-      newVec
-    end -
+    end -=
+
+    inline def +(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+      dimCheck(vec, vec2)
+      vec.clone.tap(_ += vec2)
+    end +
+
+    inline def +=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, vec2)
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector
+          .fromArray(spi, vec, i)
+          .add(IntVector.fromArray(spi, vec2, i))
+          .intoArray(vec, i)
+        i += spil
+      end while
+
+      while i < vec.length do
+        vec(i) = vec(i) + vec2(i)
+        i += 1
+      end while
+    end +=
 
   end extension
 
