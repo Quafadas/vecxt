@@ -6,6 +6,7 @@ import vecxt.BoundsCheck.BoundsCheck
 import scala.math.Ordering
 
 import narr.*
+import scala.reflect.ClassTag
 
 object JsNativeBooleanArrays:
 
@@ -131,6 +132,7 @@ object JsNativeDoubleArrays:
 
     inline def +(other: NArray[Int])(using inline boundsCheck: BoundsCheck): NArray[Int] =
       dimCheck(vec, other)
+
       val n = vec.length
       val res = NArray.fill(n)(0)
 

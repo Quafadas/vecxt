@@ -22,6 +22,9 @@ import scala.util.chaining.*
 import vecxt.BoundsCheck.BoundsCheck
 
 import narr.*
+import scala.reflect.ClassTag
+import scala.scalajs.js.annotation.JSBracketAccess
+import vecxt.JsNativeBooleanArrays.trues
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
@@ -52,12 +55,12 @@ object arrays:
 
   extension [A](v: js.Array[A]) inline def fill(a: A): Unit = v.asInstanceOf[JsArrayFacade].fill(a)
   extension (vec: js.Array[Boolean])
-    inline def countTrue: Int =
-      var sum = 0
-      for i <- 0 until vec.length do if vec(i) then sum = sum + 1
-      end for
-      sum
-    end countTrue
+    // inline def trues: Int =
+    //   var sum = 0
+    //   for i <- 0 until vec.length do if vec(i) then sum = sum + 1
+    //   end for
+    //   sum
+    // end trues
 
     inline def &&(thatIdx: js.Array[Boolean]): js.Array[Boolean] =
       val result = new js.Array[Boolean](vec.length)
@@ -88,12 +91,31 @@ object arrays:
     inline def update(idx: Int, d: Double)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       indexCheck(vec, idx)
       vec(idx) = d
+    end update
+
+  end extension
+
+  extension (vec: NArray[Int])
+
+    def apply(index: js.Array[Boolean]): NArray[Int] =
+      val truely = index.trues
+      val newVec = NArray.ofSize[Int](truely)
+      var j = 0
+      for i <- 0 until index.length do
+        // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
+        if index(i) then
+          newVec(j) = vec(i)
+          j += 1
+      end for
+      newVec
+    end apply
+  end extension
 
   extension (vec: NArray[Double])
 
     inline def apply(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
       dimCheck(vec, index)
-      val trues = index.countTrue
+      val trues = index.trues
       val newVec = Float64Array(trues)
       var j = 0
       for i <- 0 until index.length do

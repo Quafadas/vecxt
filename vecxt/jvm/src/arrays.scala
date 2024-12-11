@@ -24,6 +24,7 @@ import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
+import scala.reflect.ClassTag
 
 object arrays:
 
@@ -79,7 +80,6 @@ object arrays:
       out
     end any
 
-    // TODO this may be sub-optimal - we want to move the accumulator out of the hot loop.
     inline def trues: Int =
       var i = 0
       var sum = 0
@@ -311,12 +311,11 @@ object arrays:
 
   end extension
 
-  extension (vec: Array[Double])
-
+  extension [@specialized(Double, Int) A](vec: Array[A])(using ClassTag[A])
     inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
       dimCheck(vec, index)
       val trues = index.trues
-      val newVec: Array[Double] = new Array[Double](trues)
+      val newVec: Array[A] = new Array[A](trues)
       var j = 0
       for i <- 0 until index.length do
         // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
@@ -326,6 +325,9 @@ object arrays:
       end for
       newVec
     end apply
+  end extension
+
+  extension (vec: Array[Double])
 
     /** Apparently, left packing is hard problem in SIMD land.
       * https://stackoverflow.com/questions/79025873/selecting-values-from-java-simd-doublevector
