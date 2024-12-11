@@ -44,5 +44,8 @@ val v1 = NArray(1, 2, 3)
 val v2 = NArray(4, 5, 6)
 (v1 + v2).printArr
 
+v1.dot(v2)
+
+(v1 - v2).printArr
 
 ```

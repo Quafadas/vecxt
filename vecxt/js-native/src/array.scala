@@ -129,6 +129,32 @@ object JsNativeDoubleArrays:
       res
     end -
 
+    inline def +(other: NArray[Int])(using inline boundsCheck: BoundsCheck): NArray[Int] =
+      dimCheck(vec, other)
+      val n = vec.length
+      val res = NArray.fill(n)(0)
+
+      var i = 0
+      while i < n do
+        res(i) = vec(i) + other(i)
+        i = i + 1
+      end while
+      res
+    end +
+
+    inline def dot(other: NArray[Int])(using inline boundsCheck: BoundsCheck): Int =
+      dimCheck(vec, other)
+      val n = vec.length
+      var sum = 0
+
+      var i = 0
+      while i < n do
+        sum += vec(i) * other(i)
+        i = i + 1
+      end while
+      sum
+    end dot
+
     inline def <(num: Int): NArray[Boolean] =
       logicalIdx((a, b) => a < b, num)
 

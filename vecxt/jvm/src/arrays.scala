@@ -239,6 +239,30 @@ object arrays:
       temp
     end sum
 
+    inline def dot(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
+      dimCheck(vec, vec2)
+      val newVec = Array.ofDim[Int](vec.length)
+      var i = 0
+      var acc = IntVector.zero(spi)
+
+      while i < spi.loopBound(vec.length) do
+        acc = IntVector
+          .fromArray(spi, vec, i)
+          .mul(IntVector.fromArray(spi, vec2, i))
+          .add(acc)
+
+        i += spil
+      end while
+
+      var temp = acc.reduceLanes(VectorOperators.ADD)
+
+      while i < vec.length do
+        temp += vec(i) * vec2(i)
+        i += 1
+      end while
+      temp
+    end dot
+
     inline def -(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)
