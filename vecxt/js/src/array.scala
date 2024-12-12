@@ -75,16 +75,6 @@ object arrays:
       end for
       result
     end ||
-
-    // def copy: Array[Boolean] =
-    //   val copyOfThisVector: Array[Boolean] = new Array[Boolean](vec.length)
-    //   var i = 0
-    //   while i < vec.length do
-    //     copyOfThisVector(i) = vec(i)
-    //     i = i + 1
-    //   end while
-    //   copyOfThisVector
-    // end copy
   end extension
 
   extension (vec: NArray[Double])

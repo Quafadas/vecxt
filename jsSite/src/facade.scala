@@ -27,7 +27,9 @@ import org.scalajs.dom.Element
 import scala.util.Random
 import org.scalajs.dom.Element
 import org.scalajs.dom.XMLHttpRequest
+import scala.annotation.experimental
 
+@experimental()
 object showJsDocs:
   def apply(path: String, node: Element, width: Int = 50) =
     val child = dom.document.createElement("div")

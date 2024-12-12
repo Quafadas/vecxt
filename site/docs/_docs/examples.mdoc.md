@@ -33,9 +33,9 @@ cosineSimilarity(v1, v2)
 (v1(v1 <= 2)).printArr
 
 ```
-And Ints
+And Ints. Note that the API here is more limited at the moment.
 
-```scala mdoc
+```scala mdoc:reset
 import vecxt.all.*
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes

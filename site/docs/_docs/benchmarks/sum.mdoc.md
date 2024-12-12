@@ -18,6 +18,7 @@ And the function left in vexct over time (against regressions)
 ```scala mdoc:js sc:nocompile
 import vecxt.plot.*
 import vecxt.facades.*
+
 showJsDocs.fromSpec(BenchmarkPlots.sumBenchmarkOverTime, node)
 ```
 

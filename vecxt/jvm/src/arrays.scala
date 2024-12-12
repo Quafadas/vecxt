@@ -132,6 +132,7 @@ object arrays:
   end extension
 
   extension (vec: Array[Int])
+
     inline def =:=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.EQ, num)
 
