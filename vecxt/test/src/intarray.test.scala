@@ -31,6 +31,18 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assertVecEquals((v2 - v1), NArray.fill[Int](v1.length)(-1))
   }
 
+  test("+") {
+    val v2 = NArray(1, 2, 3, 4, 5, 6, 7, 8, 9)
+    val v1 = NArray(1, 2, 3, 4, 5, 6, 7, 8, 9)
+    assertVecEquals((v2 + v1), NArray(2, 4, 6, 8, 10, 12, 14, 16, 18))
+  }
+
+  test("dot") {
+    val v1 = NArray.tabulate[Int](10)(i => i)
+    val v2 = NArray.tabulate[Int](10)(i => i)
+    assertEquals(v1.dot(v2), 285)
+  }
+
   test("sum") {
     val v1 = NArray.tabulate[Int](10)(i => i)
 

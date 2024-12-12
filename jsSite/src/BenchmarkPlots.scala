@@ -4,7 +4,9 @@ import scala.NamedTuple.AnyNamedTuple
 import scala.annotation.meta.field
 import upickle.default.*
 import NamedTupleReadWriter.given
+import scala.annotation.experimental
 
+@experimental()
 object BenchmarkPlots:
   def addScalarBenchmark: String =
     val thePlot = BenchmarkPlotElements.schema ++

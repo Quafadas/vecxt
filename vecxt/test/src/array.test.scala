@@ -58,6 +58,11 @@ class ArrayExtensionSuite extends munit.FunSuite:
     val afterIndex2 = v2(vIdx2)
     assertEqualsDouble(afterIndex2(4), 8.0, 0.0001)
 
+    val v3 = NArray[Int](1, 2, 3, 4, 5, 6, 7, 8, 9)
+    val vIdx3 = NArray[Boolean](true, false, true, true, false, true, false, true, false)
+    val afterIndex3 = v3(vIdx3)
+    assertEquals(afterIndex3(4), 8)
+
   }
 
   test("check vector operator precendance") {

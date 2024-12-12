@@ -17,7 +17,6 @@
 package vecxt
 
 import narr.*
-import scala.util.chaining.*
 import vecxt.all.*
 
 class BooleanArrayExtensionSuite extends munit.FunSuite:
