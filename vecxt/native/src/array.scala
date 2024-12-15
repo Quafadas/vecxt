@@ -22,16 +22,18 @@ import org.ekrich.blas.*
 import org.ekrich.blas.unsafe.*
 
 import vecxt.BoundsCheck.BoundsCheck
+import scala.reflect.ClassTag
+import vecxt.JsNativeBooleanArrays.trues
 
 object arrays:
 
   extension (vec: Array[Boolean])
-    inline def countTrue: Int =
-      var sum = 0
-      for i <- 0 until vec.length do if vec(i) then sum = sum + 1
-      end for
-      sum
-    end countTrue
+    // inline def trues: Int =
+    //   var sum = 0
+    //   for i <- 0 until vec.length do if vec(i) then sum = sum + 1
+    //   end for
+    //   sum
+    // end trues
 
     inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
       val result: Array[Boolean] = new Array[Boolean](vec.length)
@@ -58,10 +60,26 @@ object arrays:
     // end copy
   end extension
 
+  extension [A: ClassTag](vec: Array[A])
+
+    def apply(index: Array[Boolean]): Array[A] =
+      val truely = index.trues
+      val newVec = Array.ofDim[A](truely)
+      var j = 0
+      for i <- 0 until index.length do
+        // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
+        if index(i) then
+          newVec(j) = vec(i)
+          j += 1
+      end for
+      newVec
+    end apply
+  end extension
+
   extension (vec: Array[Double])
 
     def apply(index: Array[Boolean]) =
-      val trues = index.countTrue
+      val trues = index.trues
       val newVec = new Array[Double](trues)
       var j = 0
       for i <- 0 until index.length do

@@ -24,6 +24,7 @@ import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
+import scala.reflect.ClassTag
 
 object arrays:
 
@@ -79,7 +80,6 @@ object arrays:
       out
     end any
 
-    // TODO this may be sub-optimal - we want to move the accumulator out of the hot loop.
     inline def trues: Int =
       var i = 0
       var sum = 0
@@ -132,6 +132,7 @@ object arrays:
   end extension
 
   extension (vec: Array[Int])
+
     inline def =:=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.EQ, num)
 
@@ -239,34 +240,83 @@ object arrays:
       temp
     end sum
 
-    inline def -(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+    inline def dot(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
       dimCheck(vec, vec2)
       val newVec = Array.ofDim[Int](vec.length)
+      var i = 0
+      var acc = IntVector.zero(spi)
+
+      while i < spi.loopBound(vec.length) do
+        acc = IntVector
+          .fromArray(spi, vec, i)
+          .mul(IntVector.fromArray(spi, vec2, i))
+          .add(acc)
+
+        i += spil
+      end while
+
+      var temp = acc.reduceLanes(VectorOperators.ADD)
+
+      while i < vec.length do
+        temp += vec(i) * vec2(i)
+        i += 1
+      end while
+      temp
+    end dot
+
+    inline def -(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+      dimCheck(vec, vec2)
+      vec.clone.tap(_ -= vec2)
+    end -
+
+    inline def -=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, vec2)
       var i = 0
 
       while i < spi.loopBound(vec.length) do
         IntVector
           .fromArray(spi, vec, i)
           .sub(IntVector.fromArray(spi, vec2, i))
-          .intoArray(newVec, i)
+          .intoArray(vec, i)
         i += spil
       end while
 
       while i < vec.length do
-        newVec(i) = vec(i) - vec2(i)
+        vec(i) = vec(i) - vec2(i)
         i += 1
       end while
-      newVec
-    end -
+    end -=
+
+    inline def +(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+      dimCheck(vec, vec2)
+      vec.clone.tap(_ += vec2)
+    end +
+
+    inline def +=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, vec2)
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector
+          .fromArray(spi, vec, i)
+          .add(IntVector.fromArray(spi, vec2, i))
+          .intoArray(vec, i)
+        i += spil
+      end while
+
+      while i < vec.length do
+        vec(i) = vec(i) + vec2(i)
+        i += 1
+      end while
+    end +=
 
   end extension
 
-  extension (vec: Array[Double])
-
+  extension [@specialized(Double, Int) A](vec: Array[A])(using ClassTag[A])
     inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
       dimCheck(vec, index)
       val trues = index.trues
-      val newVec: Array[Double] = new Array[Double](trues)
+      val newVec: Array[A] = new Array[A](trues)
       var j = 0
       for i <- 0 until index.length do
         // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
@@ -276,6 +326,9 @@ object arrays:
       end for
       newVec
     end apply
+  end extension
+
+  extension (vec: Array[Double])
 
     /** Apparently, left packing is hard problem in SIMD land.
       * https://stackoverflow.com/questions/79025873/selecting-values-from-java-simd-doublevector

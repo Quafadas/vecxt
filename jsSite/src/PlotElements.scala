@@ -1,13 +1,13 @@
 package vecxt.plot
 
-import scala.NamedTuple.*
+// import scala.NamedTuple.*
 import scala.annotation.meta.field
 import upickle.default.*
 import NamedTupleReadWriter.given
 import scala.collection.immutable.Stream.Empty
 
 object BenchmarkPlotElements:
-  final val schema = (`$schema` = "https://vega.github.io/schema/vega-lite/v5.json")
+  final val schema: ($schema: String) = (`$schema` = "https://vega.github.io/schema/vega-lite/v5.json")
 
   val fakeData = (
     data = (

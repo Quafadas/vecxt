@@ -1,7 +1,7 @@
 import mill.scalalib.publish.Scope.Test
 
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
-import $ivy.`io.github.quafadas:millSite_mill0.12_2.13:0.0.36`
+import $ivy.`io.github.quafadas:millSite_mill0.12_2.13:0.0.38`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import $ivy.`com.lihaoyi::mill-contrib-jmh:`
 import $ivy.`com.goyeau::mill-scalafix::0.4.2`
@@ -178,6 +178,12 @@ object jsSite extends SiteJSModule {
   override def moduleDeps = Seq(vecxt.js, vecxtensions.js)
   override def scalaVersion = vecxt.js.scalaVersion
   override def scalaJSVersion = vecxt.js.scalaJSVersion
+
+  override def scalaJsCompilerVersion: String = "3.6.2"
+
+
+  // override def allScalacOptions: T[Seq[String]] = super.allScalacOptions`() ++ Seq("-experimental", "-language:experimental.namedTuples")
+  override def scalacOptions: T[Seq[String]] = super.scalacOptions() ++ Seq("-experimental", "-language:experimental.namedTuples")
   override def moduleKind = ModuleKind.ESModule
   override def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.scala-js::scalajs-dom::2.8.0",
@@ -205,5 +211,7 @@ object site extends SiteModule {
   def scalaVersion = vecxt.jvm.scalaVersion
   override def moduleDeps = Seq(vecxt.jvm)
   override def scalaDocOptions = super.scalaDocOptions
+
+  override def scalacOptions: T[Seq[String]] = super.scalacOptions() ++ Seq("-experimental", "-language:experimental.namedTuples")
 
 }
