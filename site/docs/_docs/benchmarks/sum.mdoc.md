@@ -5,13 +5,22 @@ title: Sum
 You may need to refresh the page.
 https://github.com/scala/scala3/issues/21637
 
-Here is the comparison of the standard `while` loop with the vectorised version.
+Here is the comparison of the standard `while` loop with the vectorised version for doubles.
 
 ```scala mdoc:js sc:nocompile
 import vecxt.plot.*
 import vecxt.facades.*
 showJsDocs.fromSpec(BenchmarkPlots.sumBenchmark, node)
 ```
+
+And ints;
+
+```scala mdoc:js sc:nocompile
+import vecxt.plot.*
+import vecxt.facades.*
+showJsDocs.fromSpec(BenchmarkPlots.sumIntBenchmark, node)
+```
+
 
 And the function left in vexct over time (against regressions)
 

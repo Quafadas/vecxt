@@ -178,6 +178,24 @@ object BenchmarkPlots:
     write(thePlot)
   end sumBenchmark
 
+  def sumIntBenchmark =
+    val thePlot = BenchmarkPlotElements.schema ++
+      BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++
+      (
+        transform = BenchmarkPlotElements.transform(
+          List("SumIntBenchmark.sum_loop", "SumIntBenchmark.sum_vec_alt")
+        )
+      ) ++ (vconcat =
+        List(
+          BenchmarkPlotElements.layer(3, "len"),
+          BenchmarkPlotElements.layer(100, "len"),
+          BenchmarkPlotElements.layer(100000, "len")
+        )
+      )
+
+    write(thePlot)
+  end sumBenchmark
+
   def sumBenchmarkOverTime: String =
     val thePlot = BenchmarkPlotElements.schema ++
       BenchmarkPlotElements.data("../../benchmarks/benchmark_history.json") ++

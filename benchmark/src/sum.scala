@@ -52,9 +52,7 @@ class SumBenchmark extends BLASBenchmark:
 
   end setup
 
-  final val spd = DoubleVector.SPECIES_PREFERRED
   extension (vec: Array[Double])
-
 
     inline def sum2 =
       var sum: Double = 0.0

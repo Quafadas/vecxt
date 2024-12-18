@@ -33,47 +33,76 @@ import scala.compiletime.uninitialized
 import vecxt.all.*
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
-import jdk.incubator.vector.DoubleVector
+import jdk.incubator.vector.IntVector
+import dev.ludovic.netlib.blas.BLAS
 
 @State(Scope.Thread)
-class CountTrueBenchmark extends BLASBenchmark:
+class SumIntBenchmark extends BLASBenchmark:
 
-  @Param(Array("3", "128", "100000"))
+  @Param(Array("3", "100", "100000"))
   var len: String = uninitialized;
 
-  var arr: Array[Boolean] = uninitialized
+  var arr: Array[Int] = uninitialized
 
   // format: off
   @Setup(Level.Trial)
   def setup: Unit =
-    arr = randomBooleanArray(len.toInt);
+
+    arr = randomIntArray(len.toInt);
     ()
+
   end setup
 
-  extension (vec: Array[Boolean])
-    inline def countTrue2: Int =
-      var sum = 0
-      var i = 0
+
+
+  extension (vec: Array[Int])
+
+
+    inline def sum2 =
+      var sum: Int = 0
+      var i: Int = 0
+      val l = spi.length()
+
+      while i < spi.loopBound(vec.length) do
+        sum = sum + IntVector.fromArray(spi, vec, i).reduceLanes(VectorOperators.ADD)
+        i = i + l
+      end while
       while i < vec.length do
-        if vec(i) then sum += 1
-        end if
-        i += 1
+        sum += vec(i)
+        i = i + 1
       end while
       sum
+    end sum2
+
+    inline def sum3 =
+      var sum: Int = 0
+      var i: Int = 0
+      while i < vec.length do
+        sum = sum + vec(i)
+        i = i + 1
+      end while
+      sum
+    end sum3
 
   end extension
 
-  @Benchmark
-  def countTrue_loop(bh: Blackhole) =
-    val r = arr.countTrue2
-    bh.consume(r);
-  end countTrue_loop
 
 
   @Benchmark
-  def countTrue_loop_vec(bh: Blackhole) =
-    val r = arr.trues
+  def sum_loop(bh: Blackhole) =
+    val r = arr.sum3
     bh.consume(r);
-  end countTrue_loop_vec
-end CountTrueBenchmark
+  end sum_loop
 
+  @Benchmark
+  def sum_vec(bh: Blackhole) =
+    val r = arr.sum2
+    bh.consume(r);
+  end sum_vec
+
+  @Benchmark
+  def sum_vec_alt(bh: Blackhole) =
+    val r = arr.sum
+    bh.consume(r);
+  end sum_vec_alt
+end SumIntBenchmark
