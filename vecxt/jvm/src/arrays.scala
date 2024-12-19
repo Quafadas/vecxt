@@ -24,6 +24,7 @@ import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
+import jdk.incubator.vector.VectorMask
 import scala.reflect.ClassTag
 
 object arrays:
@@ -205,6 +206,11 @@ object arrays:
 
     inline def increments: Array[Int] =
       val out = new Array[Int](vec.length)
+      val limit = spi.loopBound(vec.length - 2)
+      // val inc = spil - 1
+      // val maskInit = spi.maskAll(true).toArray()
+      // maskInit(maskInit.length - 1) = false
+      // val mask = VectorMask.fromArray(spi, maskInit, 0)
 
       var i = 1
       while i < spi.loopBound(vec.length - 2) do

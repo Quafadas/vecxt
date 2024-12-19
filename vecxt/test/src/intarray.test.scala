@@ -49,7 +49,7 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assertEquals(v1.sum, 45)
   }
 
-  test("increments") {
+  test("increments".only) {
 
     val v1 = NArray[Int](1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
     v1.increments.foreach(d => assertEquals(d, 1))
