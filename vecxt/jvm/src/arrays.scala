@@ -152,6 +152,14 @@ object arrays:
     inline def >=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.GE, num)
 
+    inline def gte(num: Int): Array[Boolean] = >=(num)
+
+    inline def lte(num: Int): Array[Boolean] = <=(num)
+
+    inline def lt(num: Int): Array[Boolean] = <(num)
+
+    inline def gt(num: Int): Array[Boolean] = >(num)
+
     inline def logicalIdx(
         inline op: VectorOperators.Comparison,
         num: Int

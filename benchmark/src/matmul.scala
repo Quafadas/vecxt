@@ -70,6 +70,18 @@ class DgemmBenchmark extends BLASBenchmark:
 
   end setup
 
+  // @Benchmark
+  // def naive_dgemm(bh:Blackhole): Unit =
+  //   val cclone = Array.fill[Double](m*n)(0)
+  //   for i <- 0 until m do
+  //     for j <- 0 until n do
+  //       for l <- 0 until k do
+  //         cclone(i*n+j) += a(i*k+l) * b(l*n+j)
+  //   end for
+
+  //   bh.consume(cclone);
+  // end naive_dgemm
+
   @Benchmark
   def java_dgemm(bh: Blackhole) =
     val cclone = Array.fill[Double](m*n)(0)
