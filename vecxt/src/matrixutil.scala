@@ -27,6 +27,7 @@ object matrixUtil:
 
     inline def transpose(using ClassTag[A]): Matrix[A] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
+
       val newArr = NArray.ofSize[A](m.numel)
       val newMat = Matrix(newArr, (m.cols.asInstanceOf[Row], m.rows.asInstanceOf[Col]))
       var idx = 0
@@ -84,9 +85,7 @@ object matrixUtil:
     end diag
 
     inline def row(i: Int)(using ClassTag[A]): NArray[A] =
-      // println(s"row $i")
-      val m2 = m(i, ::)
-      m2.raw
+      m(i, ::).raw
     end row
 
     inline def printMat(using ClassTag[A]): String =

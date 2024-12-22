@@ -14,6 +14,7 @@ import vecxt.JvmNativeDoubleMatrix.*
 import vecxt.JvmDoubleMatrix.*
 import vecxt.DoubleMatrix.*
 import vecxt.NativeDoubleMatrix.*
+import vecxt.JvmIntMatrix.*
 
 class MatrixExtensionSuite extends FunSuite:
 
@@ -196,6 +197,28 @@ class MatrixExtensionSuite extends FunSuite:
 
     assertEquals(transposedMatrix.raw.toList, transpose.raw.toList)
 
+  }
+
+  test("Integer Matrix multiplication".only) {
+    val mat1 = Matrix.fromRows(
+      NArray(
+        NArray(1, 2),
+        NArray(3, 4)
+      )
+    )
+    val mat2 = Matrix.fromRows(
+      NArray(
+        NArray(1, 2),
+        NArray(3, 4)
+      )
+    )
+
+    val result = mat1.matmul(mat2)
+
+    assertEqualsDouble(result((0, 0)), 7, 0.0001)
+    assertEqualsDouble(result((0, 1)), 10, 0.0001)
+    assertEqualsDouble(result((1, 0)), 15, 0.0001)
+    assertEqualsDouble(result((1, 1)), 22, 0.0001)
   }
 
   test("Tensor raw array retrieval") {
