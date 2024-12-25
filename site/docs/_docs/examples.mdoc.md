@@ -32,6 +32,8 @@ cosineSimilarity(v1, v2)
 
 (v1(v1 <= 2)).printArr
 
+(v1.outer(v2)).printMat
+
 ```
 And Ints. Note that the API here is more limited at the moment.
 
