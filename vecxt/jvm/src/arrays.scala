@@ -18,6 +18,7 @@ package vecxt
 import scala.util.chaining.*
 
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.ByteVector
@@ -472,6 +473,29 @@ object arrays:
       end while
       ranks
     end elementRanks
+
+    inline def outer(other: Array[Double])(using ClassTag[Double]): Matrix[Double] =
+      val n = vec.length
+      val m = other.length
+      val out = new Array[Double](n * m)
+
+      var j = 0
+      while j < m do
+        var i = 0
+        val tmp = DoubleVector.broadcast(spd, other(j))
+        while i < spd.loopBound(n) do
+          DoubleVector.fromArray(spd, vec, i).mul(tmp).intoArray(out, j * n + i)
+          i = i + spdl
+        end while
+
+        while i < n do
+          out(j * n + i) = vec(i) * other(j)
+          i = i + 1
+        end while
+        j = j + 1
+      end while
+      Matrix(out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+    end outer
 
     def variance: Double =
       // https://www.cuemath.com/sample-variance-formula/

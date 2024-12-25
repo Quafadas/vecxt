@@ -71,6 +71,23 @@ object JsNativeDoubleArrays:
 
   extension (vec: NArray[Double])
 
+    inline def outer(other: NArray[Double])(using ClassTag[Double]): Matrix[Double] =
+      val n = vec.length
+      val m = other.length
+      val out: NArray[Double] = NArray.ofSize[Double](n * m)
+
+      var i = 0
+      while i < n do
+        var j = 0
+        while j < m do
+          out(j * n + i) = vec(i) * other(j)
+          j = j + 1
+        end while
+        i = i + 1
+      end while
+      Matrix[Double](out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+    end outer
+
     inline def <(num: Double): NArray[Boolean] =
       logicalIdx((a, b) => a < b, num)
 

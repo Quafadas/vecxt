@@ -223,6 +223,24 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(v_idx3.trues, 1)
   }
 
+  test("outer product".only) {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v2 = NArray[Double](4.0, 5.0)
+    val outer = v1.outer(v2)
+    val shouldBe = Matrix.fromRows[Double](
+      NArray(
+        NArray(4.0, 5.0),
+        NArray(8.0, 10.0),
+        NArray(12.0, 15.0)
+      )
+    )
+    assertEquals(outer.rows, 3)
+    assertEquals(outer.cols, 2)
+
+    assertVecEquals(outer.raw, shouldBe.raw)
+
+  }
+
   test("norm") {
     assertEqualsDouble(v_fill.norm, Math.sqrt(1 + 4 + 9 + 16), 0.00001)
   }
