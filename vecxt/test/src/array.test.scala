@@ -223,7 +223,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(v_idx3.trues, 1)
   }
 
-  test("outer product".only) {
+  test("outer product") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
     val v2 = NArray[Double](4.0, 5.0)
     val outer = v1.outer(v2)
