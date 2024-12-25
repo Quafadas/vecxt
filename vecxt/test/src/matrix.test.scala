@@ -276,6 +276,12 @@ class MatrixExtensionSuite extends FunSuite:
     assertEquals(mat.raw(1), 7.0)
   }
 
+  test("trace") {
+    val mat = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0), (2, 2))
+    println(mat.printMat)
+    assertEquals(mat.trace, 5.0)
+  }
+
   test("Matrix column extraction") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Matrix[Double](array, (2, 2))

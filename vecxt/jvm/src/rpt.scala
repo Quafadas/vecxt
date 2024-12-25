@@ -9,6 +9,7 @@ import vecxt.reinsurance.Retentions.*
   f(X;retention, limit) = MIN(MAX(X - retention, 0), limit))
 
   Note: mutates the input array
+  TODO: SIMD
  */
 object rpt:
   extension (vec: Array[Double])
