@@ -5,6 +5,10 @@ import vecxt.JvmDoubleMatrix.*
 import vecxt.arrays.*
 import vecxt.matrix.*
 
+// These are used in cross compilation.
+import vecxt.JsDoubleMatrix.*
+import vecxt.NativeDoubleMatrix.*
+
 import vecxt.matrixUtil.diag
 
 object DoubleMatrix:

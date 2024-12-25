@@ -278,7 +278,6 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("trace") {
     val mat = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0), (2, 2))
-    println(mat.printMat)
     assertEquals(mat.trace, 5.0)
   }
 
