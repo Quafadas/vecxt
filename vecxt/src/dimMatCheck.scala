@@ -6,18 +6,18 @@ import vecxt.matrix.*
 
 import narr.*
 
-protected[vecxt] object dimMatCheck:
+object dimMatCheck:
   inline def apply[A](a: Matrix[A], b: Matrix[A])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.cols != b.rows then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end dimMatCheck
 
-protected[vecxt] object sameDimMatCheck:
+object sameDimMatCheck:
   inline def apply[A, B](a: Matrix[A], b: Matrix[B])(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end sameDimMatCheck
 
-protected[vecxt] object indexCheckMat:
+object indexCheckMat:
   inline def apply[A](a: Matrix[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
@@ -26,7 +26,7 @@ protected[vecxt] object indexCheckMat:
         )
 end indexCheckMat
 
-protected[vecxt] object dimMatInstantiateCheck:
+object dimMatInstantiateCheck:
   inline def apply[A](raw: NArray[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if dim._1 * dim._2 != raw.size

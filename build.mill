@@ -102,6 +102,7 @@ object vecxt extends CrossPlatform {
 object vecxtensions extends CrossPlatform {
   override def moduleDeps: Seq[CrossPlatform] = Seq(vecxt)
   trait Shared extends CrossPlatformScalaModule with Common {
+
     // common `core` settings here
     trait SharedTests extends CommonTests {
       // common `core` test settings here
@@ -110,9 +111,10 @@ object vecxtensions extends CrossPlatform {
   object jvm extends Shared {
     override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
     def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-    def ivyDeps = super.ivyDeps() ++ Agg(
-
+    def ivyDeps = Agg(
+      ivy"org.typelevel::spire::0.18.0"
     )
+
 
     object test extends ScalaTests with SharedTests {
       def forkArgs = super.forkArgs() ++ vecIncubatorFlag
@@ -121,7 +123,8 @@ object vecxtensions extends CrossPlatform {
   object js extends Shared with CommonJS {
     override def ivyDeps: Target[Agg[Dep]] = super.ivyDeps() ++ Agg(
       ivy"com.lihaoyi::scalatags::0.13.1",
-      ivy"com.raquo::laminar::17.1.0"
+      ivy"com.raquo::laminar::17.1.0",
+      ivy"org.typelevel::spire::0.18.0"
     )
     // js specific settings here
     object test extends ScalaJSTests with SharedTests {
