@@ -32,6 +32,10 @@ object NativeDoubleMatrix:
         m.rows
       )
       Matrix(newArr, (m.rows, b.cols))
+
+
+    inline def * (n: Double): Matrix[Double] = Matrix( vecxt.arrays.*(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+    
 end NativeDoubleMatrix
 
 object JvmDoubleMatrix:

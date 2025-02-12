@@ -50,6 +50,10 @@ object JvmDoubleMatrix:
     inline def <(d: Double): Matrix[Boolean] =
       Matrix[Boolean](m.raw.lt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
+    
+    inline def * (n: Double): Matrix[Double] = Matrix( vecxt.arrays.*(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+
+
   end extension
 
 end JvmDoubleMatrix

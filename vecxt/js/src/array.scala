@@ -283,7 +283,7 @@ object arrays:
       blas.dscal(vec.length, d, vec, 1)
     end *=
 
-    inline def *(d: Double): Float64Array =
+    inline def *(d: Double): NArray[Double] =
       vec.nativeSlice().tap(_ *= d)
     end *
 

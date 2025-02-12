@@ -17,6 +17,7 @@ object JsDoubleMatrix:
     //   dimCheckLen(m.raw, b)
     //   (b / m.rows, b % m.rows)
     // end tupleFromIdx
+    inline def * (n: Double): Matrix[Double] = Matrix( vecxt.arrays.*(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)

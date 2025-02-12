@@ -25,6 +25,7 @@ object DoubleMatrix:
       m.diag.sum
     end trace
 
+
     // inline def >=(d: Double): Matrix[Boolean] =
     //   Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
