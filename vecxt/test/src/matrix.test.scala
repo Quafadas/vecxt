@@ -138,8 +138,6 @@ class MatrixExtensionSuite extends FunSuite:
 
     assertVecEquals(t5.raw, NArray[Double](-0.125, -0.375, -0.375, -0.125))
 
-    
-
   }
 
   test("Matrix creation from nested NArray") {
@@ -331,7 +329,6 @@ class MatrixExtensionSuite extends FunSuite:
     val mat2 = Matrix.eye[Double](3) + Matrix.eye[Double](3) // addition
     assertVecEquals(mat1.raw, mat2.raw)
   }
-
 
   test("invalid matrix fails to build") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
