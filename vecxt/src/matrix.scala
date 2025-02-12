@@ -17,12 +17,12 @@ object matrix:
 
   object Matrix:
 
-    inline def apply(raw: narr.native.DoubleArray, dim: RowCol)(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[Double] =
-      dimMatDInstantiateCheck(raw, dim)
-      (raw, dim)
-    end apply
+    // inline def apply(raw: narr.native.DoubleArray, dim: RowCol)(using
+    //     inline boundsCheck: BoundsCheck
+    // ): Matrix[Double] =
+    //   dimMatDInstantiateCheck(raw, dim)
+    //   (raw, dim)
+    // end apply
 
     inline def apply[@specialized(Double, Boolean, Int) A](raw: NArray[A], dim: RowCol)(using
         inline boundsCheck: BoundsCheck

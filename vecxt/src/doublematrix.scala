@@ -23,22 +23,22 @@ object DoubleMatrix:
     inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
     inline def *(n: Double): Matrix[Double] =
-      Matrix(vecxt.arrays.*(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.arrays.*(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def /(n: Double): Matrix[Double] =
-      Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def +(n: Double): Matrix[Double] =
-      Matrix(vecxt.arrays.+(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.arrays.+(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       val newArr = m.raw.add(m2.raw)
-      Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
     end +
 
     inline def -(n: Double): Matrix[Double] =
-      Matrix(vecxt.arrays.-(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.arrays.-(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     // inline def - : Matrix[Double] =
     //   Matrix(vecxt.arrays.*(m.raw)(-1), m.shape)(using BoundsCheck.DoBoundsCheck.no)
