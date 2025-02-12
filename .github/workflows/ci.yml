@@ -128,8 +128,8 @@ jobs:
         run: ./millw site.publishDocs
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - uses: actions/upload-artifact@v3
+        uses: actions/configure-pages@main
+      - uses: actions/upload-artifact@main
         with:
           name: page
           path: out/site/publishDocs.dest
@@ -145,14 +145,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@main
       with:
         name: page
         path: .
-    - uses: actions/configure-pages@v4
-    - uses: actions/upload-pages-artifact@v2
+    - uses: actions/configure-pages@main
+    - uses: actions/upload-pages-artifact@main
       with:
         path: .
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v3
+      uses: actions/deploy-pages@main
