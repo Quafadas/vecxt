@@ -281,7 +281,7 @@ object arrays:
       blas.cblas_dscal(vec.length, 1 / d, vec.at(0), 1)
 
     inline def /(d: Double) =
-      vec.clone.tap(_ *= d)
+      vec.clone.tap(_ /= d)
 
     def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean
