@@ -55,6 +55,7 @@ class VarianceBenchmark extends BLASBenchmark:
       // https://www.cuemath.com/sample-variance-formula/
       val μ = vec.mean
       vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+  end extension
 
 
 

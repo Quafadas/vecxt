@@ -8,6 +8,7 @@ import vecxt.arrays.*
 import vecxt.matrix.*
 
 import narr.*
+import narr.NArray
 
 object JsDoubleMatrix:
 
@@ -18,11 +19,14 @@ object JsDoubleMatrix:
     //   (b / m.rows, b % m.rows)
     // end tupleFromIdx
 
-    inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      sameDimMatCheck(m, m2)
-      val newArr: NArray[Double] = m.raw.add(m2.raw)
-      Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
-    end +
+    // inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    //   sameDimMatCheck(m, m2)
+    //   val newArr: NArray[Double] = m.raw.add(m2.raw)
+    //   Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+    // end +
+
+    // inline def /(n: Double): Matrix[Double] =
+    //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)

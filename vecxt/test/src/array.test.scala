@@ -154,7 +154,27 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(v3(2), 2, 0.00001)
   }
 
-  test("Array *= ") {
+  test("Array /= elementwise") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    v1 /= 2
+
+    assertEqualsDouble(v1(0), 0.5, 0.00001)
+    assertEqualsDouble(v1(1), 1.0, 0.00001)
+    assertEqualsDouble(v1(2), 1.5, 0.00001)
+
+  }
+
+  test("Array / elementwise") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+
+    val v2 = v1 / 2
+
+    assertEqualsDouble(v2(0), 0.5, 0.00001)
+    assertEqualsDouble(v2(1), 1.0, 0.00001)
+    assertEqualsDouble(v2(2), 1.5, 0.00001)
+  }
+
+  test("Array *= elementwise") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
     v1 *= 2
 
@@ -164,12 +184,12 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   }
 
-  test("Array * ") {
+  test("Array * elementwise") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
 
     val v2 = v1 * 2
 
-    assertEqualsDouble(v1(0), 1, 0.00001)
+    assertEqualsDouble(v2(0), 2.0, 0.00001)
     assertEqualsDouble(v2(1), 4, 0.00001)
     assertEqualsDouble(v2(2), 6, 0.00001)
   }

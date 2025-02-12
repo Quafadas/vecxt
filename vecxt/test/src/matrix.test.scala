@@ -2,18 +2,8 @@ package vecxt
 
 import munit.FunSuite
 import narr.*
-import vecxt.matrix.*
-import vecxt.arrays.`*`
+import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
-import vecxt.matrixUtil.*
-import vecxt.MatrixHelper.*
-import vecxt.MatrixInstance.*
-import vecxt.arrayUtil.*
-import vecxt.JsDoubleMatrix.*
-import vecxt.JvmNativeDoubleMatrix.*
-import vecxt.JvmDoubleMatrix.*
-import vecxt.DoubleMatrix.*
-import vecxt.NativeDoubleMatrix.*
 
 class MatrixExtensionSuite extends FunSuite:
 
@@ -129,6 +119,27 @@ class MatrixExtensionSuite extends FunSuite:
   test("ones") {
     val tensor = Matrix.ones[Double]((2, 2))
     assertVecEquals(tensor.raw, NArray[Double](1.0, 1.0, 1.0, 1.0))
+  }
+
+  test("multiply, divide, add, subtract elementwise") {
+    val mat = Matrix.eye[Double](2)
+
+    val t2 = mat + 1
+    assertEqualsDouble(t2.sum, 6.0, 0.0001)
+
+    val t3 = t2 * 2
+    assertEqualsDouble(t3.sum, 12.0, 0.0001)
+
+    val t4 = t3 - 5
+    assertEqualsDouble(t4.sum, -8.0, 0.0001)
+
+    val t5 = t4 / 8
+    assertEqualsDouble(t5.sum, -1.0, 0.0001)
+
+    assertVecEquals(t5.raw, NArray[Double](-0.125, -0.375, -0.375, -0.125))
+
+    
+
   }
 
   test("Matrix creation from nested NArray") {
@@ -313,6 +324,14 @@ class MatrixExtensionSuite extends FunSuite:
     val mat2 = Matrix.eye[Double](3) + Matrix.eye[Double](3) // addition
     assertVecEquals(mat1.raw, mat2.raw)
   }
+
+  test("matrix * elementwise") {
+    val mat1 = Matrix.eye[Double](3) // multiplication in place
+    mat1 *:*= 2
+    val mat2 = Matrix.eye[Double](3) + Matrix.eye[Double](3) // addition
+    assertVecEquals(mat1.raw, mat2.raw)
+  }
+
 
   test("invalid matrix fails to build") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)

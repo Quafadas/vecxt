@@ -26,6 +26,7 @@ object Retentions:
   end Retention
 
   extension (x: Retention) inline def retention: Double = x
+  end extension
 
   extension (loss: Double)
     inline def -(l: Retention): Double = loss - l
@@ -41,6 +42,7 @@ object Limits:
   end Limit
 
   extension (x: Limit) inline def limit: Double = x
+  end extension
 
   extension (in: Double)
     inline def >(l: Limit): Boolean = in > l

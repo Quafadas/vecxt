@@ -28,10 +28,12 @@ import vecxt.JsNativeBooleanArrays.trues
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
+  end extension
 end arrayUtil
 
 object arrays:
   extension (d: Float64Array) def printArr: String = d.mkString("[", ",", "]")
+  end extension
 
   extension (v: Float64Array)
     inline def nativeSort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
@@ -54,6 +56,7 @@ object arrays:
   end JsArrayFacade
 
   extension [A](v: js.Array[A]) inline def fill(a: A): Unit = v.asInstanceOf[JsArrayFacade].fill(a)
+  end extension
   extension (vec: js.Array[Boolean])
     // inline def trues: Int =
     //   var sum = 0
@@ -117,7 +120,7 @@ object arrays:
       newVec
     end apply
 
-    def increments: Float64Array =
+    def increments: NArray[Double] =
       val out = Float64Array(vec.length)
       out(0) = vec(0)
       var i = 1
@@ -192,7 +195,7 @@ object arrays:
     inline def corr(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
       pearsonCorrelationCoefficient(thatVector)
 
-    def elementRanks: Float64Array =
+    def elementRanks: NArray[Double] =
       val indexed1 = vec.zipWithIndex
       val indexed = indexed1.toArray.sorted(Ordering.by(_._1))
 
@@ -230,7 +233,7 @@ object arrays:
       end while
     end cumsum
 
-    inline def dot(v1: Float64Array)(using inline boundsCheck: BoundsCheck): Double =
+    inline def dot(v1: NArray[Double])(using inline boundsCheck: BoundsCheck): Double =
       dimCheck(vec, v1)
 
       var product = 0.0
@@ -244,17 +247,40 @@ object arrays:
 
     inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
 
-    inline def -(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Float64Array =
+    inline def +(d: Double): NArray[Double] =
+      vec.nativeSlice().tap(_ += d)
+
+    inline def +=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +=
+
+    inline def -(d: Double): NArray[Double] =
+      vec.nativeSlice().tap(_ -= d)
+    end -
+
+    inline def -=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - d
+        i = i + 1
+      end while
+    end -=
+
+    inline def -(vec2: NArray[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): NArray[Double] =
       dimCheck(vec, vec2)
       vec.nativeSlice().tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+    inline def -=(vec2: NArray[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
     end -=
 
-    inline def +(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Float64Array =
+    inline def +(vec2: NArray[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): NArray[Double] =
       dimCheck(vec, vec2)
       vec.nativeSlice().tap(_ += vec2)
     end +
@@ -271,7 +297,7 @@ object arrays:
       end while
     end +:+=
 
-    inline def +=(vec2: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+    inline def +=(vec2: NArray[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
     end +=
@@ -283,19 +309,19 @@ object arrays:
       blas.dscal(vec.length, d, vec, 1)
     end *=
 
-    inline def *(d: Double): Float64Array =
+    inline def *(d: Double): NArray[Double] =
       vec.nativeSlice().tap(_ *= d)
     end *
 
-    inline def /=(d: Double): Float64Array =
+    inline def /=(d: Double): NArray[Double] =
       vec.tap(v => blas.dscal(v.length, 1.0 / d, v, 1))
     end /=
 
-    inline def /(d: Double): Float64Array =
+    inline def /(d: Double): NArray[Double] =
       vec.nativeSlice().tap(_ /= d)
     end /
 
-    def covariance(thatVector: Float64Array): Double =
+    def covariance(thatVector: NArray[Double]): Double =
       val μThis = vec.mean
       val μThat = thatVector.mean
       var cv: Double = 0
@@ -311,8 +337,8 @@ object arrays:
     // val t = js.Math.max( vec.toArray: _* )
   end extension
 
-  extension (vec: Array[Float64Array])
-    inline def horizontalSum: Float64Array =
+  extension (vec: Array[NArray[Double]])
+    inline def horizontalSum: NArray[Double] =
       val out = new Float64Array(vec.head.length)
       var i = 0
       while i < vec.head.length do

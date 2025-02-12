@@ -577,6 +577,78 @@ object arrays:
 
     inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck) = vec + d
 
+    inline def +(d: Double): Array[Double] =
+      val out = new Array[Double](vec.length)
+      val inc = DoubleVector.broadcast(spd, d)
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .add(inc)
+          .intoArray(out, i)
+        i += spdl
+      end while
+
+      while i < vec.length - 1 do
+        out(i) = vec(i) + d
+        i = i + 1
+      end while
+      out
+    end +
+
+    inline def +=(d: Double): Unit =
+      val inc = DoubleVector.broadcast(spd, d)
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .add(inc)
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length - 1 do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +=
+
+    inline def -(d: Double): Array[Double] =
+      val out = new Array[Double](vec.length)
+      val inc = DoubleVector.broadcast(spd, d)
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .sub(inc)
+          .intoArray(out, i)
+        i += spdl
+      end while
+
+      while i < vec.length - 1 do
+        out(i) = vec(i) - d
+        i = i + 1
+      end while
+      out
+    end -
+
+    inline def -=(d: Double): Unit =
+      val inc = DoubleVector.broadcast(spd, d)
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .sub(inc)
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length - 1 do
+        vec(i) = vec(i) - d
+        i = i + 1
+      end while
+    end -=
+
     inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ += vec2)

@@ -33,6 +33,13 @@ object dimMatInstantiateCheck:
       then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatInstantiateCheck
 
+object dimMatDInstantiateCheck:
+  inline def apply[A](raw: narr.native.DoubleArray, dim: RowCol)(using inline doCheck: BoundsCheck) =
+    inline if doCheck then
+      if dim._1 * dim._2 != raw.size
+      then throw InvalidMatrix(dim._1, dim._2, raw.size)
+end dimMatDInstantiateCheck
+
 case class MatrixDimensionMismatch(aCols: Int, aRows: Int, bCols: Int, bRows: Int)
     extends Exception(
       s"Matrix dimensions do not match. Matrix A : ($aRows, $aCols), Matrix B : ($bRows, $bCols)"

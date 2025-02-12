@@ -246,6 +246,29 @@ object arrays:
     inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck) = vec + d
     inline def multInPlace(d: Double) = vec *= d
 
+    inline def -(d: Double): Array[Double] =
+      vec.clone().tap(_ -= d)
+    end -
+
+    inline def -=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - d
+        i = i + 1
+      end while
+    end -=
+
+    inline def +(d: Double): Array[Double] =
+      vec.clone().tap(_ += d)
+
+    inline def +=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +=
+
     inline def *=(d: Double) =
       blas.cblas_dscal(vec.length, d, vec.at(0), 1)
     end *=
@@ -253,6 +276,12 @@ object arrays:
     inline def *(d: Double) =
       vec.clone.tap(_ *= d)
     end *
+
+    inline def /=(d: Double) =
+      blas.cblas_dscal(vec.length, 1 / d, vec.at(0), 1)
+
+    inline def /(d: Double) =
+      vec.clone.tap(_ *= d)
 
     def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean

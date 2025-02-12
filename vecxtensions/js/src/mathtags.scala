@@ -25,6 +25,7 @@ object MathTagsLaminar:
             )
         )
       )
+  end extension
 
   val xmlns1 = htmlAttr[String]("xmlns", StringAsIsCodec)
   val math = htmlTag("math")

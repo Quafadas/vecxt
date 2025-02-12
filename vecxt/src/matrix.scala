@@ -17,6 +17,13 @@ object matrix:
 
   object Matrix:
 
+    inline def apply(raw: narr.native.DoubleArray, dim: RowCol)(using
+        inline boundsCheck: BoundsCheck
+    ): Matrix[Double] =
+      dimMatDInstantiateCheck(raw, dim)
+      (raw, dim)
+    end apply
+
     inline def apply[@specialized(Double, Boolean, Int) A](raw: NArray[A], dim: RowCol)(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
@@ -36,9 +43,6 @@ object matrix:
     inline def raw: NArray[A] = m._1
 
     inline def shape: RowCol = m._2
-
-    inline def mapInPlace(f: A => A): Unit =
-      m._1.mapInPlace(f)      
 
   end extension
 

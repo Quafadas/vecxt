@@ -1,13 +1,14 @@
 package vecxt.benchmark
 
-import dev.ludovic.netlib.blas.*;
+import dev.ludovic.netlib.blas.*
 
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.*
 
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import java.util.Random
+import java.util.concurrent.TimeUnit
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.IntVector
+import scala.compiletime.uninitialized
 
 @BenchmarkMode(Array(Mode.Throughput))
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -20,7 +21,7 @@ abstract class BLASBenchmark:
   final val spd = DoubleVector.SPECIES_PREFERRED
   final val spi = IntVector.SPECIES_PREFERRED
 
-  var blas: BLAS = _;
+  var blas: BLAS = uninitialized;
 
   @Setup
   def setupImplementation: Unit =

@@ -11,6 +11,10 @@ import vecxt.matrix.*
 
 object NativeDoubleMatrix:
   extension (m: Matrix[Double])
+
+    // inline def /(n: Double): Matrix[Double] =
+    //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+
     inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)
       val newArr = Array.ofDim[Double](m.rows * b.cols)
@@ -32,6 +36,8 @@ object NativeDoubleMatrix:
         m.rows
       )
       Matrix(newArr, (m.rows, b.cols))
+  end extension
+
 end NativeDoubleMatrix
 
 object JvmDoubleMatrix:
