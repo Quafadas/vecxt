@@ -37,6 +37,9 @@ object matrix:
 
     inline def shape: RowCol = m._2
 
+    inline def mapInPlace(f: A => A): Unit =
+      m._1.mapInPlace(f)      
+
   end extension
 
 end matrix
