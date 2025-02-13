@@ -140,6 +140,16 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
+  test("MAtrix addition and subtration") {
+    val mat1 = Matrix.eye[Double](2)
+    val mat2 = Matrix.eye[Double](2)
+    val result = mat1 + mat2
+    assertVecEquals(result.raw, NArray[Double](2.0, 0.0, 0.0, 2.0))
+
+    val result2 = mat1 - mat2
+    assertVecEquals(result2.raw, NArray[Double](0.0, 0.0, 0.0, 0.0))
+  }
+
   test("Matrix creation from nested NArray") {
     val nestedArr = NArray(
       NArray[Double](1.0, 2.0, 3.5), // col 1
