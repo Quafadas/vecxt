@@ -32,6 +32,9 @@ cosineSimilarity(v1, v2)
 
 (v1 / v2).printArr
 
+(v1.exp).printArr
+(v1.log).printArr
+
 (v1 > 2).printArr
 (v1 >= 2).printArr
 

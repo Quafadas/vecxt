@@ -25,10 +25,36 @@ import narr.*
 import scala.reflect.ClassTag
 import scala.scalajs.js.annotation.JSBracketAccess
 import vecxt.JsNativeBooleanArrays.trues
+import vecxt.arrays.nativeSlice
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
   end extension
+  extension (vec: NArray[Double])
+
+    inline def exp: NArray[Double] =
+      val out = vec.nativeSlice()
+      var i = 0
+      while i < out.length do
+        out(i) = Math.exp(out(i))
+        i = i + 1
+      end while
+      out
+
+    end exp
+
+    inline def log: NArray[Double] =
+      val out = vec.nativeSlice()
+      var i = 0
+      while i < out.length do
+        out(i) = Math.log(out(i))
+        i = i + 1
+      end while
+      out
+    end log
+
+  end extension
+
 end arrayUtil
 
 object arrays:

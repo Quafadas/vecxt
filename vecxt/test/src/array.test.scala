@@ -230,6 +230,22 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   }
 
+  test("exp") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v2 = v1.exp
+    assertEqualsDouble(v2(0), Math.exp(1.0), 0.00001)
+    assertEqualsDouble(v2(1), Math.exp(2.0), 0.00001)
+    assertEqualsDouble(v2(2), Math.exp(3.0), 0.00001)
+  }
+
+  test("log") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v2 = v1.log
+    assertEqualsDouble(v2(0), Math.log(1.0), 0.00001)
+    assertEqualsDouble(v2(1), Math.log(2.0), 0.00001)
+    assertEqualsDouble(v2(2), Math.log(3.0), 0.00001)
+  }
+
   // Check the vector loop
   test("countTrue") {
     val arrLong = NArray.fill(100)(true)

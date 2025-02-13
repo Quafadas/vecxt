@@ -61,6 +61,10 @@ result3.printMat
 val mat3 = mat2.transpose + mat1
 mat3.printMat
 
+mat1.exp.printMat
+
+mat1.log.printMat
+
 ```
 
 ## Slicing
