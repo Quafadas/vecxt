@@ -61,8 +61,8 @@ result3.printMat
 val mat3 = mat2.transpose + mat1
 mat3.printMat
 
-val mat3 = mat2.transpose - mat1
-mat3.printMat
+(mat2.transpose - mat1).printMat
+
 
 // TODO: Check performance of vectorised version on JVM
 mat1.exp.printMat
