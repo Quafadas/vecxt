@@ -16,13 +16,21 @@ v1.dot(v2)
 
 cosineSimilarity(v1, v2)
 
+(v1 + 1.0).printArr
+
 (v1 + v2).printArr
+
+(v1 - 1.0).printArr
 
 (v1 - v2).printArr
 
 (v1 * 2.0).printArr
 
+(v1 * v2).printArr
+
 (v1 / 2.0).printArr
+
+(v1 / v2).printArr
 
 (v1 > 2).printArr
 (v1 >= 2).printArr
