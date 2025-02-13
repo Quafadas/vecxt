@@ -71,6 +71,31 @@ object JsNativeDoubleArrays:
 
   extension (vec: NArray[Double])
 
+    inline def /(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
+      dimCheck(vec, d)
+      val n = vec.length
+      val res = NArray.ofSize[Double](n)
+      var i = 0
+      while i < n do
+        res(i) = vec(i) / d(i)
+        i += 1
+      end while
+      res
+    end /
+
+    inline def *(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
+      dimCheck(vec, d)
+      val n = vec.length
+      val res = NArray.ofSize[Double](n)
+
+      var i = 0
+      while i < n do
+        res(i) = vec(i) * d(i)
+        i += 1
+      end while
+      res
+    end *
+
     inline def outer(other: NArray[Double])(using ClassTag[Double]): Matrix[Double] =
       val n = vec.length
       val m = other.length

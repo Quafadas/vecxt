@@ -589,7 +589,7 @@ object arrays:
         i += spdl
       end while
 
-      while i < vec.length - 1 do
+      while i < vec.length do
         out(i) = vec(i) + d
         i = i + 1
       end while
@@ -607,7 +607,7 @@ object arrays:
         i += spdl
       end while
 
-      while i < vec.length - 1 do
+      while i < vec.length do
         vec(i) = vec(i) + d
         i = i + 1
       end while
@@ -672,6 +672,44 @@ object arrays:
     end +:+=
 
     inline def multInPlace(d: Double) = vec *= d
+
+    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+      dimCheck(vec, d)
+      val out = new Array[Double](vec.length)
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .mul(DoubleVector.fromArray(spd, d, i))
+          .intoArray(out, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        out(i) = vec(i) * d(i)
+        i = i + 1
+      end while
+      out
+    end *
+
+    inline def /(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+      dimCheck(vec, d)
+      val out = new Array[Double](vec.length)
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .div(DoubleVector.fromArray(spd, d, i))
+          .intoArray(out, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        out(i) = vec(i) / d(i)
+        i = i + 1
+      end while
+      out
+    end /
 
     inline def *=(d: Double): Array[Double] =
       vec.tap(v => blas.dscal(v.length, d, v, 1))

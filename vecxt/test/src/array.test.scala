@@ -19,6 +19,7 @@ package vecxt
 import narr.*
 import scala.util.chaining.*
 import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
@@ -192,6 +193,41 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(v2(0), 2.0, 0.00001)
     assertEqualsDouble(v2(1), 4, 0.00001)
     assertEqualsDouble(v2(2), 6, 0.00001)
+  }
+
+  test("Array * Array elementwise") {
+    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+
+    val v3: NArray[Double] = v1 * v2
+
+    assertEqualsDouble(v3(0), 1.0, 0.00001)
+    assertEqualsDouble(v3(1), 4.0, 0.00001)
+    assertEqualsDouble(v3(2), 9.0, 0.00001)
+    assertEqualsDouble(v3(3), 16.0, 0.00001)
+    assertEqualsDouble(v3(4), 25.0, 0.00001)
+
+    val vAdd: NArray[Double] = v1 + v2
+    assertEqualsDouble(vAdd(0), 2.0, 0.00001)
+    assertEqualsDouble(vAdd(1), 4.0, 0.00001)
+    assertEqualsDouble(vAdd(2), 6.0, 0.00001)
+    assertEqualsDouble(vAdd(3), 8.0, 0.00001)
+    assertEqualsDouble(vAdd(4), 10.0, 0.00001)
+
+    val vdiv: NArray[Double] = v1 / v2
+    assertEqualsDouble(vdiv(0), 1.0, 0.00001)
+    assertEqualsDouble(vdiv(1), 1.0, 0.00001)
+    assertEqualsDouble(vdiv(2), 1.0, 0.00001)
+    assertEqualsDouble(vdiv(3), 1.0, 0.00001)
+    assertEqualsDouble(vdiv(4), 1.0, 0.00001)
+
+    val vSub: NArray[Double] = v1 - v2
+    assertEqualsDouble(vSub(0), 0.0, 0.00001)
+    assertEqualsDouble(vSub(1), 0.0, 0.00001)
+    assertEqualsDouble(vSub(2), 0.0, 0.00001)
+    assertEqualsDouble(vSub(3), 0.0, 0.00001)
+    assertEqualsDouble(vSub(4), 0.0, 0.00001)
+
   }
 
   // Check the vector loop
