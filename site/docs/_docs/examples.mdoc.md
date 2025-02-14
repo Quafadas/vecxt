@@ -16,6 +16,8 @@ v1.dot(v2)
 
 v1.sum
 
+v1.cumsum
+
 v1.mean
 
 v1.variance
@@ -23,6 +25,8 @@ v1.variance
 v1.product
 
 v1.increments
+
+v1.norm
 
 cosineSimilarity(v1, v2)
 
