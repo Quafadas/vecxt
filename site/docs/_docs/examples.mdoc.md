@@ -14,6 +14,16 @@ val v2 = Array[Double](4, 5, 6)
 
 v1.dot(v2)
 
+v1.sum
+
+v1.mean
+
+v1.variance
+
+v1.product
+
+v1.increments
+
 cosineSimilarity(v1, v2)
 
 (v1 + 1.0).printArr
