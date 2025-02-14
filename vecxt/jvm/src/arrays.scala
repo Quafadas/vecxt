@@ -550,6 +550,23 @@ object arrays:
       temp
     end sum
 
+    inline def product: Double =
+      var i: Int = 0
+      var acc = DoubleVector.broadcast(spd, 1.0)
+
+      while i < spd.loopBound(vec.length) do
+        acc = acc.mul(DoubleVector.fromArray(spd, vec, i))
+        i += spdl
+      end while
+      var temp = acc.reduceLanes(VectorOperators.MUL)
+      // var temp = 0.0
+      while i < vec.length do
+        temp *= vec(i)
+        i += 1
+      end while
+      temp
+    end product
+
     inline def cumsum: Unit =
       var i = 1
       while i < vec.length do

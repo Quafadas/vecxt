@@ -91,6 +91,16 @@ object arrays:
       newVec
     end apply
 
+    inline def product: Double =
+      var sum = 1.0
+      var i = 0;
+      while i < vec.length do
+        sum *= vec(i)
+        i = i + 1
+      end while
+      sum
+    end product
+
     def increments: Array[Double] =
       val out = new Array[Double](vec.length)
       out(0) = vec(0)

@@ -176,6 +176,16 @@ object arrays:
       sum
     end sum
 
+    inline def product: Double =
+      var sum = 1.0
+      var i = 0;
+      while i < vec.length do
+        sum *= vec(i)
+        i = i + 1
+      end while
+      sum
+    end product
+
     def variance: Double =
       // https://www.cuemath.com/sample-variance-formula/
       val μ = vec.mean
