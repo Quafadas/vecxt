@@ -39,7 +39,7 @@ println(v1 + v2)
 
 ```
 
-Will throw a `VectorDimensionException` at runtime - which hopefully, will be easy to track down.
+Whereas the example below Will throw a `VectorDimensionException` at runtime - which hopefully, will be easy to track down.
 
 ```scala
 import vecxt.all.*
