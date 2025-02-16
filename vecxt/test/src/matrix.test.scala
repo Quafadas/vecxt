@@ -31,9 +31,7 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("max reduction") {
     val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
-    println(mat1.printMat)
     val maxR = mat1.max(Rows)
-    println(maxR.printMat)
     assertMatrixEquals(
       maxR,
       Matrix(
@@ -43,9 +41,53 @@ class MatrixExtensionSuite extends FunSuite:
     )
 
     val maxC = mat1.max(Cols)
-    println(maxC.printMat)
     assertMatrixEquals(maxC, Matrix(NArray[Double](4.0, 6.0), (1, 2)))
 
+  }
+
+  test("min reduction") {
+    val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
+    val minR = mat1.min(Rows)
+    assertMatrixEquals(
+      minR,
+      Matrix(
+        NArray[Double](1.0, 3.0, 2.0),
+        (3, 1)
+      )
+    )
+
+    val minC = mat1.min(Cols)
+    assertMatrixEquals(minC, Matrix(NArray[Double](1.0, 3.0), (1, 2)))
+  }
+
+  test("sum reduction") {
+    val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
+    val sumR = mat1.sum(Rows)
+    assertMatrixEquals(
+      sumR,
+      Matrix(
+        NArray[Double](6.0, 7.0, 8.0),
+        (3, 1)
+      )
+    )
+
+    val sumC = mat1.sum(Cols)
+    assertMatrixEquals(sumC, Matrix(NArray[Double](7.0, 14.0), (1, 2)))
+  }
+
+  test("product reduction") {
+    val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
+    val prodR = mat1.product(Rows)
+    assertMatrixEquals(
+      prodR,
+      Matrix(
+        NArray[Double](5.0, 12.0, 12.0),
+        (3, 1)
+      )
+    )
+
+    val prodC = mat1.product(Cols)
+    assertMatrixEquals(prodC, Matrix(NArray[Double](8.0, 90.0), (1, 2)))
   }
 
   test("element access") {

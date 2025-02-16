@@ -53,25 +53,26 @@ object DoubleMatrix:
     inline def log: Matrix[Double] =
       Matrix[Double](vecxt.arrayUtil.log(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
-    def max(dim: DimensionExtender): Matrix[Double] =
+    private inline def reduceAlongDimension(
+        dim: DimensionExtender,
+        op: (Double, Double) => Double,
+        initial: Double
+    ): Matrix[Double] =
       val whichDim = dim.asInt
       val newShape = m.shape match
         case (r, c) if whichDim == 0 => (r, 1)
         case (r, c) if whichDim == 1 => (1, c)
         case _                       => ???
 
-      val newArr = NArray.ofSize[Double](newShape._1 * newShape._2)
+      val newArr = NArray.fill(newShape._1 * newShape._2)(initial)
       var i = 0
       while i < m.shape._2 do
         var j = 0
         while j < m.shape._1 do
-          println(s"i: $i, j: $j. idx: ${i * m.shape._1 + j}, raw: ${m.raw(i * m.shape._1 + j)}")
           val idx = i * m.shape._1 + j
-          if whichDim == 0 then if m.raw(idx) > newArr(j) then newArr(j) = m.raw(idx)
+          if whichDim == 0 then newArr(j) = op(newArr(j), m.raw(idx))
           end if
-
-          if whichDim == 1 then if m.raw(idx) > newArr(i) then newArr(i) = m.raw(idx)
-
+          if whichDim == 1 then newArr(i) = op(newArr(i), m.raw(idx))
           end if
           j += 1
         end while
@@ -79,9 +80,23 @@ object DoubleMatrix:
       end while
 
       Matrix[Double](newArr, newShape)(using BoundsCheck.DoBoundsCheck.no)
+    end reduceAlongDimension
+
+    inline def max(dim: DimensionExtender): Matrix[Double] =
+      reduceAlongDimension(dim, math.max, Double.MinValue)
     end max
 
-    def min(dim: DimensionExtender) = ???
+    inline def min(dim: DimensionExtender): Matrix[Double] =
+      reduceAlongDimension(dim, math.min, Double.MaxValue)
+    end min
+
+    inline def sum(dim: DimensionExtender): Matrix[Double] =
+      reduceAlongDimension(dim, _ + _, 0.0)
+    end sum
+
+    inline def product(dim: DimensionExtender): Matrix[Double] =
+      reduceAlongDimension(dim, _ * _, 1.0)
+    end product
 
     // inline def - : Matrix[Double] =
     //   Matrix(vecxt.arrays.*(m.raw)(-1), m.shape)(using BoundsCheck.DoBoundsCheck.no)

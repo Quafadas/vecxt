@@ -70,6 +70,13 @@ mat1.exp.printMat
 // TODO: Check performance of vectorised version on JVM
 mat1.log.printMat
 
+(mat1.sum(Dimension.Rows).printMat)
+(mat1.max(Dimension.Cols).printMat)
+(mat1.min(Dimension.Rows).printMat)
+(mat1.product(Dimension.Cols).printMat)
+
+
+
 ```
 
 ## Slicing
