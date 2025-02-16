@@ -17,11 +17,13 @@
 package vecxt
 
 import narr.*
+import vecxt.matrix.Matrix
+import munit.Assertions.*
 
 extension [A <: AnyRef](o: A) def some: Some[A] = Some(o)
 end extension
 
-inline def assertVecEquals(v1: NArray[Double], v2: NArray[Double])(implicit loc: munit.Location): Unit =
+def assertVecEquals(v1: NArray[Double], v2: NArray[Double])(implicit loc: munit.Location): Unit =
   assert(v1.length == v2.length)
   var i: Int = 0;
   while i < v1.length do
@@ -30,7 +32,7 @@ inline def assertVecEquals(v1: NArray[Double], v2: NArray[Double])(implicit loc:
   end while
 end assertVecEquals
 
-inline def assertVecEquals(v1: NArray[Int], v2: NArray[Int])(implicit loc: munit.Location): Unit =
+def assertVecEquals(v1: NArray[Int], v2: NArray[Int])(implicit loc: munit.Location): Unit =
   var i: Int = 0;
   while i < v1.length do
     munit.Assertions.assertEquals(v1(i), v2(i), clue = s"at index $i")
@@ -38,7 +40,7 @@ inline def assertVecEquals(v1: NArray[Int], v2: NArray[Int])(implicit loc: munit
   end while
 end assertVecEquals
 
-inline def assertVecEquals(v1: NArray[Boolean], v2: NArray[Boolean])(implicit loc: munit.Location): Unit =
+def assertVecEquals(v1: NArray[Boolean], v2: NArray[Boolean])(implicit loc: munit.Location): Unit =
   var i: Int = 0;
   while i < v1.length do
     munit.Assertions.assertEquals(v1(i), v2(i), clue = s"at index $i")
@@ -46,7 +48,13 @@ inline def assertVecEquals(v1: NArray[Boolean], v2: NArray[Boolean])(implicit lo
   end while
 end assertVecEquals
 
-inline def assertVecEquals[A](v1: NArray[A], v2: NArray[A])(implicit loc: munit.Location): Unit =
+def assertMatrixEquals(m1: Matrix[Double], m2: Matrix[Double])(implicit loc: munit.Location): Unit =
+  assertEquals(m1.shape._1, m2.shape._1)
+  assertEquals(m1.shape._2, m2.shape._2)
+  assertVecEquals(m1.raw, m2.raw)
+end assertMatrixEquals
+
+def assertVecEquals[A](v1: NArray[A], v2: NArray[A])(implicit loc: munit.Location): Unit =
   var i: Int = 0;
   while i < v1.length do
     munit.Assertions.assertEquals(v1(i), v2(i), clue = s"at index $i")

@@ -4,6 +4,7 @@ import munit.FunSuite
 import narr.*
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
+import vecxt.dimensionExtender.DimensionExtender.Dimension.*
 
 class MatrixExtensionSuite extends FunSuite:
 
@@ -27,6 +28,25 @@ class MatrixExtensionSuite extends FunSuite:
   //   mat3.raw.printArr
   //   mat3.printMat
   // }
+
+  test("max reduction") {
+    val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
+    println(mat1.printMat)
+    val maxR = mat1.max(Rows)
+    println(maxR.printMat)
+    assertMatrixEquals(
+      maxR,
+      Matrix(
+        NArray[Double](5.0, 4.0, 6.0),
+        (3, 1)
+      )
+    )
+
+    val maxC = mat1.max(Cols)
+    println(maxC.printMat)
+    assertMatrixEquals(maxC, Matrix(NArray[Double](4.0, 6.0), (1, 2)))
+
+  }
 
   test("element access") {
 
