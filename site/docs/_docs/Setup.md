@@ -1,4 +1,4 @@
-Getting setup xPlatform might take a little effort.
+
 
 # JVM
 

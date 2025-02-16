@@ -43,7 +43,12 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 import narr.*
 
 val mat1 = Matrix(NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (2, 3))
+
+println(mat1.printMat)
 val mat2 = Matrix(NArray(7.0, 9.0, 11.0, 8.0, 10, 12.0), (3, 2))
+
+println(mat1.printMat)
+
 val result = mat1.matmul(mat2)
 
 result.printMat
