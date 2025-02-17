@@ -400,6 +400,11 @@ class MatrixExtensionSuite extends FunSuite:
     mat1 *:*= 2
     val mat2 = Matrix.eye[Double](3) + Matrix.eye[Double](3) // addition
     assertVecEquals(mat1.raw, mat2.raw)
+
+    val bah = mat1 * mat2
+
+    assertVecEquals(mat1.raw, mat2.raw)
+
   }
 
   test("invalid matrix fails to build") {
