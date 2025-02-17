@@ -13,7 +13,7 @@ object matrix:
     *
     * Storage is column major.
     */
-  opaque type Matrix[A] = (NArray[A], RowCol)
+  opaque type Matrix[@specialized(Double, Int) A] = (NArray[A], RowCol)
 
   object Matrix:
 

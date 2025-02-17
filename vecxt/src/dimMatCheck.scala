@@ -6,6 +6,13 @@ import vecxt.matrix.*
 
 import narr.*
 
+object BroadcasCheck:
+  inline def apply(m: Matrix[?], n: Matrix[?])(using inline doCheck: BoundsCheck) =
+    inline if doCheck then
+      if !(m.rows == n.rows || m.rows == 1 || n.rows == 1) || !(m.cols == n.cols || m.cols == 1 || n.cols == 1) then
+        throw BroadcastInvalid(m, n)
+end BroadcasCheck
+
 object dimMatCheck:
   inline def apply[A](a: Matrix[A], b: Matrix[A])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.cols != b.rows then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
@@ -48,4 +55,9 @@ case class MatrixDimensionMismatch(aCols: Int, aRows: Int, bCols: Int, bRows: In
 case class InvalidMatrix(cols: Int, rows: Int, data: Int)
     extends Exception(
       s"Matrix dimensions do not match. Matrix A : ($cols, $rows), is provided with data of length $data"
+    )
+
+case class BroadcastInvalid(m: Matrix[?], n: Matrix[?])
+    extends Exception(
+      s"Matrix dimensions do not match for broadcasting. Matrix A : (${m.rows}, ${m.cols}), Matrix B : (${n.rows}, ${n.cols}). One dimension must match, one dimnension must be one."
     )
