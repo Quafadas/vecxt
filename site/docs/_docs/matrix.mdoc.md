@@ -17,8 +17,13 @@ val nestedArr = NArray(
   NArray[Double](6.0, 7.0, 8.0)
 )
 
-val matrix = Matrix.fromRows(nestedArr)
-val matrix2 = Matrix.fromColumns(nestedArr)
+val mat3 = Matrix.fromRows(
+  NArray[Int](1,2)
+  NArray[Int](3,4)
+)
+
+val matrix = Matrix.fromRowsArray(nestedArr)
+val matrix2 = Matrix.fromColumnsArray(nestedArr)
 
 matrix.shape
 
