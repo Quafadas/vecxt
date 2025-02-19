@@ -3,7 +3,6 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.DoubleArrays.*
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 

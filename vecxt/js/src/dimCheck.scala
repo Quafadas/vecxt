@@ -26,7 +26,7 @@ case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
     )
 
 protected[vecxt] object dimCheckLen:
-  inline def apply(a: Float64Array, b: Int)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](a: NArray[A], b: Int)(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b then throw VectorDimensionMismatch(a.length, b)
 end dimCheckLen
 

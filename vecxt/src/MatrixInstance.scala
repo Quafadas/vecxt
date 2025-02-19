@@ -40,6 +40,32 @@ object MatrixInstance:
       end while
     end update
 
+    def update(
+        row: RangeExtender,
+        col: RangeExtender,
+        to: NArray[A]
+    ): Unit = // (using inline boundsCheck: BoundsCheck) =
+      // dimCheckLen(to, m.cols)
+      (row, col) match
+        case (_: ::.type, c: Int) =>
+          (0 until m.rows).foreach { i =>
+            val idx = c * m.rows + i
+            m.raw(idx) = to(i)
+          }
+
+        case (r: Int, _: ::.type) =>
+          (0 until m.cols).foreach { c =>
+            val idx = c * m.rows + r
+            m.raw(idx) = to(c)
+          }
+
+        case _ =>
+          throw new UnsupportedOperationException(
+            "Currently only allowed to update a single row or column. Use (0,::) to update the first row"
+          )
+      end match
+    end update
+
     inline def numel: Int = m.raw.length
 
     def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =

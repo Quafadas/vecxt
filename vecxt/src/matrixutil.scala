@@ -20,21 +20,21 @@ object matrixUtil:
 
   extension [A](m: Matrix[A])
 
-    private inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck) =
+    private inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck): RowCol =
       // dimCheckLen(m.raw, b)
       (b / m.rows, b % m.rows)
     end tupleFromIdx
 
     // TODO : probably has horrible performance
-    inline def mapRows(f: NArray[A] => NArray[A])(using ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[A] =
+    def mapRows(f: NArray[A] => NArray[A])(using ClassTag[A])(using boundsCheck: BoundsCheck): Matrix[A] =
       val newArr = NArray.ofSize[A](m.numel)
+      val m2 = Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       var idx = 0
-      while idx < m.numel do
-        val (row, col) = m.tupleFromIdx(idx)
-        newArr(idx) = f(m.row(row))(col)
+      while idx < m.rows do
+        m2(idx, ::) = f(m.row(idx))
         idx += 1
       end while
-      Matrix(newArr, m.shape)
+      m2
     end mapRows
 
     inline def mapRowsToScalar(f: NArray[A] => A)(using ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[A] =
@@ -49,10 +49,10 @@ object matrixUtil:
 
     inline def mapCols(f: NArray[A] => NArray[A])(using ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[A] =
       val newArr = NArray.ofSize[A](m.numel)
+      val m2 = Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       var idx = 0
-      while idx < m.numel do
-        val (row, col) = m.tupleFromIdx(idx)
-        newArr(idx) = f(m.col(col))(row)
+      while idx < m.rows do
+        m2(::, idx) = f(m.col(idx))
         idx += 1
       end while
       Matrix(newArr, m.shape)

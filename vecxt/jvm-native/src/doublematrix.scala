@@ -1,7 +1,4 @@
 package vecxt
-import vecxt.BoundsCheck.BoundsCheck
-import vecxt.arrays.*
-import vecxt.matrix.*
 
 object JvmNativeDoubleMatrix:
   // extension (m: Matrix[Double])

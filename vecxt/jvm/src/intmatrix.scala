@@ -1,13 +1,8 @@
 package vecxt
 
-import scala.reflect.ClassTag
-
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.arrays.*
-import vecxt.MatrixInstance.*
 import vecxt.matrix.*
-
-import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 
 object JvmIntMatrix:
   extension (m: Matrix[Int])
