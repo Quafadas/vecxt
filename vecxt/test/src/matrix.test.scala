@@ -93,10 +93,8 @@ class MatrixExtensionSuite extends FunSuite:
   test("element access") {
 
     val orig = Matrix.fromRows[Double](
-      NArray(
-        NArray(2.0, 0.0, -1.0),
-        NArray(0.0, 3.0, 4.0)
-      )
+      NArray(2.0, 0.0, -1.0),
+      NArray(0.0, 3.0, 4.0)
     )
 
     assertEqualsDouble(orig((0, 0)), 2, 0.0001)
@@ -110,11 +108,9 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("diagonal") {
     val orig = Matrix.fromRows[Double](
-      NArray(
-        NArray(2.0, 0.0, -1.0),
-        NArray(1.0, 3.0, 4.0),
-        NArray(0.0, 9.0, 5.0)
-      )
+      NArray(2.0, 0.0, -1.0),
+      NArray(1.0, 3.0, 4.0),
+      NArray(0.0, 9.0, 5.0)
     )
 
     val diag = orig.diag
@@ -145,11 +141,9 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("diagonal irregular") {
     val orig = Matrix.fromRows[Double](
-      NArray(
-        NArray(2.0, 0.0),
-        NArray(1.0, 3.0),
-        NArray(0.0, 9.0)
-      )
+      NArray(2.0, 0.0),
+      NArray(1.0, 3.0),
+      NArray(0.0, 9.0)
     )
 
     val diag = orig.diag
@@ -218,14 +212,14 @@ class MatrixExtensionSuite extends FunSuite:
       NArray[Double](3.0, 4.0, 5.0), // col 2
       NArray[Double](6.0, 7.0, 8.0) // col 2
     )
-    val matrix = Matrix.fromColumns[Double](nestedArr)
+    val matrix = Matrix.fromColumns[Double](nestedArr.toArray*)
     assertVecEquals(matrix.raw, NArray[Double](1.0, 2.0, 3.5, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0))
 
     val nestedArr3 = NArray(
       NArray[Double](1.0, 2.0, 3.5), // col 1
       NArray[Double](3.0, 4.0, 5.0) // col 2
     )
-    val matrix3 = Matrix.fromColumns[Double](nestedArr3)
+    val matrix3 = Matrix.fromColumns[Double](nestedArr3.toArray*)
     assertVecEquals(matrix3.raw, NArray[Double](1.0, 2.0, 3.5, 3.0, 4.0, 5.0))
 
     val nestedArr2 = NArray(
@@ -233,7 +227,7 @@ class MatrixExtensionSuite extends FunSuite:
       NArray[Double](2.0, 4.0), // row 2
       NArray[Double](3.5, 5.0) // row 3
     )
-    val matrix2 = Matrix.fromRows[Double](nestedArr2)
+    val matrix2 = Matrix.fromRows[Double](nestedArr2.toArray*)
     assertVecEquals(matrix2.raw, NArray[Double](1.0, 2.0, 3.5, 3.0, 4.0, 5.0))
 
   }
@@ -260,17 +254,13 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("Matrix transpose") {
     val orig = Matrix.fromRows(
-      NArray(
-        NArray(2.0, 0.0, -1.0),
-        NArray(0.0, 3.0, 4.0)
-      )
+      NArray(2.0, 0.0, -1.0),
+      NArray(0.0, 3.0, 4.0)
     )
     val transpose = Matrix.fromRows(
-      NArray(
-        NArray(2.0, 0.0),
-        NArray(0.0, 3.0),
-        NArray(-1.0, 4.0)
-      )
+      NArray(2.0, 0.0),
+      NArray(0.0, 3.0),
+      NArray(-1.0, 4.0)
     )
 
     val transposedMatrix = orig.transpose
@@ -287,10 +277,8 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("Tensor elementAt retrieval for 2D tensor") {
     val tensor = Matrix.fromRows(
-      NArray(
-        NArray[Double](1.0, 2.0),
-        NArray[Double](3.0, 4.0)
-      )
+      NArray[Double](1.0, 2.0),
+      NArray[Double](3.0, 4.0)
     )
     assertEquals(tensor((0, 0)), 1.0)
     assertEquals(tensor((0, 1)), 2.0)
@@ -423,30 +411,35 @@ class MatrixExtensionSuite extends FunSuite:
 
     intercept[java.lang.AssertionError](
       Matrix.fromColumns(
-        NArray(
-          NArray[Double](3.0, 2.0, 3.0),
-          NArray[Double](2.0, 1.0)
-        )
+        NArray[Double](3.0, 2.0, 3.0),
+        NArray[Double](2.0, 1.0)
       )
     )
 
     intercept[java.lang.AssertionError](
       Matrix.fromRows(
-        NArray(
-          NArray[Double](3.0, 2.0, 3.0),
-          NArray[Double](2.0, 1.0)
-        )
+        NArray[Double](3.0, 2.0, 3.0),
+        NArray[Double](2.0, 1.0)
       )
     )
   }
 
+  test("nice synatx") {
+    val mat = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0),
+      NArray[Double](7.0, 8.0, 9.0)
+    )
+    assertVecEquals(mat.row(0), NArray[Double](1.0, 2.0, 3.0))
+    assertVecEquals(mat.row(1), NArray[Double](4.0, 5.0, 6.0))
+    assertVecEquals(mat.row(2), NArray[Double](7.0, 8.0, 9.0))
+  }
+
   test("slice syntax") {
     val mat = Matrix.fromRows(
-      NArray(
-        NArray[Double](1.0, 2.0, 3.0),
-        NArray[Double](4.0, 5.0, 6.0),
-        NArray[Double](7.0, 8.0, 9.0)
-      )
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0),
+      NArray[Double](7.0, 8.0, 9.0)
     )
     val a = mat(::, ::)
     assertVecEquals(a.raw, mat.raw)

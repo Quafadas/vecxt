@@ -308,11 +308,9 @@ class ArrayExtensionSuite extends munit.FunSuite:
     val v2 = NArray[Double](4.0, 5.0)
     val outer = v1.outer(v2)
     val shouldBe = Matrix.fromRows[Double](
-      NArray(
-        NArray(4.0, 5.0),
-        NArray(8.0, 10.0),
-        NArray(12.0, 15.0)
-      )
+      NArray(4.0, 5.0),
+      NArray(8.0, 10.0),
+      NArray(12.0, 15.0)
     )
     assertEquals(outer.rows, 3)
     assertEquals(outer.cols, 2)

@@ -42,16 +42,16 @@ object JvmDoubleMatrix:
     // inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
     inline def >=(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](m.raw.gte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Boolean](vecxt.arrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def >(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](m.raw.gt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Boolean](vecxt.arrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def <=(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](m.raw.lte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Boolean](vecxt.arrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def <(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](m.raw.lt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
   end extension
 

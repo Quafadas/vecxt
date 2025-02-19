@@ -11,8 +11,32 @@ import narr.*
 object MatrixHelper:
   extension (m: Matrix.type)
 
-    inline def fromRows[A](
+    inline def fromRowsArray[A](
         a: NArray[NArray[A]]
+    )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
+      val rows = a.size
+      val cols = a.head.size
+
+      assert(a.forall(_.size == cols))
+
+      val newArr = NArray.ofSize[A](rows * cols)
+      var idx = 0
+      var i = 0
+      while i < cols do
+        var j = 0
+        while j < rows do
+          newArr(idx) = a(j)(i)
+          // println(s"row: $i || col: $j || ${a(j)(i)} entered at index ${idx}")
+          j += 1
+          idx += 1
+        end while
+        i += 1
+      end while
+      Matrix(newArr, (rows, cols))
+    end fromRowsArray
+
+    inline def fromRows[A](
+        a: NArray[A]*
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val rows = a.size
       val cols = a.head.size
@@ -36,7 +60,7 @@ object MatrixHelper:
     end fromRows
 
     inline def fromColumns[A](
-        a: NArray[NArray[A]]
+        a: NArray[A]*
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val cols = a.size
       val rows = a.head.size
@@ -56,6 +80,28 @@ object MatrixHelper:
       end while
       Matrix(newArr, (rows, cols))
     end fromColumns
+
+    inline def fromColumnsArray[A](
+        a: NArray[NArray[A]]
+    )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
+      val cols = a.size
+      val rows = a.head.size
+      assert(a.forall(_.size == rows))
+      val newArr = NArray.ofSize[A](rows * cols)
+      var idx = 0
+      var i = 0
+      while i < cols do
+        var j = 0
+        while j < rows do
+          newArr(idx) = a(i)(j)
+          // println(s"i: $i || j: $j || ${a(i)(j)} entered at index ${idx}")
+          j += 1
+          idx += 1
+        end while
+        i += 1
+      end while
+      Matrix(newArr, (rows, cols))
+    end fromColumnsArray
 
     transparent inline def zero[A] =
       inline erasedValue[A] match

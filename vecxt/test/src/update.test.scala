@@ -14,11 +14,9 @@ class UpdateSuite extends munit.FunSuite:
     setup = test =>
       val row1 = NArray[Double](1.0, 2.0)
       Matrix.fromRows(
-        NArray(
-          row1,
-          row1 +:+ 10,
-          row1 +:+ 20
-        )
+        row1,
+        row1 +:+ 10,
+        row1 +:+ 20
       )
     ,
     teardown = _ => ()
@@ -32,10 +30,8 @@ class UpdateSuite extends munit.FunSuite:
 
   test("matrix update with function") {
     val mat = Matrix.fromRows(
-      NArray(
-        NArray(1.0, 2.0),
-        NArray(3.0, 4.0)
-      )
+      NArray(1.0, 2.0),
+      NArray(3.0, 4.0)
     )
     mat(_ > 2.0) = 5.0
     assertEqualsDouble(mat(0, 0), 1.0, 0.0000001)
@@ -46,16 +42,12 @@ class UpdateSuite extends munit.FunSuite:
 
   test("matrix update from boolean matrix") {
     val mat = Matrix.fromRows[Double](
-      NArray(
-        NArray(1.0, 2.0),
-        NArray(3.0, 4.0)
-      )
+      NArray(1.0, 2.0),
+      NArray(3.0, 4.0)
     )
     val boolMat: Matrix[Boolean] = Matrix.fromRows[Boolean](
-      NArray(
-        NArray(true, false),
-        NArray(false, true)
-      )
+      NArray(true, false),
+      NArray(false, true)
     )
 
     mat(boolMat) = 5.0

@@ -96,7 +96,7 @@ object matrixUtil:
           val aRow = m.row(i)
           val els =
             for (el <- aRow)
-              yield el.toString
+              yield el.toString()
           els.mkString(" ")
       end arrArr
       arrArr.mkString("\n")

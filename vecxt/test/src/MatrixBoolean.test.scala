@@ -35,10 +35,8 @@ class MatrixBooleanSuite extends FunSuite:
 
   test("slice syntax") {
     val mat = Matrix.fromRows[Boolean](
-      NArray(
-        NArray[Boolean](true, false, true),
-        NArray[Boolean](false, true, false)
-      )
+      NArray[Boolean](true, false, true),
+      NArray[Boolean](false, true, false)
     )
 
     val b = mat(::, 0)
@@ -48,10 +46,8 @@ class MatrixBooleanSuite extends FunSuite:
 
   test("logicals") {
     val mat = Matrix.fromRows[Double](
-      NArray(
-        NArray[Double](1.0, 2.0),
-        NArray[Double](3.0, 4.0)
-      )
+      NArray[Double](1.0, 2.0),
+      NArray[Double](3.0, 4.0)
     )
 
     val lt = mat < 2.0

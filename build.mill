@@ -18,13 +18,19 @@ import mill.util.Jvm
 import mill.api.Result
 import com.goyeau.mill.scalafix.ScalafixModule
 
+object V {
+  val spire = "0.18.0"
+  val laminar = "17.2.0"
+  val scalatags = "0.13.1"
+}
+
 trait Common extends ScalaModule  with PublishModule with ScalafixModule {
   def scalaVersion = "3.6.2"
 
   def publishVersion = VcsVersion.vcsState().format()
 
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"io.github.quafadas::narr::0.0.5"
+    ivy"ai.dragonfly::narr::1.0"
   )
 
   override def scalacOptions: Target[Seq[String]] = super.scalacOptions() ++ Seq("-explain-cyclic", "-Wunused:imports")
@@ -48,7 +54,7 @@ trait Common extends ScalaModule  with PublishModule with ScalafixModule {
 val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
 
 trait CommonJS extends ScalaJSModule {
-  def scalaJSVersion = "1.17.0"
+  def scalaJSVersion = "1.18.2"
   // def ivyDeps = super.ivyDeps() ++ Seq(ivy"com.raquo::ew::0.2.0")
   // def moduleKind = ModuleKind.
 }
@@ -63,7 +69,7 @@ trait CommonNative extends ScalaNativeModule {
 
 trait CommonTests extends TestModule.Munit {
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.scalameta::munit::1.0.1",
+    ivy"org.scalameta::munit::1.1.0",
   )
 }
 
@@ -112,7 +118,7 @@ object vecxtensions extends CrossPlatform {
     override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
     def forkArgs = super.forkArgs() ++ vecIncubatorFlag
     def ivyDeps = Agg(
-      ivy"org.typelevel::spire::0.18.0"
+      ivy"org.typelevel::spire::${V.spire}"
     )
 
 
@@ -122,9 +128,9 @@ object vecxtensions extends CrossPlatform {
   }
   object js extends Shared with CommonJS {
     override def ivyDeps: Target[Agg[Dep]] = super.ivyDeps() ++ Agg(
-      ivy"com.lihaoyi::scalatags::0.13.1",
-      ivy"com.raquo::laminar::17.1.0",
-      ivy"org.typelevel::spire::0.18.0"
+      ivy"com.lihaoyi::scalatags::${V.scalatags}",
+      ivy"com.raquo::laminar::${V.laminar}",
+      ivy"org.typelevel::spire::${V.spire}"
     )
     // js specific settings here
     object test extends ScalaJSTests with SharedTests {
@@ -190,8 +196,8 @@ object jsSite extends SiteJSModule {
   override def moduleKind = ModuleKind.ESModule
   override def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.scala-js::scalajs-dom::2.8.0",
-    ivy"com.lihaoyi::scalatags::0.13.1",
-    ivy"com.raquo::laminar::17.0.0",
+    ivy"com.lihaoyi::scalatags::${V.scalatags}",
+    ivy"com.raquo::laminar::${V.laminar}",
     ivy"com.lihaoyi::upickle::4.0.2"
   )
 

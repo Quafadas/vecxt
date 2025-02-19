@@ -27,6 +27,8 @@ import vecxt.JsNativeBooleanArrays.trues
 
 object arrays:
 
+  export vecxt.JsNativeDoubleArrays.*
+
   extension (vec: Array[Boolean])
     // inline def trues: Int =
     //   var sum = 0

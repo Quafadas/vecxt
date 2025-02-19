@@ -2,6 +2,7 @@ package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.JvmDoubleMatrix.*
+import vecxt.JsNativeDoubleArrays.*
 import vecxt.arrays.*
 import vecxt.matrix.*
 

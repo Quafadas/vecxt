@@ -58,6 +58,8 @@ object arrayUtil:
 end arrayUtil
 
 object arrays:
+  export vecxt.JsNativeDoubleArrays.*
+
   extension (d: Float64Array) def printArr: String = d.mkString("[", ",", "]")
   end extension
 
