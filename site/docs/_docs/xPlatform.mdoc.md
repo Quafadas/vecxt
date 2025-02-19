@@ -20,8 +20,8 @@ import org.scalajs.dom
 
 def algo(a: NArray[Double], b :NArray[Double], c: Double ) = (a + b)  / c
 
-val a = NArray(1.0, 2.0, 3.0, 2.0)
-val b = NArray(4.0, 5.0, 6.0, 2.0)
+val a = NArray[Double](1.0, 2.0, 3.0, 2.0)
+val b = NArray[Double](4.0, 5.0, 6.0, 2.0)
 val c = 2.0
 
 // you'll have to look in the browser console to see this.
@@ -61,13 +61,11 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 val base = NArray[Double](11, 12, 13, 14, 15)
 val mat1 = Matrix.fromRows[Double](
-    NArray(
         base,
-        base +:+ 10.0,
-        base +:+ 20.0,
-        base +:+ 30.0,
-        base +:+ 40.0
-    )
+        base + 10.0,
+        base + 20.0,
+        base + 30.0,
+        base + 40.0
 )
 val nodeId = "matrixExample"
 node.id = "nodeId"
