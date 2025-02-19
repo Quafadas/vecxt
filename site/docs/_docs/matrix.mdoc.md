@@ -17,8 +17,8 @@ val nestedArr = NArray(
   NArray[Double](6.0, 7.0, 8.0)
 )
 
-val mat3 = Matrix.fromRows(
-  NArray[Int](1,2)
+val matInt = Matrix.fromRows(
+  NArray[Int](1,2),
   NArray[Int](3,4)
 )
 
