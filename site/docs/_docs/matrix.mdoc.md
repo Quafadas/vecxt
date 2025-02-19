@@ -85,7 +85,11 @@ mat1.log.printMat
 (mat1.min(Dimension.Rows).printMat)
 (mat1.product(Dimension.Cols).printMat)
 
+(mat1.mapRowsToScalar(_.sum).printMat)
+(mat1.mapRows(r => r / r.sum).printMat)
 
+(mat1.mapColsToScalar(_.sum).printMat)
+(mat1.mapCols(r => r / r.sum).printMat)
 
 ```
 
