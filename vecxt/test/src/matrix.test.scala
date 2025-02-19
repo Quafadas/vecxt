@@ -29,6 +29,12 @@ class MatrixExtensionSuite extends FunSuite:
   //   mat3.printMat
   // }
 
+  lazy val mat1to9 = Matrix.fromRows[Double](
+    NArray(1.0, 2.0, 3.0),
+    NArray(4.0, 5.0, 6.0),
+    NArray(7.0, 8.0, 9.0)
+  )
+
   test("max reduction") {
     val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
     val maxR = mat1.max(Rows)
@@ -425,22 +431,14 @@ class MatrixExtensionSuite extends FunSuite:
   }
 
   test("nice synatx") {
-    val mat = Matrix.fromRows[Double](
-      NArray[Double](1.0, 2.0, 3.0),
-      NArray[Double](4.0, 5.0, 6.0),
-      NArray[Double](7.0, 8.0, 9.0)
-    )
+    val mat = mat1to9
     assertVecEquals(mat.row(0), NArray[Double](1.0, 2.0, 3.0))
     assertVecEquals(mat.row(1), NArray[Double](4.0, 5.0, 6.0))
     assertVecEquals(mat.row(2), NArray[Double](7.0, 8.0, 9.0))
   }
 
   test("slice syntax") {
-    val mat = Matrix.fromRows(
-      NArray[Double](1.0, 2.0, 3.0),
-      NArray[Double](4.0, 5.0, 6.0),
-      NArray[Double](7.0, 8.0, 9.0)
-    )
+    val mat = mat1to9
     val a = mat(::, ::)
     assertVecEquals(a.raw, mat.raw)
 
@@ -459,6 +457,30 @@ class MatrixExtensionSuite extends FunSuite:
     val f = mat(NArray.from[Int](Array(0, 2)), 0 to 1)
     assertVecEquals(NArray[Double](1.0, 7.0, 2.0, 8.0), f.raw)
 
+  }
+
+  test("map rows") {
+    val mapped = mat1to9.mapRows(row => row * 2)
+    assertVecEquals(mapped.raw, NArray[Double](2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0))
+
+    val mapped2 = mat1to9.mapRowsToScalar(row => row.sum)
+    assertVecEquals(mapped2.raw, NArray[Double](6.0, 15.0, 24.0))
+
+    val mapped3 = mat1to9.mapRows(row => row / row.sum)
+    val row1 = mapped3(::, 0)
+    assertVecEquals(row1.raw, NArray[Double](1.0 / 6.0, 2.0 / 6.0, 3.0 / 6.0))
+  }
+
+  test("map cols") {
+    val mapped = mat1to9.mapCols(col => col * 2)
+    assertVecEquals(mapped.raw, NArray[Double](2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0))
+
+    val mapped2 = mat1to9.mapColsToScalar(col => col.sum)
+    assertVecEquals(mapped2.raw, NArray[Double](12.0, 15.0, 18.0))
+
+    val mapped3 = mat1to9.mapCols(col => col / col.sum)
+    val col1 = mapped3(0, ::)
+    assertVecEquals(col1.raw, NArray[Double](1.0 / 12.0, 4.0 / 12.0, 7.0 / 12.0))
   }
 
 end MatrixExtensionSuite

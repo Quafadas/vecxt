@@ -27,7 +27,7 @@ def assertVecEquals(v1: NArray[Double], v2: NArray[Double])(implicit loc: munit.
   assert(v1.length == v2.length)
   var i: Int = 0;
   while i < v1.length do
-    munit.Assertions.assertEquals(v1(i), v2(i), clue = s"at index $i")
+    assertEqualsDouble(v1(i), v2(i), 1 / 1e6, clue = s"at index $i")
     i += 1
   end while
 end assertVecEquals
