@@ -386,6 +386,126 @@ object arrays:
     //   newVec
 
     // end apply
+    private inline def unaryOp(inline op: VectorOperators.Unary): Unit =
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .lanewise(op)
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      if i < vec.length then
+        val mask = VectorMask.fromLong(spd, (1L << (vec.length - i)) - 1)
+        DoubleVector
+          .fromArray(spd, vec, i, mask)
+          .lanewise(op)
+          .intoArray(vec, i, mask)
+      end if
+    end unaryOp
+
+    inline def - : Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.NEG))
+
+    inline def -! : Unit =
+      unaryOp(VectorOperators.NEG)
+
+    inline def abs: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.ABS))
+
+    inline def `abs!`: Unit =
+      unaryOp(VectorOperators.ABS)
+
+    inline def acos: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.ACOS))
+
+    inline def `acos!`: Unit =
+      unaryOp(VectorOperators.ACOS)
+
+    inline def asin: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.ASIN))
+
+    inline def `asin!`: Unit =
+      unaryOp(VectorOperators.ASIN)
+
+    inline def atan: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.ATAN))
+
+    inline def `atan!`: Unit =
+      unaryOp(VectorOperators.ATAN)
+
+    inline def bitCount: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.BIT_COUNT))
+
+    inline def `bitCount!`: Unit =
+      unaryOp(VectorOperators.BIT_COUNT)
+
+    inline def cbrt: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.CBRT))
+
+    inline def `cbrt!`: Unit =
+      unaryOp(VectorOperators.CBRT)
+
+    inline def cos: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.COS))
+
+    inline def `cos!`: Unit =
+      unaryOp(VectorOperators.COS)
+
+    inline def cosh: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.COSH))
+
+    inline def `cosh!`: Unit =
+      unaryOp(VectorOperators.COSH)
+
+    inline def exp: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.EXP))
+
+    inline def `exp!`: Unit =
+      unaryOp(VectorOperators.EXP)
+
+    inline def expm1: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.EXPM1))
+
+    inline def `expm1!`: Unit =
+      unaryOp(VectorOperators.EXPM1)
+
+    inline def log: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.LOG))
+
+    inline def `log!`: Unit =
+      unaryOp(VectorOperators.LOG)
+
+    inline def log10: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.LOG10))
+
+    inline def `log10!`: Unit =
+      unaryOp(VectorOperators.LOG10)
+
+    inline def log1p: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.LOG1P))
+
+    inline def `log1p!`: Unit =
+      unaryOp(VectorOperators.LOG1P)
+
+    inline def sqrt: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.SQRT))
+
+    inline def `sqrt!`: Unit =
+      unaryOp(VectorOperators.SQRT)
+
+    inline def sin: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.SIN))
+
+    inline def `sin!`: Unit =
+      unaryOp(VectorOperators.SIN)
+
+    inline def sinh: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.SINH))
+
+    inline def `sinh!`: Unit =
+      unaryOp(VectorOperators.SINH)
 
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)

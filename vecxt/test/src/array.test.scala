@@ -47,6 +47,14 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   }
 
+  test("urnary ops") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+
+    assertVecEquals(v1.exp, NArray(v1.map(Math.exp).toArray*))
+    assertVecEquals(v1.log, NArray(v1.map(Math.log).toArray*))
+
+  }
+
   test("array indexing") {
     // val v1 = NArray[Double](1.0, 2.0, 3.0)
     // val vIdx = NArray[Boolean](true, false, true)

@@ -7,6 +7,7 @@ import scala.math.Ordering
 
 import narr.*
 import scala.reflect.ClassTag
+import scala.util.chaining.*
 
 object JsNativeBooleanArrays:
 
@@ -70,6 +71,73 @@ object JsNativeDoubleArrays:
   // end extension
 
   extension (vec: NArray[Double])
+
+    inline def exp: NArray[Double] =
+      applyUnaryOp(Math.exp)
+
+    inline def `exp!`: Unit =
+      applyUnaryOpInPlace(Math.exp)
+
+    inline def log: NArray[Double] =
+      applyUnaryOp(Math.log)
+
+    inline def `log!`: Unit =
+      applyUnaryOpInPlace(Math.log)
+
+    inline def sqrt: NArray[Double] =
+      applyUnaryOp(Math.sqrt)
+
+    inline def `sqrt!`: Unit =
+      applyUnaryOpInPlace(Math.sqrt)
+
+    inline def cbrt: NArray[Double] =
+      applyUnaryOp(Math.cbrt)
+
+    inline def `cbrt!`: Unit =
+      applyUnaryOpInPlace(Math.cbrt)
+
+    inline def sin: NArray[Double] =
+      applyUnaryOp(Math.sin)
+
+    inline def `sin!`: Unit =
+      applyUnaryOpInPlace(Math.sin)
+
+    inline def cos: NArray[Double] =
+      applyUnaryOp(Math.cos)
+
+    inline def `cos!`: Unit =
+      applyUnaryOpInPlace(Math.cos)
+
+    inline def tan: NArray[Double] =
+      applyUnaryOp(Math.tan)
+
+    inline def `tan!`: Unit =
+      applyUnaryOpInPlace(Math.tan)
+
+    inline def asin: NArray[Double] =
+      applyUnaryOp(Math.asin)
+
+    inline def `asin!`: Unit =
+      applyUnaryOpInPlace(Math.asin)
+
+    private inline def applyUnaryOp(inline op: Double => Double): NArray[Double] =
+      val newVec = NArray.ofSize[Double](vec.length)
+      NArray.copyDoubleArray(vec, newVec, 0)
+      var i = 0
+      while i < vec.length do
+        newVec(i) = op(vec(i))
+        i += 1
+      end while
+      newVec
+    end applyUnaryOp
+
+    private inline def applyUnaryOpInPlace(inline op: Double => Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = op(vec(i))
+        i += 1
+      end while
+    end applyUnaryOpInPlace
 
     inline def /(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
       dimCheck(vec, d)

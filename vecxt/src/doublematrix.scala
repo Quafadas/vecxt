@@ -61,10 +61,10 @@ object DoubleMatrix:
       Matrix[Double](vecxt.arrays.-(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def exp: Matrix[Double] =
-      Matrix[Double](vecxt.arrayUtil.exp(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.all.exp(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def log: Matrix[Double] =
-      Matrix[Double](vecxt.arrayUtil.log(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.all.log(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     private inline def reduceAlongDimension(
         dim: DimensionExtender,
