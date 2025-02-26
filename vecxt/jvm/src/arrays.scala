@@ -435,12 +435,6 @@ object arrays:
     inline def `atan!`: Unit =
       unaryOp(VectorOperators.ATAN)
 
-    inline def bitCount: Array[Double] =
-      vec.clone().tap(_.unaryOp(VectorOperators.BIT_COUNT))
-
-    inline def `bitCount!`: Unit =
-      unaryOp(VectorOperators.BIT_COUNT)
-
     inline def cbrt: Array[Double] =
       vec.clone().tap(_.unaryOp(VectorOperators.CBRT))
 
