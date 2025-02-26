@@ -120,6 +120,12 @@ object JsNativeDoubleArrays:
     inline def `asin!`: Unit =
       applyUnaryOpInPlace(Math.asin)
 
+    inline def - : NArray[Double] =
+      applyUnaryOp(-_)
+
+    inline def `-!`: Unit =
+      applyUnaryOpInPlace(-_)
+
     private inline def applyUnaryOp(inline op: Double => Double): NArray[Double] =
       val newVec = NArray.ofSize[Double](vec.length)
       var i = 0
