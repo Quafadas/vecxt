@@ -60,11 +60,31 @@ object DoubleMatrix:
     inline def -(n: Double): Matrix[Double] =
       Matrix[Double](vecxt.arrays.-(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
+    inline def `exp!`: Unit =
+      vecxt.arrays.`exp!`(m.raw)
+
+    inline def `log!`: Unit =
+      vecxt.arrays.`log!`(m.raw)
+
     inline def exp: Matrix[Double] =
       Matrix[Double](vecxt.all.exp(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def log: Matrix[Double] =
       Matrix[Double](vecxt.all.log(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+
+    inline def `sqrt!`: Unit =
+      vecxt.arrays.`sqrt!`(m.raw)
+
+    inline def sqrt: Matrix[Double] =
+      Matrix[Double](vecxt.all.sqrt(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+
+    inline def sin = Matrix[Double](vecxt.all.sin(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+
+    inline def `sin!` = vecxt.arrays.`sin!`(m.raw)
+
+    inline def cos = Matrix[Double](vecxt.all.cos(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+
+    inline def `cos!` = vecxt.arrays.`cos!`(m.raw)
 
     private inline def reduceAlongDimension(
         dim: DimensionExtender,

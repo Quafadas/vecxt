@@ -35,6 +35,8 @@ class MatrixExtensionSuite extends FunSuite:
     NArray(7.0, 8.0, 9.0)
   )
 
+  lazy val raw1to9 = mat1to9.raw
+
   test("max reduction") {
     val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
     val maxR = mat1.max(Rows)
@@ -94,6 +96,17 @@ class MatrixExtensionSuite extends FunSuite:
 
     val prodC = mat1.product(Cols)
     assertMatrixEquals(prodC, Matrix[Double](NArray[Double](8.0, 90.0), (1, 2)))
+  }
+
+  test("Some urnary ops") {
+    val checkThis = mat1to9.exp
+    mat1to9.log
+    mat1to9.sqrt
+    mat1to9.sin
+    mat1to9.cos
+
+    assertVecEquals(checkThis.raw, raw1to9.exp)
+
   }
 
   test("element access") {
