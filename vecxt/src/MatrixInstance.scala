@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 import matrix.*
 
 object MatrixInstance:
-  extension [A](m: Matrix[A])
+  extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
     inline def update(rc: RowCol, value: A)(using inline boundsCheck: BoundsCheck): Unit =
       indexCheckMat(m, (rc._1, rc._2): RowCol)
       val idx = rc._2 * m.rows + rc._1

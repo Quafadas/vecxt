@@ -18,7 +18,7 @@ object matrixUtil:
     case Left, Right
   end Horizontal
 
-  extension [A](m: Matrix[A])
+  extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
 
     private inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck): RowCol =
       // dimCheckLen(m.raw, b)

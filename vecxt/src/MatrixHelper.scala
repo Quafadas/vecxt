@@ -11,7 +11,7 @@ import narr.*
 object MatrixHelper:
   extension (m: Matrix.type)
 
-    inline def fromRowsArray[A](
+    inline def fromRowsArray[@specialized(Double, Boolean, Int) A](
         a: NArray[NArray[A]]
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val rows = a.size
@@ -35,7 +35,7 @@ object MatrixHelper:
       Matrix(newArr, (rows, cols))
     end fromRowsArray
 
-    inline def fromRows[A](
+    inline def fromRows[@specialized(Double, Boolean, Int) A](
         a: NArray[A]*
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val rows = a.size
@@ -59,7 +59,7 @@ object MatrixHelper:
       Matrix(newArr, (rows, cols))
     end fromRows
 
-    inline def fromColumns[A](
+    inline def fromColumns[@specialized(Double, Boolean, Int) A](
         a: NArray[A]*
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val cols = a.size
@@ -81,7 +81,7 @@ object MatrixHelper:
       Matrix(newArr, (rows, cols))
     end fromColumns
 
-    inline def fromColumnsArray[A](
+    inline def fromColumnsArray[@specialized(Double, Boolean, Int) A](
         a: NArray[NArray[A]]
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val cols = a.size
