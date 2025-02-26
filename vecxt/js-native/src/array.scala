@@ -122,7 +122,6 @@ object JsNativeDoubleArrays:
 
     private inline def applyUnaryOp(inline op: Double => Double): NArray[Double] =
       val newVec = NArray.ofSize[Double](vec.length)
-      NArray.copyDoubleArray(vec, newVec, 0)
       var i = 0
       while i < vec.length do
         newVec(i) = op(vec(i))
