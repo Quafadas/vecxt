@@ -59,6 +59,22 @@ cosineSimilarity(v1, v2)
 
 (v1.outer(v2)).printMat
 
+v1.exp.printArr
+
+v1.log.printArr
+
+v1.sin.printArr
+
+(-v1).printArr
+
+// Many of the urnary ops also have in place version, which would prevent an extra allocation. They have a `!` in their name by convention, and return `Unit`
+
+v1.`exp!`
+v1.printArr
+
+v1.`log!`
+v1.printArr
+
 ```
 And Ints. Note that the API here is more limited at the moment.
 

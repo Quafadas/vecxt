@@ -6,7 +6,16 @@ Vecxt matrix is a higher kinded thing with no bounds. Vecxt tries to squeeze the
 
 Here we offer a matrix multiplication extension method based on Spires typeclasses.
 
-```scala
+```scala sc:nocompile
+
+import spire.implicits.*
+import spire.algebra.Ring
+import scala.reflect.ClassTag
+import vecxt.*
+import vecxt.all.*
+import vecxt.BoundsCheck.BoundsCheck
+import narr.*
+import BoundsCheck.DoBoundsCheck.yes
 
 object SpireExt:
 
@@ -49,7 +58,9 @@ object SpireExt:
   end extension
 end SpireExt
 
+import SpireExt.*
 
+// example from tests
 val mat1 = Matrix.fromRows[Complex[Double]](
   NArray[Complex[Double]](Complex(1.0, -1.0), Complex(0.0, 2.0), Complex(-2.0, 1.0)),
   NArray[Complex[Double]](Complex(0.0, -3.0), Complex(3.0, -2.0), Complex(-1.0, -1.0))
@@ -61,9 +72,8 @@ val mat2 = Matrix.fromRows[Complex[Double]](
   NArray[Complex[Double]](Complex(-2.0, 1.0), Complex(-4.0, 1.0))
 )
 
-import SpireExt.*
 
-mat1 @@@ mat2
+ mat1 @@@ mat2
 
 ```
 

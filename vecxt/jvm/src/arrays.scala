@@ -405,7 +405,7 @@ object arrays:
       end if
     end unaryOp
 
-    inline def - : Array[Double] =
+    inline def unary_- : Array[Double] =
       vec.clone().tap(_.unaryOp(VectorOperators.NEG))
 
     inline def -! : Unit =
