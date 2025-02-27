@@ -128,6 +128,13 @@ object MatrixHelper:
         case _: Boolean => eyeOf(one[A], dim)(zero[A])
         case _          => error("Unsupported eye type")
 
+    inline def eye[A: ClassTag](dim: RowCol): Matrix[A] =
+      inline erasedValue[A] match
+        case _: Int     => eyeOf(one[A], dim)(zero[A])
+        case _: Double  => eyeOf(one[A], dim)(zero[A])
+        case _: Boolean => eyeOf(one[A], dim)(zero[A])
+        case _          => error("Unsupported eye type")
+
     inline def ones[A: ClassTag](dim: RowCol): Matrix[A] =
       inline erasedValue[A] match
         case _: Int     => fill(one[A], dim)
@@ -156,6 +163,23 @@ object MatrixHelper:
         i += 1
       end while
       Matrix[A](newArr, (dim, dim))(using BoundsCheck.DoBoundsCheck.no)
+    end eyeOf
+
+    inline def eyeOf[A: ClassTag](singleton: A, row_col: RowCol)(zero: A): Matrix[A] =
+      val size = row_col._1 * row_col._2
+      val newArr: NArray[A] = NArray.ofSize[A](size)
+      var j = 0
+      while j < size do
+        newArr(j) = zero
+        j += 1
+      end while
+
+      var i = 0
+      while i < row_col._1 do
+        newArr(i * row_col._1 + i) = singleton
+        i += 1
+      end while
+      Matrix[A](newArr, row_col)(using BoundsCheck.DoBoundsCheck.no)
     end eyeOf
 
     inline def zeros[A: ClassTag](dim: RowCol): Matrix[A] =

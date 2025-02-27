@@ -88,8 +88,8 @@ object DoubleMatrix:
 
     private inline def reduceAlongDimension(
         dim: DimensionExtender,
-        op: (Double, Double) => Double,
-        initial: Double
+        inline op: (Double, Double) => Double,
+        inline initial: Double
     ): Matrix[Double] =
       val whichDim = dim.asInt
       val newShape = m.shape match
