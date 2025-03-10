@@ -1,12 +1,12 @@
 /*
  * Copyright 2023 quafadas
- *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -710,7 +710,7 @@ object arrays:
       while i < vec.length do
         leftProducts(i) = leftProducts(i) * rightProducts(i)
         i = i + 1
-      end while      
+      end while
 
       leftProducts
     end productExceptSelf
@@ -730,9 +730,10 @@ object arrays:
         result = inline op match
           case VectorOperators.MAX => Math.max(result, vec(i))
           case VectorOperators.MIN => Math.min(result, vec(i))
-          case _ => result
+          case _                   => result
         i += 1
-        
+      end while
+
       result
     end reduceOp
 
@@ -744,17 +745,17 @@ object arrays:
       reduceOp(VectorOperators.MIN, Double.MaxValue)
     end min
 
-    /**
-    * The formula for the logarithm of the sum of exponentials is:
-    * 
-    * logSumExp(x) = log(sum(exp(x_i))) for i = 1 to n
-    * 
-    * This is computed in a numerically stable way by subtracting the maximum value in the array before taking the exponentials:
-    * 
-    * logSumExp(x) = max(x) + log(sum(exp(x_i - max(x)))) for i = 1 to n
-     */
+    /** The formula for the logarithm of the sum of exponentials is:
+      *
+      * logSumExp(x) = log(sum(exp(x_i))) for i = 1 to n
+      *
+      * This is computed in a numerically stable way by subtracting the maximum value in the array before taking the
+      * exponentials:
+      *
+      * logSumExp(x) = max(x) + log(sum(exp(x_i - max(x)))) for i = 1 to n
+      */
     inline def logSumExp: Double =
-      val maxVal = vec.max      
+      val maxVal = vec.max
       var sumExpVec = DoubleVector.zero(spd)
       var i = 0
 
@@ -770,9 +771,9 @@ object arrays:
       while i < vec.length do
         sumExp += Math.exp(vec(i) - maxVal)
         i += 1
-      end while      
-      
-      maxVal + Math.log(sumExp)    
+      end while
+
+      maxVal + Math.log(sumExp)
     end logSumExp
 
     inline def cumsum: Unit =
