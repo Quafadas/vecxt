@@ -33,6 +33,9 @@ object DoubleMatrix:
     inline def +(n: Double): Matrix[Double] =
       Matrix[Double](vecxt.arrays.+(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
+    inline def -(n: Double): Matrix[Double] =
+      Matrix[Double](vecxt.arrays.-(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       val newArr = m.raw.add(m2.raw)
