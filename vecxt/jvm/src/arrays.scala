@@ -1,12 +1,15 @@
 /*
  * Copyright 2023 quafadas
- *
+ *
+
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *
+
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ *
+
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -937,14 +940,6 @@ object arrays:
       out
     end /
 
-    inline def *=(d: Double): Array[Double] =
-      vec.tap(v => blas.dscal(v.length, d, v, 1))
-    end *=
-
-    inline def *(d: Double): Array[Double] =
-      vec.clone.tap(_ *= d)
-    end *
-
     inline def /=(d: Double): Array[Double] =
       vec.tap(v => blas.dscal(v.length, 1.0 / d, v, 1))
     end /=
@@ -952,6 +947,14 @@ object arrays:
     inline def /(d: Double): Array[Double] =
       vec.clone.tap(_ /= d)
     end /
+
+    inline def *=(d: Double): Array[Double] =
+      vec.tap(v => blas.dscal(v.length, d, v, 1))
+    end *=
+
+    inline def *(d: Double): Array[Double] =
+      vec.clone.tap(_ *= d)
+    end *
 
     inline def =:=(num: Double): Array[Boolean] =
       logicalIdx(VectorOperators.EQ, num)
