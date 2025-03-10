@@ -239,12 +239,18 @@ object arrays:
       Float64Array.of(ranks*)
     end elementRanks
 
-    inline def cumsum =
+    inline def `cumsum!` =
       var i = 1
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
         i = i + 1
       end while
+    end `cumsum!`
+
+    inline def cumsum: NArray[Double] =
+      val out = vec.nativeSlice()
+      out.`cumsum!`
+      out
     end cumsum
 
     inline def dot(v1: NArray[Double])(using inline boundsCheck: BoundsCheck): Double =

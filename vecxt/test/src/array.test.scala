@@ -121,7 +121,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("cumsum") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0).tap(_.cumsum)
+    val v1 = NArray[Double](1.0, 2.0, 3.0).cumsum
     assert(v1(0) == 1)
     assert(v1(1) == 3)
     assert(v1(2) == 6)

@@ -208,12 +208,18 @@ object arrays:
       sum
     end sum
 
-    inline def cumsum =
+    inline def `cumsum!`: Unit =
       var i = 1
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
         i = i + 1
       end while
+    end `cumsum!`
+
+    inline def cumsum: Array[Double] =
+      val out = vec.clone
+      out.`cumsum!`
+      out
     end cumsum
 
     inline def norm: Double = blas.cblas_dnrm2(vec.length, vec.at(0), 1)

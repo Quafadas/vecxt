@@ -779,12 +779,18 @@ object arrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-    inline def cumsum: Unit =
+    inline def `cumsum!`: Unit =
       var i = 1
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
         i = i + 1
       end while
+    end `cumsum!`
+
+    inline def cumsum: Array[Double] =
+      val out = vec.clone()
+      out.`cumsum!`
+      out
     end cumsum
 
     inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
