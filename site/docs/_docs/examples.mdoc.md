@@ -30,7 +30,7 @@ v1.productExceptSelf.printArr
 
 v1.increments.printArr
 
-v1.cumsum.printArr
+v1.logSumExp
 
 (v1 + 1.0).printArr
 
