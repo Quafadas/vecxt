@@ -681,6 +681,41 @@ object arrays:
       temp
     end product
 
+    inline def productExceptSelf: Array[Double] =
+      val n = vec.length
+      val leftProducts = new Array[Double](n)
+      val rightProducts = new Array[Double](n)
+
+      leftProducts(0) = 1.0
+      rightProducts(n - 1) = 1.0
+
+      var i = 1
+      var j = n - 2
+      while i < n do
+        leftProducts(i) = leftProducts(i - 1) * vec(i - 1)
+        rightProducts(j) = rightProducts(j + 1) * vec(j + 1)
+        i += 1
+        j -= 1
+      end while
+
+      i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, leftProducts, i)
+          .mul(DoubleVector.fromArray(spd, rightProducts, i))
+          .intoArray(leftProducts, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        leftProducts(i) = leftProducts(i) * rightProducts(i)
+        i = i + 1
+      end while      
+
+      leftProducts
+    end productExceptSelf
+
+
     inline def cumsum: Unit =
       var i = 1
       while i < vec.length do

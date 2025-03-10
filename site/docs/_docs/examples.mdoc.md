@@ -16,19 +16,21 @@ v1.dot(v2)
 
 v1.sum
 
-v1.cumsum
-
 v1.mean
 
 v1.variance
 
 v1.product
 
-v1.increments
-
 v1.norm
 
 cosineSimilarity(v1, v2)
+
+v1.productExceptSelf.printArr
+
+v1.increments.printArr
+
+v1.cumsum.printArr
 
 (v1 + 1.0).printArr
 

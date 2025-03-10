@@ -156,6 +156,36 @@ object JsNativeDoubleArrays:
       res
     end /
 
+    inline def productExceptSelf: NArray[Double] =
+      val n = vec.length
+      val left = NArray.ofSize[Double](n)
+      val right = NArray.ofSize[Double](n)
+      val result = NArray.ofSize[Double](n)
+
+      left(0) = 1.0
+      right(n - 1) = 1.0
+
+      var i = 1
+      while i < n do
+        left(i) = vec(i - 1) * left(i - 1)
+        i += 1
+      end while
+
+      i = n - 2
+      while i >= 0 do
+        right(i) = vec(i + 1) * right(i + 1)
+        i -= 1
+      end while
+
+      i = 0
+      while i < n do
+        result(i) = left(i) * right(i)
+        i += 1
+      end while
+
+      result
+    end productExceptSelf
+
     inline def *(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
       dimCheck(vec, d)
       val n = vec.length
