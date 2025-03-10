@@ -715,6 +715,65 @@ object arrays:
       leftProducts
     end productExceptSelf
 
+    private inline def reduceOp(op: VectorOperators.Binary, initial: Double): Double =
+      var i = 0
+      var vecAcc = DoubleVector.broadcast(spd, initial)
+
+      while i < spd.loopBound(vec.length) do
+        vecAcc = vecAcc.lanewise(op, DoubleVector.fromArray(spd, vec, i))
+        i += spdl
+      end while
+
+      var result = vecAcc.reduceLanes(op.asInstanceOf[VectorOperators.Associative])
+
+      while i < vec.length do
+        result = inline op match
+          case VectorOperators.MAX => Math.max(result, vec(i))
+          case VectorOperators.MIN => Math.min(result, vec(i))
+          case _ => result
+        i += 1
+        
+      result
+    end reduceOp
+
+    inline def max: Double =
+      reduceOp(VectorOperators.MAX, Double.MinValue)
+    end max
+
+    inline def min: Double =
+      reduceOp(VectorOperators.MIN, Double.MaxValue)
+    end min
+
+    /**
+    * The formula for the logarithm of the sum of exponentials is:
+    * 
+    * logSumExp(x) = log(sum(exp(x_i))) for i = 1 to n
+    * 
+    * This is computed in a numerically stable way by subtracting the maximum value in the array before taking the exponentials:
+    * 
+    * logSumExp(x) = max(x) + log(sum(exp(x_i - max(x)))) for i = 1 to n
+     */
+    inline def logSumExp: Double =
+      val maxVal = vec.max      
+      var sumExpVec = DoubleVector.zero(spd)
+      var i = 0
+
+      while i < spd.loopBound(vec.length) do
+        val vecSegment = DoubleVector.fromArray(spd, vec, i)
+        val expSegment = vecSegment.sub(maxVal).lanewise(VectorOperators.EXP)
+        sumExpVec = sumExpVec.add(expSegment)
+        i += spdl
+      end while
+
+      var sumExp = sumExpVec.reduceLanes(VectorOperators.ADD)
+
+      while i < vec.length do
+        sumExp += Math.exp(vec(i) - maxVal)
+        i += 1
+      end while      
+      
+      maxVal + Math.log(sumExp)    
+    end logSumExp
 
     inline def cumsum: Unit =
       var i = 1

@@ -111,6 +111,11 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(v2(3), 6.0, 0.0001)
   }
 
+  test("logSumExp") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    assertEqualsDouble(v1.logSumExp, Math.log(Math.exp(1) + Math.exp(2) + Math.exp(3) + Math.exp(4) + Math.exp(5)), 0.0001)
+  }
+
   test("cumsum") {
     val v1 = NArray[Double](1.0, 2.0, 3.0).tap(_.cumsum)
     assert(v1(0) == 1)

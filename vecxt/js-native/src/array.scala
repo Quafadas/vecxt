@@ -186,6 +186,20 @@ object JsNativeDoubleArrays:
       result
     end productExceptSelf
 
+    /**
+    * The formula for the logarithm of the sum of exponentials is:
+    * 
+    * logSumExp(x) = log(sum(exp(x_i))) for i = 1 to n
+    * 
+    * This is computed in a numerically stable way by subtracting the maximum value in the array before taking the exponentials:
+    * 
+    * logSumExp(x) = max(x) + log(sum(exp(x_i - max(x)))) for i = 1 to n
+     */
+    inline def logSumExp: Double =
+      val maxVal = vec.max
+      val sumExp = vec.map(x => Math.exp(x - maxVal)).sum
+      maxVal + Math.log(sumExp)
+
     inline def *(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
       dimCheck(vec, d)
       val n = vec.length
