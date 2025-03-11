@@ -26,7 +26,7 @@ object matrixUtil:
     end tupleFromIdx
 
     // TODO : probably has horrible performance
-    def mapRows(f: NArray[A] => NArray[A])(using ClassTag[A])(using boundsCheck: BoundsCheck): Matrix[A] =
+    inline def mapRows(f: NArray[A] => NArray[A])(using ClassTag[A])(using boundsCheck: BoundsCheck): Matrix[A] =
       val newArr = NArray.ofSize[A](m.numel)
       val m2 = Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       var idx = 0

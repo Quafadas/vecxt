@@ -68,28 +68,33 @@ object MatrixInstance:
 
     inline def numel: Int = m.raw.length
 
-    def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
-      val newRows = range(rowRange, m.rows)
-      val newCols = range(colRange, m.cols)
-      val newArr = NArray.ofSize[A](newCols.size * newRows.size)
+    transparent inline def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]) =
+    
+      inline (rowRange, colRange) match 
+        case (rr: Int, cr: Int) =>
+          val idx = cr * m.rows + rr
+          m.raw(idx)
+        case _ =>
+          val newRows = range(rowRange, m.rows)
+          val newCols = range(colRange, m.cols)
+          val newArr = NArray.ofSize[A](newCols.size * newRows.size)
+          var idx = 0
 
-      var idx = 0
+          var i = 0
+          while i < newCols.length do
+            val colpos = newCols(i)
+            val stride = colpos * m.rows
+            var j = 0
+            while j < newRows.length do
+              val rowPos = newRows(j)
+              newArr(idx) = m.raw(stride + rowPos)
+              idx += 1
+              j += 1
+            end while
+            i += 1
+          end while
 
-      var i = 0
-      while i < newCols.length do
-        val colpos = newCols(i)
-        val stride = colpos * m.rows
-        var j = 0
-        while j < newRows.length do
-          val rowPos = newRows(j)
-          newArr(idx) = m.raw(stride + rowPos)
-          idx += 1
-          j += 1
-        end while
-        i += 1
-      end while
-
-      Matrix(newArr, (newRows.size, newCols.size))(using BoundsCheck.DoBoundsCheck.no)
+          Matrix(newArr, (newRows.size, newCols.size))(using BoundsCheck.DoBoundsCheck.no)
 
     end apply
 
