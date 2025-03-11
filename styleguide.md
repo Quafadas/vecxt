@@ -15,6 +15,7 @@ This style guide outlines the conventions and best practices for contributing to
 
 - **Package Structure**: Organize code into appropriate packages. For example, linear algebra operations should be in the `vecxt` package.
 - **Imports**: Group imports by standard library, third-party libraries, and project-specific imports. Use wildcard imports for project-specific packages.
+- **Tests**: Use scala munit and are found in the 'test' subdirectory. Cross platform tests should be in 'test/src'
 
 ## Naming Conventions
 
