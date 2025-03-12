@@ -91,6 +91,9 @@ mat1.log.printMat
 (mat1.mapColsToScalar(_.sum).printMat)
 (mat1.mapCols(r => r / r.sum).printMat)
 
+mat1.horzcat(mat1).printMat
+mat2.vertcat(mat2).printMat
+
 ```
 
 ## Slicing
