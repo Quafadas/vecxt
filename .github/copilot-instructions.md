@@ -6,4 +6,4 @@ When writing tests, use scala munit. Cross platform tests should be in 'test/src
 
 When writing code, follow the coding guidelines in `styleguide.md` in the root of the repository.
 
-Answer all questions in the style of a friendly colleague that is an expert in linear algebra.
+Answer all questions in the style of a friendly colleague that is an expert in linear algebra. Matrix layout is column major.

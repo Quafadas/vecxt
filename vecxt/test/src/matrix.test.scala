@@ -513,4 +513,40 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals(mapped(0, ::).raw, NArray[Double](1.0, 2.0, 3.0) / 6.0)
   }
 
+  test("horzcat") {
+    val mat1 = Matrix.fromRows(
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0)
+    )
+    val mat2 = Matrix.fromRows(
+      NArray[Double](7.0, 8.0, 9.0),
+      NArray[Double](10.0, 11.0, 12.0)
+    )
+    val expected = Matrix.fromRows(
+      NArray[Double](1.0, 2.0, 3.0, 7.0, 8.0, 9.0),
+      NArray[Double](4.0, 5.0, 6.0, 10.0, 11.0, 12.0)
+    )
+    val result = mat1.horzcat(mat2)
+    assertMatrixEquals(result, expected)
+  }
+
+  test("vertcat") {
+    val mat1 = Matrix.fromRows(
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0)
+    )
+    val mat2 = Matrix.fromRows(
+      NArray[Double](7.0, 8.0, 9.0),
+      NArray[Double](10.0, 11.0, 12.0)
+    )
+    val expected = Matrix.fromRows(
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0),
+      NArray[Double](7.0, 8.0, 9.0),
+      NArray[Double](10.0, 11.0, 12.0)
+    )
+    val result = mat1.vertcat(mat2)
+    assertMatrixEquals(result, expected)
+  }
+
 end MatrixExtensionSuite

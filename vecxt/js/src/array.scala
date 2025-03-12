@@ -170,6 +170,16 @@ object arrays:
       vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
     end variance
 
+    inline def unary_- : NArray[Double] =
+      val newVec = NArray.ofSize[Double](vec.length)
+      var i = 0
+      while i < vec.length do
+        newVec(i) = -vec(i)
+        i += 1
+      end while
+      newVec
+    end unary_-
+
     inline def pearsonCorrelationCoefficient(thatVector: Float64Array)(using
         inline boundsCheck: BoundsCheck.BoundsCheck
     ): Double =

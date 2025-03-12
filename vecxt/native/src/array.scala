@@ -222,6 +222,16 @@ object arrays:
       out
     end cumsum
 
+    inline def unary_- : Array[Double] =
+      val newVec = Array[Double](vec.length)
+      var i = 0
+      while i < vec.length do
+        newVec(i) = -vec(i)
+        i += 1
+      end while
+      newVec
+    end unary_-
+
     inline def norm: Double = blas.cblas_dnrm2(vec.length, vec.at(0), 1)
 
     inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =

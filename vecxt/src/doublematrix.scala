@@ -60,11 +60,9 @@ object DoubleMatrix:
       Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
     end -
 
-    // inline def -(n: Double): Matrix[Double] =
-    //   Matrix[Double](vecxt.arrays.-(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-
-    inline def unary_-(n: Double): Matrix[Double] =
-      Matrix[Double](vecxt.arrays.-(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+    inline def unary_- : Matrix[Double] =
+      Matrix[Double](vecxt.arrays.unary_-(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+    end unary_-
 
     inline def `exp!`: Unit =
       vecxt.arrays.`exp!`(m.raw)

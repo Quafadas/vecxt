@@ -149,5 +149,28 @@ object matrixUtil:
       m(::, i).raw
     end col
 
+    inline def horzcat(m2: Matrix[A])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]): Matrix[A] =
+      val newShape = (m.rows, m.cols + m2.cols)
+      val newArr = m.raw.appendedAll[A](m2.raw)
+      Matrix(newArr, newShape)
+    end horzcat
+
+    inline def vertcat(m2: Matrix[A])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]): Matrix[A] =
+      val newShape = (m.rows + m2.rows, m.cols)
+      val newArr: NArray[A] = NArray.ofSize[A](newShape._1 * newShape._2)
+
+      var i = 0
+      while i < m.cols do
+        val column = m.col(i)
+        val column2 = m2.col(i)
+        column.copyToNArray[A](newArr, i * newShape._1)
+        column2.copyToNArray[A](newArr, i * newShape._1 + m.rows)
+        i += 1
+      end while
+
+      Matrix(newArr, newShape)
+    end vertcat
+
   end extension
+
 end matrixUtil

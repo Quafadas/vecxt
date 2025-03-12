@@ -18,6 +18,7 @@ import mill.util.Jvm
 import mill.api.Result
 import com.goyeau.mill.scalafix.ScalafixModule
 
+// mill --import ivy:com.lihaoyi::mill-contrib-bloop:  mill.contrib.bloop.Bloop/install
 object V {
   val spire = "0.18.0"
   val laminar = "17.2.0"
