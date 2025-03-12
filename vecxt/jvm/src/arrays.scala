@@ -684,6 +684,16 @@ object arrays:
       temp
     end product
 
+    /** Given an array `nums` of n integers where n > 1, returns an array `output` such that `output[i]` is equal to the
+      * product of all the elements of `nums` except `nums[i]`.
+      *
+      * This method does not use division and runs in O(n) time complexity.
+      *
+      * @param nums
+      *   An array of integers.
+      * @return
+      *   An array where each element is the product of all the elements of `nums` except the element at the same index.
+      */
     inline def productExceptSelf: Array[Double] =
       val n = vec.length
       val leftProducts = new Array[Double](n)
