@@ -27,10 +27,16 @@ object indexCheckMat:
 end indexCheckMat
 
 object dimMatInstantiateCheck:
+
   inline def apply[A](raw: NArray[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if dim._1 * dim._2 != raw.size
       then throw InvalidMatrix(dim._1, dim._2, raw.size)
+
+  inline def apply[A](raw: NArray[A], dim: RowColDepth)(using inline doCheck: BoundsCheck) =
+    inline if doCheck then
+      if dim._1 * dim._2 * dim._3 != raw.size
+      then throw InvalidMatrix3(dim._1, dim._2, dim._3, raw.size)
 end dimMatInstantiateCheck
 
 object dimMatDInstantiateCheck:
@@ -48,4 +54,8 @@ case class MatrixDimensionMismatch(aCols: Int, aRows: Int, bCols: Int, bRows: In
 case class InvalidMatrix(cols: Int, rows: Int, data: Int)
     extends Exception(
       s"Matrix dimensions do not match. Matrix A : ($cols, $rows), is provided with data of length $data"
+    )
+case class InvalidMatrix3(cols: Int, rows: Int, depth: Int, data: Int)
+    extends Exception(
+      s"Matrix dimensions do not match. Matrix A : ($cols, $rows, $depth), is provided with data of length $data which does not match"
     )

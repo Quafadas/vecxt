@@ -11,6 +11,7 @@ object all:
   // matricies
 
   export vecxt.matrix.*
+  export vecxt.matrix3.*
   export vecxt.matrixUtil.*
   export vecxt.MatrixHelper.*
   export vecxt.MatrixInstance.*
