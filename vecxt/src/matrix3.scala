@@ -76,9 +76,6 @@ object matrix3:
         for j <- 0 until cols do
           for k <- 0 until depth do
             val idx = k * rows * cols + j * rows + i
-            println(s"i: $i, j: $j, k: $k")
-            println(s"idx: $idx")
-            println("value: " + thismat.raw(j * depth + k))
             rawData(idx) = thismat.raw(j * depth + k)
           end for
         end for
