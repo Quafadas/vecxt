@@ -117,5 +117,23 @@ mat(1, 1).printMat
 mat(0 to 1, 0 to 1).printMat
 mat(NArray.from[Int](Array(0, 2)), 0 to 1).printMat
 
+```
+
+## Indexing
+
+```scala mdoc:to-string
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+import narr.*
+
+val mat4 = Matrix.fromRows(
+    NArray[Double](1.0, 2.0, 3.0),
+    NArray[Double](4.0, 5.0, 6.0),
+    NArray[Double](7.0, 8.0, 9.0)
+)
+
+mat4((1,1))
+
+mat4(Array((1,1), (2,2))).printMat
 
 ```

@@ -10,6 +10,8 @@ import scala.compiletime.*
 import scala.reflect.ClassTag
 
 import matrix.*
+import vecxt.MatrixHelper.zeros
+import vecxt.MatrixInstance.update
 
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
@@ -95,10 +97,28 @@ object MatrixInstance:
 
     /** element retrieval
       */
-    inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck) =
+    inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck): A =
       indexCheckMat(m, b)
       val idx = b._2 * m.rows + b._1
       m.raw(idx)
+    end apply
+
+    /** Returns a matrix of the same dimension, all elements are zero except those selected by the index
+      *
+      * @param indexes
+      * @param boundsCheck
+      * @param ct
+      * @return
+      */
+    inline def apply(indexes: Array[RowCol])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]): Matrix[A] =
+      val newMat = Matrix.zeros(m.shape)
+      var i = 0
+      while i < indexes.length do
+        val nextEntry = m(indexes(i))
+        newMat(indexes(i)) = nextEntry
+        i += 1
+      end while
+      newMat
     end apply
 
     inline def rows: Row = m.shape._1

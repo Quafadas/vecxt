@@ -305,6 +305,17 @@ class MatrixExtensionSuite extends FunSuite:
     assertEquals(tensor((1, 1)), 4.0)
   }
 
+  test("list indexes") {
+    val indexes = Array((0, 1), (1, 0), (1, 1))
+    val newMat = mat1to9(indexes)
+
+    assertEquals(newMat.raw.length, 9)
+    println(mat1to9.raw.printArr)
+    println(newMat.raw.printArr)
+    assertVecEquals(newMat.raw, NArray[Double](0.0, 4.0, 0.0, 2.0, 5.0, 0.0, 0.0, 0.0, 0.0))
+
+  }
+
   // test("Tensor elementAt retrieval for 3D tensor") {
   //   val tensor = Matrix(NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0), (2, 2, 2))
   //   assertEquals(tensor.elementAt((0, 0, 0)), 1.0)
