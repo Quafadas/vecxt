@@ -24,15 +24,19 @@ v1.product
 
 v1.norm
 
+v1.corr(v2)
+
+v1.spearmansRankCorrelation(v2)
+
 cosineSimilarity(v1, v2)
 
 v1.productExceptSelf.printArr
 
 v1.increments.printArr
 
-v1.cumsum.printArr
-
 v1.logSumExp
+
+v1.cumsum.printArr
 
 (v1 + 1.0).printArr
 
@@ -72,12 +76,22 @@ v1.sin.printArr
 (-v1).printArr
 
 // Many of the urnary ops also have in place version, which would prevent an extra allocation. They have a `!` in their name by convention, and return `Unit`
+// Most trig operations are available but not listed here.
 
 v1.`exp!`
 v1.printArr
 
 v1.`log!`
 v1.printArr
+
+v1.`sin!`
+v1.printArr
+
+v1.`cos!`
+v1.printArr
+
+v1.sin.printArr
+v1.cos.printArr
 
 ```
 And Ints. Note that the API here is more limited at the moment.
