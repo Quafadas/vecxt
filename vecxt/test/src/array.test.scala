@@ -55,6 +55,30 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   }
 
+  test("Double - array") {
+    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: NArray[Double] = 2.0 - v1
+    assertVecEquals(v2, NArray(v1.map(2.0 - _).toArray*))
+  }
+
+  test("Double * array") {
+    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: NArray[Double] = 2.0 * v1
+    assertVecEquals(v2, NArray(v1.map(2.0 * _).toArray*))
+  }
+
+  test("Double + array") {
+    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: NArray[Double] = 2.0 + v1
+    assertVecEquals(v2, NArray(v1.map(2.0 + _).toArray*))
+  }
+
+  test("Double / array") {
+    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: NArray[Double] = 2.0 / v1
+    assertVecEquals(v2, NArray(v1.map(2.0 / _).toArray*))
+  }
+
   test("array indexing") {
     // val v1 = NArray[Double](1.0, 2.0, 3.0)
     // val vIdx = NArray[Boolean](true, false, true)

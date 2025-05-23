@@ -189,7 +189,7 @@ object jsSite extends SiteJSModule {
   override def scalaVersion = vecxt.js.scalaVersion
   override def scalaJSVersion = vecxt.js.scalaJSVersion
 
-  override def scalaJsCompilerVersion: String = "3.6.2"
+  // override def scalaJsCompilerVersion: String = "3.6.2"
 
 
   // override def allScalacOptions: T[Seq[String]] = super.allScalacOptions`() ++ Seq("-experimental", "-language:experimental.namedTuples")
@@ -220,7 +220,6 @@ object site extends SiteModule {
   override def forkArgs: T[Seq[String]] = super.forkArgs() ++ vecIncubatorFlag
   def scalaVersion = vecxt.jvm.scalaVersion
   override def moduleDeps = Seq(vecxt.jvm)
-  override def scalaDocOptions = super.scalaDocOptions
 
   override def scalacOptions: T[Seq[String]] = super.scalacOptions() ++ Seq("-experimental", "-language:experimental.namedTuples")
 

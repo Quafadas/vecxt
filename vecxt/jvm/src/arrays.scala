@@ -344,6 +344,73 @@ object arrays:
     end apply
   end extension
 
+  extension (d: Double)
+    inline def /(arr: Array[Double]) =
+      val out = new Array[Double](arr.length)
+
+      var i = 0
+      while i < spd.loopBound(arr.length) do
+        DoubleVector.broadcast(spd, d).div(DoubleVector.fromArray(spd, arr, i)).intoArray(out, i)
+        i += spdl
+      end while
+
+      while i < arr.length do
+        out(i) = d / arr(i)
+        i = i + 1
+      end while
+      out
+    end /
+
+    inline def +(arr: Array[Double]) =
+      val out = new Array[Double](arr.length)
+      val inc = DoubleVector.broadcast(spd, d)
+
+      var i = 0
+      while i < spd.loopBound(arr.length) do
+        DoubleVector.fromArray(spd, arr, i).add(inc).intoArray(out, i)
+        i += spdl
+      end while
+
+      while i < arr.length do
+        out(i) = d + arr(i)
+        i = i + 1
+      end while
+      out
+    end +
+
+    inline def -(arr: Array[Double]) =
+      val out = new Array[Double](arr.length)
+      var i = 0
+      while i < spd.loopBound(arr.length) do
+        DoubleVector.broadcast(spd, d).sub(DoubleVector.fromArray(spd, arr, i)).intoArray(out, i)
+        i += spdl
+      end while
+
+      while i < arr.length do
+        out(i) = d - arr(i)
+        i = i + 1
+      end while
+      out
+    end -
+
+    inline def *(arr: Array[Double]) =
+      val out = new Array[Double](arr.length)
+      val inc = DoubleVector.broadcast(spd, d)
+      var i = 0
+      while i < spd.loopBound(arr.length) do
+        DoubleVector.fromArray(spd, arr, i).mul(inc).intoArray(out, i)
+        i += spdl
+      end while
+
+      while i < arr.length do
+        out(i) = d * arr(i)
+        i = i + 1
+      end while
+      out
+    end *
+
+  end extension
+
   extension (vec: Array[Double])
 
     /** Apparently, left packing is hard problem in SIMD land.

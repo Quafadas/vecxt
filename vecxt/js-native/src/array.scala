@@ -42,6 +42,53 @@ end JsNativeBooleanArrays
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
 object JsNativeDoubleArrays:
 
+  extension (d: Double)
+    inline def /(arr: NArray[Double]) =
+      val out = new NArray[Double](arr.length)
+      var i = 0
+
+      while i < arr.length do
+        out(i) = d / arr(i)
+        i = i + 1
+      end while
+      out
+    end /
+
+    inline def +(arr: NArray[Double]) =
+      val out = new NArray[Double](arr.length)
+      var i = 0
+
+      while i < arr.length do
+        out(i) = d + arr(i)
+        i = i + 1
+      end while
+      out
+    end +
+
+    inline def -(arr: NArray[Double]) =
+      val out = new NArray[Double](arr.length)
+      var i = 0
+
+      while i < arr.length do
+        out(i) = d - arr(i)
+        i = i + 1
+      end while
+      out
+    end -
+
+    inline def *(arr: NArray[Double]) =
+      val out = new NArray[Double](arr.length)
+      var i = 0
+
+      while i < arr.length do
+        out(i) = d * arr(i)
+        i = i + 1
+      end while
+      out
+    end *
+
+  end extension
+
   extension (m: Matrix[Double])
     inline def >=(d: Double): Matrix[Boolean] =
       Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
