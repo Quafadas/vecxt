@@ -48,7 +48,7 @@ jobs:
         if: matrix.project == 'js'
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
           cache: npm
       - name: formatCheck
         run: ./millw mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
@@ -92,7 +92,13 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Publish to Maven Central
-        run: ./millw -i mill.scalalib.PublishModule/publishAll --sonatypeUri https://s01.oss.sonatype.org/service/local --sonatypeCreds "${{ secrets.SONATYPE_USERNAME }}:${{ secrets.SONATYPE_PASSWORD }}" --gpgArgs "--passphrase=${{ secrets.PGP_PASSPHRASE}},--batch,--yes,-a,-b,--pinentry-mode,loopback" --readTimeout 1200000 --awaitTimeout 1200000 --release true --signed true
+        run: ./mill --import "ivy:com.lihaoyi::mill-contrib-sonatypecentral:" mill.contrib.sonatypecentral.SonatypeCentralPublishModule/publishAll --publishArtifacts __.publishArtifacts
+        env:
+          MILL_PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          MILL_PGP_SECRET_BASE64: ${{ secrets.PGP_SECRET }}
+          MILL_SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          MILL_SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
 
   site:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

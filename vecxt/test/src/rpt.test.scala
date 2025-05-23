@@ -65,27 +65,31 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - ret and limit") {
-    val v = NArray[Double](8, 11, 16)
+    val v = NArray[Double](8, 11, 16, 10.0, 11.0)
     v.franchiseFunction(Some(Limit(5.0)), Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 11.0)
     assert(v(2) == 15.0)
+    assert(v(3) == 10.0)
+
   }
 
   test("franchise function - ret only") {
-    val v = NArray[Double](8, 11, 16)
+    val v = NArray[Double](8, 11, 16, 10.0, 11.0)
     v.franchiseFunction(None, Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 11.0)
     assert(v(2) == 16.0)
+    assert(v(3) == 10.0)
   }
 
   test("franchise function - Limit only") {
-    val v = NArray[Double](8, 11, 16)
+    val v = NArray[Double](8, 11, 16, 10.0, 11.0)
     v.franchiseFunction(Some(Limit(10.0)), None)
     assert(v(0) == 8.0)
     assert(v(1) == 10.0)
     assert(v(2) == 10.0)
+    assert(v(3) == 10.0)
   }
 
   test("franchise function - No ret or limit") {
