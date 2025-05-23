@@ -4,7 +4,6 @@ import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
-import vecxt.arrayUtil.printArr
 import vecxt.matrix.*
 
 import narr.*

@@ -11,8 +11,6 @@ import vecxt.reinsurance.Retentions.*
  */
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
-import vecxt.arrays.gt
-
 object rpt:
   private val SPECIES = DoubleVector.SPECIES_PREFERRED
   private val SPECIES_LENGTH = SPECIES.length()

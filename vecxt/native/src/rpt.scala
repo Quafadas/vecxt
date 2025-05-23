@@ -85,7 +85,7 @@ object rpt:
           var i = 0;
           while i < vec.length do
             val tmp = vec(i)
-            if tmp > retention.retention then vec(i) = tmp
+            if tmp >= retention.retention then vec(i) = tmp
             else vec(i) = 0.0
             end if
             i = i + 1
