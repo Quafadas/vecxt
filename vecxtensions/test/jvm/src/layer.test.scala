@@ -22,7 +22,7 @@ class ScenarioRISuite extends munit.FunSuite:
 
   test("Layer default construction") {
     val layer = Layer()
-    
+
     // Check defaults
     assert(layer.layerId != null)
     assertEquals(layer.layerName, None)

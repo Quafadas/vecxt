@@ -84,15 +84,15 @@ case class Layer(
       feeAmount,
       feeUnit.map(_ * scale),
       feeDescription.map(d => s"$d at $feeUnit * $scale"),
-      reinstatement, 
+      reinstatement,
       currency
     )
   end applyScale
 end Layer
 
-case class Sublayer(limit :Option[Double], retention: Option[Double], layerType : LossCalc, aggOrOcc: DeductibleType  ) 
+case class Sublayer(limit: Option[Double], retention: Option[Double], layerType: LossCalc, aggOrOcc: DeductibleType)
 
-case class Tower(id: UUID, name: Option[String], layers: Seq[Layer], subjPremium : Option[Double] = None) {
+case class Tower(id: UUID, name: Option[String], layers: Seq[Layer], subjPremium: Option[Double] = None):
   def applyScale(scale: Double): Tower =
     Tower(
       id = UUID.randomUUID(),
@@ -101,5 +101,4 @@ case class Tower(id: UUID, name: Option[String], layers: Seq[Layer], subjPremium
       subjPremium = subjPremium.map(_ * scale)
     )
   end applyScale
-}
-  
+end Tower
