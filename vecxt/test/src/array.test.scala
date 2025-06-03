@@ -33,6 +33,29 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(out.contains("5"))
   }
 
+  test("unique") {
+    val v1 = NArray[Double](1, 2, 3, 2, 1, 4)
+    val unique = v1.unique
+    assertEquals(unique.length, 4)
+    assertEquals(unique(0), 1.0)
+    assertEquals(unique(1), 2.0)
+    assertEquals(unique(2), 3.0)
+    assertEquals(unique(3), 4.0)
+
+    val v2 = NArray[Double](1, 1, 1, 1, 1)
+    val unique2 = v2.unique
+    assertEquals(unique2.length, 1)
+
+    val v3 = NArray[Double]()
+    val unique3 = v3.unique
+    assertEquals(unique3.length, 0)
+
+    val v4 = NArray[Double](1, 2, 3, 4, 5)
+    val unique4 = v4.unique 
+    assertEquals(unique4.length, 5)    
+
+  }
+
   test("Array horizontal sum") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
     val v2 = v1 * 2.0
