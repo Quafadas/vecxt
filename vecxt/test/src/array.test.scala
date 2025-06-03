@@ -51,8 +51,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(unique3.length, 0)
 
     val v4 = NArray[Double](1, 2, 3, 4, 5)
-    val unique4 = v4.unique 
-    assertEquals(unique4.length, 5)    
+    val unique4 = v4.unique
+    assertEquals(unique4.length, 5)
 
   }
 
