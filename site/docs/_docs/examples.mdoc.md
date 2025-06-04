@@ -14,15 +14,19 @@ val v2 = Array[Double](4, 5, 6)
 
 v1.dot(v2)
 
-v1.sum
+v1.sumSIMD // .sum is slow due to boxing. We can't squat on `sum` so we need a new name
 
 v1.mean
 
 v1.variance
 
-v1.product
+v1.productSIMD
 
 v1.norm
+
+v1.maxSIMD
+
+v1.minSIMD
 
 v1.corr(v2)
 

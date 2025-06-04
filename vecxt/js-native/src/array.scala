@@ -119,6 +119,9 @@ object JsNativeDoubleArrays:
 
   extension (vec: NArray[Double])
 
+    inline def productSIMD: Double = vecxt.arrays.product(vec)
+    inline def sumSIMD: Double = vecxt.arrays.sum(vec)
+
     inline def `fma!`(multiply: Double, add: Double): Unit =
       var i = 0
       while i < vec.length do

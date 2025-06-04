@@ -47,19 +47,19 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
     vecxtMatB = vecxt.matrix.Matrix(dataB.clone(), (dim, dim))
   end setup
 
-  @Benchmark
-  def vecxtMinimalTest(bh: Blackhole): Unit =
-    // Just test one simple operation
-    val result = vecxtMatA.sum
-    bh.consume(result)
-  end vecxtMinimalTest
+  // @Benchmark
+  // def vecxtMinimalTest(bh: Blackhole): Unit =
+  //   // Just test one simple operation
+  //   val result = vecxtMatA.sum
+  //   bh.consume(result)
+  // end vecxtMinimalTest
 
-  @Benchmark
-  def breezeMinimalTest(bh: Blackhole): Unit =
-    // Just test one simple operation
-    val result = breeze.linalg.sum(breezeMatA)
-    bh.consume(result)
-  end breezeMinimalTest
+  // @Benchmark
+  // def breezeMinimalTest(bh: Blackhole): Unit =
+  //   // Just test one simple operation
+  //   val result = breeze.linalg.sum(breezeMatA)
+  //   bh.consume(result)
+  // end breezeMinimalTest
 
   @Benchmark
   def breezeWorkload(bh: Blackhole): Unit =
@@ -75,7 +75,7 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
     val step8 = (step7 > 0.5) // Comparison
 
     // Combine results to prevent dead code elimination
-    val result = step5 + (if step8 then 1.0 else 0.0)
+    val result = step5 + (if step8 then 1.0 else 0.0) + breeze.linalg.max(step4)
     bh.consume(result)
   end breezeWorkload
 
@@ -93,7 +93,7 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
     val step8 = (step7 > 0.5) // Comparison
 
     // Combine results to prevent dead code elimination
-    val result = step5 + (if step8 then 1.0 else 0.0)
+    val result = step5 + (if step8 then 1.0 else 0.0) + step4.maxSIMD
     bh.consume(result)
   end vecxtWorkload
 

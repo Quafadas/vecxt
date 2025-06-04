@@ -144,7 +144,8 @@ object DoubleMatrix:
       m.diag.sum
     end trace
 
-    inline def sum = m.raw.sum
+    inline def sum: Double = sumSIMD
+    inline def sumSIMD: Double = vecxt.arrays.sum(m.raw)
 
     // inline def >=(d: Double): Matrix[Boolean] =
     //   Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)

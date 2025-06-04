@@ -160,10 +160,10 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("product") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
-    assertEqualsDouble(v1.product, 6.0, 0.0001)
+    assertEqualsDouble(v1.productSIMD, 6.0, 0.0001)
 
     val v2 = NArray[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 1.0, 2.0, 3.0)
-    assertEqualsDouble(v2.product, 216.0, 0.0001)
+    assertEqualsDouble(v2.productSIMD, 216.0, 0.0001)
   }
 
   test("product except self") {

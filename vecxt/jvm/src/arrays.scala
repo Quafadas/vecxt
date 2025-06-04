@@ -239,7 +239,7 @@ object arrays:
 
     end increments
 
-    inline def sum: Int =
+    inline def sumSIMD: Int =
       var i: Int = 0
       var acc = IntVector.zero(spi)
 
@@ -254,7 +254,7 @@ object arrays:
         i += 1
       end while
       temp
-    end sum
+    end sumSIMD
 
     inline def dot(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
       dimCheck(vec, vec2)
@@ -712,12 +712,14 @@ object arrays:
       // https://www.cuemath.com/data/standard-deviation/
       val mu = vec.mean
       val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
-      Math.sqrt(diffs_2.sum / (vec.length - 1))
+      Math.sqrt(diffs_2.sumSIMD / (vec.length - 1))
     end stdDev
 
-    inline def mean: Double = vec.sum / vec.length
+    inline def mean: Double = vec.sumSIMD / vec.length
 
-    inline def sum: Double =
+    inline def sum: Double = sumSIMD
+
+    inline def sumSIMD: Double =
       var i: Int = 0
       var acc = DoubleVector.zero(spd)
 
@@ -732,9 +734,11 @@ object arrays:
         i += 1
       end while
       temp
-    end sum
+    end sumSIMD
 
-    inline def product: Double =
+    inline def product: Double = productSIMD
+
+    inline def productSIMD: Double =
       var i: Int = 0
       var acc = DoubleVector.broadcast(spd, 1.0)
 
@@ -749,7 +753,7 @@ object arrays:
         i += 1
       end while
       temp
-    end product
+    end productSIMD
 
     /** Given an array `nums` of n integers where n > 1, returns an array `output` such that `output[i]` is equal to the
       * product of all the elements of `nums` except `nums[i]`.
@@ -817,13 +821,14 @@ object arrays:
       result
     end reduceOp
 
-    inline def max: Double =
-      reduceOp(VectorOperators.MAX, Double.MinValue)
-    end max
+    inline def max: Double = maxSIMD
+    inline def min: Double = minSIMD
 
-    inline def min: Double =
+    inline def maxSIMD: Double =
+      reduceOp(VectorOperators.MAX, Double.MinValue)
+
+    inline def minSIMD: Double =
       reduceOp(VectorOperators.MIN, Double.MaxValue)
-    end min
 
     /** The formula for the logarithm of the sum of exponentials is:
       *

@@ -102,7 +102,7 @@ class SumIntBenchmark extends BLASBenchmark:
 
   @Benchmark
   def sum_vec_alt(bh: Blackhole) =
-    val r = arr.sum
+    val r = arr.sumSIMD
     bh.consume(r);
   end sum_vec_alt
 end SumIntBenchmark
