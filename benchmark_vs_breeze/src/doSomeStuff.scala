@@ -47,7 +47,7 @@ class SumBenchmark extends BLASBenchmark:
   @Setup(Level.Trial)
   def setup: Unit =
 
-    arr = randomDoubleArray(len.toInt);
+    arr = randomDoubleArray(len.toInt);    
     ()
 
   end setup
