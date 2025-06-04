@@ -42,11 +42,11 @@ object DoubleMatrix:
       Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
     end +
 
-    inline def *(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def hadamard(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       val newArr = vecxt.arrays.*(m.raw)(m2.raw)
       Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
-    end *
+    end hadamard
 
     inline def /(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)

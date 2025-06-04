@@ -40,6 +40,24 @@ object JvmDoubleMatrix:
 
     // inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
+    inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+      val newArr = Array.ofDim[Double](m.rows)
+      blas.dgemv(
+        "N",
+        m.rows,
+        m.cols,
+        1.0,
+        m.raw,
+        m.rows,
+        vec,
+        1,
+        0.0,
+        newArr,
+        1
+      )
+      newArr
+    end *
+
     inline def >=(d: Double): Matrix[Boolean] =
       Matrix[Boolean](vecxt.arrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 

@@ -1,106 +1,78 @@
-/*
- * Copyright 2020, 2021, Ludovic Henry
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- * Please contact git@ludovic.dev or visit ludovic.dev if you need additional
- * information or have any questions.
- */
-
 package vecxt.benchmark
 
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
-// import vecxt.Matrix.*
 import vecxt.BoundsCheck
 import scala.compiletime.uninitialized
 import vecxt.all.*
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
+import breeze.linalg.*
+import vecxt.BoundsCheck.DoBoundsCheck.no
 
+//% mill benchmark_vs_breeze.runJmh -jvmArgs --add-modules=jdk.incubator.vector
 @State(Scope.Thread)
-class SumBenchmark extends BLASBenchmark:
+class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
 
-  @Param(Array("10000"))
-  var len: String = uninitialized;
+  @Param(Array("500"))
+  var matDim: String = uninitialized
 
-  var arr: Array[Double] = uninitialized
+  var dataA: Array[Double] = uninitialized
+  var dataB: Array[Double] = uninitialized
+  var vectorData: Array[Double] = uninitialized
 
-  // format: off
-  @Setup(Level.Trial)
-  def setup: Unit =
-
-    arr = randomDoubleArray(len.toInt);    
-    ()
-
+  @Setup(Level.Invocation)
+  def setup(): Unit =
+    val dim = matDim.toInt
+    dataA = randomDoubleArray(dim * dim)
+    dataB = randomDoubleArray(dim * dim)
+    vectorData = randomDoubleArray(dim)
   end setup
 
-  extension (vec: Array[Double])
+  @Benchmark
+  def breezeWorkload(bh: Blackhole): Unit =
+    val dim = matDim.toInt
+    // Create matrices and vector from the same data
+    val matA = new DenseMatrix(dim, dim, dataA)
+    val matB = new DenseMatrix(dim, dim, dataB)
+    val vec = new DenseVector(vectorData)
 
-    inline def sum2 =
-      var sum: Double = 0.0
-      var i: Int = 0
-      val l = spd.length()
+    // Representative linear algebra workload
+    val step1 = matA + matB // Element-wise addition
+    val step2 = step1 *:* matA // Hadamard product
+    val step3 = step2 * vec // Matrix-vector multiply
+    val step4 = step3.map(_ * 2.0 + 1.0) // Element-wise transform
+    val step5 = breeze.linalg.norm(step4) // L2 norm
+    // val step6 = step2.t // Transpose
+    val step7 = breeze.linalg.sum(step2) // Sum reduction
+    val step8 = (step7 > 0.5) // Comparison
 
-      while i < spd.loopBound(vec.length) do
-        sum = sum + DoubleVector.fromArray(spd, vec, i).reduceLanes(VectorOperators.ADD)
-        i += l
-      end while
-      while i < vec.length do
-        sum += vec(i)
-        i += 1
-      end while
-      sum
-    end sum2
-
-    inline def sum3 =
-      var sum: Double = 0.0
-      var i: Int = 0
-      while i < vec.length do
-        sum = sum + vec(i)
-        i = i + 1
-      end while
-      sum
-    end sum3
-
-  end extension
-
-
+    // Combine results to prevent dead code elimination
+    val result = step5 + (if step8 then 1.0 else 0.0)
+    bh.consume(result)
+  end breezeWorkload
 
   @Benchmark
-  def sum_loop(bh: Blackhole) =
-    val r = arr.sum3
-    bh.consume(r);
-  end sum_loop
+  def vecxtWorkload(bh: Blackhole): Unit =
+    val dim = matDim.toInt
+    // Create matrices and vector from the same data
+    val matA = vecxt.matrix.Matrix(dataA, (dim, dim))
+    val matB = vecxt.matrix.Matrix(dataB, (dim, dim))
 
-  @Benchmark
-  def sum_vec(bh: Blackhole) =
-    val r = arr.sum2
-    bh.consume(r);
-  end sum_vec
+    // Same representative linear algebra workload
+    val step1 = matA + matB // Element-wise addition
+    val step2 = step1.hadamard(matA) // Hadamard product
+    val step3 = step2 * vectorData // Matrix-vector multiply
+    val step4 = step3.fma(2.0, 1.0) // Element-wise transform
+    val step5 = step4.norm // L2 norm
+    // val step6 = step2.transpose // Transpose
+    val step7 = step2.sum // Sum reduction
+    val step8 = (step7 > 0.5) // Comparison
 
-  @Benchmark
-  def sum_vec_alt(bh: Blackhole) =
-    val r = arr.sum
-    bh.consume(r);
-  end sum_vec_alt
+    // Combine results to prevent dead code elimination
+    val result = step5 + (if step8 then 1.0 else 0.0)
+    bh.consume(result)
+  end vecxtWorkload
 
-
-end SumBenchmark
+end LinearAlgebraWorkloadBenchmark

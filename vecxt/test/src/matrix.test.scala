@@ -419,7 +419,7 @@ class MatrixExtensionSuite extends FunSuite:
     val mat2 = Matrix.eye[Double](3) + Matrix.eye[Double](3) // addition
     assertVecEquals(mat1.raw, mat2.raw)
 
-    val bah = mat1 * mat2
+    val bah = mat1.hadamard(mat2)
 
     assertVecEquals(mat1.raw, mat2.raw)
 
@@ -481,6 +481,13 @@ class MatrixExtensionSuite extends FunSuite:
     val f = mat(NArray.from[Int](Array(0, 2)), 0 to 1)
     assertVecEquals(NArray[Double](1.0, 7.0, 2.0, 8.0), f.raw)
 
+  }
+
+  test("hadamard product") {
+    val mat1 = Matrix.eye[Double](3)
+    val mat2 = Matrix.eye[Double](3) * 2
+    val result = mat1.hadamard(mat2)
+    assertVecEquals(result.raw, NArray[Double](2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0))
   }
 
   test("map rows") {

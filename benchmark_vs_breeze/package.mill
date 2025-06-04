@@ -10,7 +10,7 @@ object `package` extends RootModule with JmhModule with ScalaModule {
     def jmhCoreVersion = "1.37"
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)
-    override def ivyDeps: T[Agg[ModuleDependency]] = super.ivyDeps() ++ Agg(
+    override def ivyDeps = super.ivyDeps() ++ Seq(
       ivy"org.scalanlp::breeze:2.1.0"
     )
 
