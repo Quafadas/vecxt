@@ -30,8 +30,9 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
   var vecxtMatA: vecxt.matrix.Matrix[Double] = uninitialized
   var vecxtMatB: vecxt.matrix.Matrix[Double] = uninitialized
 
-  @Setup(Level.Trial) // Only once per iteration
+  @Setup(Level.Iteration) // Only once per iteration
   def setup(): Unit =
+    println(s"[SETUP] Running setup for matrix dim: $matDim")
     val dim = matDim.toInt
     dataA = randomDoubleArray(dim * dim)
     dataB = randomDoubleArray(dim * dim)
@@ -45,6 +46,20 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
     vecxtMatA = vecxt.matrix.Matrix(dataA.clone(), (dim, dim))
     vecxtMatB = vecxt.matrix.Matrix(dataB.clone(), (dim, dim))
   end setup
+
+  @Benchmark
+  def vecxtMinimalTest(bh: Blackhole): Unit =
+    // Just test one simple operation
+    val result = vecxtMatA.sum
+    bh.consume(result)
+  end vecxtMinimalTest
+
+  @Benchmark
+  def breezeMinimalTest(bh: Blackhole): Unit =
+    // Just test one simple operation
+    val result = breeze.linalg.sum(breezeMatA)
+    bh.consume(result)
+  end breezeMinimalTest
 
   @Benchmark
   def breezeWorkload(bh: Blackhole): Unit =
