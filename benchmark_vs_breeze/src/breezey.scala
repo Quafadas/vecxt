@@ -24,7 +24,7 @@ import breeze.numerics.step
   val step8 = (step7 > 0.5) // Comparison
 
   // Combine results to prevent dead code elimination
-  val result = step5 + (if step8 then 1.0 else 0.0)
+  val result = step5 + (if step8 then 1.0 else 0.0) + breeze.linalg.max(step4)
 
   println("Breeze Result:")
   println(result)
@@ -45,7 +45,7 @@ import breeze.numerics.step
   val step7Vecxt = step6Vecxt.sum // Sum reduction
   val step8Vecxt = (step7Vecxt > 0.5) // Comparison
   // Combine results to prevent dead code elimination
-  val resultVecxt = step5Vecxt + (if step8Vecxt then 1.0 else 0.0)
+  val resultVecxt = step5Vecxt + (if step8Vecxt then 1.0 else 0.0) + step4Vecxt.maxSIMD
 
   println("Vecxt Result:")
   println(resultVecxt)
