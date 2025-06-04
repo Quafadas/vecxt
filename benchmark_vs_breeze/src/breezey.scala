@@ -11,18 +11,11 @@ import breeze.numerics.step
   val dataA = DenseMatrix.rand[Double](dim, dim)
   val dataB = DenseMatrix.rand[Double](dim, dim)
   val vectorData = DenseVector.rand[Double](dim)
-
-  println("Breeze Data:")
-  println(dataA)
-  println(dataB)
-  println(vectorData)
-
-  // Representative linear algebra workload
+  // Random linear algebra workload
   val step1 = dataA + dataB // Element-wise addition
 
   val step2 = step1 *:* dataA // Hadamard product
-  println("Step 2 (Hadamard product):")
-  println(step2)
+
   val step3 = step2 * vectorData // Matrix-vector multiply
   val step4 = step3.map(_ * 2.0 + 1.0) // Element-wise transform
   val step5 = breeze.linalg.norm(step4) // L2 norm
@@ -40,16 +33,11 @@ import breeze.numerics.step
   val matB = vecxt.matrix.Matrix(dataB.toArray, (dim, dim))
   val vec = vectorData.toArray
 
-  println(matA.printMat)
-  println(matB.printMat)
-  println(vec.mkString("Array(", ", ", ")"))
-
   // Same representative linear algebra workload
   val step1Vecxt = matA + matB // Element-wise addition
 
   val step2Vecxt = step1Vecxt.hadamard(matA) // Hadamard product
-  println("Step 2 (Hadamard product):")
-  println(step2Vecxt.printMat)
+
   val step3Vecxt = step2Vecxt * vec // Matrix-vector multiply
   val step4Vecxt = step3Vecxt.fma(2.0, 1.0) // Element-wise transform
   val step5Vecxt = vecxt.all.norm(step4Vecxt) // L2 norm

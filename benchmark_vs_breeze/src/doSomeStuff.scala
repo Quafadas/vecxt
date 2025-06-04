@@ -22,26 +22,37 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
   var dataB: Array[Double] = uninitialized
   var vectorData: Array[Double] = uninitialized
 
-  @Setup(Level.Invocation)
+  // Pre-created matrices for pure computation benchmarking
+  var breezeMatA: DenseMatrix[Double] = uninitialized
+  var breezeMatB: DenseMatrix[Double] = uninitialized
+  var breezeVec: DenseVector[Double] = uninitialized
+
+  var vecxtMatA: vecxt.matrix.Matrix[Double] = uninitialized
+  var vecxtMatB: vecxt.matrix.Matrix[Double] = uninitialized
+
+  @Setup(Level.Trial) // Only once per iteration
   def setup(): Unit =
     val dim = matDim.toInt
     dataA = randomDoubleArray(dim * dim)
     dataB = randomDoubleArray(dim * dim)
     vectorData = randomDoubleArray(dim)
+
+    // Pre-create matrices to exclude construction overhead
+    breezeMatA = new DenseMatrix(dim, dim, dataA.clone())
+    breezeMatB = new DenseMatrix(dim, dim, dataB.clone())
+    breezeVec = new DenseVector(vectorData.clone())
+
+    vecxtMatA = vecxt.matrix.Matrix(dataA.clone(), (dim, dim))
+    vecxtMatB = vecxt.matrix.Matrix(dataB.clone(), (dim, dim))
   end setup
 
   @Benchmark
   def breezeWorkload(bh: Blackhole): Unit =
-    val dim = matDim.toInt
-    // Create matrices and vector from the same data
-    val matA = new DenseMatrix(dim, dim, dataA)
-    val matB = new DenseMatrix(dim, dim, dataB)
-    val vec = new DenseVector(vectorData)
 
     // Representative linear algebra workload
-    val step1 = matA + matB // Element-wise addition
-    val step2 = step1 *:* matA // Hadamard product
-    val step3 = step2 * vec // Matrix-vector multiply
+    val step1 = breezeMatA + breezeMatB // Element-wise addition
+    val step2 = step1 *:* breezeMatA // Hadamard product
+    val step3 = step2 * breezeVec // Matrix-vector multiply
     val step4 = step3.map(_ * 2.0 + 1.0) // Element-wise transform
     val step5 = breeze.linalg.norm(step4) // L2 norm
     // val step6 = step2.t // Transpose
@@ -55,14 +66,10 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
 
   @Benchmark
   def vecxtWorkload(bh: Blackhole): Unit =
-    val dim = matDim.toInt
-    // Create matrices and vector from the same data
-    val matA = vecxt.matrix.Matrix(dataA, (dim, dim))
-    val matB = vecxt.matrix.Matrix(dataB, (dim, dim))
 
     // Same representative linear algebra workload
-    val step1 = matA + matB // Element-wise addition
-    val step2 = step1.hadamard(matA) // Hadamard product
+    val step1 = vecxtMatA + vecxtMatB // Element-wise addition
+    val step2 = step1.hadamard(vecxtMatA) // Hadamard product
     val step3 = step2 * vectorData // Matrix-vector multiply
     val step4 = step3.fma(2.0, 1.0) // Element-wise transform
     val step5 = step4.norm // L2 norm
