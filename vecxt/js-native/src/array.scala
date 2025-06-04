@@ -7,7 +7,6 @@ import scala.math.Ordering
 
 import narr.*
 import scala.reflect.ClassTag
-import scala.util.chaining.*
 
 object JsNativeBooleanArrays:
 
