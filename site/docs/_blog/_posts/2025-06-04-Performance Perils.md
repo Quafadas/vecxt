@@ -46,7 +46,9 @@ it's simply too natural to write
 For this, you pay a cca 10x performance cost, and it's actually pretty hard to see it's happening, unless you break out the profiler and zoom right in. I can't see a great ways around this. Operations at high risk of clashing, are therefore named with a SIMD suffix. The sensibly named counterparts remain, but it's on you to call them correctly.
 
 ```scala
-val a = Array[Double](1, 2, 3)
+import vecxt.all.*
+
+val a = Array[Double](1, 2, 3, 6, 10, -100)
 
 a.sumSIMD // SIMD optimized sum
 a.productSIMD // SIMD optimized product

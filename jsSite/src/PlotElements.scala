@@ -1,6 +1,5 @@
 package vecxt.plot
 
-// import scala.NamedTuple.*
 import scala.annotation.meta.field
 import upickle.default.*
 import NamedTupleReadWriter.given
