@@ -163,7 +163,7 @@ object jsSite extends SiteJSModule {
 
 
   // override def allScalacOptions: T[Seq[String]] = super.allScalacOptions`() ++ Seq("-experimental", "-language:experimental.namedTuples")
-  override def scalacOptions: T[Seq[String]] = super.scalacOptions() ++ Seq("-experimental", "-language:experimental.namedTuples")
+  override def scalacOptions: T[Seq[String]] = super.scalacOptions()
   override def moduleKind = ModuleKind.ESModule
   override def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.scala-js::scalajs-dom::2.8.0",
@@ -191,6 +191,6 @@ object site extends SiteModule {
   def scalaVersion = vecxt.jvm.scalaVersion
   override def moduleDeps = Seq(vecxt.jvm)
 
-  override def scalacOptions: T[Seq[String]] = super.scalacOptions() ++ Seq("-experimental", "-language:experimental.namedTuples")
+  override def scalacOptions: T[Seq[String]] = super.scalacOptions()
 
 }
