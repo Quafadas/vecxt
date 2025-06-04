@@ -944,6 +944,25 @@ object arrays:
       out
     end -
 
+    inline def `fma!`(multiply: Double, add: Double): Unit =
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .fma(multiply, add)
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) = vec(i) * multiply + add
+        i = i + 1
+      end while
+    end `fma!`
+
+    inline def fma(multiply: Double, add: Double): Array[Double] =
+      vec.clone().tap(_ `fma!` (multiply, add))
+
     inline def -=(d: Double): Unit =
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0

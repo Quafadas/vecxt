@@ -119,6 +119,24 @@ object JsNativeDoubleArrays:
 
   extension (vec: NArray[Double])
 
+    inline def `fma!`(multiply: Double, add: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) * multiply + add
+        i += 1
+      end while
+    end `fma!`
+
+    inline def `fma`(multiply: Double, add: Double): NArray[Double] =
+      val newVec = NArray.ofSize[Double](vec.length)
+      var i = 0
+      while i < vec.length do
+        newVec(i) = vec(i) * multiply + add
+        i += 1
+      end while
+      newVec
+    end `fma`
+
     inline def exp: NArray[Double] =
       applyUnaryOp(Math.exp)
 

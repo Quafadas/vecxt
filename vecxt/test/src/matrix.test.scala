@@ -306,7 +306,7 @@ class MatrixExtensionSuite extends FunSuite:
   }
 
   test("list indexes") {
-    val indexes = Array((0, 1), (1, 0), (1, 1))
+    val indexes: NArray[RowCol] = NArray((0, 1), (1, 0), (1, 1))
     val newMat = mat1to9(indexes)
 
     assertEquals(newMat.raw.length, 9)

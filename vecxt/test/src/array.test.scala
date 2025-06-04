@@ -56,6 +56,23 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   }
 
+  test("fma") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val result = v1.fma(2.0, 1.0)
+    assertEqualsDouble(result(0), 3.0, 0.0001)
+    assertEqualsDouble(result(1), 5.0, 0.0001)
+    assertEqualsDouble(result(2), 7.0, 0.0001)
+    assertEqualsDouble(result(3), 9.0, 0.0001)
+    assertEqualsDouble(result(4), 11.0, 0.0001)
+
+    // We didnt' change the original vector
+    assertEqualsDouble(v1(0), 1.0, 0.0001)
+
+    // now we did
+    v1.`fma!`(2.0, 1.0)
+    assertEqualsDouble(v1(3), 9.0, 0.0001)
+  }
+
   test("Array horizontal sum") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
     val v2 = v1 * 2.0
