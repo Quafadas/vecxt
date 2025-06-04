@@ -39,12 +39,12 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
     vectorData = randomDoubleArray(dim)
 
     // Pre-create matrices to exclude construction overhead
-    breezeMatA = new DenseMatrix(dim, dim, dataA.clone())
-    breezeMatB = new DenseMatrix(dim, dim, dataB.clone())
-    breezeVec = new DenseVector(vectorData.clone())
+    breezeMatA = new DenseMatrix(dim, dim, dataA)
+    breezeMatB = new DenseMatrix(dim, dim, dataB)
+    breezeVec = new DenseVector(vectorData)
 
-    vecxtMatA = vecxt.matrix.Matrix(dataA.clone(), (dim, dim))
-    vecxtMatB = vecxt.matrix.Matrix(dataB.clone(), (dim, dim))
+    vecxtMatA = vecxt.matrix.Matrix(dataA, (dim, dim))
+    vecxtMatB = vecxt.matrix.Matrix(dataB, (dim, dim))
   end setup
 
   // @Benchmark

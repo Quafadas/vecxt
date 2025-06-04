@@ -17,7 +17,11 @@ import breeze.numerics.step
   val step2 = step1 *:* dataA // Hadamard product
 
   val step3 = step2 * vectorData // Matrix-vector multiply
+  println("Step 3 result:")
+  println(step3)
   val step4 = step3.map(_ * 2.0 + 1.0) // Element-wise transform
+  println("after Step 4 result:")
+  println(step3)
   val step5 = breeze.linalg.norm(step4) // L2 norm
   val step6 = step2.t // Transpose
   val step7 = breeze.linalg.sum(step6) // Sum reduction
