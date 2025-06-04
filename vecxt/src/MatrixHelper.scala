@@ -108,7 +108,7 @@ object MatrixHelper:
         case _: Double  => 0.0.asInstanceOf[A]
         case _: Boolean => false.asInstanceOf[A]
         case _: Int     => 0.asInstanceOf[A]
-        case _: A       => error("Unsupported type")
+        case _: A       => error("Vecxt: call to eye for an unsupported type")
       end match
     end zero
 
@@ -117,7 +117,7 @@ object MatrixHelper:
         case _: Double  => 1.0.asInstanceOf[A]
         case _: Boolean => true.asInstanceOf[A]
         case _: Int     => 1.asInstanceOf[A]
-        case _: A       => error("Unsupported type")
+        case _: A       => error("Vecxt: call to one for an unsupported type")
       end match
     end one
 
@@ -126,21 +126,21 @@ object MatrixHelper:
         case _: Int     => eyeOf(one[A], dim)(zero[A])
         case _: Double  => eyeOf(one[A], dim)(zero[A])
         case _: Boolean => eyeOf(one[A], dim)(zero[A])
-        case _          => error("Unsupported eye type")
+        case _          => error("Vecxt: call to eye for an unsupported type")
 
     inline def eye[A: ClassTag](dim: RowCol): Matrix[A] =
       inline erasedValue[A] match
         case _: Int     => eyeOf(one[A], dim)(zero[A])
         case _: Double  => eyeOf(one[A], dim)(zero[A])
         case _: Boolean => eyeOf(one[A], dim)(zero[A])
-        case _          => error("Unsupported eye type")
+        case _          => error("Vecxt: call to eye for an unsupported type")
 
     inline def ones[A: ClassTag](dim: RowCol): Matrix[A] =
       inline erasedValue[A] match
         case _: Int     => fill(one[A], dim)
         case _: Double  => fill(one[A], dim)
         case _: Boolean => fill(one[A], dim)
-        case _          => error("Unsupported type for ones")
+        case _          => error("Vecxt: call to `ones` is for an unsupported type")
 
     inline def fill[A](singleton: A, dim: RowCol)(using ClassTag[A]): Matrix[A] =
       val (rows, cols) = dim

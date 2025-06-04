@@ -27,10 +27,12 @@ object V {
   val spire = "0.18.0"
   val laminar = "17.2.0"
   val scalatags = "0.13.1"
+  val scalaVersion = "3.7.0"
+  val munitVersion = "1.1.1"
 }
 
 trait Common extends ScalaModule  with PublishModule with ScalafixModule {
-  def scalaVersion = "3.6.2"
+  def scalaVersion = V.scalaVersion
 
   def publishVersion = VcsVersion.vcsState().format()
 
@@ -59,7 +61,7 @@ trait Common extends ScalaModule  with PublishModule with ScalafixModule {
 val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
 
 trait CommonJS extends ScalaJSModule {
-  def scalaJSVersion = "1.18.2"
+  def scalaJSVersion = "1.19.0"
   // def ivyDeps = super.ivyDeps() ++ Seq(ivy"com.raquo::ew::0.2.0")
   // def moduleKind = ModuleKind.
 }
@@ -69,12 +71,12 @@ trait CommonNative extends ScalaNativeModule {
   def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.ekrich::sblas::0.7.0"
   )
-  def scalaNativeVersion: mill.T[String] = "0.5.5"
+  def scalaNativeVersion: mill.T[String] = "0.5.7"
 }
 
 trait CommonTests extends TestModule.Munit {
   def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.scalameta::munit::1.1.0",
+    ivy"org.scalameta::munit:${V.munitVersion}",
   )
 }
 
