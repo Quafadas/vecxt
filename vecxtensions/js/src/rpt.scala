@@ -21,7 +21,7 @@ object rpt:
           var i = 0;
           while i < vec.length do
             val tmp = vec(i) - retention
-            val result = 
+            val result =
               if tmp < 0.0 then 0.0
               else if tmp > limit then limit.limit
               else tmp
@@ -50,14 +50,14 @@ object rpt:
         case (None, None) => ()
 
     end reinsuranceFunction
-    
+
     inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
       (limitOpt, retentionOpt) match
         case (Some(limit), Some(retention)) =>
           var i = 0;
           while i < vec.length do
             val tmp = vec(i) - retention
-            val result = 
+            val result =
               if tmp < 0.0 then 0.0
               else if tmp > limit then limit.limit
               else tmp
@@ -83,7 +83,7 @@ object rpt:
             i = i + 1
           end while
 
-        case (None, None) => 
+        case (None, None) =>
           if share != 1.0 then
             var i = 0;
             while i < vec.length do

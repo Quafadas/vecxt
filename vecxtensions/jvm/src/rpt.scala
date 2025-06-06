@@ -16,7 +16,12 @@ object rpt:
   private val SPECIES_LENGTH = SPECIES.length()
 
   // Add specialized inlined methods for hot paths
-  private inline def reinsuranceBoth(vec: Array[Double], limitVal: Double, retentionVal: Double, share: Double = 1.0): Unit =
+  private inline def reinsuranceBoth(
+      vec: Array[Double],
+      limitVal: Double,
+      retentionVal: Double,
+      share: Double = 1.0
+  ): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
     val vLimit = DoubleVector.broadcast(SPECIES, limitVal)
@@ -34,7 +39,7 @@ object rpt:
 
     while i < len do
       val tmp = vec(i) - retentionVal
-      val result = 
+      val result =
         if tmp < 0.0 then 0.0
         else if tmp > limitVal then limitVal
         else tmp
@@ -168,12 +173,16 @@ object rpt:
         case (Some(limit), None)            => reinsuranceLimitOnly(vec, limit.limit)
         case (None, None)                   => ()
 
-    inline def reinsuranceFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention], share: Double): Unit =
+    inline def reinsuranceFunction(
+        inline limitOpt: Option[Limit],
+        inline retentionOpt: Option[Retention],
+        share: Double
+    ): Unit =
       (limitOpt, retentionOpt) match
         case (Some(limit), Some(retention)) => reinsuranceBoth(vec, limit.limit, retention.retention, share)
         case (None, Some(retention))        => reinsuranceRetentionOnly(vec, retention.retention, share)
         case (Some(limit), None)            => reinsuranceLimitOnly(vec, limit.limit, share)
-        case (None, None)                   => 
+        case (None, None) =>
           if share != 1.0 then
             val len = vec.length
             val upperBound = SPECIES.loopBound(len)

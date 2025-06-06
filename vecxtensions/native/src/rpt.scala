@@ -47,7 +47,7 @@ object rpt:
         case (None, None) =>
           ()
     end reinsuranceFunction
-    
+
     inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
       (limitOpt, retentionOpt) match
         case (Some(limit), Some(retention)) =>
