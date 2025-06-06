@@ -67,8 +67,6 @@ object MatrixInstance:
       end match
     end update
 
-    inline def numel: Int = m.raw.length
-
     def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)
       val newCols = range(colRange, m.cols)
@@ -120,9 +118,6 @@ object MatrixInstance:
       newMat
     end apply
 
-    inline def rows: Row = m.shape._1
-
-    inline def cols: Col = m.shape._2
   end extension
 
 end MatrixInstance

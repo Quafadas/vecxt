@@ -1,7 +1,6 @@
 package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
 import narr.*

@@ -49,8 +49,8 @@ def assertVecEquals(v1: NArray[Boolean], v2: NArray[Boolean])(implicit loc: muni
 end assertVecEquals
 
 def assertMatrixEquals(m1: Matrix[Double], m2: Matrix[Double])(implicit loc: munit.Location): Unit =
-  assertEquals(m1.shape._1, m2.shape._1)
-  assertEquals(m1.shape._2, m2.shape._2)
+  assertEquals(m1.rows, m2.rows)
+  assertEquals(m1.cols, m2.cols)
   assertVecEquals(m1.raw, m2.raw)
 end assertMatrixEquals
 

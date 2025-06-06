@@ -7,13 +7,12 @@ object matrix:
 
   /** This is a matrix
     *
-    * ._1 is the Matrix[A] values, stored as a single contiguous array ._2 is the dimensions ._2._1 is the number of
-    * rows ._2._2 is the number of columns. You can access the raw array with the .raw method which inlines to the tuple
-    * call.
+    * ._1 is the Matrix[A] values, stored as a single contiguous array ._2 is the number of rows ._3 is the number of
+    * columns. You can access the raw array with the .raw method which inlines to the tuple call.
     *
     * Storage is column major.
     */
-  opaque type Matrix[@specialized(Double, Boolean, Int) A] = (NArray[A], RowCol)
+  opaque type Matrix[@specialized(Double, Boolean, Int) A] = (NArray[A], Row, Col)
 
   object Matrix:
 
@@ -28,13 +27,13 @@ object matrix:
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
-      (raw, dim)
+      (raw, dim._1, dim._2)
     end apply
     inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: NArray[A])(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
-      (raw, dim)
+      (raw, dim._1, dim._2)
     end apply
   end Matrix
 
@@ -42,7 +41,13 @@ object matrix:
 
     inline def raw: NArray[A] = m._1
 
-    inline def shape: RowCol = m._2
+    inline def shape: RowCol = (m._2, m._3)
+
+    inline def rows: Row = m._2
+
+    inline def cols: Col = m._3
+
+    inline def numel: Int = m._1.length
 
   end extension
 

@@ -3,7 +3,6 @@ package vecxt
 import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
 import scala.annotation.nowarn

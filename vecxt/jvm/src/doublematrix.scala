@@ -3,7 +3,6 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas

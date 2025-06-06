@@ -3,8 +3,8 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.MatrixInstance.*
 import vecxt.matrix.*
+import vecxt.MatrixInstance.*
 
 import narr.*
 // import vecxt.arrayUtil.printArr

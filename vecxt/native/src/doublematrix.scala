@@ -5,7 +5,6 @@ import org.ekrich.blas.unsafe.blas
 import org.ekrich.blas.unsafe.blasEnums
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 // import vecxt.rangeExtender.MatrixRange.range
 

@@ -103,10 +103,10 @@ object DoubleMatrix:
 
       val newArr = NArray.fill(newShape._1 * newShape._2)(initial)
       var i = 0
-      while i < m.shape._2 do
+      while i < m.cols do
         var j = 0
-        while j < m.shape._1 do
-          val idx = i * m.shape._1 + j
+        while j < m.rows do
+          val idx = i * m.rows + j
           if whichDim == 0 then newArr(j) = op(newArr(j), m.raw(idx))
           end if
           if whichDim == 1 then newArr(i) = op(newArr(i), m.raw(idx))
