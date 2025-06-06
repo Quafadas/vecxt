@@ -155,7 +155,7 @@ object arrays:
 
     inline def elementRanks: Array[Double] =
       val indexed: Array[(Double, Int)] = vec.zipWithIndex
-      indexed.sortInPlace()(Ordering.by(_._1))
+      indexed.sortInPlace()(using Ordering.by(_._1))
 
       val ranks: Array[Double] = new Array[Double](vec.length)
       ranks(indexed.last._2) = vec.length

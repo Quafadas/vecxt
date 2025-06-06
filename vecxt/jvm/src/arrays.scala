@@ -267,7 +267,6 @@ object arrays:
           .fromArray(spi, vec, i)
           .mul(IntVector.fromArray(spi, vec2, i))
           .add(acc)
-
         i += spil
       end while
 
@@ -605,11 +604,14 @@ object arrays:
       var sum_y2 = 0.0
 
       while i < n do
-        sum_x = sum_x + vec(i)
-        sum_y = sum_y + thatVector(i)
-        sum_xy = sum_xy + vec(i) * thatVector(i)
-        sum_x2 = sum_x2 + vec(i) * vec(i)
-        sum_y2 = sum_y2 + thatVector(i) * thatVector(i)
+        val x = vec(i)
+        val y = thatVector(i)
+        // Use fma to optimize multiply-add operations for better performance
+        sum_x = sum_x + x
+        sum_y = sum_y + y
+        sum_xy = Math.fma(x, y, sum_xy) // x * y + sum_xy
+        sum_x2 = Math.fma(x, x, sum_x2) // x * x + sum_x2
+        sum_y2 = Math.fma(y, y, sum_y2) // y * y + sum_y2
         i = i + 1
       end while
       (n * sum_xy - (sum_x * sum_y)) / Math.sqrt(
@@ -693,14 +695,17 @@ object arrays:
       while i < spd.loopBound(vec.length) do
         val v = DoubleVector.fromArray(spd, vec, i)
         val diff = v.sub(μ)
-        tmp = tmp.add(diff.mul(diff))
+        // Use fma to combine multiply and add in a single operation: diff * diff + tmp
+        tmp = diff.fma(diff, tmp)
         i += spdl
       end while
 
       var sumSqDiff = tmp.reduceLanes(VectorOperators.ADD)
 
       while i < vec.length do
-        sumSqDiff = sumSqDiff + (vec(i) - μ) * (vec(i) - μ)
+        val diff = vec(i) - μ
+        // Use fma to optimize (diff * diff) + sumSqDiff
+        sumSqDiff = Math.fma(diff, diff, sumSqDiff)
         i += 1
       end while
 
@@ -1139,7 +1144,8 @@ object arrays:
       var cv: Double = 0
       var i: Int = 0;
       while i < vec.length do
-        cv += (vec(i) - μThis) * (thatVector(i) - μThat)
+        // Use fma to optimize multiply-add: (vec(i) - μThis) * (thatVector(i) - μThat) + cv
+        cv = Math.fma(vec(i) - μThis, thatVector(i) - μThat, cv)
         i += 1
       end while
       cv / (vec.length - 1)
@@ -1157,7 +1163,8 @@ object arrays:
         var sum = 0.0
         var j = 0
         while j < vec.length do
-          sum += vec(j)(i)
+          // Use fma to optimize accumulation: vec(j)(i) * 1.0 + sum
+          sum = Math.fma(vec(j)(i), 1.0, sum)
           // pprint.pprintln(s"j : $j i : $i vecij : ${vec(j)(i)}  out : ${out(i)} sum : $sum")
           j = j + 1
         end while

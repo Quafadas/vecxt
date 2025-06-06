@@ -16,66 +16,74 @@ object rpt:
   private val SPECIES_LENGTH = SPECIES.length()
 
   // Add specialized inlined methods for hot paths
-  private inline def reinsuranceBoth(vec: Array[Double], limitVal: Double, retentionVal: Double): Unit =
+  private inline def reinsuranceBoth(vec: Array[Double], limitVal: Double, retentionVal: Double, share: Double = 1.0): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
     val vLimit = DoubleVector.broadcast(SPECIES, limitVal)
     val vRetention = DoubleVector.broadcast(SPECIES, retentionVal)
+    val vShare = DoubleVector.broadcast(SPECIES, share)
     var i = 0
 
     while i < upperBound do
       val v = DoubleVector.fromArray(SPECIES, vec, i)
-      val vResult = v.sub(vRetention).max(0.0).min(vLimit)
+      // Use fma to combine the final multiply with a zero add (more efficient than separate mul)
+      val vResult = v.sub(vRetention).max(0.0).min(vLimit).fma(vShare, DoubleVector.zero(SPECIES))
       vResult.intoArray(vec, i)
       i += SPECIES_LENGTH
     end while
 
     while i < len do
       val tmp = vec(i) - retentionVal
-      vec(i) =
+      val result = 
         if tmp < 0.0 then 0.0
         else if tmp > limitVal then limitVal
         else tmp
+      vec(i) = result * share
       i += 1
     end while
   end reinsuranceBoth
 
-  private inline def reinsuranceRetentionOnly(vec: Array[Double], retentionVal: Double): Unit =
+  private inline def reinsuranceRetentionOnly(vec: Array[Double], retentionVal: Double, share: Double = 1.0): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
     val vRetention = DoubleVector.broadcast(SPECIES, retentionVal)
+    val vShare = DoubleVector.broadcast(SPECIES, share)
     var i = 0
 
     while i < upperBound do
       val v = DoubleVector.fromArray(SPECIES, vec, i)
-      val vResult = v.sub(vRetention).max(0.0)
+      // Use fma to combine the final multiply with a zero add (more efficient than separate mul)
+      val vResult = v.sub(vRetention).max(0.0).fma(vShare, DoubleVector.zero(SPECIES))
       vResult.intoArray(vec, i)
       i += SPECIES_LENGTH
     end while
 
     while i < len do
       val tmp = vec(i) - retentionVal
-      vec(i) = if tmp < 0.0 then 0.0 else tmp
+      val result = if tmp < 0.0 then 0.0 else tmp
+      vec(i) = result * share
       i += 1
     end while
   end reinsuranceRetentionOnly
 
-  private inline def reinsuranceLimitOnly(vec: Array[Double], limitVal: Double): Unit =
+  private inline def reinsuranceLimitOnly(vec: Array[Double], limitVal: Double, share: Double = 1.0): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
     val vLimit = DoubleVector.broadcast(SPECIES, limitVal)
+    val vShare = DoubleVector.broadcast(SPECIES, share)
     var i = 0
 
     while i < upperBound do
       val v = DoubleVector.fromArray(SPECIES, vec, i)
-      val vResult = v.min(vLimit)
+      // Use fma to combine the final multiply with a zero add (more efficient than separate mul)
+      val vResult = v.min(vLimit).fma(vShare, DoubleVector.zero(SPECIES))
       vResult.intoArray(vec, i)
       i += SPECIES_LENGTH
     end while
 
     while i < len do
-      if vec(i) > limitVal then vec(i) = limitVal
-      end if
+      val result = if vec(i) > limitVal then limitVal else vec(i)
+      vec(i) = result * share
       i += 1
     end while
   end reinsuranceLimitOnly
@@ -159,6 +167,32 @@ object rpt:
         case (None, Some(retention))        => reinsuranceRetentionOnly(vec, retention.retention)
         case (Some(limit), None)            => reinsuranceLimitOnly(vec, limit.limit)
         case (None, None)                   => ()
+
+    inline def reinsuranceFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention], share: Double): Unit =
+      (limitOpt, retentionOpt) match
+        case (Some(limit), Some(retention)) => reinsuranceBoth(vec, limit.limit, retention.retention, share)
+        case (None, Some(retention))        => reinsuranceRetentionOnly(vec, retention.retention, share)
+        case (Some(limit), None)            => reinsuranceLimitOnly(vec, limit.limit, share)
+        case (None, None)                   => 
+          if share != 1.0 then
+            val len = vec.length
+            val upperBound = SPECIES.loopBound(len)
+            val vShare = DoubleVector.broadcast(SPECIES, share)
+            var i = 0
+
+            while i < upperBound do
+              val v = DoubleVector.fromArray(SPECIES, vec, i)
+              // Use fma to combine the multiply with a zero add (more efficient than separate mul)
+              val vResult = v.fma(vShare, DoubleVector.zero(SPECIES))
+              vResult.intoArray(vec, i)
+              i += SPECIES_LENGTH
+            end while
+
+            while i < len do
+              vec(i) = vec(i) * share
+              i += 1
+            end while
+          end if
 
     inline def franchiseFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention]): Unit =
       (limitOpt, retentionOpt) match

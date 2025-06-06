@@ -219,7 +219,7 @@ object arrays:
 
     def elementRanks: NArray[Double] =
       val indexed1 = vec.zipWithIndex
-      val indexed = indexed1.toArray.sorted(Ordering.by(_._1))
+      val indexed = indexed1.toArray.sorted(using Ordering.by(_._1))
 
       val ranks: Array[Double] = new Array(vec.length) // faster than zeros.
       ranks(indexed.last._2) = vec.length

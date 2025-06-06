@@ -21,10 +21,11 @@ object rpt:
           var i = 0;
           while i < vec.length do
             val tmp = vec(i) - retention
-            if tmp < 0.0 then vec(i) = 0.0
-            else if tmp > limit then vec(i) = limit.limit
-            else vec(i) = tmp
-            end if
+            val result = 
+              if tmp < 0.0 then 0.0
+              else if tmp > limit then limit.limit
+              else tmp
+            vec(i) = result
             i = i + 1
           end while
 
@@ -32,9 +33,8 @@ object rpt:
           var i = 0;
           while i < vec.length do
             val tmp = vec(i) - retention
-            if tmp < 0.0 then vec(i) = 0.0
-            else vec(i) = tmp
-            end if
+            val result = if tmp < 0.0 then 0.0 else tmp
+            vec(i) = result
             i = i + 1
           end while
 
@@ -42,13 +42,55 @@ object rpt:
           var i = 0;
           while i < vec.length do
             val tmp = vec(i)
-            if tmp > limit then vec(i) = limit.limit
-            else vec(i) = tmp
-            end if
+            val result = if tmp > limit then limit.limit else tmp
+            vec(i) = result
             i = i + 1
           end while
 
         case (None, None) => ()
+
+    end reinsuranceFunction
+    
+    inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
+      (limitOpt, retentionOpt) match
+        case (Some(limit), Some(retention)) =>
+          var i = 0;
+          while i < vec.length do
+            val tmp = vec(i) - retention
+            val result = 
+              if tmp < 0.0 then 0.0
+              else if tmp > limit then limit.limit
+              else tmp
+            vec(i) = result * share
+            i = i + 1
+          end while
+
+        case (None, Some(retention)) =>
+          var i = 0;
+          while i < vec.length do
+            val tmp = vec(i) - retention
+            val result = if tmp < 0.0 then 0.0 else tmp
+            vec(i) = result * share
+            i = i + 1
+          end while
+
+        case (Some(limit), None) =>
+          var i = 0;
+          while i < vec.length do
+            val tmp = vec(i)
+            val result = if tmp > limit then limit.limit else tmp
+            vec(i) = result * share
+            i = i + 1
+          end while
+
+        case (None, None) => 
+          if share != 1.0 then
+            var i = 0;
+            while i < vec.length do
+              vec(i) = vec(i) * share
+              i = i + 1
+            end while
+          end if
 
     end reinsuranceFunction
   end extension
