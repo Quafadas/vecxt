@@ -1137,18 +1137,29 @@ object arrays:
 
       idx
     end logicalIdx
-
     def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean
       val μThat = thatVector.mean
-      var cv: Double = 0
-      var i: Int = 0;
-      while i < vec.length do
-        // Use fma to optimize multiply-add: (vec(i) - μThis) * (thatVector(i) - μThat) + cv
+      val n = vec.length
+      var i = 0
+      var acc = DoubleVector.zero(spd)
+
+      // SIMD loop
+      while i < spd.loopBound(n) do
+        val v1 = DoubleVector.fromArray(spd, vec, i).sub(μThis)
+        val v2 = DoubleVector.fromArray(spd, thatVector, i).sub(μThat)
+        acc = v1.fma(v2, acc)
+        i += spdl
+      end while
+
+      // Remainder
+      var cv = acc.reduceLanes(VectorOperators.ADD)
+      while i < n do
         cv = Math.fma(vec(i) - μThis, thatVector(i) - μThat, cv)
         i += 1
       end while
-      cv / (vec.length - 1)
+
+      cv / (n - 1)
     end covariance
 
     // def max: Double =
