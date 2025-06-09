@@ -8,38 +8,27 @@ package vecxtensions
 def groupSum(groups: Array[Int], values: Array[Double]): (uniqueGroups: Array[Int], groupSums: Array[Double]) =
 
   val n = groups.length
+  if n == 0 then return (Array.empty[Int], Array.empty[Double])
+  end if
 
-  // Count unique groups first
-  var uniqueGroupCount = 0
+  // Single pass: collect groups and sums using growable arrays
+  val uniqueGroupsBuilder = Array.newBuilder[Int]
+  val groupSumsBuilder = Array.newBuilder[Double]
+
   var i = 0
   while i < n do
     val g = groups(i)
-    uniqueGroupCount += 1
-    // Skip all elements of the same group
-    while i < n && groups(i) == g do i += 1
-    end while
-  end while
-
-  val uniqueGroups = new Array[Int](uniqueGroupCount)
-  val groupSums = new Array[Double](uniqueGroupCount)
-
-  // Fill uniqueGroups with actual group values and compute sums
-  var groupIndex = 0
-  i = 0
-  while i < n do
-    val g = groups(i)
     var sum = 0.0
-    uniqueGroups(groupIndex) = g
+    uniqueGroupsBuilder += g
 
-    // process block of same group
+    // Process block of same group
     while i < n && groups(i) == g do
       sum += values(i)
       i += 1
     end while
 
-    groupSums(groupIndex) = sum
-    groupIndex += 1
+    groupSumsBuilder += sum
   end while
 
-  (uniqueGroups = uniqueGroups, groupSums = groupSums)
+  (uniqueGroups = uniqueGroupsBuilder.result(), groupSums = groupSumsBuilder.result())
 end groupSum
