@@ -1,0 +1,23 @@
+package build.experiments
+
+import mill._, scalalib._, publish._
+import contrib.jmh.JmhModule
+
+// mill benchmark.runJmh vecxt.benchmark.AndBooleanBenchmark -jvmArgs --add-modules=jdk.incubator.vector -rf json
+
+object `package` extends RootModule with ScalaModule {
+    def scalaVersion = build.vecxt.jvm.scalaVersion
+    override def compileResources = T {
+        super.compileResources() ++ resources()
+    }
+    def scalacOptions: T[Seq[String]] = Seq("-Xmax-inlines:10000")
+    override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+    override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)  
+    override def ivyDeps = super.ivyDeps() ++ Seq(
+        ivy"com.lihaoyi::os-lib::0.10.4",
+        ivy"io.github.quafadas::scautable::0.0.23",
+        ivy"io.github.quafadas::dedav4s::0.10.0-RC2"
+
+    )
+
+}
