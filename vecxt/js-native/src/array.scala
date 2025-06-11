@@ -118,6 +118,43 @@ object JsNativeDoubleArrays:
 
   extension (vec: NArray[Double])
 
+    inline def argmax: Int =
+      val n = vec.length
+      if n == 0 then -1 // Handle empty array case
+      else
+        var maxIdx = 0
+        var maxVal = vec(0)
+        var i = 1
+        while i < n do
+          if vec(i) > maxVal then
+            maxVal = vec(i)
+            maxIdx = i
+          end if
+          i += 1
+        end while
+        maxIdx
+      end if
+    end argmax
+
+    inline def argmin: Int =
+      val n = vec.length
+      if n == 0 then -1 // Handle empty array case
+      else
+
+        var minIdx = 0
+        var minVal = vec(0)
+        var i = 1
+        while i < n do
+          if vec(i) < minVal then
+            minVal = vec(i)
+            minIdx = i
+          end if
+          i += 1
+        end while
+        minIdx
+      end if
+    end argmin
+
     inline def productSIMD: Double = vecxt.arrays.product(vec)
     inline def sumSIMD: Double = vecxt.arrays.sum(vec)
 

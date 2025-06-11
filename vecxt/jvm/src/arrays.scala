@@ -1162,6 +1162,169 @@ object arrays:
       cv / (n - 1)
     end covariance
 
+    /** Returns the index of the maximum element in the array using SIMD operations for performance.
+      *
+      * This method processes the array in blocks to maximize instruction-level parallelism (ILP) and minimize
+      * synchronization overhead.
+      *
+      * https://en.algorithmica.org/hpc/algorithms/argmin/
+      *
+      * For small arrays, perhaps 2x slower. For larger arrays (e.g. 1000 elements, at least 2x faster)
+      *
+      * @return
+      *   The index of the maximum element, or -1 if the array is empty.
+      */
+    def argmax: Int =
+      val n = vec.length
+      if n == 0 then return -1
+      end if
+      if n == 1 then return 0
+      end if
+
+      // Algorithmica.org approach: block-based with infrequent updates
+      val blockSize = spd.length() * 4 // Process many elements per block for optimal ILP
+      var globalMax = Double.MinValue
+      var blockWithMax = 0
+
+      var i = 0
+      val loopBound = n - (n % blockSize)
+
+      // Broadcast current max for SIMD comparison
+      var maxVec = DoubleVector.broadcast(spd, globalMax)
+
+      // Main SIMD loop processing 32 elements per iteration
+      while i < loopBound do
+        // Load 4 SIMD vectors (32 elements total)
+        val v1 = DoubleVector.fromArray(spd, vec, i)
+        val v2 = DoubleVector.fromArray(spd, vec, i + spdl)
+        val v3 = DoubleVector.fromArray(spd, vec, i + 2 * spdl)
+        val v4 = DoubleVector.fromArray(spd, vec, i + 3 * spdl)
+
+        // Find block maximum using tree reduction
+        val max12 = v1.max(v2)
+        val max34 = v3.max(v4)
+        val blockMax = max12.max(max34)
+
+        // Check if any element in this block is greater than global max
+        val mask = blockMax.compare(VectorOperators.GT, maxVec)
+
+        if mask.anyTrue() then // Check if any element is greater - rarely executed
+          // Update global maximum within this block
+          var j = i
+          while j < i + blockSize do
+            if vec(j) > globalMax then globalMax = vec(j)
+            end if
+            j += 1
+          end while
+          blockWithMax = i
+          maxVec = DoubleVector.broadcast(spd, globalMax)
+        end if
+
+        i += blockSize
+      end while
+
+      // Handle remaining elements
+      while i < n do
+        if vec(i) > globalMax then
+          globalMax = vec(i)
+          blockWithMax = (i / blockSize) * blockSize // Start of block containing this element
+        end if
+        i += 1
+      end while
+
+      // Find exact index within the block containing the maximum
+      var exactIdx = blockWithMax
+      val searchEnd = Math.min(blockWithMax + blockSize, n)
+      var j = blockWithMax
+      while j < searchEnd do
+        if vec(j) == globalMax then
+          exactIdx = j
+          return exactIdx // Return first occurrence
+        end if
+        j += 1
+      end while
+
+      exactIdx
+    end argmax
+
+    /** Returns the index of the minimum element in the array using SIMD operations for performance.
+      *
+      * This method processes the array in blocks to maximize instruction-level parallelism (ILP) and minimize
+      * synchronization overhead.
+      *
+      * For small arrays, perhaps 2x slower. For larger arrays (e.g. 1000 elements, at least 2x faster)
+      *
+      * @return
+      *   The index of the minimum element, or -1 if the array is empty.
+      */
+    def argmin: Int =
+      val n = vec.length
+      if n == 0 then return -1
+      end if
+      if n == 1 then return 0
+      end if
+
+      val blockSize = spd.length() * 4
+      var globalMin = Double.MaxValue
+      var blockWithMin = 0
+
+      var i = 0
+      val loopBound = n - (n % blockSize)
+      var minVec = DoubleVector.broadcast(spd, globalMin)
+
+      while i < loopBound do
+        // Load 4 SIMD vectors (32 elements total)
+        val v1 = DoubleVector.fromArray(spd, vec, i)
+        val v2 = DoubleVector.fromArray(spd, vec, i + spdl)
+        val v3 = DoubleVector.fromArray(spd, vec, i + 2 * spdl)
+        val v4 = DoubleVector.fromArray(spd, vec, i + 3 * spdl)
+
+        // Find block maximum using tree reduction
+        val max12 = v1.max(v2)
+        val max34 = v3.max(v4)
+        val blockMax = max12.max(max34)
+
+        // Check if any element in this block is greater than global max
+        val mask = blockMax.compare(VectorOperators.LT, minVec)
+
+        if mask.anyTrue() then // Check if any element is greater - rarely executed
+          // Update global maximum within this block
+          var j = i
+          while j < i + blockSize do
+            if vec(j) < globalMin then globalMin = vec(j)
+            end if
+            j += 1
+          end while
+          blockWithMin = i
+          minVec = DoubleVector.broadcast(spd, globalMin)
+        end if
+
+        i += blockSize
+      end while
+
+      while i < n do
+        if vec(i) < globalMin then
+          globalMin = vec(i)
+          blockWithMin = (i / blockSize) * blockSize
+        end if
+
+        i += 1
+      end while
+
+      var exactIdx = blockWithMin
+      val searchEnd = Math.min(blockWithMin + blockSize, n)
+      var j = blockWithMin
+      while j < searchEnd do
+        if vec(j) == globalMin then
+          exactIdx = j
+          return exactIdx
+        end if
+        j += 1
+      end while
+
+      exactIdx
+    end argmin
+
     // def max: Double =
     //   vec(blas.idamax(vec.length, vec, 1)) // No JS version
   end extension
