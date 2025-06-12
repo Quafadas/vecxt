@@ -12,14 +12,21 @@ import vecxt.BoundsCheck
 // File can be dowloaded from Kaggle at:
 // https://www.kaggle.com/datasets/quangphota/mnist-csv/data?select=train.csv
 // Not included to avoid repository bloat, you'll have to download to the resource directory and name it train.csv
+// Follows the code here;
+//
 
 @main def mnist =
   def traindata = CSV.resource("train.csv")
 
-  val samplePlot = true
+  val samplePlot = false
+  val trainSize = 5000 // 60000
 
-  val labels = traindata.column["label"].map(_.toInt).toSeq // y data
-  val others = traindata.dropColumn["label"].map(_.toList.toArray.map(_.toDouble))
+  val labels = traindata.column["label"].map(_.toInt).toSeq.take(trainSize) // y data
+  val others =
+    traindata
+    .dropColumn["label"]
+    .take(5000)
+    .map(_.toList.toArray.map(_.toDouble))
 
   println(labels.take(10).toSeq.mkString(", "))
 
@@ -42,95 +49,30 @@ import vecxt.BoundsCheck
       )
   end if
 
-  val weight1 = Matrix(Array.fill(28 * 28 * 10)(scala.util.Random.nextDouble() *0.1), (10, 28*28))
-  val bias1 = Matrix(Array.fill(10)(0.0), (10, 1))
+  val weight1 = Matrix(Array.fill(28 * 28 * 10)(scala.util.Random.nextDouble() * 0.1), (28 * 28, 10))
+  val bias1 = Array.fill(10)(0.0)
   val weight2 = Matrix(Array.tabulate(10 * 10)(i => i.toDouble * 0.1), (10, 10))
-  val bias2 = Matrix(Array.fill(10)(0.0), (10, 1))
-  
+  val bias2 = Array.fill(10)(0.0)
 
-  // -- Below here is the neural network machinery
+  val x = Matrix.fromRows(others.toArray*)
+  println(s"x shape: ${x.shape}, x rows: ${x.rows}, x cols: ${x.cols}")
+  println(s"weight1 shape: ${weight1.shape}, weight1 rows: ${weight1.rows}, weight1 cols: ${weight1.cols}")
+  val i = x @@ weight1 // This is just to check that the matrix multiplication works
+  println(s"i shape: ${i.shape}, i rows: ${i.rows}, i cols: ${i.cols}")
 
+  val arg = gradient_decent(
+    x = x,
+    y = labels.toArray,
+    iterations = 1000,
+    alpha = 0.01,
+    decay_rate = 0.0001,
+    w1 = weight1,
+    b1 = bias1,
+    w2 = weight2,
+    b2 = bias2
+  )
 
-  def reluM(z: Matrix[Double]): Matrix[Double] = Matrix(z.raw.clampMax(0.0), z.shape)
-
-  def softmaxCols(z: Matrix[Double]): Matrix[Double] =    
-    z.mapCols { col =>
-      val exps = (col - col.max).tap(_.`exp!`)
-      exps / exps.sum
-    }
-    
-
-  def foward_prop(w1: Matrix[Double], b1: Matrix[Double], w2: Matrix[Double], b2: Matrix[Double], X: Matrix[Double]) =
-    val z1 = (w1 @@ X) + b1
-    val a1 = reluM(z1)
-    val z2 = (w2 @@ a1) + b2
-    val a2 = softmaxCols(z2)
-    (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
-
-  def back_prop(w1: Matrix[Double], b1: Matrix[Double], w2: Matrix[Double], b2: Matrix[Double], z1: Matrix[Double], a1: Matrix[Double], z2: Matrix[Double], a2: Matrix[Double], X: Matrix[Double], Y: Matrix[Double]) =
-    val m = Y.cols
-    val m_inv = 1.0 / m
-    val dz2 = a2 - Y
-    val dw2 = m_inv * (dz2 @@  a1.transpose) //(10, 10)
-    val db2 = m_inv * dz2.mapRowsToScalar(_.sum) // (10, 1)
-    val dz1Check = (z1 > 0) // Need to turn this into intgers
-    val dz1 = (w2.transpose @@ dz2) * dz1Check // (10, 784)
-    val dw1 = m_inv * (dz1 @@ X.transpose) //(10, 784)
-    val db1 = m_inv * dz1.mapRowsToScalar(_.sum) // (10, 1)
-    (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
-
-  def oneHotEncode(labels: Seq[Int]): Matrix[Double] =
-    val n = labels.length
-    val m = 10 // number of classes
-    val oneHot = Array.fill(n * m)(0.0)
-    var i = 0
-    // column major. Could also be done with Matrix.fromRows... but that would be less efficient
-    while (i < labels.length) {
-      oneHot(i * m + labels(i)) = 1.0
-      i += 1
-    }
-    Matrix(oneHot, (n, m))
-
-  def mostLikely(weights: Matrix[Double]): Array[Int] = 
-    val m = weights.raw
-    weights.mapColsToScalar[Int](_.argmax).raw // we can take advantage that our classes are 0-9 so argmax here returns the class label directly
-
-  def loss(predicted: Array[Int], actual: Array[Int])= 
-    (predicted =:= actual).trues.toDouble / predicted.length
-
-  def update_params(w1: Matrix[Double], b1: Matrix[Double], w2: Matrix[Double], b2: Matrix[Double], dw1: Matrix[Double], db1: Matrix[Double], dw2: Matrix[Double], db2: Matrix[Double], alpha: Double) =
-    val w1_ = w1 - (alpha * dw1)
-    val b1_ = b1 - (alpha * db1)
-    val w2_ = w2 - (alpha * dw2)
-    val b2_ = b2 - (alpha * db2)
-    (w1= w1_, b1= b1_, w2= w2_, b2= b2_)
-
-  def gradient_decent( x: Matrix[Double] , y: Array[Int], iterations: Int, alpha: Double, decay_rate: 0.001, w1:Matrix[Double], b1:Matrix[Double], w2:Matrix[Double], b2:Matrix[Double]) =  
-    import BoundsCheck.DoBoundsCheck.yes
-    var alpha_ = alpha
-    var w1_ = Matrix(w1.raw.clone(), w1.shape)
-    var b1_ = Matrix(b1.raw.clone(), b1.shape)
-    var w2_ = Matrix(w2.raw.clone(), w2.shape)
-    var b2_ = Matrix(b2.raw.clone(), b2.shape)
-    
-    for (i <- 1.until( iterations+1)) {      
-      val one_hot_Y = oneHotEncode(y)
-      val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
-      val (dw1, db1, dw2, db2) = back_prop(w1, b1, w2, b2, z1, a1, z2, a2, x, one_hot_Y)
-      var (w1_, b1_, w2_, b2_) = update_params(w1_, b1_, w2_, b2_, dw1, db1, dw2, db2, alpha_)
-      // decay the learning rate, can experiment with different rates here.
-      if ((i + 1) % 50 == 0)
-        alpha_ = alpha_ - decay_rate
-
-      if (i % 10 == 0)
-        println(s"iteration number: $i")
-        val (_, _, _, a2) = foward_prop(w1, b1, w2, b2, x)
-        val acc = loss(mostLikely(a2), y)
-        println(s"Accuracy : $acc")
-    }
-
-    (w1 = w1_, b1 = b1_, w2 = w2_, b2 = b2_)
-
+  println(arg)
 
 end mnist
 
@@ -140,3 +82,133 @@ def dataToCoords(data: Array[Double]): IndexedSeq[(x: Int, y: Int, opacity: Doub
   for (i <- 0.until(28); j <- 0.until(28)) yield
     val value = data(i * 28 + j)
     (x = j, y = 28 - i, opacity = value)
+
+// -- Below here is the neural network machinery
+
+def reluM(z: Matrix[Double]): Matrix[Double] = Matrix(z.raw.clampMax(0.0), z.shape)
+
+def softmaxCols(z: Matrix[Double]): Matrix[Double] =
+  z.mapCols { col =>
+    val exps = (col - col.max).tap(_.`exp!`)
+    exps / exps.sum
+  }
+
+def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: Array[Double], x: Matrix[Double]) =
+  // println("forward propagation ----")
+  // println(s"x shape: ${x.shape}, x rows: ${x.rows}, x cols: ${x.cols}")
+  // println(s"weight1 shape: ${w1.shape}, weight1 rows: ${w1.rows}, weight1 cols: ${w1.cols}")
+  // println(s"weight2 shape: ${w2.shape}, weight2 rows: ${w2.rows}, weight2 cols: ${w2.cols}")
+
+  val z1 = (x @@ w1).mapRows(_ + b1)
+  // println(s"z1 shape: ${z1.shape}, z1 rows: ${z1.rows}, z1 cols: ${z1.cols}")
+  val a1 = reluM(z1)
+  // println(s"a1 shape: ${a1.shape}, a1 rows: ${a1.rows}, a1 cols: ${a1.cols}")
+  val z2 = (a1 @@ w2).mapRows(_ + b2)
+  // println(s"z2 shape: ${z2.shape}, z2 rows: ${z2.rows}, z2 cols: ${z2.cols}")
+  val a2 = softmaxCols(z2)
+  // println(s"a2 shape: ${a2.shape}, a2 rows: ${a2.rows}, a2 cols: ${a2.cols}")
+  // println("forward propagation done ----")
+  (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
+end foward_prop
+
+def back_prop(
+    w1: Matrix[Double],
+    b1: Array[Double],
+    w2: Matrix[Double],
+    b2: Array[Double],
+    z1: Matrix[Double],
+    a1: Matrix[Double],
+    z2: Matrix[Double],
+    a2: Matrix[Double],
+    X: Matrix[Double],
+    Y: Matrix[Double]
+) =
+  // println("back propagation ----")
+  val m = Y.cols
+  val m_inv = 1.0 / m
+  val dz2 = a2 - Y
+  val dw2 = m_inv * (a1.transpose @@ dz2) // (10, 10)
+  // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
+  // println(s"dw2 shape: ${dw2.shape}, dw2 rows: ${dw2.rows}, dw2 cols: ${dw2.cols}")
+  val db2 = m_inv * dz2.mapColsToScalar(_.sum).raw // (10, 1)
+  val dz1Check = (z1 > 0) // Need to turn this into intgers
+  // print(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}\n")
+  val dz1 = (dz2 @@ w2.transpose) // *:* dz1Check // (10, 784)
+  // print(s"dz1 shape: ${dz1.shape}, dz1 rows: ${dz1.rows}, dz1 cols: ${dz1.cols}\n")
+  val dw1 = m_inv * (X.transpose @@ dz1) // (10, 784)
+  val db1 = m_inv * dz1.mapColsToScalar(_.sum).raw // (10, 1)
+  // println("back propagation done ----")
+  (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
+end back_prop
+
+def oneHotEncode(labels: Seq[Int]): Matrix[Double] =
+  val n = labels.length
+  val m = 10 // number of classes
+  val oneHot = Array.fill(n * m)(0.0)
+  var i = 0
+  // column major. Could also be done with Matrix.fromRows... but that would be less efficient
+  while i < labels.length do
+    oneHot(i * m + labels(i)) = 1.0
+    i += 1
+  end while
+  Matrix(oneHot, (n, m))
+end oneHotEncode
+
+def mostLikely(weights: Matrix[Double]): Array[Int] =
+  val m = weights.raw
+  weights
+    .mapRowsToScalar[Int](_.argmax)
+    .raw // we can take advantage that our classes are 0-9 so argmax here returns the class label directly
+end mostLikely
+
+def loss(predicted: Array[Int], actual: Array[Int]) =
+  (predicted =:= actual).trues.toDouble / predicted.length
+
+def gradient_decent(
+    x: Matrix[Double],
+    y: Array[Int],
+    iterations: Int,
+    alpha: Double,
+    decay_rate: Double,
+    w1: Matrix[Double],
+    b1: Array[Double],
+    w2: Matrix[Double],
+    b2: Array[Double]
+) =
+  import BoundsCheck.DoBoundsCheck.yes
+  var alpha_ = alpha
+  var w1_ = Matrix(w1.raw.clone(), w1.shape)
+  var b1_ = b1.clone()
+  var w2_ = Matrix(w2.raw.clone(), w2.shape)
+  var b2_ = b2.clone()
+
+  for i <- 1.until(iterations + 1) do
+    val one_hot_Y = oneHotEncode(y)
+    val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
+    val (dw1, db1, dw2, db2) = back_prop(w1_, b1_, w2_, b2_, z1, a1, z2, a2, x, one_hot_Y)
+    w1_ = w1_ - (alpha * dw1)
+    b1_ = b1_ - (alpha * db1)
+    w2_ = w2_ - (alpha * dw2)
+    b2_ = b2_ - (alpha * db2)
+
+    // decay the learning rate, can experiment with different rates here.
+    if (i + 1) % 50 == 0 then alpha_ = alpha_ - decay_rate
+    end if
+
+    if i % 10 == 0 then
+
+      println(s"Iteration: $i, alpha: $alpha_")
+      println(s"w1_ shape: ${w1_.shape}, w1_ rows: ${w1_.rows}, w1_ cols: ${w1_.cols}, ${w1.raw.take(10).printArr}")
+      println(s"b1_ shape: ${b1_.length}, b1_ values: ${b1_.mkString(", ")}")
+      println(s"w2_ shape: ${w2_.shape}, w2_ rows: ${w2_.rows}, w2_ cols: ${w2_.cols}, ${w2.raw.take(10).printArr}")
+
+      println(s"b2_ shape: ${b2_.length}, b2_ values: ${b2_.mkString(", ")}")
+
+      val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
+      val acc = loss(mostLikely(a2), y)
+      println(s"Accuracy : $acc")
+    end if
+  end for
+
+  (w1 = w1_, b1 = b1_, w2 = w2_, b2 = b2_)
+end gradient_decent

@@ -18,8 +18,8 @@ package vecxt
 
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
-import vecxt.BoundsCheck.DoBoundsCheck
-import vecxt.arrays.*
+import BoundsCheck.DoBoundsCheck
+import arrays.*
 import narr.*
 import BoundsCheck.DoBoundsCheck.yes
 

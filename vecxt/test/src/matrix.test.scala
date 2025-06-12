@@ -2,9 +2,9 @@ package vecxt
 
 import munit.FunSuite
 import narr.*
-import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
-import vecxt.dimensionExtender.DimensionExtender.Dimension.*
+import all.*
+import BoundsCheck.DoBoundsCheck.yes
+import dimensionExtender.DimensionExtender.Dimension.*
 
 class MatrixExtensionSuite extends FunSuite:
 
@@ -310,8 +310,7 @@ class MatrixExtensionSuite extends FunSuite:
     val newMat = mat1to9(indexes)
 
     assertEquals(newMat.raw.length, 9)
-    println(mat1to9.raw.printArr)
-    println(newMat.raw.printArr)
+
     assertVecEquals(newMat.raw, NArray[Double](0.0, 4.0, 0.0, 2.0, 5.0, 0.0, 0.0, 0.0, 0.0))
 
   }
@@ -491,27 +490,58 @@ class MatrixExtensionSuite extends FunSuite:
   }
 
   test("map rows") {
-    val mapped = mat1to9.mapRows(row => row * 2)
+    val mapped = mat1to9.mapRows[Double](row => row * 2)
     assertVecEquals(mapped.raw, mat1to9.raw * 2)
 
-    val mapped2 = mat1to9.mapRowsToScalar(row => row.sum)
+    val mapped2 = mat1to9.mapRowsToScalar[Double](row => row.sum)
     assertVecEquals(mapped2.raw, NArray[Double](6.0, 15.0, 24.0))
 
-    val mapped3 = mat1to9.mapRows(row => row / row.sum)
+    val mapped3 = mat1to9.mapRows[Double](row => row / row.sum)
     val row1 = mapped3(0, ::)
     assertVecEquals(row1.raw, NArray[Double](1.0, 2.0, 3.0) / 6.0)
   }
 
   test("map cols") {
-    val mapped = mat1to9.mapCols(col => col * 2)
+    val mapped = mat1to9.mapCols[Double](col => col * 2.0)
     assertVecEquals(mapped.raw, mat1to9.raw * 2)
 
-    val mapped2 = mat1to9.mapColsToScalar(col => col.sum)
+    val mapped2 = mat1to9.mapColsToScalar[Double](col => col.sum)
     assertVecEquals(mapped2.raw, NArray[Double](12.0, 15.0, 18.0))
 
-    val mapped3 = mat1to9.mapCols(col => col / col.sum)
+    val mapped3 = mat1to9.mapCols[Double](col => col / col.sum)
     val col1 = mapped3(::, 0)
     assertVecEquals(col1.raw, NArray[Double](1.0, 4.0, 7.0) / 12.0)
+  }
+
+  test("map cols non square") {
+
+    val mat = Matrix.fromRows[Double](
+      NArray(1.0, 2.0, 3.0),
+      NArray(4.0, 5.0, 6.0)
+    )
+    val mapped = mat.mapCols[Double](col => col - col.max)
+
+    assertVecEquals(mapped(0, ::).raw, NArray[Double](-3.0, -3.0, -3.0))
+    assertVecEquals(mapped(1, ::).raw, NArray[Double](-0.0, -0.0, 0.0))
+
+    val mapped2 = mat.mapColsToScalar[Double](col => col.sum)
+    assertVecEquals(mapped2.raw, NArray[Double](5.0, 7.0, 9.0))
+  }
+
+  test("map rows non square") {
+
+    val mat = Matrix.fromRows[Double](
+      NArray(1.0, 2.0, 3.0),
+      NArray(4.0, 5.0, 6.0)
+    )
+    val mapped = mat.mapRows[Double](row => row - row.max)
+
+    assertVecEquals(mapped(0, ::).raw, NArray[Double](-2.0, -1.0, 0.0))
+    assertVecEquals(mapped(1, ::).raw, NArray[Double](-2.0, -1.0, 0.0))
+
+    val mapped2 = mat.mapRowsToScalar[Double](col => col.sum)
+    assertVecEquals(mapped2.raw, NArray[Double](6.0, 15.0))
+
   }
 
   test("update row") {
@@ -527,20 +557,20 @@ class MatrixExtensionSuite extends FunSuite:
       NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0),
       (2, 3)
     )
-    val mapped = mat1.mapRows(r => r / r.sum)
+    val mapped = mat1.mapRows[Double](r => r / r.sum)
     assertVecEquals(mapped(0, ::).raw, NArray[Double](1.0, 2.0, 3.0) / 6.0)
   }
 
   test("horzcat") {
-    val mat1 = Matrix.fromRows(
+    val mat1 = Matrix.fromRows[Double](
       NArray[Double](1.0, 2.0, 3.0),
       NArray[Double](4.0, 5.0, 6.0)
     )
-    val mat2 = Matrix.fromRows(
+    val mat2 = Matrix.fromRows[Double](
       NArray[Double](7.0, 8.0, 9.0),
       NArray[Double](10.0, 11.0, 12.0)
     )
-    val expected = Matrix.fromRows(
+    val expected = Matrix.fromRows[Double](
       NArray[Double](1.0, 2.0, 3.0, 7.0, 8.0, 9.0),
       NArray[Double](4.0, 5.0, 6.0, 10.0, 11.0, 12.0)
     )

@@ -18,8 +18,8 @@ package vecxt
 
 import narr.*
 import scala.util.chaining.*
-import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+import all.*
+import BoundsCheck.DoBoundsCheck.yes
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes

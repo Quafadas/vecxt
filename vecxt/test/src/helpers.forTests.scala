@@ -17,7 +17,7 @@
 package vecxt
 
 import narr.*
-import vecxt.matrix.Matrix
+import matrix.Matrix
 import munit.Assertions.*
 
 extension [A <: AnyRef](o: A) def some: Some[A] = Some(o)

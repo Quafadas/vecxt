@@ -2,10 +2,10 @@ package vecxt
 
 import narr.*
 import scala.util.chaining.*
-import vecxt.matrix.*
-import vecxt.arrays.*
-import vecxt.MatrixHelper.*
-import vecxt.MatrixInstance.*
+import matrix.*
+import arrays.*
+import MatrixHelper.*
+import MatrixInstance.*
 
 class UpdateSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes

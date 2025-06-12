@@ -17,7 +17,7 @@
 package vecxt
 
 import narr.*
-import vecxt.all.*
+import all.*
 
 class ClampSuite extends munit.FunSuite:
 
