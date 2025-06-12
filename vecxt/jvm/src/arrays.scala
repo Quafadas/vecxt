@@ -30,6 +30,7 @@ import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorMask
 import scala.reflect.ClassTag
+import scala.util.control.Breaks._
 
 object arrays:
 
@@ -42,16 +43,19 @@ object arrays:
   final val spil = spi.length()
 
   extension (vec: Array[Boolean])
-    // Inefficient as it doesn't break if a false is found.
-    inline def all: Boolean =
-      var acc = ByteVector.broadcast(spb, 1.toByte)
+    // TODO, benchmark
+    inline def all: Boolean =      
+      var out = true
       var i = 0
-      while i < spb.loopBound(vec.length) do
-        acc = acc.and(ByteVector.fromBooleanArray(spb, vec, i))
-        i += spbl
-      end while
-
-      var out = acc.reduceLanes(VectorOperators.AND) > 0
+      breakable {
+        while i < spb.loopBound(vec.length) do
+          if !VectorMask.fromArray(spb, vec, i).allTrue then
+            out = false
+            break
+          end if
+          i += spbl
+        end while      
+      }
 
       if out then
         while i < vec.length do
@@ -65,14 +69,17 @@ object arrays:
     end all
 
     inline def any: Boolean =
-      var acc = ByteVector.zero(spb)
+      var out = false
       var i = 0
-      while i < spb.loopBound(vec.length) do
-        acc = acc.or(ByteVector.fromBooleanArray(spb, vec, i))
-        i += spbl
-      end while
-
-      var out = acc.reduceLanes(VectorOperators.OR) > 0
+      breakable {
+        while i < spb.loopBound(vec.length) do
+          if VectorMask.fromArray(spb, vec, i).anyTrue() then                
+            out = true
+            break
+          end if
+          i += spbl
+        end while
+      }      
 
       if !out then
         while i < vec.length do
@@ -88,6 +95,12 @@ object arrays:
     inline def trues: Int =
       var i = 0
       var sum = 0
+      
+      while i < spb.loopBound(vec.length) do          
+        sum += VectorMask.fromArray(spb, vec, i).trueCount()          
+        i += spbl
+      end while
+    
       while i < vec.length do
         if vec(i) then sum += 1
         end if
@@ -137,6 +150,84 @@ object arrays:
   end extension
 
   extension (vec: Array[Int])
+
+    inline def =:=(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.EQ, num)
+
+    inline def !:=(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.NE, num)
+
+    inline def <(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.LT, num)
+
+    inline def <=(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.LE, num)
+
+    inline def >(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.GT, num)
+
+    inline def >=(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.GE, num)
+
+    inline def gte(num: Array[Int]): Array[Boolean] = >=(num)
+
+    inline def lte(num: Array[Int]): Array[Boolean] = <=(num)
+
+    inline def lt(num: Array[Int]): Array[Boolean] = <(num)
+
+    inline def gt(num: Array[Int]): Array[Boolean] = >(num)
+
+    inline def logicalIdx(
+        inline op: VectorOperators.Comparison,
+        vec2: Array[Int]
+    ): Array[Boolean] =
+      val idx = new Array[Boolean](vec.length)
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector.fromArray(spi, vec, i).compare(op, IntVector.fromArray(spi, vec2, i)).intoArray(idx, i)
+        i += spil
+      end while
+
+      inline op match
+        case VectorOperators.EQ =>
+          while i < vec.length do
+            idx(i) = vec(i) == vec2(i)
+            i += 1
+          end while
+        case VectorOperators.NE =>
+          while i < vec.length do
+            idx(i) = vec(i) != vec2(i)
+            i += 1
+          end while
+        case VectorOperators.LT =>
+          while i < vec.length do
+            idx(i) = vec(i) < vec2(i)
+            i += 1
+          end while
+
+        case VectorOperators.LE =>
+          while i < vec.length do
+            idx(i) = vec(i) <= vec2(i)
+            i += 1
+          end while
+
+        case VectorOperators.GT =>
+          while i < vec.length do
+            idx(i) = vec(i) > vec2(i)
+            i += 1
+          end while
+
+        case VectorOperators.GE =>
+          while i < vec.length do
+            idx(i) = vec(i) >= vec2(i)
+            i += 1
+          end while
+        case _ => ???
+      end match
+
+      idx
+    end logicalIdx
 
     inline def =:=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.EQ, num)
