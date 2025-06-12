@@ -33,7 +33,6 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(out.contains("5"))
   }
 
-
   test("unique") {
     val v1 = NArray[Double](1, 2, 3, 2, 1, 4)
     val unique = v1.unique

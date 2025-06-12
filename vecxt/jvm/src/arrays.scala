@@ -827,7 +827,7 @@ object arrays:
     end reduceOp
 
     inline def `clampOp!`(inline op: VectorOperators.Comparison, initial: Double): Unit =
-      var i = 0      
+      var i = 0
       var vecAcc = DoubleVector.broadcast(spd, initial)
 
       while i < spd.loopBound(vec.length) do
@@ -836,16 +836,16 @@ object arrays:
         vecAcc.intoArray(vec, i, mask)
         values.intoArray(vec, i, mask.not())
         i += spdl
-      end while      
+      end while
 
       while i < vec.length do
         vec(i) = inline op match
           case VectorOperators.LT => Math.max(initial, vec(i))
           case VectorOperators.GT => Math.min(initial, vec(i))
-          case _                   => ???
+          case _                  => ???
         i += 1
       end while
-      
+
     end `clampOp!`
 
     inline def max: Double = maxSIMD
@@ -881,9 +881,9 @@ object arrays:
     inline def minClamp(floor: Double): Array[Double] = vec.clone.tap(_.`clampOp!`(VectorOperators.LT, floor))
     inline def `minClamp!`(floor: Double): Unit =
       vec.`clampOp!`(VectorOperators.LT, floor)
-    
+
     /** Clamps the values in the array to a specified range.
-     * @param ceil
+      * @param ceil
       *   The maximum value to clamp to.
       * @param floor
       *   The minimum value to clamp to.
@@ -891,7 +891,7 @@ object arrays:
       *   A new array with values clamped to the specified range.
       */
     inline def `clamp!`(floor: Double, ceil: Double): Unit =
-      var i = 0      
+      var i = 0
       var vecCeil = DoubleVector.broadcast(spd, ceil)
       var vecFloor = DoubleVector.broadcast(spd, floor)
 
@@ -901,9 +901,9 @@ object arrays:
         val maskLt = values.compare(VectorOperators.LT, vecFloor)
         vecCeil.intoArray(vec, i, maskGt)
         vecFloor.intoArray(vec, i, maskLt)
-        values.intoArray(vec, i, maskGt.or(maskLt).not() )
+        values.intoArray(vec, i, maskGt.or(maskLt).not())
         i += spdl
-      end while      
+      end while
 
       while i < vec.length do
         vec(i) = if vec(i) > ceil then ceil else if vec(i) < floor then floor else vec(i)

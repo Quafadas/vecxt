@@ -118,6 +118,66 @@ object JsNativeDoubleArrays:
 
   extension (vec: NArray[Double])
 
+    inline def clampMin(min: Double): NArray[Double] =
+      val n = vec.length
+      val res = NArray.ofSize[Double](n)
+
+      var i = 0
+      while i < n do
+        res(i) = Math.max(vec(i), min)
+        i += 1
+      end while
+      res
+    end clampMin
+
+    inline def `clampMin!`(min: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = Math.max(vec(i), min)
+        i += 1
+      end while
+    end `clampMin!`
+
+    inline def maxClamp(max: Double): NArray[Double] = clampMax(max)
+    inline def minClamp(min: Double): NArray[Double] = clampMin(min)
+
+    inline def clampMax(max: Double): NArray[Double] =
+      val n = vec.length
+      val res = NArray.ofSize[Double](n)
+
+      var i = 0
+      while i < n do
+        res(i) = Math.min(vec(i), max)
+        i += 1
+      end while
+      res
+    end clampMax
+    inline def `clampMax!`(max: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = Math.min(vec(i), max)
+        i += 1
+      end while
+    end `clampMax!`
+    inline def clamp(min: Double, max: Double): NArray[Double] =
+      val n = vec.length
+      val res = NArray.ofSize[Double](n)
+
+      var i = 0
+      while i < n do
+        res(i) = Math.min(Math.max(vec(i), min), max)
+        i += 1
+      end while
+      res
+    end clamp
+    inline def `clamp!`(min: Double, max: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = Math.min(Math.max(vec(i), min), max)
+        i += 1
+      end while
+    end `clamp!`
+
     inline def argmax: Int =
       val n = vec.length
       if n == 0 then -1 // Handle empty array case
