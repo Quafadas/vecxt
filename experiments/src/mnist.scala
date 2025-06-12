@@ -7,6 +7,7 @@ import viz.Plottable.*
 import viz.Macros.Implicits.given_Writer_T
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
+import vecxt.BoundsCheck
 
 // File can be dowloaded from Kaggle at:
 // https://www.kaggle.com/datasets/quangphota/mnist-csv/data?select=train.csv
@@ -66,13 +67,14 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
     val a2 = softmaxCols(z2)
     (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
 
-  def back_prop(w1: Matrix[Double], b1: Matrix[Double], w2: Matrix[Double], b2: Matrix[Double], z1: Matrix[Double], a1: Matrix[Double], z2: Matrix[Double], a2: Matrix[Double], X: Matrix[Double], Y: Seq[Int]) =
+  def back_prop(w1: Matrix[Double], b1: Matrix[Double], w2: Matrix[Double], b2: Matrix[Double], z1: Matrix[Double], a1: Matrix[Double], z2: Matrix[Double], a2: Matrix[Double], X: Matrix[Double], Y: Matrix[Double]) =
     val m = Y.cols
     val m_inv = 1.0 / m
     val dz2 = a2 - Y
-    val dw2 = m_inv * (dz2 @@  1.transpose) //(10, 10)
+    val dw2 = m_inv * (dz2 @@  a1.transpose) //(10, 10)
     val db2 = m_inv * dz2.mapRowsToScalar(_.sum) // (10, 1)
-    val dz1 = (w2.transpose @@ dz2) * (z1 > 0)
+    val dz1Check = (z1 > 0) // Need to turn this into intgers
+    val dz1 = (w2.transpose @@ dz2) * dz1Check // (10, 784)
     val dw1 = m_inv * (dz1 @@ X.transpose) //(10, 784)
     val db1 = m_inv * dz1.mapRowsToScalar(_.sum) // (10, 1)
     (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
@@ -89,9 +91,9 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
     }
     Matrix(oneHot, (n, m))
 
-  def mostLikely(weights: Matrix[Double]): Matrix[Int] = 
+  def mostLikely(weights: Matrix[Double]): Array[Int] = 
     val m = weights.raw
-    weights.mapColsToScalar[Int](_.argmax) // we can take advantage that our classes are 0-9 so argmax here returns the class label directly
+    weights.mapColsToScalar[Int](_.argmax).raw // we can take advantage that our classes are 0-9 so argmax here returns the class label directly
 
   def loss(predicted: Array[Int], actual: Array[Int])= 
     (predicted =:= actual).trues.toDouble / predicted.length
@@ -103,27 +105,27 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
     val b2_ = b2 - (alpha * db2)
     (w1= w1_, b1= b1_, w2= w2_, b2= b2_)
 
-  def gradient_decent( x: Matrix[Double] , y: Matrix[Double], iterations: Int, alpha: Double, decay_rate: 0.001, w1:Matrix[Double], b1:Matrix[Double], w2:Matrix[Double], b2:Matrix[Double]) =  
+  def gradient_decent( x: Matrix[Double] , y: Array[Int], iterations: Int, alpha: Double, decay_rate: 0.001, w1:Matrix[Double], b1:Matrix[Double], w2:Matrix[Double], b2:Matrix[Double]) =  
+    import BoundsCheck.DoBoundsCheck.yes
     var alpha_ = alpha
-    var w1_ = w1
-    var b1_ = b1
-    var w2_ = w2
-    var b2_ = b2
-
+    var w1_ = Matrix(w1.raw.clone(), w1.shape)
+    var b1_ = Matrix(b1.raw.clone(), b1.shape)
+    var w2_ = Matrix(w2.raw.clone(), w2.shape)
+    var b2_ = Matrix(b2.raw.clone(), b2.shape)
     
     for (i <- 1.until( iterations+1)) {      
-      val one_hot_Y = one_hot_encoding(y)
-      val (z1, a1, z2, a2) = foward_prop(w1, b1, w2, b2, x)
-      val (dw1, db1, dw2, db2) = back_prop(w1, b1, w2, b2, z1, a1, z2, a2, X, one_hot_Y)
+      val one_hot_Y = oneHotEncode(y)
+      val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
+      val (dw1, db1, dw2, db2) = back_prop(w1, b1, w2, b2, z1, a1, z2, a2, x, one_hot_Y)
       var (w1_, b1_, w2_, b2_) = update_params(w1_, b1_, w2_, b2_, dw1, db1, dw2, db2, alpha_)
       // decay the learning rate, can experiment with different rates here.
       if ((i + 1) % 50 == 0)
-        alpha_ = initial_alpha - decay_rate
+        alpha_ = alpha_ - decay_rate
 
       if (i % 10 == 0)
-        println("iteration number: ", i)        
-        val (_, _, _, a2) = foward_prop(w1, b1, w2, b2, x_train)
-        val acc = loss(predictions(a2), y_train)
+        println(s"iteration number: $i")
+        val (_, _, _, a2) = foward_prop(w1, b1, w2, b2, x)
+        val acc = loss(mostLikely(a2), y)
         println(s"Accuracy : $acc")
     }
 

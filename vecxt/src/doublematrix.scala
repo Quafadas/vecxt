@@ -18,6 +18,10 @@ import vecxt.dimensionExtender.DimensionExtender.*
 
 object DoubleMatrix:
 
+  extension (d: Double)
+    inline def *(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      Matrix[Double](vecxt.arrays.*(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+
   extension (m: Matrix[Double])
 
     inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
