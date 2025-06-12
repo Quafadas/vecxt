@@ -46,7 +46,7 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
   val w2 = Array.tabulate(10)(i => i.toDouble / 10.0)
   val b2 = Array.fill(10)(0.0)
 
-  def relu(z: Array[Double]) = z.clampMax(0.0)
+  def relu(z: Array[Double]): Array[Double] = z.clampMax(0.0)
 end mnist
 
 /** Note that the y co-ordinate needs to be inverted as we are reading it here.
