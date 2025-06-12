@@ -30,7 +30,7 @@ import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorMask
 import scala.reflect.ClassTag
-import scala.util.control.Breaks._
+import scala.util.control.Breaks.*
 
 object arrays:
 
@@ -44,7 +44,7 @@ object arrays:
 
   extension (vec: Array[Boolean])
     // TODO, benchmark
-    inline def all: Boolean =      
+    inline def allTrue: Boolean =
       var out = true
       var i = 0
       breakable {
@@ -54,7 +54,7 @@ object arrays:
             break
           end if
           i += spbl
-        end while      
+        end while
       }
 
       if out then
@@ -66,20 +66,20 @@ object arrays:
 
       end if
       out
-    end all
+    end allTrue
 
     inline def any: Boolean =
       var out = false
       var i = 0
       breakable {
         while i < spb.loopBound(vec.length) do
-          if VectorMask.fromArray(spb, vec, i).anyTrue() then                
+          if VectorMask.fromArray(spb, vec, i).anyTrue() then
             out = true
             break
           end if
           i += spbl
         end while
-      }      
+      }
 
       if !out then
         while i < vec.length do
@@ -95,12 +95,12 @@ object arrays:
     inline def trues: Int =
       var i = 0
       var sum = 0
-      
-      while i < spb.loopBound(vec.length) do          
-        sum += VectorMask.fromArray(spb, vec, i).trueCount()          
+
+      while i < spb.loopBound(vec.length) do
+        sum += VectorMask.fromArray(spb, vec, i).trueCount()
         i += spbl
       end while
-    
+
       while i < vec.length do
         if vec(i) then sum += 1
         end if

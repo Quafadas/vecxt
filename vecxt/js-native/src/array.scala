@@ -12,7 +12,7 @@ object JsNativeBooleanArrays:
 
   extension (vec: NArray[Boolean])
 
-    inline def all = vec.forall(identity)
+    inline def allTrue = vec.forall(identity)
 
     inline def any: Boolean =
       var i = 0

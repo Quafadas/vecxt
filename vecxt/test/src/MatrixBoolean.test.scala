@@ -1,9 +1,9 @@
 package vecxt
 
+import vecxt.all.*
 import munit.FunSuite
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
-import vecxt.all.*
 
 class MatrixBooleanSuite extends FunSuite:
 
