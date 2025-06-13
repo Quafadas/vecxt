@@ -1,9 +1,9 @@
 package vecxt
 
+import all.*
 import munit.FunSuite
 import narr.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
-import vecxt.all.*
+import BoundsCheck.DoBoundsCheck.yes
 
 class MatrixBooleanSuite extends FunSuite:
 
@@ -62,6 +62,26 @@ class MatrixBooleanSuite extends FunSuite:
     val lte = mat <= 2.0
     assertVecEquals[Boolean](NArray[Boolean](true, false, true, false), lte.raw)
 
+  }
+
+  test("elementwise mult double array") {
+    val mat = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](3.0, 4.0, 5.0)
+    )
+
+    val bools = Matrix.fromRows[Boolean](
+      NArray[Boolean](true, false, true),
+      NArray[Boolean](false, true, false)
+    )
+
+    val calc = mat *:* bools
+    val result = Matrix.fromRows[Double](
+      NArray[Double](1.0, 0.0, 3.0),
+      NArray[Double](0.0, 4.0, 0.0)
+    )
+    println(calc.printMat)
+    assertVecEquals[Double](calc.raw, result.raw)
   }
 
 end MatrixBooleanSuite

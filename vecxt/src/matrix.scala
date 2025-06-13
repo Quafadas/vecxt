@@ -39,7 +39,7 @@ object matrix:
 
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
 
-    inline def raw: NArray[A] = m._1
+    transparent inline def raw = m._1
 
     inline def shape: RowCol = (m._2, m._3)
 

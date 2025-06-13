@@ -24,15 +24,15 @@ class BooleanArrayExtensionSuite extends munit.FunSuite:
 
   test("all") {
     val v1 = NArray[Boolean](true, true, true)
-    assert(v1.all)
+    assert(v1.allTrue)
 
     val v2 = NArray[Boolean](true, false, true)
-    assert(!v2.all)
+    assert(!v2.allTrue)
 
     val v3 = NArray.fill[Boolean](1025)(true)
-    assert(v3.all)
+    assert(v3.allTrue)
     v3(scala.util.Random.nextInt(1025)) = false
-    assert(!v3.all)
+    assert(!v3.allTrue)
   }
 
   test("any") {

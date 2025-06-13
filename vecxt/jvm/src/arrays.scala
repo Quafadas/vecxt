@@ -30,6 +30,7 @@ import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorMask
 import scala.reflect.ClassTag
+import scala.util.control.Breaks.*
 
 object arrays:
 
@@ -42,16 +43,19 @@ object arrays:
   final val spil = spi.length()
 
   extension (vec: Array[Boolean])
-    // Inefficient as it doesn't break if a false is found.
-    inline def all: Boolean =
-      var acc = ByteVector.broadcast(spb, 1.toByte)
+    // TODO, benchmark
+    inline def allTrue: Boolean =
+      var out = true
       var i = 0
-      while i < spb.loopBound(vec.length) do
-        acc = acc.and(ByteVector.fromBooleanArray(spb, vec, i))
-        i += spbl
-      end while
-
-      var out = acc.reduceLanes(VectorOperators.AND) > 0
+      breakable {
+        while i < spb.loopBound(vec.length) do
+          if !VectorMask.fromArray(spb, vec, i).allTrue then
+            out = false
+            break
+          end if
+          i += spbl
+        end while
+      }
 
       if out then
         while i < vec.length do
@@ -62,17 +66,20 @@ object arrays:
 
       end if
       out
-    end all
+    end allTrue
 
     inline def any: Boolean =
-      var acc = ByteVector.zero(spb)
+      var out = false
       var i = 0
-      while i < spb.loopBound(vec.length) do
-        acc = acc.or(ByteVector.fromBooleanArray(spb, vec, i))
-        i += spbl
-      end while
-
-      var out = acc.reduceLanes(VectorOperators.OR) > 0
+      breakable {
+        while i < spb.loopBound(vec.length) do
+          if VectorMask.fromArray(spb, vec, i).anyTrue() then
+            out = true
+            break
+          end if
+          i += spbl
+        end while
+      }
 
       if !out then
         while i < vec.length do
@@ -88,6 +95,12 @@ object arrays:
     inline def trues: Int =
       var i = 0
       var sum = 0
+
+      while i < spb.loopBound(vec.length) do
+        sum += VectorMask.fromArray(spb, vec, i).trueCount()
+        i += spbl
+      end while
+
       while i < vec.length do
         if vec(i) then sum += 1
         end if
@@ -137,6 +150,84 @@ object arrays:
   end extension
 
   extension (vec: Array[Int])
+
+    inline def =:=(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.EQ, num)
+
+    inline def !:=(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.NE, num)
+
+    inline def <(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.LT, num)
+
+    inline def <=(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.LE, num)
+
+    inline def >(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.GT, num)
+
+    inline def >=(num: Array[Int]): Array[Boolean] =
+      logicalIdx(VectorOperators.GE, num)
+
+    inline def gte(num: Array[Int]): Array[Boolean] = >=(num)
+
+    inline def lte(num: Array[Int]): Array[Boolean] = <=(num)
+
+    inline def lt(num: Array[Int]): Array[Boolean] = <(num)
+
+    inline def gt(num: Array[Int]): Array[Boolean] = >(num)
+
+    inline def logicalIdx(
+        inline op: VectorOperators.Comparison,
+        vec2: Array[Int]
+    ): Array[Boolean] =
+      val idx = new Array[Boolean](vec.length)
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector.fromArray(spi, vec, i).compare(op, IntVector.fromArray(spi, vec2, i)).intoArray(idx, i)
+        i += spil
+      end while
+
+      inline op match
+        case VectorOperators.EQ =>
+          while i < vec.length do
+            idx(i) = vec(i) == vec2(i)
+            i += 1
+          end while
+        case VectorOperators.NE =>
+          while i < vec.length do
+            idx(i) = vec(i) != vec2(i)
+            i += 1
+          end while
+        case VectorOperators.LT =>
+          while i < vec.length do
+            idx(i) = vec(i) < vec2(i)
+            i += 1
+          end while
+
+        case VectorOperators.LE =>
+          while i < vec.length do
+            idx(i) = vec(i) <= vec2(i)
+            i += 1
+          end while
+
+        case VectorOperators.GT =>
+          while i < vec.length do
+            idx(i) = vec(i) > vec2(i)
+            i += 1
+          end while
+
+        case VectorOperators.GE =>
+          while i < vec.length do
+            idx(i) = vec(i) >= vec2(i)
+            i += 1
+          end while
+        case _ => ???
+      end match
+
+      idx
+    end logicalIdx
 
     inline def =:=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.EQ, num)
@@ -804,7 +895,7 @@ object arrays:
       leftProducts
     end productExceptSelf
 
-    private inline def reduceOp(op: VectorOperators.Binary, initial: Double): Double =
+    private inline def reduceOp(inline op: VectorOperators.Binary, inline initial: Double): Double =
       var i = 0
       var vecAcc = DoubleVector.broadcast(spd, initial)
 
@@ -819,7 +910,7 @@ object arrays:
         result = inline op match
           case VectorOperators.MAX => Math.max(result, vec(i))
           case VectorOperators.MIN => Math.min(result, vec(i))
-          case _                   => result
+          case _                   => ???
         i += 1
       end while
 
@@ -827,6 +918,7 @@ object arrays:
     end reduceOp
 
     inline def max: Double = maxSIMD
+
     inline def min: Double = minSIMD
 
     inline def maxSIMD: Double =
@@ -834,6 +926,85 @@ object arrays:
 
     inline def minSIMD: Double =
       reduceOp(VectorOperators.MIN, Double.MaxValue)
+
+    private inline def `clampOp!`(inline op: VectorOperators.Comparison, inline initial: Double): Unit =
+      var i = 0
+      var vecAcc = DoubleVector.broadcast(spd, initial)
+
+      while i < spd.loopBound(vec.length) do
+        val values = DoubleVector.fromArray(spd, vec, i)
+        val mask = values.compare(op, initial)
+        vecAcc.intoArray(vec, i, mask)
+        values.intoArray(vec, i, mask.not())
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) = inline op match
+          case VectorOperators.LT => Math.max(initial, vec(i))
+          case VectorOperators.GT => Math.min(initial, vec(i))
+          case _                  => ???
+        i += 1
+      end while
+
+    end `clampOp!`
+
+    /** Clamps the values in the array to a maximum value.
+      *
+      * @param floor
+      *   The maximum value to clamp to.
+      * @return
+      *   A new array with values clamped to the specified maximum.
+      */
+    inline def clampMax(ceil: Double): Array[Double] = vec.clone.tap(_.`clampOp!`(VectorOperators.GT, ceil))
+    inline def maxClamp(ceil: Double): Array[Double] = vec.clone.tap(_.`clampOp!`(VectorOperators.GT, ceil))
+    inline def `maxClamp!`(ceil: Double): Unit =
+      vec.`clampOp!`(VectorOperators.GT, ceil)
+
+    /** Clamps the values in the array to a minimum value.
+      *
+      * @param ceil
+      *   The minimum value to clamp to.
+      * @return
+      *   A new array with values clamped to the specified minimum.
+      */
+    inline def clampMin(floor: Double): Array[Double] = vec.clone.tap(_.`clampOp!`(VectorOperators.LT, floor))
+    inline def minClamp(floor: Double): Array[Double] = vec.clone.tap(_.`clampOp!`(VectorOperators.LT, floor))
+    inline def `minClamp!`(floor: Double): Unit =
+      vec.`clampOp!`(VectorOperators.LT, floor)
+
+    /** Clamps the values in the array to a specified range.
+      * @param ceil
+      *   The maximum value to clamp to.
+      * @param floor
+      *   The minimum value to clamp to.
+      * @return
+      *   A new array with values clamped to the specified range.
+      */
+    inline def `clamp!`(floor: Double, ceil: Double): Unit =
+      var i = 0
+      var vecCeil = DoubleVector.broadcast(spd, ceil)
+      var vecFloor = DoubleVector.broadcast(spd, floor)
+
+      while i < spd.loopBound(vec.length) do
+        val values = DoubleVector.fromArray(spd, vec, i)
+        val maskGt = values.compare(VectorOperators.GT, vecCeil)
+        val maskLt = values.compare(VectorOperators.LT, vecFloor)
+        vecCeil.intoArray(vec, i, maskGt)
+        vecFloor.intoArray(vec, i, maskLt)
+        values.intoArray(vec, i, maskGt.or(maskLt).not())
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) = if vec(i) > ceil then ceil else if vec(i) < floor then floor else vec(i)
+        i += 1
+      end while
+
+    end `clamp!`
+
+    inline def clamp(floor: Double, ceil: Double): Array[Double] =
+      vec.clone.tap(_.`clamp!`(floor, ceil))
 
     /** The formula for the logarithm of the sum of exponentials is:
       *

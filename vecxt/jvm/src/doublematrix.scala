@@ -3,7 +3,7 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.matrix.*
+import all.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 
@@ -34,6 +34,18 @@ object JvmDoubleMatrix:
       )
       Matrix(newArr, (m.rows, b.cols))
     end matmul
+
+    // TODO: SIMD
+    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      sameDimMatCheck(m, bmat)
+      val newArr = Array.ofDim[Double](m.rows * m.cols)
+      var i = 0
+      while i < newArr.length do
+        newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
+        i += 1
+      end while
+      Matrix(newArr, (m.rows, m.cols))
+    end *:*
 
     // inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
 

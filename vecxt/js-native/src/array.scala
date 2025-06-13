@@ -12,7 +12,7 @@ object JsNativeBooleanArrays:
 
   extension (vec: NArray[Boolean])
 
-    inline def all = vec.forall(identity)
+    inline def allTrue = vec.forall(identity)
 
     inline def any: Boolean =
       var i = 0
@@ -89,6 +89,18 @@ object JsNativeDoubleArrays:
   end extension
 
   extension (m: Matrix[Double])
+    // TODO: SIMD
+    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      sameDimMatCheck(m, bmat)
+      val newArr = NArray.ofSize[Double](m.rows * m.cols)
+      var i = 0
+      while i < newArr.length do
+        newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
+        i += 1
+      end while
+      Matrix[Double](newArr, (m.rows, m.cols))
+    end *:*
+
     inline def >=(d: Double): Matrix[Boolean] =
       Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
@@ -117,6 +129,66 @@ object JsNativeDoubleArrays:
   // end extension
 
   extension (vec: NArray[Double])
+
+    inline def clampMin(min: Double): NArray[Double] =
+      val n = vec.length
+      val res = NArray.ofSize[Double](n)
+
+      var i = 0
+      while i < n do
+        res(i) = Math.max(vec(i), min)
+        i += 1
+      end while
+      res
+    end clampMin
+
+    inline def `clampMin!`(min: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = Math.max(vec(i), min)
+        i += 1
+      end while
+    end `clampMin!`
+
+    inline def maxClamp(max: Double): NArray[Double] = clampMax(max)
+    inline def minClamp(min: Double): NArray[Double] = clampMin(min)
+
+    inline def clampMax(max: Double): NArray[Double] =
+      val n = vec.length
+      val res = NArray.ofSize[Double](n)
+
+      var i = 0
+      while i < n do
+        res(i) = Math.min(vec(i), max)
+        i += 1
+      end while
+      res
+    end clampMax
+    inline def `clampMax!`(max: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = Math.min(vec(i), max)
+        i += 1
+      end while
+    end `clampMax!`
+    inline def clamp(min: Double, max: Double): NArray[Double] =
+      val n = vec.length
+      val res = NArray.ofSize[Double](n)
+
+      var i = 0
+      while i < n do
+        res(i) = Math.min(Math.max(vec(i), min), max)
+        i += 1
+      end while
+      res
+    end clamp
+    inline def `clamp!`(min: Double, max: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = Math.min(Math.max(vec(i), min), max)
+        i += 1
+      end while
+    end `clamp!`
 
     inline def argmax: Int =
       val n = vec.length

@@ -17,7 +17,7 @@
 package vecxt
 
 import narr.*
-import vecxt.all.*
+import all.*
 
 class IntArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes

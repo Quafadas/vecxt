@@ -14,7 +14,7 @@ val v2 = Array[Double](4, 5, 6)
 
 v1.dot(v2)
 
-v1.sumSIMD // .sum is slow due to boxing. We can't squat on `sum` so we need a new name
+v1.sumSIMD // .sum std is slow. We can't squat on `sum` so we need a new name
 
 v1.mean
 
@@ -23,6 +23,12 @@ v1.variance
 v1.productSIMD
 
 v1.norm
+
+v1.clampMin(1.5).printArr
+
+v2.clampMax(1.5).printArr
+
+v1.clamp(1.5, 2.5 ).printArr
 
 v1.maxSIMD
 

@@ -1,16 +1,17 @@
 package vecxt
 
 import narr.*
-import vecxt.BoundsCheck.BoundsCheck
+import BoundsCheck.BoundsCheck
 
-import vecxt.rangeExtender.*
+import rangeExtender.*
 
 import scala.annotation.targetName
 
 import scala.reflect.ClassTag
 
 import matrix.*
-import vecxt.MatrixHelper.zeros
+import MatrixHelper.zeros
+import all.printMat
 
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
@@ -47,15 +48,21 @@ object MatrixInstance:
         to: NArray[A]
     ): Unit = // (using inline boundsCheck: BoundsCheck) =
       // dimCheckLen(to, m.cols)
+      // println("Updating matrix with row: " + row + ", col: " + col)
+      // println(to.mkString(", "))
+      // println("---")
       (row, col) match
         case (_: ::.type, c: Int) =>
+
           (0 until m.rows).foreach { i =>
+            // println(s"Updating column $i")
             val idx = c * m.rows + i
             m.raw(idx) = to(i)
           }
 
         case (r: Int, _: ::.type) =>
           (0 until m.cols).foreach { c =>
+            // println(s"Updating row $c at idx: ${c * m.rows + r}")
             val idx = c * m.rows + r
             m.raw(idx) = to(c)
           }

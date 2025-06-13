@@ -1,7 +1,7 @@
 package vecxt
 
+import all.*
 import narr.*
-import vecxt.all.*
 
 class ArgmaxSuite extends munit.FunSuite:
 

@@ -2,9 +2,9 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-import vecxt.BoundsCheck.BoundsCheck
-import vecxt.matrix.*
-import vecxt.MatrixInstance.*
+import BoundsCheck.BoundsCheck
+import matrix.*
+import MatrixInstance.*
 
 import narr.*
 // import vecxt.arrayUtil.printArr
@@ -25,8 +25,10 @@ object matrixUtil:
     end tupleFromIdx
 
     // TODO : probably has horrible performance
-    def mapRows(f: NArray[A] => NArray[A])(using ClassTag[A])(using boundsCheck: BoundsCheck): Matrix[A] =
-      val newArr = NArray.ofSize[A](m.numel)
+    inline def mapRows[B](
+        f: NArray[A] => NArray[B]
+    )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
+      val newArr = NArray.ofSize[B](m.numel)
       val m2 = Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       var idx = 0
       while idx < m.rows do
@@ -36,8 +38,10 @@ object matrixUtil:
       m2
     end mapRows
 
-    inline def mapRowsToScalar(f: NArray[A] => A)(using ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[A] =
-      val newArr = NArray.ofSize[A](m.rows)
+    inline def mapRowsToScalar[B](
+        f: NArray[A] => B
+    )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
+      val newArr = NArray.ofSize[B](m.rows)
       var i = 0
       while i < m.rows do
         newArr(i) = f(m.row(i))
@@ -46,27 +50,35 @@ object matrixUtil:
       Matrix(newArr, (m.rows, 1))
     end mapRowsToScalar
 
-    inline def mapCols(f: NArray[A] => NArray[A])(using ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[A] =
-      val newArr = NArray.ofSize[A](m.numel)
+    inline def mapCols[B](
+        f: NArray[A] => NArray[B]
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
+      val newArr = NArray.ofSize[B](m.numel)
+      // println(m.printMat)
       val m2 = Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       var idx = 0
-      while idx < m.rows do
+      while idx < m.cols do
+        // println(s"mapCols idx: $idx")
+        // println(s"m.col(m): ${m.col(idx).mkString(" ")}, ${f(m.col(idx)).mkString(" ")}")
         m2(::, idx) = f(m.col(idx))
         idx += 1
       end while
-      Matrix(newArr, m.shape)
+      Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
     end mapCols
 
-    inline def mapColsToScalar(f: NArray[A] => A)(using ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[A] =
-      val newArr = NArray.ofSize[A](m.cols)
+    inline def mapColsToScalar[B](
+        f: NArray[A] => B
+    )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
+      val newArr = NArray.ofSize[B](m.cols)
       var i = 0
       while i < m.cols do
         newArr(i) = f(m.col(i))
         i += 1
       end while
-      Matrix(newArr, (1, m.cols))
+      Matrix[B](newArr, (1, m.cols))
     end mapColsToScalar
 
+    // TODO: Horrible performance
     inline def transpose(using ClassTag[A]): Matrix[A] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[A](m.numel)
