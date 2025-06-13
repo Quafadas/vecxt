@@ -36,7 +36,7 @@ object JvmDoubleMatrix:
     end matmul
 
     // TODO: SIMD
-    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck) =
+    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, bmat)
       val newArr = Array.ofDim[Double](m.rows * m.cols)
       var i = 0

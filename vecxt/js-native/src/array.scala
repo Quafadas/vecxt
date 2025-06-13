@@ -89,6 +89,18 @@ object JsNativeDoubleArrays:
   end extension
 
   extension (m: Matrix[Double])
+    // TODO: SIMD
+    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      sameDimMatCheck(m, bmat)
+      val newArr = NArray.ofSize[Double](m.rows * m.cols)
+      var i = 0
+      while i < newArr.length do
+        newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
+        i += 1
+      end while
+      Matrix[Double](newArr, (m.rows, m.cols))
+    end *:*
+
     inline def >=(d: Double): Matrix[Boolean] =
       Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
