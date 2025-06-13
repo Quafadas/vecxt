@@ -597,7 +597,7 @@ class MatrixExtensionSuite extends FunSuite:
     assertMatrixEquals(result, expected)
   }
 
-  test("selection with two ranges".only) {
+  test("selection with two ranges") {
     val mat = Matrix.fromRows[Double](
       NArray(1.0, 2.0, 3.0, 10.0),
       NArray(4.0, 5.0, 6.0, 10.0),
