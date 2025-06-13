@@ -22,11 +22,11 @@ import vecxt.BoundsCheck
   val trainSize = 60000
 
   val labels = traindata.column["label"].map(_.toInt).toSeq.take(trainSize) // y data
-  val others  =
+  val others =
     traindata
-    .dropColumn["label"]
-    .take(trainSize)
-    .map(_.toList.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
+      .dropColumn["label"]
+      .take(trainSize)
+      .map(_.toList.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
 
   if samplePlot then
     (os.resource / "hist.vg.json").plot(
@@ -49,7 +49,7 @@ import vecxt.BoundsCheck
 
   val weight1 = Matrix(Array.fill(28 * 28 * 10)(scala.util.Random.nextDouble() * 0.2), (28 * 28, 10))
   val bias1 = Array.fill(10)(0.0)
-  val weight2 = Matrix(Array.fill(10 * 10)(scala.util.Random.nextDouble() * 0.2 ), (10, 10))
+  val weight2 = Matrix(Array.fill(10 * 10)(scala.util.Random.nextDouble() * 0.2), (10, 10))
   val bias2 = Array.fill(10)(0.0)
 
   val x = Matrix.fromRows(others.toArray*)
@@ -71,7 +71,6 @@ import vecxt.BoundsCheck
   println(s"initial weights2: ${weight2(0 until 10, ::).printMat}")
   println(s"initial biases2: ${bias2.mkString(", ")}")
   println(s"labels: ${labels.take(10).mkString(", ")}")
-
 
   val arg = gradient_decent(
     x = x,
@@ -114,7 +113,8 @@ def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: A
   // println(s"weight1 shape: ${w1.shape}, weight1 rows: ${w1.rows}, weight1 cols: ${w1.cols}")
   // println(s"weight2 shape: ${w2.shape}, weight2 rows: ${w2.rows}, weight2 cols: ${w2.cols}")
 
-  val z1 = (x @@ w1).mapRows(r => r.tap(_ += b1)) // TODO: performance, map in place [(rows, 784) @ (784, 10)] = (rows, 10)
+  val z1 =
+    (x @@ w1).mapRows(r => r.tap(_ += b1)) // TODO: performance, map in place [(rows, 784) @ (784, 10)] = (rows, 10)
   //  println(s"z1 shape: ${z1.shape}, z1 rows: ${z1.rows}, z1 cols: ${z1.cols}")
   //  println(s"z1 mean: ${z1.raw.mean}, min: ${z1.raw.minSIMD}, max: ${z1.raw.maxSIMD}")
   //  println(s"z1: ${z1(0 to 10, ::).printMat}")
@@ -248,7 +248,7 @@ def gradient_decent(
 
   println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
 
-  println(s"weights1 first row: ${w1(0,::).printMat}")
+  println(s"weights1 first row: ${w1(0, ::).printMat}")
   println(s"weights1 shape: ${w1_.shape}")
   println(s"weights2: ${w2_.printMat}")
 

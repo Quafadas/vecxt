@@ -182,7 +182,7 @@ object rpt:
         case (Some(limit), Some(retention)) => reinsuranceBoth(vec, limit.limit, retention.retention, share)
         case (None, Some(retention))        => reinsuranceRetentionOnly(vec, retention.retention, share)
         case (Some(limit), None)            => reinsuranceLimitOnly(vec, limit.limit, share)
-        case (None, None) =>
+        case (None, None)                   =>
           if share != 1.0 then
             val len = vec.length
             val upperBound = SPECIES.loopBound(len)

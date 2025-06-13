@@ -21,6 +21,7 @@ object DoubleMatrix:
   extension (d: Double)
     inline def *(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       Matrix[Double](vecxt.arrays.*(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+  end extension
 
   extension (m: Matrix[Double])
 

@@ -917,7 +917,6 @@ object arrays:
       result
     end reduceOp
 
-
     inline def max: Double = maxSIMD
 
     inline def min: Double = minSIMD
@@ -949,7 +948,6 @@ object arrays:
       end while
 
     end `clampOp!`
-
 
     /** Clamps the values in the array to a maximum value.
       *
