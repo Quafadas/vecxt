@@ -917,7 +917,18 @@ object arrays:
       result
     end reduceOp
 
-    inline def `clampOp!`(inline op: VectorOperators.Comparison, initial: Double): Unit =
+
+    inline def max: Double = maxSIMD
+
+    inline def min: Double = minSIMD
+
+    inline def maxSIMD: Double =
+      reduceOp(VectorOperators.MAX, Double.MinValue)
+
+    inline def minSIMD: Double =
+      reduceOp(VectorOperators.MIN, Double.MaxValue)
+
+    private inline def `clampOp!`(inline op: VectorOperators.Comparison, inline initial: Double): Unit =
       var i = 0
       var vecAcc = DoubleVector.broadcast(spd, initial)
 
@@ -939,15 +950,6 @@ object arrays:
 
     end `clampOp!`
 
-    inline def max: Double = maxSIMD
-
-    inline def min: Double = minSIMD
-
-    inline def maxSIMD: Double =
-      reduceOp(VectorOperators.MAX, Double.MinValue)
-
-    inline def minSIMD: Double =
-      reduceOp(VectorOperators.MIN, Double.MaxValue)
 
     /** Clamps the values in the array to a maximum value.
       *

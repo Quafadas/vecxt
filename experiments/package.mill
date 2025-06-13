@@ -12,10 +12,10 @@ object `package` extends RootModule with ScalaModule {
     }
     def scalacOptions: T[Seq[String]] = Seq("-Xmax-inlines:10000")
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
-    override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)  
+    override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)
     override def ivyDeps = super.ivyDeps() ++ Seq(
         ivy"com.lihaoyi::os-lib::0.10.4",
-        ivy"io.github.quafadas::scautable::0.0.23",
+        ivy"io.github.quafadas::scautable::0.0.24",
         ivy"io.github.quafadas::dedav4s::0.10.0-RC2"
 
     )

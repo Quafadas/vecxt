@@ -597,4 +597,22 @@ class MatrixExtensionSuite extends FunSuite:
     assertMatrixEquals(result, expected)
   }
 
+  test("selection with two ranges".only) {
+    val mat = Matrix.fromRows[Double](
+      NArray(1.0, 2.0, 3.0, 10.0),
+      NArray(4.0, 5.0, 6.0, 10.0),
+      NArray(7.0, 8.0, 9.0, 10.0),
+      NArray(7.0, 8.0, 9.0, 10.0),
+      NArray(7.0, 8.0, 9.0, 10.0),
+    )
+
+    val expected = Matrix.fromRows[Double](
+      NArray(1.0, 2.0, 3.0),
+      NArray(4.0, 5.0, 6.0),
+      NArray(7.0, 8.0, 9.0),
+
+    )
+    assertVecEquals(mat(0 to 2, 0 to 2).raw, expected.raw)
+  }
+
 end MatrixExtensionSuite

@@ -40,12 +40,8 @@ object JvmDoubleMatrix:
       sameDimMatCheck(m, bmat)
       val newArr = Array.ofDim[Double](m.rows * m.cols)
       var i = 0
-      while i < m.rows do
-        var j = 0
-        while j < m.cols do
-          newArr(i * m.cols + j) = if bmat(i, j) then m(i, j) else 0.0
-          j += 1
-        end while
+      while i < newArr.length do
+        newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
         i += 1
       end while
       Matrix(newArr, (m.rows, m.cols))
