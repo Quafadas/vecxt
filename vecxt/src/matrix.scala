@@ -12,7 +12,7 @@ object matrix:
     *
     * Storage is column major.
     */
-  opaque type Matrix[@specialized(Double, Boolean, Int) A] = (NArray[A], Row, Col)
+  class Matrix[@specialized(Double, Boolean, Int) A](val raw: NArray[A], val rows: Row, val cols: Col)
 
   object Matrix:
 
@@ -27,27 +27,27 @@ object matrix:
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
-      (raw, dim._1, dim._2)
+      new Matrix(raw, dim._1, dim._2)
     end apply
     inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: NArray[A])(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
-      (raw, dim._1, dim._2)
+      new Matrix(raw, dim._1, dim._2)
     end apply
   end Matrix
 
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
 
-    transparent inline def raw = m._1
+    // transparent inline def raw = m._1
 
-    inline def shape: RowCol = (m._2, m._3)
+    inline def shape: RowCol = (m.rows, m.cols)
 
-    inline def rows: Row = m._2
+    // inline def rows: Row = m._2
 
-    inline def cols: Col = m._3
+    // inline def cols: Col = m._3
 
-    inline def numel: Int = m._1.length
+    inline def numel: Int = m.raw.length
 
   end extension
 

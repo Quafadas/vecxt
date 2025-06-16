@@ -405,7 +405,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(outer.rows, 3)
     assertEquals(outer.cols, 2)
 
-    assertVecEquals(outer.raw, shouldBe.raw)
+    assertVecEquals[Double](outer.raw, shouldBe.raw)
 
   }
 

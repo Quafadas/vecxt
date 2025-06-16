@@ -29,7 +29,7 @@ object matrixUtil:
         f: NArray[A] => NArray[B]
     )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
       val newArr = NArray.ofSize[B](m.numel)
-      val m2 = Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      val m2 = new Matrix(newArr, m.rows, m.cols)
       var idx = 0
       while idx < m.rows do
         m2(idx, ::) = f(m.row(idx))
@@ -55,7 +55,7 @@ object matrixUtil:
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       val newArr = NArray.ofSize[B](m.numel)
       // println(m.printMat)
-      val m2 = Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      val m2 = new Matrix(newArr, m.rows, m.cols)
       var idx = 0
       while idx < m.cols do
         // println(s"mapCols idx: $idx")
@@ -63,7 +63,7 @@ object matrixUtil:
         m2(::, idx) = f(m.col(idx))
         idx += 1
       end while
-      Matrix(newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      m2
     end mapCols
 
     inline def mapColsToScalar[B](
