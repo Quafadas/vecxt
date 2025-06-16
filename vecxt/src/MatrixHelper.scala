@@ -99,56 +99,23 @@ object MatrixHelper:
           idx += 1
         end while
         i += 1
-      end while
+      end while      
       Matrix(newArr, (rows, cols))
     end fromColumnsArray
 
-    transparent inline def zero[A] =
-      inline erasedValue[A] match
-        case _: Double  => 0.0.asInstanceOf[A]
-        case _: Boolean => false.asInstanceOf[A]
-        case _: Int     => 0.asInstanceOf[A]
-        case _: A       => error("Vecxt: call to eye for an unsupported type")
-      end match
-    end zero
+    transparent inline def eye[A: ClassTag](dim: Int)(using inline onz: OneAndZero[A]): Matrix[A] = eyeOf(onz.one, dim)(onz.zero)      
 
-    transparent inline def one[A] =
-      inline erasedValue[A] match
-        case _: Double  => 1.0.asInstanceOf[A]
-        case _: Boolean => true.asInstanceOf[A]
-        case _: Int     => 1.asInstanceOf[A]
-        case _: A       => error("Vecxt: call to one for an unsupported type")
-      end match
-    end one
+    transparent inline def eye[A: ClassTag](dim: RowCol)(using inline onz: OneAndZero[A]): Matrix[A] = eyeOf(onz.one, dim)(onz.zero)
 
-    inline def eye[A: ClassTag](dim: Int): Matrix[A] =
-      inline erasedValue[A] match
-        case _: Int     => eyeOf(one[A], dim)(zero[A])
-        case _: Double  => eyeOf(one[A], dim)(zero[A])
-        case _: Boolean => eyeOf(one[A], dim)(zero[A])
-        case _          => error("Vecxt: call to eye for an unsupported type")
+    transparent inline def ones[A: ClassTag](dim: RowCol)(using inline onz: OneAndZero[A]): Matrix[A] = fill(onz.one, dim)
 
-    inline def eye[A: ClassTag](dim: RowCol): Matrix[A] =
-      inline erasedValue[A] match
-        case _: Int     => eyeOf(one[A], dim)(zero[A])
-        case _: Double  => eyeOf(one[A], dim)(zero[A])
-        case _: Boolean => eyeOf(one[A], dim)(zero[A])
-        case _          => error("Vecxt: call to eye for an unsupported type")
-
-    inline def ones[A: ClassTag](dim: RowCol): Matrix[A] =
-      inline erasedValue[A] match
-        case _: Int     => fill(one[A], dim)
-        case _: Double  => fill(one[A], dim)
-        case _: Boolean => fill(one[A], dim)
-        case _          => error("Vecxt: call to `ones` is for an unsupported type")
-
-    inline def fill[A](singleton: A, dim: RowCol)(using ClassTag[A]): Matrix[A] =
+    transparent inline def fill[A](singleton: A, dim: RowCol)(using ClassTag[A]): Matrix[A] =
       val (rows, cols) = dim
       val newArr = NArray.fill[A](rows * cols)(singleton)
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end fill
 
-    inline def eyeOf[A: ClassTag](singleton: A, dim: Int)(zero: A): Matrix[A] =
+    transparent inline def eyeOf[A: ClassTag](singleton: A, dim: Int)(zero: A): Matrix[A] =
       val size = dim * dim
       val newArr: NArray[A] = NArray.ofSize[A](size)
       var j = 0
@@ -165,7 +132,7 @@ object MatrixHelper:
       Matrix[A](newArr, (dim, dim))(using BoundsCheck.DoBoundsCheck.no)
     end eyeOf
 
-    inline def eyeOf[A: ClassTag](singleton: A, row_col: RowCol)(zero: A): Matrix[A] =
+    transparent inline def eyeOf[A: ClassTag: OneAndZero](singleton: A, row_col: RowCol)(zero: A): Matrix[A] =
       val size = row_col._1 * row_col._2
       val newArr: NArray[A] = NArray.ofSize[A](size)
       var j = 0
@@ -182,14 +149,9 @@ object MatrixHelper:
       Matrix[A](newArr, row_col)(using BoundsCheck.DoBoundsCheck.no)
     end eyeOf
 
-    inline def zeros[A: ClassTag](dim: RowCol): Matrix[A] =
-      inline erasedValue[A] match
-        case _: Int     => fill(zero[A], dim)
-        case _: Double  => fill(zero[A], dim)
-        case _: Boolean => fill(zero[A], dim)
-        case _          => error("Unsupported type for ones")
+    transparent inline def zeros[A: ClassTag](dim: RowCol)(using onz: OneAndZero[A]): Matrix[A] = fill(onz.zero, dim)      
 
-    inline def zerosOf[A: ClassTag](zero: A, dim: RowCol): Matrix[A] =
+    transparent inline def zerosOf[A: ClassTag: OneAndZero](zero: A, dim: RowCol): Matrix[A] =
       val (rows, cols) = dim
       val size = rows * cols
       val newArr = NArray.ofSize[A](size)
