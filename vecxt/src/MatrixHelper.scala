@@ -99,15 +99,18 @@ object MatrixHelper:
           idx += 1
         end while
         i += 1
-      end while      
+      end while
       Matrix(newArr, (rows, cols))
     end fromColumnsArray
 
-    transparent inline def eye[A: ClassTag](dim: Int)(using inline onz: OneAndZero[A]): Matrix[A] = eyeOf(onz.one, dim)(onz.zero)      
+    transparent inline def eye[A: ClassTag](dim: Int)(using inline onz: OneAndZero[A]): Matrix[A] =
+      eyeOf(onz.one, dim)(onz.zero)
 
-    transparent inline def eye[A: ClassTag](dim: RowCol)(using inline onz: OneAndZero[A]): Matrix[A] = eyeOf(onz.one, dim)(onz.zero)
+    transparent inline def eye[A: ClassTag](dim: RowCol)(using inline onz: OneAndZero[A]): Matrix[A] =
+      eyeOf(onz.one, dim)(onz.zero)
 
-    transparent inline def ones[A: ClassTag](dim: RowCol)(using inline onz: OneAndZero[A]): Matrix[A] = fill(onz.one, dim)
+    transparent inline def ones[A: ClassTag](dim: RowCol)(using inline onz: OneAndZero[A]): Matrix[A] =
+      fill(onz.one, dim)
 
     transparent inline def fill[A](singleton: A, dim: RowCol)(using ClassTag[A]): Matrix[A] =
       val (rows, cols) = dim
@@ -149,7 +152,7 @@ object MatrixHelper:
       Matrix[A](newArr, row_col)(using BoundsCheck.DoBoundsCheck.no)
     end eyeOf
 
-    transparent inline def zeros[A: ClassTag](dim: RowCol)(using onz: OneAndZero[A]): Matrix[A] = fill(onz.zero, dim)      
+    transparent inline def zeros[A: ClassTag](dim: RowCol)(using onz: OneAndZero[A]): Matrix[A] = fill(onz.zero, dim)
 
     transparent inline def zerosOf[A: ClassTag: OneAndZero](zero: A, dim: RowCol): Matrix[A] =
       val (rows, cols) = dim

@@ -9,7 +9,7 @@ object all:
   export vecxt.JsNativeBooleanArrays.*
 
   // matricies
-  export vecxt.OneAndZero.given_OneAndZero_Boolean  
+  export vecxt.OneAndZero.given_OneAndZero_Boolean
   export vecxt.OneAndZero.given_OneAndZero_A
   export vecxt.matrix.*
   export vecxt.matrixUtil.*

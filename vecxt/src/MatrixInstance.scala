@@ -114,7 +114,9 @@ object MatrixInstance:
       * @param ct
       * @return
       */
-    inline def apply(indexes: NArray[RowCol])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A], onz: OneAndZero[A]): Matrix[A] =
+    inline def apply(
+        indexes: NArray[RowCol]
+    )(using inline boundsCheck: BoundsCheck, ct: ClassTag[A], onz: OneAndZero[A]): Matrix[A] =
       val newMat = Matrix.zeros(m.shape)
       var i = 0
       while i < indexes.length do
