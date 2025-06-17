@@ -22,6 +22,7 @@ import com.goyeau.mill.scalafix.ScalafixModule
 
 import $packages._
 
+// mill __.compiledClassesAndSemanticDbFiles
 // mill --import ivy:com.lihaoyi::mill-contrib-bloop:  mill.contrib.bloop.Bloop/install
 object V {
   val spire = "0.18.0"
