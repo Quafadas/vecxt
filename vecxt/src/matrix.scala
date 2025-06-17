@@ -5,7 +5,6 @@ import narr.*
 
 object matrix:
 
-
   /** This is a matrix
     *
     * Storage is column major.
