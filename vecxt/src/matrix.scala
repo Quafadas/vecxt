@@ -5,10 +5,8 @@ import narr.*
 
 object matrix:
 
+
   /** This is a matrix
-    *
-    * ._1 is the Matrix[A] values, stored as a single contiguous array ._2 is the number of rows ._3 is the number of
-    * columns. You can access the raw array with the .raw method which inlines to the tuple call.
     *
     * Storage is column major.
     */
@@ -39,7 +37,7 @@ object matrix:
 
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
 
-    // transparent inline def raw = m._1
+    // transparent inline def refinedRaw = m.raw
 
     inline def shape: RowCol = (m.rows, m.cols)
 
