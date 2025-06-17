@@ -51,19 +51,21 @@ object MatrixInstance:
       // println("Updating matrix with row: " + row + ", col: " + col)
       // println(to.mkString(", "))
       // println("---")
+      val cols = range(col, m.cols)
+      val rows = range(row, m.rows)
       (row, col) match
-        case (_: ::.type, c: Int) =>
+        case (_: ::.type, _) if cols.length == 1 =>
 
           (0 until m.rows).foreach { i =>
             // println(s"Updating column $i")
-            val idx = c * m.rows + i
+            val idx = cols.head * m.rows + i
             m.raw(idx) = to(i)
           }
 
-        case (r: Int, _: ::.type) =>
+        case (_, _: ::.type) if rows.length == 1 =>
           (0 until m.cols).foreach { c =>
             // println(s"Updating row $c at idx: ${c * m.rows + r}")
-            val idx = c * m.rows + r
+            val idx = c * m.rows + rows.head
             m.raw(idx) = to(c)
           }
 
@@ -103,7 +105,13 @@ object MatrixInstance:
       */
     inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck): A =
       indexCheckMat(m, b)
-      val idx = b._2 * m.rows + b._1
+      val idx = m.offset + b._1 * m.rowStride + b._2 * m.colStride
+      m.raw(idx)
+    end apply
+
+    inline def apply(row: Row, col: Col)(using inline boundsCheck: BoundsCheck): A =
+      indexCheckMat(m, (row, col))
+      val idx = m.offset + row * m.rowStride + col * m.colStride
       m.raw(idx)
     end apply
 

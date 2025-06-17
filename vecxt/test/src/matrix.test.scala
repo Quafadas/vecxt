@@ -282,9 +282,7 @@ class MatrixExtensionSuite extends FunSuite:
       NArray(-1.0, 4.0)
     )
 
-    val transposedMatrix = orig.transpose
-
-    assertEquals(transposedMatrix.raw.toList, transpose.raw.toList)
+    assertMatrixEquals(orig.transpose, transpose)
 
   }
 
@@ -453,7 +451,7 @@ class MatrixExtensionSuite extends FunSuite:
     )
   }
 
-  test("nice synatx") {
+  test("nice syntax") {
     val mat = mat1to9
     assertVecEquals(mat.row(0), NArray[Double](1.0, 2.0, 3.0))
     assertVecEquals(mat.row(1), NArray[Double](4.0, 5.0, 6.0))
@@ -465,13 +463,13 @@ class MatrixExtensionSuite extends FunSuite:
     val a = mat(::, ::)
     assertVecEquals[Double](a.raw, mat.raw)
 
-    val b = mat(1, ::)
+    val b = mat(NArray[Int](1), ::)
     assertVecEquals(NArray[Double](4.0, 5.0, 6.0), b.raw)
 
-    val c = mat(::, 1)
+    val c = mat(::, NArray[Int](1))
     assertVecEquals(NArray[Double](2.0, 5.0, 8.0), c.raw)
 
-    val d = mat(1, 1)
+    val d = mat(NArray[Int](1), NArray[Int](1))
     assertVecEquals(NArray[Double](5.0), d.raw)
 
     val e = mat(0 to 1, 0 to 1)
@@ -497,7 +495,7 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals[Double](mapped2.raw, NArray[Double](6.0, 15.0, 24.0))
 
     val mapped3 = mat1to9.mapRows[Double](row => row / row.sum)
-    val row1 = mapped3(0, ::)
+    val row1 = mapped3(NArray[Int](0), ::)
     assertVecEquals[Double](row1.raw, NArray[Double](1.0, 2.0, 3.0) / 6.0)
   }
 
@@ -509,7 +507,7 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals[Double](mapped2.raw, NArray[Double](12.0, 15.0, 18.0))
 
     val mapped3 = mat1to9.mapCols[Double](col => col / col.sum)
-    val col1 = mapped3(::, 0)
+    val col1 = mapped3(::, NArray[Int](0))
     assertVecEquals[Double](col1.raw, NArray[Double](1.0, 4.0, 7.0) / 12.0)
   }
 
@@ -521,8 +519,8 @@ class MatrixExtensionSuite extends FunSuite:
     )
     val mapped = mat.mapCols[Double](col => col - col.max)
 
-    assertVecEquals[Double](mapped(0, ::).raw, NArray[Double](-3.0, -3.0, -3.0))
-    assertVecEquals[Double](mapped(1, ::).raw, NArray[Double](-0.0, -0.0, 0.0))
+    assertVecEquals[Double](mapped(NArray[Int](0), ::).raw, NArray[Double](-3.0, -3.0, -3.0))
+    assertVecEquals[Double](mapped(NArray[Int](1), ::).raw, NArray[Double](-0.0, -0.0, 0.0))
 
     val mapped2 = mat.mapColsToScalar[Double](col => col.sum)
     assertVecEquals[Double](mapped2.raw, NArray[Double](5.0, 7.0, 9.0))
@@ -536,8 +534,8 @@ class MatrixExtensionSuite extends FunSuite:
     )
     val mapped = mat.mapRows[Double](row => row - row.max)
 
-    assertVecEquals[Double](mapped(0, ::).raw, NArray[Double](-2.0, -1.0, 0.0))
-    assertVecEquals[Double](mapped(1, ::).raw, NArray[Double](-2.0, -1.0, 0.0))
+    assertVecEquals[Double](mapped(NArray[Int](0), ::).raw, NArray[Double](-2.0, -1.0, 0.0))
+    assertVecEquals[Double](mapped(NArray[Int](1), ::).raw, NArray[Double](-2.0, -1.0, 0.0))
 
     val mapped2 = mat.mapRowsToScalar[Double](col => col.sum)
     assertVecEquals[Double](mapped2.raw, NArray[Double](6.0, 15.0))
@@ -546,8 +544,8 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("update row") {
     val mat = mat1to9
-    mat(0, ::) = NArray[Double](10.0, 20.0, 30.0)
-    mat(2, ::) = NArray[Double](10.0, 20.0, 30.0)
+    mat(NArray[Int](0), ::) = NArray[Double](10.0, 20.0, 30.0)
+    mat(NArray[Int](2), ::) = NArray[Double](10.0, 20.0, 30.0)
     assertVecEquals(mat.row(0), NArray[Double](10.0, 20.0, 30.0))
     assertVecEquals(mat.row(2), NArray[Double](10.0, 20.0, 30.0))
   }
@@ -558,7 +556,7 @@ class MatrixExtensionSuite extends FunSuite:
       (2, 3)
     )
     val mapped = mat1.mapRows[Double](r => r / r.sum)
-    assertVecEquals[Double](mapped(0, ::).raw, NArray[Double](1.0, 2.0, 3.0) / 6.0)
+    assertVecEquals[Double](mapped(NArray[Int](0), ::).raw, NArray[Double](1.0, 2.0, 3.0) / 6.0)
   }
 
   test("horzcat") {

@@ -7,6 +7,7 @@ import matrix.*
 import MatrixInstance.*
 
 import narr.*
+import vecxt.rangeExtender.MatrixRange.RangeExtender
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
   enum Vertical:
@@ -27,12 +28,13 @@ object matrixUtil:
     // TODO : probably has horrible performance
     inline def mapRows[B](
         f: NArray[A] => NArray[B]
-    )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.numel)
-      val m2 = new Matrix(newArr, m.rows, m.cols)
+      val m2 = Matrix(newArr, m.rows, m.cols)
       var idx = 0
       while idx < m.rows do
-        m2(idx, ::) = f(m.row(idx))
+        m2(NArray[Int](idx), ::) = f(m.row(idx))
         idx += 1
       end while
       m2
@@ -40,7 +42,8 @@ object matrixUtil:
 
     inline def mapRowsToScalar[B](
         f: NArray[A] => B
-    )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.rows)
       var i = 0
       while i < m.rows do
@@ -53,14 +56,15 @@ object matrixUtil:
     inline def mapCols[B](
         f: NArray[A] => NArray[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.numel)
       // println(m.printMat)
-      val m2 = new Matrix(newArr, m.rows, m.cols)
+      val m2 = Matrix(newArr, m.rows, m.cols)
       var idx = 0
       while idx < m.cols do
         // println(s"mapCols idx: $idx")
         // println(s"m.col(m): ${m.col(idx).mkString(" ")}, ${f(m.col(idx)).mkString(" ")}")
-        m2(::, idx) = f(m.col(idx))
+        m2(::, NArray[Int](idx)) = f(m.col(idx))
         idx += 1
       end while
       m2
@@ -79,20 +83,14 @@ object matrixUtil:
     end mapColsToScalar
 
     // TODO: Horrible performance
-    inline def transpose(using ClassTag[A]): Matrix[A] =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
-      val newArr = NArray.ofSize[A](m.numel)
-      val newMat = Matrix(newArr, (m.cols.asInstanceOf[Row], m.rows.asInstanceOf[Col]))
-      var idx = 0
-
-      while idx < newMat.numel do
-        val (row, col) = m.tupleFromIdx(idx)
-        newMat((row, col)) = m((col, row))
-
-        idx += 1
-      end while
-      newMat
-    end transpose
+    inline def transpose: Matrix[A] = Matrix(
+      raw = m.raw,
+      rows = m.cols, // swap dimensions
+      cols = m.rows,
+      rowStride = m.colStride, // swap strides
+      colStride = m.rowStride,
+      offset = m.offset // same offset
+    )(using BoundsCheck.DoBoundsCheck.no)
 
     inline def diag(using ClassTag[A]): NArray[A] =
       val minDim = Math.min(m.rows, m.cols)
@@ -139,7 +137,7 @@ object matrixUtil:
 
     inline def row(i: Int)(using ClassTag[A]): NArray[A] =
       // println(s"row $i")
-      val m2 = m(i, ::)
+      val m2 = m(NArray[Int](i), ::)
       m2.raw
     end row
 
@@ -157,7 +155,7 @@ object matrixUtil:
     end printMat
 
     inline def col(i: Int)(using ClassTag[A]): NArray[A] =
-      m(::, i).raw
+      m(::, NArray[Int](i): RangeExtender).raw
     end col
 
     inline def horzcat(m2: Matrix[A])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]): Matrix[A] =

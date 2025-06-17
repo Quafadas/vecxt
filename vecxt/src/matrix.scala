@@ -2,35 +2,99 @@ package vecxt
 import vecxt.BoundsCheck.BoundsCheck
 
 import narr.*
+import scala.annotation.publicInBinary
 
 object matrix:
 
-  /** This is a matrix
+  /** This is a matrix. The constructor is private to ensure that you deliberately opt in or out of the bounds check.
     *
-    * Storage is column major.
+    * @param raw
+    *   The underlying array that holds the matrix data.
+    * @param rows
+    *   The number of rows in the matrix.
+    * @param cols
+    *   The number of columns in the matrix.
+    * @param rowStride
+    *   The stride for rows, used for efficient access.
+    * @param colStride
+    *   The stride for columns, used for efficient access.
+    * @param offset
+    *   The offset in the raw array where the matrix data starts.
+    * @tparam A
+    *   The type of elements in the matrix, specialized for Double, Boolean
     */
-  class Matrix[@specialized(Double, Boolean, Int) A](val raw: NArray[A], val rows: Row, val cols: Col)
+
+  class Matrix[@specialized(Double, Boolean, Int) A] @publicInBinary() private[matrix] (
+      val raw: NArray[A],
+      val rows: Row,
+      val cols: Col,
+      val rowStride: Int,
+      val colStride: Int,
+      val offset: Int = 0
+  )
 
   object Matrix:
 
-    // inline def apply(raw: narr.native.DoubleArray, dim: RowCol)(using
-    //     inline boundsCheck: BoundsCheck
-    // ): Matrix[Double] =
-    //   dimMatDInstantiateCheck(raw, dim)
-    //   (raw, dim)
-    // end apply
+    inline def apply[@specialized(Double, Boolean, Int) A](
+        raw: NArray[A],
+        rows: Row,
+        cols: Col,
+        rowStride: Int,
+        colStride: Int,
+        offset: Int = 0
+    )(using inline boundsCheck: BoundsCheck): Matrix[A] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(
+        raw = raw,
+        rows = rows,
+        cols = cols,
+        rowStride = rowStride,
+        colStride = colStride,
+        offset = offset
+      )
+    end apply
 
     inline def apply[@specialized(Double, Boolean, Int) A](raw: NArray[A], dim: RowCol)(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
-      new Matrix(raw, dim._1, dim._2)
+
+      new Matrix(
+        raw = raw,
+        rows = dim._1,
+        cols = dim._2,
+        rowStride = 1,
+        colStride = dim._1,
+        offset = 0
+      )
     end apply
+
+    inline def apply[@specialized(Double, Boolean, Int) A](raw: NArray[A], rows: Row, cols: Col)(using
+        inline boundsCheck: BoundsCheck
+    ): Matrix[A] =
+      dimMatInstantiateCheck(raw, (rows, cols))
+      new Matrix(
+        raw = raw,
+        rows = rows,
+        cols = cols,
+        rowStride = 1,
+        colStride = rows,
+        offset = 0
+      )
+    end apply
+
     inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: NArray[A])(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
-      new Matrix(raw, dim._1, dim._2)
+      new Matrix(
+        raw = raw,
+        rows = dim._1,
+        cols = dim._2,
+        rowStride = 1,
+        colStride = dim._1,
+        offset = 0
+      )
     end apply
   end Matrix
 
