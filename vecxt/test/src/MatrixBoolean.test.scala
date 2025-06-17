@@ -19,7 +19,7 @@ class MatrixBooleanSuite extends FunSuite:
 
   test("ones") {
     val mat = Matrix.ones[Double]((2, 2))
-    assertVecEquals(mat.raw, NArray[Double](1.0, 1.0, 1.0, 1.0))
+    assertVecEquals[Double](mat.raw, NArray[Double](1.0, 1.0, 1.0, 1.0))
   }
 
   test("Matrix creation") {
