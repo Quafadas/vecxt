@@ -1080,7 +1080,7 @@ object arrays:
       end while
     end +=
 
-    inline def -(d: Double): Array[Double] =      
+    inline def -(d: Double): Array[Double] =
       val out = new Array[Double](vec.length)
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0
