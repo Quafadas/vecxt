@@ -25,11 +25,14 @@ object JvmDoubleMatrix:
         m.cols,
         1.0,
         m.raw,
+        m.offset,
         m.rows,
         b.raw,
+        b.offset,
         b.rows,
         1.0,
         newArr,
+        0,
         m.rows
       )
       Matrix(newArr, (m.rows, b.cols))

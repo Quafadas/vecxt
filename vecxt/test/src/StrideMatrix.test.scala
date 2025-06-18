@@ -3,7 +3,7 @@ package vecxt
 import munit.FunSuite
 import narr.*
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.matrix.*
+import all.*
 
 class StrideMatInstantiateCheckTest extends FunSuite:
 
@@ -127,5 +127,26 @@ class StrideMatInstantiateCheckTest extends FunSuite:
     strideMatInstantiateCheck[Double](data, 0, 4, 1, 3, 0) // invalid dimensions
     strideMatInstantiateCheck[Double](data, 4, 4, 1, 4, 0) // out of bounds
     strideMatInstantiateCheck[Double](data, 3, 4, 1, 3, -1) // negative offset
+
+  test("dense and contiguous"):
+    import BoundsCheck.DoBoundsCheck.no
+    val data = NArray.tabulate(12)(_.toDouble)
+
+    // Dense and contiguous matrix
+    val m1 = Matrix[Double](data, 3, 4, 1, 3, 0)
+    assert(m1.hasSimpleMemoryLayout)
+
+    // Non-contiguous due to row stride
+    val m2 = Matrix[Double](data, 3, 4, 2, 3, 0)
+    assert(!m2.hasSimpleMemoryLayout)
+
+    // Non-contiguous due to column stride
+    val m3 = Matrix[Double](data, 3, 4, 1, 2, 0)
+    assert(!m3.hasSimpleMemoryLayout)
+
+    // Offset makes it non-contiguous
+    val m4 = Matrix[Double](data, 3, 4, 1, 3, 2)
+    assert(!m4.hasSimpleMemoryLayout)
+
 
 end StrideMatInstantiateCheckTest
