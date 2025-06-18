@@ -12,12 +12,20 @@ import scala.reflect.ClassTag
 import matrix.*
 import MatrixHelper.zeros
 import all.printMat
+import vecxt.arrays.contiguous
 
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
     inline def update(rc: RowCol, value: A)(using inline boundsCheck: BoundsCheck): Unit =
       indexCheckMat(m, (rc._1, rc._2): RowCol)
       val idx = rc._2 * m.rows + rc._1
+      m.raw(idx) = value
+    end update
+
+    inline def update(row: Row, col: Col, value: A)(using inline boundsCheck: BoundsCheck): Unit =
+
+      indexCheckMat(m, (row, col))
+      val idx = col * m.rows + row
       m.raw(idx) = value
     end update
 
@@ -155,6 +163,48 @@ object MatrixInstance:
       end while
       newMat
     end apply
+
+    def submatrix(rowRange: RangeExtender, colRange: RangeExtender)(using ct: ClassTag[A]): Matrix[A] =
+      import BoundsCheck.DoBoundsCheck.no
+
+      val newRows = range(rowRange, m.rows)
+      val newCols = range(colRange, m.cols)
+
+      if newRows.contiguous && newCols.contiguous then
+        // If rows and cols are contiguous, then we can have a zero copy sub-matrix
+        val newRowsSpan = newRows.last - newRows.head + 1
+        val newColsSpan = newCols.last - newCols.head + 1
+
+        val newOffset = m.offset + newRows.head * m.rowStride + newCols.head * m.colStride
+
+        Matrix(
+          raw = m.raw,
+          rows = newRowsSpan,
+          cols = newColsSpan,
+          rowStride = m.rowStride,
+          colStride = m.colStride,
+          offset = newOffset
+        )
+      else
+        // otherwise, all bets are off...
+        val raw = NArray.ofSize[A](newCols.length * newRows.length)
+        val newMat = Matrix(raw, newRows.length, newCols.length)
+        val mRaw = m.raw
+        var i = 0
+        while i < newRows.length do
+          var j = 0
+          while j < newCols.length do
+            // println(s"Copying element (${newRows(i)}, ${newCols(j)}) : ${m(newRows(i), newCols(j))}")
+            // println(s"into new matrix at ($i, $j})")
+            newMat(i, j) = m(newRows(i), newCols(j))
+            j += 1
+          end while
+          i += 1
+        end while
+        newMat
+      end if
+
+    end submatrix
 
   end extension
 

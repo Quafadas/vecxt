@@ -42,6 +42,8 @@ object matrix:
       */
     final lazy val hasSimpleContiguousMemoryLayout: Boolean =
       offset == 0 && (rowStride == 1 && colStride == rows || rowStride == cols && colStride == 1)
+
+    final lazy val numel = rows * cols
   end Matrix
 
   object Matrix:
@@ -119,7 +121,7 @@ object matrix:
 
     // inline def cols: Col = m._3
 
-    inline def numel: Int = m.raw.length
+    // inline def numel: Int = m.raw.length
 
   end extension
 

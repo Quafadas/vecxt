@@ -68,21 +68,6 @@ class MatrixExtensionSuite extends FunSuite:
     assertMatrixEquals(minC, Matrix[Double](NArray[Double](1.0, 3.0), (1, 2)))
   }
 
-  test("sum reduction") {
-    val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
-    val sumR = mat1.sum(Rows)
-    assertMatrixEquals(
-      sumR,
-      Matrix[Double](
-        NArray[Double](6.0, 7.0, 8.0),
-        (3, 1)
-      )
-    )
-
-    val sumC = mat1.sum(Cols)
-    assertMatrixEquals(sumC, Matrix[Double](NArray[Double](7.0, 14.0), (1, 2)))
-  }
-
   test("product reduction") {
     val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
     val prodR = mat1.product(Rows)

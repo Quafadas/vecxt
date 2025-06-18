@@ -80,7 +80,6 @@ class MatrixBooleanSuite extends FunSuite:
       NArray[Double](1.0, 0.0, 3.0),
       NArray[Double](0.0, 4.0, 0.0)
     )
-    println(calc.printMat)
     assertVecEquals[Double](calc.raw, result.raw)
   }
 
