@@ -14,8 +14,9 @@ object IntArrays:
             break
           end if
           i += 1
-        end while            
+        end while
       }
       out
-  
+  end extension
+
 end IntArrays
