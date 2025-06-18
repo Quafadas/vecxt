@@ -23,7 +23,6 @@ object MatrixInstance:
     end update
 
     inline def update(row: Row, col: Col, value: A)(using inline boundsCheck: BoundsCheck): Unit =
-
       indexCheckMat(m, (row, col))
       val idx = col * m.rows + row
       m.raw(idx) = value
@@ -41,7 +40,7 @@ object MatrixInstance:
     end update
 
     @targetName("updateFct")
-    inline def update(inline fct: A => Boolean, value: A) =
+    inline def update(inline fct: A => Boolean, value: A)(using inline boundsCheck: BoundsCheck): Unit =
       var i = 0
       while i < m.numel do
         if fct(m.raw(i)) then m.raw(i) = value
@@ -50,11 +49,11 @@ object MatrixInstance:
       end while
     end update
 
-    def update(
+    inline def updateInPlace(
         row: RangeExtender,
         col: RangeExtender,
         to: NArray[A]
-    ): Unit = // (using inline boundsCheck: BoundsCheck) =
+    )(using inline boundsCheck: BoundsCheck): Unit =
       // dimCheckLen(to, m.cols)
       // println("Updating matrix with row: " + row + ", col: " + col)
       // println(to.mkString(", "))
@@ -82,7 +81,7 @@ object MatrixInstance:
             "Currently only allowed to update a single row or column. Use (0,::) to update the first row"
           )
       end match
-    end update
+    end updateInPlace
 
     def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)

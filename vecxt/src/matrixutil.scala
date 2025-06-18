@@ -34,7 +34,7 @@ object matrixUtil:
       val m2 = Matrix(newArr, m.rows, m.cols)
       var idx = 0
       while idx < m.rows do
-        m2(NArray[Int](idx), ::) = f(m.row(idx))
+        m2.updateInPlace(NArray[Int](idx), ::, f(m.row(idx)))
         idx += 1
       end while
       m2
@@ -64,7 +64,7 @@ object matrixUtil:
       while idx < m.cols do
         // println(s"mapCols idx: $idx")
         // println(s"m.col(m): ${m.col(idx).mkString(" ")}, ${f(m.col(idx)).mkString(" ")}")
-        m2(::, NArray[Int](idx)) = f(m.col(idx))
+        m2.updateInPlace(::, NArray[Int](idx), f(m.col(idx)))
         idx += 1
       end while
       m2

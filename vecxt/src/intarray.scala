@@ -1,9 +1,10 @@
 package vecxt
 
 import scala.util.control.Breaks.*
+import narr.*
 
 object IntArrays:
-  extension (arr: Array[Int])
+  extension (arr: NArray[Int])
     inline def contiguous: Boolean =
       var i = 1
       var out = true

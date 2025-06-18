@@ -31,7 +31,7 @@ class SubmatrixTest extends FunSuite:
       NArray[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 12.0
     )
 
-    val submat = mat1.submatrix(Array(0, 2), Array(0, 1, 5)) // 2x2 submatrix
+    val submat = mat1.submatrix(NArray[Int](0, 2), NArray[Int](0, 1, 5)) // 2x2 submatrix
     // println(submat.printMat)
     assertEquals(submat.numel, 6)
     assertEqualsDouble(submat(0, 0), 1.0, 0.0000001)
