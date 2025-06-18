@@ -451,28 +451,14 @@ object arrays:
       out
     end /
 
-    inline def +(arr: Array[Double]) =
-      val out = new Array[Double](arr.length)
-      val inc = DoubleVector.broadcast(spd, d)
+    inline def +(arr: Array[Double]): Array[Double] = arr.+(d)
 
-      var i = 0
-      while i < spd.loopBound(arr.length) do
-        DoubleVector.fromArray(spd, arr, i).add(inc).intoArray(out, i)
-        i += spdl
-      end while
-
-      while i < arr.length do
-        out(i) = d + arr(i)
-        i = i + 1
-      end while
-      out
-    end +
-
-    inline def -(arr: Array[Double]) =
+    inline def -(arr: Array[Double]): Array[Double] =
       val out = new Array[Double](arr.length)
       var i = 0
+      val bd = DoubleVector.broadcast(spd, d)
       while i < spd.loopBound(arr.length) do
-        DoubleVector.broadcast(spd, d).sub(DoubleVector.fromArray(spd, arr, i)).intoArray(out, i)
+        bd.sub(DoubleVector.fromArray(spd, arr, i)).intoArray(out, i)
         i += spdl
       end while
 
@@ -483,21 +469,7 @@ object arrays:
       out
     end -
 
-    inline def *(arr: Array[Double]) =
-      val out = new Array[Double](arr.length)
-      val inc = DoubleVector.broadcast(spd, d)
-      var i = 0
-      while i < spd.loopBound(arr.length) do
-        DoubleVector.fromArray(spd, arr, i).mul(inc).intoArray(out, i)
-        i += spdl
-      end while
-
-      while i < arr.length do
-        out(i) = d * arr(i)
-        i = i + 1
-      end while
-      out
-    end *
+    inline def *(arr: Array[Double]): Array[Double] = arr.*(d)
 
   end extension
 
@@ -1060,11 +1032,13 @@ object arrays:
 
     inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, vec2)
+      println(vec2.printArr)
       vec.clone.tap(_ -= vec2)
     end -
 
     inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, vec2)
+      println(vec.printArr)
       blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
     end -=
 
@@ -1106,7 +1080,7 @@ object arrays:
       end while
     end +=
 
-    inline def -(d: Double): Array[Double] =
+    inline def -(d: Double): Array[Double] =      
       val out = new Array[Double](vec.length)
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0
@@ -1118,7 +1092,7 @@ object arrays:
         i += spdl
       end while
 
-      while i < vec.length - 1 do
+      while i < vec.length do
         out(i) = vec(i) - d
         i = i + 1
       end while

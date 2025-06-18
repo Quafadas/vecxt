@@ -31,7 +31,18 @@ object matrix:
       val rowStride: Int,
       val colStride: Int,
       val offset: Int = 0
-  )
+  ) {
+    
+    /** If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or
+      * column major order.
+      *
+      * We can take advantage of this for performance.
+      *
+      * @return
+      */
+    final lazy val hasSimpleContiguousMemoryLayout: Boolean =
+      offset == 0 && (rowStride == 1 && colStride == rows || rowStride == cols && colStride == 1)
+  }
 
   object Matrix:
 

@@ -14,7 +14,8 @@ import vecxt.matrixUtil.diag
 import scala.annotation.targetName
 
 import narr.*
-import vecxt.dimensionExtender.DimensionExtender.*
+import dimensionExtender.DimensionExtender.*
+import arrayUtil.printArr
 
 object DoubleMatrix:
 
@@ -30,21 +31,21 @@ object DoubleMatrix:
     inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
     inline def *(n: Double): Matrix[Double] =
-      Matrix[Double](vecxt.arrays.*(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.arrays.*(m.raw)(n), m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def /(n: Double): Matrix[Double] =
-      Matrix[Double](vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.arrays./(m.raw)(n), m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def +(n: Double): Matrix[Double] =
-      Matrix[Double](vecxt.arrays.+(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.arrays.+(m.raw)(n), m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def -(n: Double): Matrix[Double] =
-      Matrix[Double](vecxt.arrays.-(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](vecxt.arrays.-(m.raw)(n), m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       val newArr = m.raw.add(m2.raw)
-      Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
     end +
 
     inline def hadamard(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
