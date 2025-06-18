@@ -20,16 +20,6 @@ object matrixUtil:
 
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
 
-    /** If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or
-      * column major order.
-      *
-      * We can take advantage of this for performance.
-      *
-      * @return
-      */
-    inline def hasSimpleMemoryLayout: Boolean =
-      m.offset == 0 && (m.rowStride == 1 && m.colStride == m.rows || m.rowStride == m.cols && m.colStride == 1)
-
     private inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck): RowCol =
       // dimCheckLen(m.raw, b)
       (b / m.rows, b % m.rows)
