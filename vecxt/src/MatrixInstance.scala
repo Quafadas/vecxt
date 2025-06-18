@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 import matrix.*
 import MatrixHelper.zeros
 import all.printMat
-import vecxt.arrays.contiguous
+import vecxt.all.*
 
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
@@ -171,7 +171,7 @@ object MatrixInstance:
       val newCols = range(colRange, m.cols)
 
       if newRows.contiguous && newCols.contiguous then
-        // If rows and cols are contiguous, then we can have a zero copy sub-matrix
+        // If rows and cols are contiguous, we can have a zero copy sub-matrix
         val newRowsSpan = newRows.last - newRows.head + 1
         val newColsSpan = newCols.last - newCols.head + 1
 

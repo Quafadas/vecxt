@@ -347,21 +347,6 @@ object arrays:
       temp
     end sumSIMD
 
-    inline def contiguous: Boolean =
-      var i = 1
-      var out = true
-      breakable {
-        while i < vec.length do
-          if vec(i) != vec(i - 1) + 1 then
-            out = false
-            break
-          end if
-          i += 1
-        end while
-      }
-      out
-    end contiguous
-
     inline def dot(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
       dimCheck(vec, vec2)
       val newVec = Array.ofDim[Int](vec.length)

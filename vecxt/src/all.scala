@@ -21,6 +21,7 @@ object all:
   export vecxt.DoubleMatrix.*
   export vecxt.JvmNativeDoubleMatrix.*
   export vecxt.dimensionExtender.DimensionExtender.*
+  export vecxt.IntArrays.*
 
   // Random
   export vecxt.cosineSimilarity
