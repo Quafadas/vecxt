@@ -101,8 +101,7 @@ object MatrixInstance:
 
     end apply
 
-    /**
-     * Element retrieval
+    /** Element retrieval
       */
     inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck): A =
       indexCheckMat(m, b)

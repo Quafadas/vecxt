@@ -148,5 +148,4 @@ class StrideMatInstantiateCheckTest extends FunSuite:
     val m4 = Matrix[Double](data, 3, 4, 1, 3, 2)
     assert(!m4.hasSimpleMemoryLayout)
 
-
 end StrideMatInstantiateCheckTest

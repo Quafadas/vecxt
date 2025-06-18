@@ -20,8 +20,8 @@ object matrixUtil:
 
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
 
-    /**
-      * If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or column major order.
+    /** If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or
+      * column major order.
       *
       * We can take advantage of this for performance.
       *

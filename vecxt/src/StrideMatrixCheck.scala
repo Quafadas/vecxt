@@ -103,4 +103,3 @@ object strideMatInstantiateCheck:
         )
       end if
 end strideMatInstantiateCheck
-
