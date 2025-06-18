@@ -101,18 +101,40 @@ object MatrixInstance:
 
     end apply
 
-    /** element retrieval
+    /**
+     * Element retrieval
       */
     inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck): A =
       indexCheckMat(m, b)
-      val idx = m.offset + b._1 * m.rowStride + b._2 * m.colStride
-      m.raw(idx)
+      // For column-major, idx = col * m.rows + row when strides are default
+      // Fast path for default column-major layout (contiguous, no offset/stride)
+      if m.offset == 0 && m.rowStride == 1 && m.colStride == m.rows then m.raw(b._2 * m.rows + b._1)
+      else if m.offset == 0 && m.rowStride == m.cols && m.colStride == 1 then
+        // Fast path for default row-major layout (contiguous, no offset/stride)
+        m.raw(b._1 * m.cols + b._2)
+      else if m.rowStride == 1 && m.colStride == m.rows then
+        // Common case: submatrix with no offset, but still contiguous
+        m.raw(m.offset + b._2 * m.rows + b._1)
+      else
+        // General case: arbitrary offset/stride
+        m.raw(m.offset + b._1 * m.rowStride + b._2 * m.colStride)
+      end if
     end apply
 
     inline def apply(row: Row, col: Col)(using inline boundsCheck: BoundsCheck): A =
       indexCheckMat(m, (row, col))
-      val idx = m.offset + row * m.rowStride + col * m.colStride
-      m.raw(idx)
+      // Fast path for default column-major layout (contiguous, no offset/stride)
+      if m.offset == 0 && m.rowStride == 1 && m.colStride == m.rows then m.raw(col * m.rows + row)
+      else if m.offset == 0 && m.rowStride == m.cols && m.colStride == 1 then
+        // Fast path for default row-major layout (contiguous, no offset/stride)
+        m.raw(row * m.cols + col)
+      else if m.rowStride == 1 && m.colStride == m.rows then
+        // Common case: submatrix with no offset, but still contiguous
+        m.raw(m.offset + col * m.rows + row)
+      else
+        // General case: arbitrary offset/stride
+        m.raw(m.offset + row * m.rowStride + col * m.colStride)
+      end if
     end apply
 
     /** Returns a matrix of the same dimension, all elements are zero except those selected by the index
