@@ -134,18 +134,18 @@ class StrideMatInstantiateCheckTest extends FunSuite:
 
     // Dense and contiguous matrix
     val m1 = Matrix[Double](data, 3, 4, 1, 3, 0)
-    assert(m1.hasSimpleMemoryLayout)
+    assert(m1.hasSimpleContiguousMemoryLayout)
 
     // Non-contiguous due to row stride
     val m2 = Matrix[Double](data, 3, 4, 2, 3, 0)
-    assert(!m2.hasSimpleMemoryLayout)
+    assert(!m2.hasSimpleContiguousMemoryLayout)
 
     // Non-contiguous due to column stride
     val m3 = Matrix[Double](data, 3, 4, 1, 2, 0)
-    assert(!m3.hasSimpleMemoryLayout)
+    assert(!m3.hasSimpleContiguousMemoryLayout)
 
     // Offset makes it non-contiguous
     val m4 = Matrix[Double](data, 3, 4, 1, 3, 2)
-    assert(!m4.hasSimpleMemoryLayout)
+    assert(!m4.hasSimpleContiguousMemoryLayout)
 
 end StrideMatInstantiateCheckTest

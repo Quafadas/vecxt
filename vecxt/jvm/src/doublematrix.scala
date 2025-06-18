@@ -13,6 +13,7 @@ object JvmDoubleMatrix:
     // inline def /(n: Double): Matrix[Double] =
     //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
+    // TODO check whether this work with flexible memory layout patterns
     inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)
       val newArr = Array.ofDim[Double](m.rows * b.cols)
@@ -40,15 +41,16 @@ object JvmDoubleMatrix:
 
     // TODO: SIMD
     inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      sameDimMatCheck(m, bmat)
-      val newArr = Array.ofDim[Double](m.rows * m.cols)
-      var i = 0
-      while i < newArr.length do
-        newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
-        i += 1
-      end while
-      Matrix(newArr, (m.rows, m.cols))
-    end *:*
+      if m.hasSimpleContiguousMemoryLayout then
+        sameDimMatCheck(m, bmat)
+        val newArr = Array.ofDim[Double](m.rows * m.cols)
+        var i = 0
+        while i < newArr.length do
+          newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
+          i += 1
+        end while
+        Matrix(newArr, (m.rows, m.cols))
+      else ???
 
     // inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
 
@@ -73,16 +75,24 @@ object JvmDoubleMatrix:
     end *
 
     inline def >=(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](vecxt.arrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](vecxt.arrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
 
     inline def >(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](vecxt.arrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](vecxt.arrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
 
     inline def <=(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](vecxt.arrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](vecxt.arrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
 
     inline def <(d: Double): Matrix[Boolean] =
-      Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
 
   end extension
 

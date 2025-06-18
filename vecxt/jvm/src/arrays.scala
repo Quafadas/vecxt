@@ -1032,13 +1032,11 @@ object arrays:
 
     inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, vec2)
-      println(vec2.printArr)
       vec.clone.tap(_ -= vec2)
     end -
 
     inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, vec2)
-      println(vec.printArr)
       blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
     end -=
 
