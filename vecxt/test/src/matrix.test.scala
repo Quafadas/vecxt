@@ -241,7 +241,7 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
-  test("Matrix multiplication".only) {
+  test("Matrix multiplication") {
     val mat1 = Matrix.fromRows[Double](
       NArray(0.0, 0.0),
       NArray(1.0, 0.0)
