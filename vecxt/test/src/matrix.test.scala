@@ -243,19 +243,18 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("Matrix multiplication".only) {
     val mat1 = Matrix.fromRows[Double](
-      NArray(0.0, 0.0), 
+      NArray(0.0, 0.0),
       NArray(1.0, 0.0)
-      )
+    )
     val mat2 = Matrix.fromRows[Double](
       NArray(0.0, 1.0),
       NArray(0.0, 0.0)
     )
     val mult = Matrix[Double](NArray(0.0, 0.0, 0.0, 1.0), 2, 2)
 
-
     val result = mat1.matmul(mat2)
     assertMatrixEquals(result, mult)
-    
+
   }
 
   test("Matrix multiplication2") {
