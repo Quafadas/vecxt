@@ -71,7 +71,6 @@ object DoubleMatrix:
 
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m +:+ m2
 
-
     inline def hadamard(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
 
@@ -82,7 +81,7 @@ object DoubleMatrix:
       end if
     end hadamard
 
-    inline def /:/ (m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def /:/(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         val newArr = vecxt.arrays./(m.raw)(m2.raw)

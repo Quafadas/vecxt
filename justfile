@@ -1,13 +1,17 @@
-set shell := ["pwsh", "-c"]
+
+MILL := "./millw"
 
 format:
-  mill mill.scalalib.scalafmt.ScalafmtModule/reformatAll __.sources
+  {{MILL}} mill.scalalib.scalafmt.ScalafmtModule/reformatAll __.sources
 
 benchmark:
-  mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
+  {{MILL}} benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
 
 benchmarkOnly:
-  mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json vecxt.benchmark.DgemmBenchmark
+  {{MILL}} benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json vecxt.benchmark.DgemmBenchmark
+
+prepareForIde:
+  {{MILL}} __.compiledClassesAndSemanticDbFiles
 
 
 setJvm:
