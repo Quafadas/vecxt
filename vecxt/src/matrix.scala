@@ -34,16 +34,26 @@ object matrix:
   ):
 
     /** If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or
-      * column major order.
+      * column major, or row major order.
       *
       * We can take advantage of this for performance.
       *
       * @return
       */
-    final lazy val hasSimpleContiguousMemoryLayout: Boolean =
-      offset == 0 && (rowStride == 1 && colStride == rows || rowStride == cols && colStride == 1)
+    lazy val hasSimpleContiguousMemoryLayout: Boolean =
+      isDenseRowMajor || isDenseColMajor
 
-    final lazy val numel = rows * cols
+    /** If the matrix is dense and contiguous in row major order, it means that the data is stored in a single block of
+      * memory in row major order. Useful for performance optimizations.
+      * @return
+      */
+    lazy val isDenseRowMajor: Boolean =
+      rowStride == 1 && colStride == rows && offset == 0
+
+    lazy val isDenseColMajor: Boolean =
+      rowStride == cols && colStride == 1 && offset == 0
+
+    lazy val numel = rows * cols
   end Matrix
 
   object Matrix:

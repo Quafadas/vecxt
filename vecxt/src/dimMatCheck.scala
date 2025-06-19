@@ -16,6 +16,13 @@ object sameDimMatCheck:
       if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end sameDimMatCheck
 
+/**
+  * If this is true, then we can use the same memory layout for element-wise operations
+  */
+object sameDenseElementWiseMemoryLayoutCheck:
+  inline def apply[A, B](a: Matrix[A], b: Matrix[B]): Boolean =
+      a.isDenseColMajor && b.isDenseColMajor && a.rowStride == b.rowStride || a.isDenseRowMajor && b.isDenseRowMajor && a.colStride == b.colStride
+
 object indexCheckMat:
   inline def apply[A](a: Matrix[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
     inline if doCheck then

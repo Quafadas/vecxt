@@ -29,10 +29,10 @@ object DoubleMatrix:
   extension (m: Matrix[Double])
 
     inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then m.matmul(b)
+      if sameDenseElementWiseMemoryLayoutCheck(m, b) then m.matmul(b)
       else ???
 
-    inline def *:*=(d: Double): Unit =
+    inline def *=(d: Double): Unit =
       if m.hasSimpleContiguousMemoryLayout then m.raw.multInPlace(d)
       else ???
 
@@ -60,41 +60,46 @@ object DoubleMatrix:
       else ???
     end -
 
-    inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def +:+(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
-      if m.hasSimpleContiguousMemoryLayout then
+      if m.hasSimpleContiguousMemoryLayout && m2.hasSimpleContiguousMemoryLayout then
         val newArr = vecxt.arrays.+(m.raw)(m2.raw)
         Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
-    end +
+    end +:+
+
+    inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m +:+ m2
+
 
     inline def hadamard(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
-      if m.hasSimpleContiguousMemoryLayout then
+
+      if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         val newArr = vecxt.arrays.*(m.raw)(m2.raw)
         Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
     end hadamard
 
-    inline def /(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def /:/ (m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
-      if m.hasSimpleContiguousMemoryLayout then
+      if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         val newArr = vecxt.arrays./(m.raw)(m2.raw)
         Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
-    end /
+    end /:/
 
-    inline def -(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def -:-(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
-      if m.hasSimpleContiguousMemoryLayout then
+      if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         val newArr = vecxt.arrays.-(m.raw)(m2.raw)
         Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
-    end -
+    end -:-
+    inline def -:(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m -:- m2
 
     inline def unary_- : Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then

@@ -162,7 +162,7 @@ class MatrixExtensionSuite extends FunSuite:
     val mat1 = Matrix.eye[Double](2)
     val mat2 = Matrix[Double](mat1.raw * 2, (mat1.rows, mat1.cols))
 
-    val mat3 = mat1 + mat1 @@ mat2
+    val mat3 = mat1 +:+ mat1 @@ mat2
     assertEqualsDouble(mat3((0, 0)), 3.0, 0.00001)
 
   }
@@ -204,10 +204,10 @@ class MatrixExtensionSuite extends FunSuite:
   test("MAtrix addition and subtration") {
     val mat1 = Matrix.eye[Double](2)
     val mat2 = Matrix.eye[Double](2)
-    val result = mat1 + mat2
+    val result = mat1 +:+ mat2
     assertVecEquals[Double](result.raw, NArray[Double](2.0, 0.0, 0.0, 2.0))
 
-    val result2 = mat1 - mat2
+    val result2 = mat1 -:- mat2
     assertVecEquals[Double](result2.raw, NArray[Double](0.0, 0.0, 0.0, 0.0))
   }
 
@@ -385,21 +385,21 @@ class MatrixExtensionSuite extends FunSuite:
   test("matrix scale") {
     val array = NArray[Double](1.0, 2.0, 3.0, 4.0)
     val matrix = Matrix[Double](array, (2, 2))
-    val col1 = matrix *:*= (2)
+    matrix *= 2
     assertVecEquals[Double](matrix.raw, NArray[Double](2.0, 4.0, 6.0, 8.0))
   }
 
   test("matrix ops") {
     val mat1 = Matrix.eye[Double](3) // multiplication in place
-    mat1 *:*= 2
-    val mat2 = Matrix.eye[Double](3) + Matrix.eye[Double](3) // addition
+    mat1 *= 2
+    val mat2 = Matrix.eye[Double](3) +:+ Matrix.eye[Double](3) // addition
     assertVecEquals[Double](mat1.raw, mat2.raw)
   }
 
   test("matrix * elementwise") {
     val mat1 = Matrix.eye[Double](3) // multiplication in place
-    mat1 *:*= 2
-    val mat2 = Matrix.eye[Double](3) + Matrix.eye[Double](3) // addition
+    mat1 *= 2
+    val mat2 = Matrix.eye[Double](3) +:+ Matrix.eye[Double](3) // addition
     assertVecEquals[Double](mat1.raw, mat2.raw)
 
     val bah = mat1.hadamard(mat2)
@@ -419,7 +419,7 @@ class MatrixExtensionSuite extends FunSuite:
     )
 
     intercept[MatrixDimensionMismatch](
-      Matrix.eye[Double](1) + Matrix.eye[Double](2)
+      Matrix.eye[Double](1) +:+ Matrix.eye[Double](2)
     )
 
     intercept[java.lang.AssertionError](
