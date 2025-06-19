@@ -62,7 +62,7 @@ object DoubleMatrix:
 
     inline def +:+(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
-      if m.hasSimpleContiguousMemoryLayout && m2.hasSimpleContiguousMemoryLayout then
+      if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         val newArr = vecxt.arrays.+(m.raw)(m2.raw)
         Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???

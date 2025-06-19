@@ -142,15 +142,14 @@ object matrixUtil:
     end row
 
     inline def printMat(using ClassTag[A]): String =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
       val arrArr =
         for i <- 0 until m.rows
         yield
-          val aRow = m.row(i)
           val els =
-            for (el <- aRow)
-              yield el.toString()
+            for j <- 0 until m.cols
+            yield m((i, j)).toString()
           els.mkString(" ")
-      end arrArr
       arrArr.mkString("\n")
     end printMat
 
