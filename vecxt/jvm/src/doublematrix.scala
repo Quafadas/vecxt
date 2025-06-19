@@ -5,9 +5,15 @@ import scala.reflect.ClassTag
 import vecxt.BoundsCheck.BoundsCheck
 import all.*
 
+import jdk.incubator.vector.*
+
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 
 object JvmDoubleMatrix:
+
+  final val sp_int_doubleLanes =
+    VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(vecxt.arrays.spdl * Integer.SIZE));
+
   extension (m: Matrix[Double])
 
     // inline def /(n: Double): Matrix[Double] =
@@ -16,28 +22,35 @@ object JvmDoubleMatrix:
     // TODO check whether this work with flexible memory layout patterns
     inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)
-      sameDenseElementWiseMemoryLayoutCheck(m, b)
-      val newArr = Array.ofDim[Double](m.rows * b.cols)
-      // Note, might need to deal with transpose later.
-      blas.dgemm(
-        "N",
-        "N",
-        m.rows,
-        b.cols,
-        m.cols,
-        1.0,
-        m.raw,
-        m.offset,
-        m.rows,
-        b.raw,
-        b.offset,
-        b.rows,
-        1.0,
-        newArr,
-        0,
-        m.rows
-      )
-      Matrix(newArr, (m.rows, b.cols))
+      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
+        val newArr = Array.ofDim[Double](m.rows * b.cols)
+        val mStr = if m.isDenseColMajor then "N" else "T"
+        val bStr = if b.isDenseColMajor then "N" else "T"
+        val lda = if m.isDenseColMajor then m.rows else m.cols
+        val ldb = if b.isDenseColMajor then b.rows else b.cols
+
+        // println(
+        //   s"mStr, bStr, m.rows, b.cols, m.cols, lda, ldb: $mStr, $bStr, ${m.rows}, ${b.cols}, ${m.cols}, $lda, $ldb"
+        // )
+
+        blas.dgemm(
+          mStr,
+          bStr,
+          m.rows,
+          b.cols,
+          m.cols,
+          1.0,
+          m.raw,
+          lda,
+          b.raw,
+          ldb,
+          0.0,
+          newArr,
+          m.rows
+        )
+        Matrix(newArr, m.rows, b.cols)
+      else ???
+      end if
     end matmul
 
     // TODO: SIMD
@@ -94,6 +107,60 @@ object JvmDoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
+
+    def +=(n: Double): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.+=(m.raw)(n)
+      else
+        // Cache-friendly fallback: iterate with smallest stride in inner loop
+        // (m.offset + row * m.rowStride + col * m.colStride
+        if m.rowStride <= m.colStride then
+          // Row stride is smaller, so iterate rows in inner loop
+          val rowStrides = IntVector.zero(sp_int_doubleLanes).addIndex(m.rowStride).toArray
+          var j = 0
+          while j < m.cols do
+            var i = 0
+            var blockIndex = m.offset + j * m.colStride
+            val upperBound = sp_int_doubleLanes.loopBound(m.rows)
+            while i < upperBound do
+              DoubleVector
+                .fromArray(vecxt.arrays.spd, m.raw, blockIndex, rowStrides, 0)
+                .mul(n)
+                .intoArray(m.raw, blockIndex, rowStrides, 0)
+              i += sp_int_doubleLanes.length
+            end while
+            while i < m.rows do
+              m(i, j) = n + m(i, j)
+              i += 1
+            end while
+            j += 1
+          end while
+        else
+          // Column stride is smaller, so iterate columns in inner loop
+          val colStrides = IntVector.zero(sp_int_doubleLanes).addIndex(m.colStride).toArray
+          var i = 0
+          while i < m.rows do
+            var j = 0
+            val upperBound = sp_int_doubleLanes.loopBound(m.cols)
+            val blockIndex = m.offset + i * m.rowStride
+            while j < upperBound do
+
+              DoubleVector
+                .fromArray(vecxt.arrays.spd, m.raw, blockIndex, colStrides, 0)
+                .add(n)
+                .intoArray(m.raw, blockIndex, colStrides, 0)
+              j += sp_int_doubleLanes.length
+            end while
+            while j < m.cols do
+              m(i, j) = n + m(i, j)
+              j += 1
+            end while
+            i += 1
+          end while
+        end if
+      end if
+
+    end +=
 
   end extension
 

@@ -63,7 +63,6 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assert(v1.contiguous)
 
     val v2 = NArray(0, 2)
-    println(v2.mkString(", "))
     assert(!v2.contiguous)
   }
 

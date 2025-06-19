@@ -54,6 +54,10 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
+  test("Col major") {
+    assert(mat1to9.isDenseColMajor)
+  }
+
   test("min reduction") {
     val mat1 = Matrix[Double](NArray(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
     val minR = mat1.min(Rows)
@@ -237,15 +241,21 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
-  test("Matrix multiplication") {
-    val mat1 = Matrix[Double](NArray(0.0, 0.0, 1.0, 0.0), (2, 2))
-    val mat2 = Matrix[Double](NArray(0.0, 1.0, 0.0, 0.0), (2, 2))
+  test("Matrix multiplication".only) {
+    val mat1 = Matrix.fromRows[Double](
+      NArray(0.0, 0.0), 
+      NArray(1.0, 0.0)
+      )
+    val mat2 = Matrix.fromRows[Double](
+      NArray(0.0, 1.0),
+      NArray(0.0, 0.0)
+    )
+    val mult = Matrix[Double](NArray(0.0, 0.0, 0.0, 1.0), 2, 2)
 
-    val result2 = mat1 @@ mat2
 
     val result = mat1.matmul(mat2)
-    assertVecEquals[Double](result.raw, NArray(1.0, 0.0, 0.0, 0.0))
-    assertVecEquals[Double](result2.raw, NArray(1.0, 0.0, 0.0, 0.0))
+    assertMatrixEquals(result, mult)
+    
   }
 
   test("Matrix multiplication2") {

@@ -15,6 +15,7 @@ class SubmatrixTest extends FunSuite:
     )
 
     val submat = mat1.submatrix(1 to 2, 1 to 2) // 2x2 submatrix
+
     assertEquals(submat.numel, 4)
     assertEqualsDouble(submat(0, 0), 10.0, 0.0000001)
     assertEqualsDouble(submat(0, 1), 8.0, 0.0000001)

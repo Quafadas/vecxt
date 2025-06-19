@@ -16,7 +16,7 @@ import vecxt.BoundsCheck
 //
 
 @main def mnist =
-  def traindata = CSV.resource("train.csv")
+  def traindata = CSV.resource("train_1.csv")
 
   val samplePlot = false
   val trainSize = 60000
@@ -248,7 +248,7 @@ def gradient_decent(
 
   println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
 
-  println(s"weights1 first row: ${w1(0, ::).printMat}")
+  println(s"weights1 first row: ${w1(Array(0), ::).printMat}")
   println(s"weights1 shape: ${w1_.shape}")
   println(s"weights2: ${w2_.printMat}")
 

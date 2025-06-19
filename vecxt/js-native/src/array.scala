@@ -7,6 +7,7 @@ import scala.math.Ordering
 
 import narr.*
 import scala.reflect.ClassTag
+import MatrixInstance.*
 
 object JsNativeBooleanArrays:
 
@@ -100,6 +101,38 @@ object JsNativeDoubleArrays:
       end while
       Matrix[Double](newArr, (m.rows, m.cols))
     end *:*
+
+    inline def +=(n: Double): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.+=(m.raw)(n)
+      else
+        // Cache-friendly fallback: iterate with smallest stride in inner loop
+        if m.rowStride <= m.colStride then
+          // Row stride is smaller, so iterate rows in inner loop
+          var j = 0
+          while j < m.cols do
+            var i = 0
+            while i < m.rows do
+              m(i, j) = n + m(i, j)
+              i += 1
+            end while
+            j += 1
+          end while
+        else
+          // Column stride is smaller, so iterate columns in inner loop
+          var i = 0
+          while i < m.rows do
+            var j = 0
+            while j < m.cols do
+              m(i, j) = n + m(i, j)
+              j += 1
+            end while
+            i += 1
+          end while
+        end if
+      end if
+
+    end +=
 
     inline def >=(d: Double): Matrix[Boolean] =
       Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)

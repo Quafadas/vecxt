@@ -10,8 +10,9 @@ import vecxt.matrix.*
 import vecxt.JsDoubleMatrix.*
 import vecxt.NativeDoubleMatrix.*
 
-import vecxt.matrixUtil.diag
+import vecxt.matrixUtil.*
 import scala.annotation.targetName
+import vecxt.MatrixInstance.*
 
 import narr.*
 import dimensionExtender.DimensionExtender.*
@@ -51,7 +52,9 @@ object DoubleMatrix:
     inline def +(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.arrays.+(m.raw)(n), m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        println("arg")
+        ???
     end +
 
     inline def -(n: Double): Matrix[Double] =
@@ -65,7 +68,11 @@ object DoubleMatrix:
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         val newArr = vecxt.arrays.+(m.raw)(m2.raw)
         Matrix[Double](newArr, m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        ???
+        // val newmat = m(::,::)
+        // vecxt.all.+=(newmat)(m2)
+        // newmat
       end if
     end +:+
 
@@ -98,7 +105,7 @@ object DoubleMatrix:
       else ???
       end if
     end -:-
-    inline def -:(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m -:- m2
+    inline def -(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m -:- m2
 
     inline def unary_- : Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then

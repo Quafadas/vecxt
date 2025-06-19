@@ -47,10 +47,10 @@ object matrix:
       * memory in row major order. Useful for performance optimizations.
       * @return
       */
-    lazy val isDenseRowMajor: Boolean =
+    lazy val isDenseColMajor: Boolean =
       rowStride == 1 && colStride == rows && offset == 0
 
-    lazy val isDenseColMajor: Boolean =
+    lazy val isDenseRowMajor: Boolean =
       rowStride == cols && colStride == 1 && offset == 0
 
     lazy val numel = rows * cols

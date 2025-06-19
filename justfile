@@ -10,11 +10,15 @@ benchmark:
 benchmarkOnly:
   {{MILL}} benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json vecxt.benchmark.DgemmBenchmark
 
-prepareForIde:
+prepareBsp:
   {{MILL}} __.compiledClassesAndSemanticDbFiles
+  {{MILL}} mill.bsp.BSP/install
+
+cleanJS:
+  {{MILL}} clean vecxt.js._
 
 testJS:
-  {{MILL}} clean vecxt.js.fastLinkJS
+  {{MILL}} clean vecxt.js.compile
   {{MILL}} vecxt.js.test
 
 testNative:
@@ -25,6 +29,12 @@ testJvm:
 
 test:
   {{MILL}} vecxt.__.test
+
+testOnly target:
+  {{MILL}} vecxt.jvm.test.testOnly vecxt.{{target}}
+
+console: 
+  {{MILL}} -i vecxt.jvm.console
 
 setJvm:
   eval "$(cs java --jvm 21 --env)"

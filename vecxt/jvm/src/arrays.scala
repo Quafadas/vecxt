@@ -1108,7 +1108,7 @@ object arrays:
       end while
 
       while i < vec.length do
-        vec(i) = vec(i) * multiply + add
+        vec(i) = Math.fma(vec(i), multiply, add)
         i = i + 1
       end while
     end `fma!`
