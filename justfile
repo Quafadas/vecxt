@@ -13,6 +13,18 @@ benchmarkOnly:
 prepareForIde:
   {{MILL}} __.compiledClassesAndSemanticDbFiles
 
+testJS:
+  {{MILL}} clean vecxt.js.fastLinkJS
+  {{MILL}} vecxt.js.test
+
+testNative:
+  {{MILL}} vecxt.native.test
+
+testJvm:
+  {{MILL}} vecxt.jvm.test
+
+test:
+  {{MILL}} vecxt.__.test
 
 setJvm:
   eval "$(cs java --jvm 21 --env)"
