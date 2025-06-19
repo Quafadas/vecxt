@@ -32,7 +32,7 @@ class SumMatrixTest extends FunSuite:
     val sumC = mat1.sum(Cols)
     assertMatrixEquals(sumC, Matrix[Double](NArray[Double](7.0, 14.0), (1, 2)))
 
-  test("scalar addition with strides and offset".only):
+  test("scalar addition with strides and offset"):
     val mat1 = mat1to9
 
     mat1 += 10.0
