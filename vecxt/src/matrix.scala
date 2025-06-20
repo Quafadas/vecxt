@@ -34,14 +34,14 @@ object matrix:
   ):
 
     /** If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or
-      * column major, or row major order.
+      * column major, or row major order, with the exact number of elements matching the number of rows and columns.
       *
       * We can take advantage of this for performance.
       *
       * @return
       */
     lazy val hasSimpleContiguousMemoryLayout: Boolean =
-      isDenseRowMajor || isDenseColMajor
+      isDenseRowMajor || isDenseColMajor && raw.length == numel
 
     /** If the matrix is dense and contiguous in row major order, it means that the data is stored in a single block of
       * memory in row major order. Useful for performance optimizations.
@@ -92,6 +92,15 @@ object matrix:
       )
     end apply
 
+    /**
+      * Assumes column major order.
+      *
+      * @param raw
+      * @param rows
+      * @param cols
+      * @param boundsCheck
+      * @return
+      */
     inline def apply[@specialized(Double, Boolean, Int) A](raw: NArray[A], rows: Row, cols: Col)(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
@@ -109,15 +118,7 @@ object matrix:
     inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: NArray[A])(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
-      dimMatInstantiateCheck(raw, dim)
-      new Matrix(
-        raw = raw,
-        rows = dim._1,
-        cols = dim._2,
-        rowStride = 1,
-        colStride = dim._1,
-        offset = 0
-      )
+      Matrix(raw, dim._1, dim._2)(using boundsCheck)
     end apply
   end Matrix
 

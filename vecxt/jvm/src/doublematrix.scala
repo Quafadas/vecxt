@@ -70,6 +70,9 @@ object JvmDoubleMatrix:
 
     // inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
+
+    //TODO: Dim check
+
     inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       val newArr = Array.ofDim[Double](m.rows)
       blas.dgemv(
@@ -112,46 +115,64 @@ object JvmDoubleMatrix:
       import vecxt.BoundsCheck.DoBoundsCheck.no
       if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.+=(m.raw)(n)
       else
+        println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
         // Cache-friendly fallback: iterate with smallest stride in inner loop
         // (m.offset + row * m.rowStride + col * m.colStride
         if m.rowStride <= m.colStride then
           // Row stride is smaller, so iterate rows in inner loop
           val rowStrides = IntVector.zero(sp_int_doubleLanes).addIndex(m.rowStride).toArray
+          // println(m.offset)
+          // println(s"colStrides: ${rowStrides.mkString(", ")}")
+          // println(s"m.raw: ${m.raw.mkString(", ")}")
+          // println(s"m.rows: ${m.rows}, m.cols: ${m.cols}")
+          // println(s"m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
           var j = 0
           while j < m.cols do
             var i = 0
             var blockIndex = m.offset + j * m.colStride
             val upperBound = sp_int_doubleLanes.loopBound(m.rows)
             while i < upperBound do
+              val iBlockIndex = blockIndex + i * m.rowStride
               DoubleVector
-                .fromArray(vecxt.arrays.spd, m.raw, blockIndex, rowStrides, 0)
-                .mul(n)
-                .intoArray(m.raw, blockIndex, rowStrides, 0)
+                .fromArray(vecxt.arrays.spd, m.raw, iBlockIndex, rowStrides, 0)
+                .add(n)
+                .intoArray(m.raw, iBlockIndex, rowStrides, 0)
               i += sp_int_doubleLanes.length
             end while
             while i < m.rows do
+              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
               m(i, j) = n + m(i, j)
               i += 1
             end while
+
             j += 1
           end while
         else
           // Column stride is smaller, so iterate columns in inner loop
           val colStrides = IntVector.zero(sp_int_doubleLanes).addIndex(m.colStride).toArray
+          // println(m.offset)
+          // println(s"colStrides: ${colStrides.mkString(", ")}")
+          // println(s"m.raw: ${m.raw.mkString(", ")}")
+          // println(s"m.rows: ${m.rows}, m.cols: ${m.cols}")
+          // println(s"m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
           var i = 0
           while i < m.rows do
             var j = 0
             val upperBound = sp_int_doubleLanes.loopBound(m.cols)
-            val blockIndex = m.offset + i * m.rowStride
-            while j < upperBound do
 
+            var blockIndex = m.offset + i * m.rowStride
+            while j < upperBound do
+              val jblockIndex = blockIndex + j * m.colStride
               DoubleVector
-                .fromArray(vecxt.arrays.spd, m.raw, blockIndex, colStrides, 0)
+                .fromArray(vecxt.arrays.spd, m.raw, jblockIndex, colStrides, 0)
                 .add(n)
-                .intoArray(m.raw, blockIndex, colStrides, 0)
+                .intoArray(m.raw, jblockIndex, colStrides, 0)
+
               j += sp_int_doubleLanes.length
             end while
+
             while j < m.cols do
+              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
               m(i, j) = n + m(i, j)
               j += 1
             end while

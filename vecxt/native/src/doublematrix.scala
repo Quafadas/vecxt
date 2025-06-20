@@ -16,25 +16,30 @@ object NativeDoubleMatrix:
 
     inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)
-      val newArr = Array.ofDim[Double](m.rows * b.cols)
-      // Note, might need to deal with transpose later.
-      blas.cblas_dgemm(
-        blasEnums.CblasColMajor,
-        blasEnums.CblasNoTrans,
-        blasEnums.CblasNoTrans,
-        m.rows,
-        b.cols,
-        m.cols,
-        1.0,
-        m.raw.at(0),
-        m.rows,
-        b.raw.at(0),
-        b.rows,
-        1.0,
-        newArr.at(0),
-        m.rows
-      )
-      Matrix(newArr, (m.rows, b.cols))
+
+
+      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
+        val newArr = Array.ofDim[Double](m.rows * b.cols)
+        blas.cblas_dgemm(
+          blasEnums.CblasColMajor,
+          blasEnums.CblasNoTrans,
+          blasEnums.CblasNoTrans,
+          m.rows,
+          b.cols,
+          m.cols,
+          1.0,
+          m.raw.at(0),
+          m.rows,
+          b.raw.at(0),
+          b.rows,
+          1.0,
+          newArr.at(0),
+          m.rows
+        )
+        Matrix(newArr, (m.rows, b.cols))
+      else
+        ???
+
   end extension
 
 end NativeDoubleMatrix

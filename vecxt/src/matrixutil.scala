@@ -135,8 +135,22 @@ object matrixUtil:
       newArr
     end diag
 
+    /**
+      * Returns a row of the matrix as an NArray.
+      *
+      * Note that this copies the data. m.submatrix(i, ::) returns a zero copy view.
+      *
+      * @param i
+      * @return
+      */
     inline def row(i: Int)(using ClassTag[A]): NArray[A] =
-      m(NArray[Int](i), ::).raw
+      val newArr = NArray.ofSize[A](m.cols)
+      var j = 0
+      while j < m.cols do
+        newArr(j) = m((i, j))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        j += 1
+      end while
+      newArr
     end row
 
     inline def printMat(using ClassTag[A]): String =
@@ -151,8 +165,23 @@ object matrixUtil:
       arrArr.mkString("\n")
     end printMat
 
+    /**
+      * Note that m.submatrix(::, i) will give back a zero-copy matrix with the correct strides.
+      *
+      * It is probably more efficient
+      *
+      * @param i
+      * @return
+      */
     inline def col(i: Int)(using ClassTag[A]): NArray[A] =
-      m(::, NArray[Int](i): RangeExtender).raw
+      val newArr = NArray.ofSize[A](m.rows)
+      var j = 0
+      while j < m.rows do
+        newArr(j) = m((j, i))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        j += 1
+      end while
+      newArr
+
     end col
 
     inline def horzcat(m2: Matrix[A])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]): Matrix[A] =

@@ -96,23 +96,28 @@ object MatrixInstance:
       val newCols = range(colRange, m.cols)
       val newArr = NArray.ofSize[A](newCols.size * newRows.size)
 
-      var idx = 0
+      if newRows.contiguous && newCols.contiguous then
 
-      var i = 0
-      while i < newCols.length do
-        val colpos = newCols(i)
-        val stride = colpos * m.rows
-        var j = 0
-        while j < newRows.length do
-          val rowPos = newRows(j)
-          newArr(idx) = m.raw(stride + rowPos)
-          idx += 1
-          j += 1
+        submatrix(newRows, newCols)
+      else if m.isDenseColMajor then
+        var idx = 0
+        var i = 0
+        while i < newCols.length do
+          val colpos = newCols(i)
+          val stride = colpos * m.rows
+          var j = 0
+          while j < newRows.length do
+            val rowPos = newRows(j)
+            newArr(idx) = m.raw(stride + rowPos)
+            idx += 1
+            j += 1
+          end while
+          i += 1
         end while
-        i += 1
-      end while
 
-      Matrix(newArr, (newRows.size, newCols.size))(using BoundsCheck.DoBoundsCheck.no)
+        Matrix(newArr, (newRows.size, newCols.size))(using BoundsCheck.DoBoundsCheck.no)
+      else
+        ???
 
     end apply
 
@@ -122,6 +127,17 @@ object MatrixInstance:
       indexCheckMat(m, b)
       apply(b._1, b._2)
     end apply
+
+    inline def elementIndex(row: Row, col: Col)(using inline boundsCheck: BoundsCheck): Int =
+      indexCheckMat(m, (row, col))
+      inline if(boundsCheck == BoundsCheck.DoBoundsCheck.yes) then
+        println(s"Element index for ($row, $col) in matrix with shape ${m.shape} is being checked")
+        println(s"Offset: ${m.offset}, Row stride: ${m.rowStride}, Col stride: ${m.colStride}")
+        println(s"Calculated index: ${m.offset + row * m.rowStride + col * m.colStride}")
+        println(s"element: ${m.raw(m.offset + row * m.rowStride + col * m.colStride)}")
+      m.offset + row * m.rowStride + col * m.colStride
+
+    end elementIndex
 
     transparent inline def apply(row: Row, col: Col)(using inline boundsCheck: BoundsCheck): A =
       indexCheckMat(m, (row, col))

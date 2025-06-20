@@ -21,10 +21,18 @@ import arrayUtil.printArr
 object DoubleMatrix:
 
   extension (d: Double)
-    inline def *(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Double](vecxt.arrays.*(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+    inline def *(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m * d
+    inline def +(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m + d
+    inline def -(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = ???
+    inline def /(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = ???
+
+    inline def *=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = m *= d
+    inline def +=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = ??? //m += d
+    inline def -=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = ??? //m -= d
+    inline def /=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = ???
+
+
+
   end extension
 
   extension (m: Matrix[Double])

@@ -52,6 +52,48 @@ class MatrixAdditionTest extends FunSuite:
     // Check reference equality. All operations were zero-copy
     assert(arr == mat1.raw)
 
+  test("scalar addition with strides and offset"):
+    val mat1 = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0),
+      NArray[Double](7.0, 8.0, 9.0)
+    )
+
+    mat1 += 10.0
+
+    assertMatrixEquals(
+      mat1,
+      Matrix.fromRows(
+        NArray[Double](11.0, 12.0, 13.0),
+        NArray[Double](14.0, 15.0, 16.0),
+        NArray[Double](17.0, 18.0, 19.0)
+      )
+    )
+
+    println(s"Matrix before addition: ${mat1.printMat}")
+    println(s"subMatrix before addition: ${mat1.submatrix(0 to 1, 0 to 1).printMat}")
+    mat1.submatrix(0 to 1, 0 to 1) += 1.0
+    println(s"Matrix after addition: ${mat1.printMat}")
+
+    assertMatrixEquals(
+      mat1,
+      Matrix.fromRows(
+        NArray[Double](12.0, 13.0, 13.0),
+        NArray[Double](15.0, 16.0, 16.0),
+        NArray[Double](17.0, 18.0, 19.0)
+      )
+    )
+
+    mat1.submatrix(1 to 2, 1 to 2) += 1.0
+    assertMatrixEquals(
+      mat1,
+      Matrix.fromRows(
+        NArray[Double](12.0, 13.0, 13.0),
+        NArray[Double](15.0, 17.0, 17.0),
+        NArray[Double](17.0, 19.0, 20.0)
+      )
+    )
+
   test("Submatrix addition can be zero copy"):
     val submat = mat36.submatrix(1 to 4, 1 to 4)
 
