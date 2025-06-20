@@ -72,4 +72,25 @@ object dgemm extends js.Object:
       c: Float64Array,
       ldc: Int
   ): Unit = js.native
+
 end dgemm
+
+@js.native
+@JSImport("@stdlib/blas/base/dgemv/lib", JSImport.Default)
+object dgemv extends js.Object:
+  def apply(
+      ord: String,
+      transA: String,
+      m: Int,
+      n: Int,
+      alpha: Double,
+      a: Float64Array,
+      lda: Int,
+      b: Float64Array,
+      ldb: Int,
+      beta: Double,
+      c: Float64Array,
+      ldc: Int
+  ): Unit = js.native
+
+end dgemv

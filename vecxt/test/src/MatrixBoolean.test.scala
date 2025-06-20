@@ -39,7 +39,7 @@ class MatrixBooleanSuite extends FunSuite:
       NArray[Boolean](false, true, false)
     )
 
-    val b = mat(::, 0)
+    val b = mat(::, NArray[Int](0))
     assertVecEquals[Boolean](NArray[Boolean](true, false), b.raw)
 
   }
@@ -80,7 +80,6 @@ class MatrixBooleanSuite extends FunSuite:
       NArray[Double](1.0, 0.0, 3.0),
       NArray[Double](0.0, 4.0, 0.0)
     )
-    println(calc.printMat)
     assertVecEquals[Double](calc.raw, result.raw)
   }
 

@@ -65,7 +65,7 @@ class LazerBenchmark extends BLASBenchmark:
   def vecxtWorkload(bh: Blackhole): Unit =
     val dim = matDim.toInt
     // Same representative linear algebra workload
-    val step1 = vecxtMatA + vecxtMatB // Element-wise addition
+    val step1 = vecxtMatA +:+ vecxtMatB // Element-wise addition
     val step2 = step1.hadamard(vecxtMatA) // Hadamard product
     val step3 = step2 * vectorData // Matrix-vector multiply
     val step4 = step3.fma(2.0, 1.0) // Element-wise transform

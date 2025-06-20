@@ -56,7 +56,7 @@ object MatrixHelper:
         end while
         i += 1
       end while
-      Matrix(newArr, (rows, cols))
+      Matrix(newArr, rows, cols)
     end fromRows
 
     inline def fromColumns[@specialized(Double, Boolean, Int) A](

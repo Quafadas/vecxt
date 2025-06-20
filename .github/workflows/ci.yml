@@ -69,6 +69,8 @@ jobs:
 
       - name: Test
         run: ./millw vecxt.${{ matrix.project }}.test
+      - name: Doc Gen
+        run: ./millw site.publishDocs
 
   publish:
     if: github.repository == 'Quafadas/vecxt' && contains(github.ref, 'refs/tags/')

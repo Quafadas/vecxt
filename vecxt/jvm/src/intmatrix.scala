@@ -14,18 +14,32 @@ object JvmIntMatrix:
     end matmul
 
     inline def >=(d: Int): Matrix[Boolean] =
-      val i: Array[Int] = m.raw
-      Matrix[Boolean](m.raw.gte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then
+        val i: Array[Int] = m.raw
+        Matrix[Boolean](m.raw.gte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
     end >=
 
     inline def >(d: Int): Matrix[Boolean] =
-      Matrix[Boolean](m.raw.gt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then
+        val i: Array[Int] = m.raw
+        Matrix[Boolean](m.raw.gt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+    end >
 
     inline def <=(d: Int): Matrix[Boolean] =
-      Matrix[Boolean](m.raw.lte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then
+        val i: Array[Int] = m.raw
+        Matrix[Boolean](m.raw.lte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+    end <=
 
     inline def <(d: Int): Matrix[Boolean] =
-      Matrix[Boolean](m.raw.lt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then
+        val i: Array[Int] = m.raw
+        Matrix[Boolean](m.raw.lt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+    end <
 
   end extension
 end JvmIntMatrix
