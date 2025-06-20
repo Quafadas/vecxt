@@ -5,11 +5,9 @@ This style guide outlines the conventions and best practices for contributing to
 ## General Guidelines
 
 - **Use inline methods**: Inline methods are preferred for performance reasons.
-- **Use Scala's `tap` method**: Use `tap` for chaining operations on collections and arrays for readability.
 - **Use `while` loops**: Prefer `while` loops over `for` loops for performance-critical sections, especially in JS and Native targets.
 - **Use Java's SIMD `Vector` API**: On the JVM, leverage Java's SIMD `Vector` API for vectorized operations.
 - **Use tail recursion**: When implementing recursive methods, prefer tail recursion for performance improvements.
-- **Avoid side effects**: Try to minimize or eliminate side effects in methods to enhance clarity and maintainability.
 
 ## Code Structure
 

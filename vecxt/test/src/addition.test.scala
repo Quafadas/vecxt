@@ -70,10 +70,7 @@ class MatrixAdditionTest extends FunSuite:
       )
     )
 
-    println(s"Matrix before addition: ${mat1.printMat}")
-    println(s"subMatrix before addition: ${mat1.submatrix(0 to 1, 0 to 1).printMat}")
     mat1.submatrix(0 to 1, 0 to 1) += 1.0
-    println(s"Matrix after addition: ${mat1.printMat}")
 
     assertMatrixEquals(
       mat1,
