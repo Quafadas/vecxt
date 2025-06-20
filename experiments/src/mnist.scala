@@ -16,10 +16,10 @@ import vecxt.BoundsCheck
 //
 
 @main def mnist =
-  def traindata = CSV.resource("train_1.csv")
+  def traindata = CSV.resource("train.csv")
 
   val samplePlot = false
-  val trainSize = 60000
+  val trainSize = 5000
 
   val labels = traindata.column["label"].map(_.toInt).toSeq.take(trainSize) // y data
   val others =

@@ -123,7 +123,7 @@ object JvmDoubleMatrix:
       import vecxt.BoundsCheck.DoBoundsCheck.no
       if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.+=(m.raw)(n)
       else
-        println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
+        // println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
         // Cache-friendly fallback: iterate with smallest stride in inner loop
         // (m.offset + row * m.rowStride + col * m.colStride
         if m.rowStride <= m.colStride then
@@ -148,7 +148,7 @@ object JvmDoubleMatrix:
               i += sp_int_doubleLanes.length
             end while
             while i < m.rows do
-              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.no)
               m(i, j) = n + m(i, j)
               i += 1
             end while
@@ -180,7 +180,7 @@ object JvmDoubleMatrix:
             end while
 
             while j < m.cols do
-              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.no)
               m(i, j) = n + m(i, j)
               j += 1
             end while

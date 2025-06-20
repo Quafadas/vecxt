@@ -1,0 +1,1234 @@
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+
+--include-constant __API_TO_BE_DEPRECATED                                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_DRIVERKIT                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_IOS                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_IOSAPPLICATIONEXTENSION         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_KERNELKIT                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_MACCATALYST                     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_MACCATALYSTAPPLICATIONEXTENSION # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_MACOS                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_MACOSAPPLICATIONEXTENSION       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_TVOS                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_TVOSAPPLICATIONEXTENSION        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_VISIONOS                        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_VISIONOSAPPLICATIONEXTENSION    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_WATCHOS                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+--include-constant __API_TO_BE_DEPRECATED_WATCHOSAPPLICATIONEXTENSION     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/Availability.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h
+
+--include-constant __MAC_OS_X_VERSION_MAX_ALLOWED  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h
+--include-constant __MAC_OS_X_VERSION_MIN_REQUIRED # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityInternal.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h
+
+--include-constant __ENABLE_LEGACY_MAC_AVAILABILITY # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityInternalLegacy.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+
+--include-constant MAC_OS_VERSION_11_0                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_11_1                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_11_3                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_11_4                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_11_5                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_11_6                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_12_0                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_12_1                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_12_2                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_12_3                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_12_4                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_12_5                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_12_6                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_12_7                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_13_0                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_13_1                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_13_2                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_13_3                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_13_4                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_13_5                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_13_6                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_13_7                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_14_0                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_14_1                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_14_2                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_14_3                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_14_4                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_14_5                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_14_6                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_14_7                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_15_0                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_15_1                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_15_2                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_15_3                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_15_4                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_VERSION_15_5                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_0                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_1                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_10                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_10_2               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_10_3               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_11                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_11_2               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_11_3               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_11_4               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_12                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_12_1               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_12_2               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_12_4               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_13                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_13_1               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_13_2               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_13_4               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_14                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_14_1               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_14_4               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_14_5               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_14_6               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_15                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_15_1               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_15_4               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_16                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_2                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_3                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_4                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_5                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_6                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_7                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_8                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant MAC_OS_X_VERSION_10_9                  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __AVAILABILITY_FILE                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __AVAILABILITY_VERSIONS_VERSION_HASH   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __AVAILABILITY_VERSIONS_VERSION_STRING # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_2_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_3_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_3_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_3_4                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_4_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_4_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_5_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_5_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_5_3                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_6_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_6_2                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_6_4                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_6_5                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_6_6                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_7_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_7_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_7_2                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_7_3                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_7_4                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_7_6                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_8_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_8_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_8_2                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_8_3                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_8_4                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_8_5                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_8_6                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_9_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_9_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_9_2                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_9_3                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_9_4                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __BRIDGEOS_9_5                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_19_0                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_20_0                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_21_0                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_22_0                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_22_4                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_22_5                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_22_6                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_23_0                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_23_1                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_23_2                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_23_3                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_23_4                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_23_5                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_23_6                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_24_0                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_24_1                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_24_2                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_24_3                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_24_4                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __DRIVERKIT_24_5                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_10_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_10_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_10_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_10_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_11_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_11_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_11_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_11_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_11_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_12_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_12_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_12_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_12_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_12_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_13_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_13_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_13_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_13_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_13_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_13_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_13_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_13_7                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_7                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_14_8                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_7                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_15_8                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_16_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_16_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_16_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_16_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_16_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_16_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_16_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_16_7                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_17_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_17_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_17_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_17_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_17_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_17_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_17_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_17_7                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_18_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_18_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_18_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_18_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_18_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_18_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_2_0                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_2_1                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_2_2                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_3_0                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_3_1                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_3_2                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_4_0                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_4_1                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_4_2                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_4_3                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_5_0                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_5_1                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_6_0                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_6_1                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_7_0                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_7_1                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_8_0                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_8_1                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_8_2                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_8_3                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_8_4                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_9_0                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_9_1                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_9_2                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __IPHONE_9_3                           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_0                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_1                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_10                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_10_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_10_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_11                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_11_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_11_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_11_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_12                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_12_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_12_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_12_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_13                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_13_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_13_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_13_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_14                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_14_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_14_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_14_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_14_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_15                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_15_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_15_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_16                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_2                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_3                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_4                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_5                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_6                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_7                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_8                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_10_9                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_11_0                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_11_1                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_11_3                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_11_4                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_11_5                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_11_6                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_12_0                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_12_1                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_12_2                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_12_3                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_12_4                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_12_5                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_12_6                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_12_7                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_13_0                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_13_1                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_13_2                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_13_3                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_13_4                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_13_5                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_13_6                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_13_7                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_14_0                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_14_1                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_14_2                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_14_3                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_14_4                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_14_5                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_14_6                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_14_7                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_15_0                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_15_1                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_15_2                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_15_3                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_15_4                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __MAC_15_5                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_10_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_10_0_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_10_1                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_10_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_11_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_11_1                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_11_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_11_3                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_11_4                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_12_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_12_1                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_12_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_12_3                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_12_4                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_13_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_13_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_13_3                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_13_4                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_14_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_14_1                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_14_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_14_3                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_14_5                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_14_6                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_14_7                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_15_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_15_1                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_15_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_15_3                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_15_4                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_15_5                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_15_6                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_16_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_16_1                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_16_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_16_3                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_16_4                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_16_5                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_16_6                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_17_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_17_1                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_17_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_17_3                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_17_4                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_17_5                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_17_6                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_18_0                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_18_1                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_18_2                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_18_3                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_18_4                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_18_5                            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_9_0                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_9_1                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __TVOS_9_2                             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_1_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_1_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_1_2                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_1_3                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_2_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_2_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_2_2                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_2_3                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_2_4                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __VISIONOS_2_5                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_10_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_10_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_10_2                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_10_3                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_10_4                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_10_5                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_10_6                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_10_7                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_11_0                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_11_1                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_11_2                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_11_3                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_11_4                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_11_5                         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_1_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_2_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_2_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_2_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_3_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_3_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_3_1_1                        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_3_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_4_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_4_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_4_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_4_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_5_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_5_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_5_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_5_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_6_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_6_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_6_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_7_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_7_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_7_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_7_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_7_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_7_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_7_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_8_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_8_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_8_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_8_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_8_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_8_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_8_7                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_8_8                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_9_0                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_9_1                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_9_2                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_9_3                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_9_4                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_9_5                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+--include-constant __WATCHOS_9_6                          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_ctermid.h
+
+--include-constant L_ctermid # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_ctermid.h
+--include-function ctermid   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_ctermid.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_printf.h
+
+--include-function printf # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_printf.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+
+--include-struct __sFILE            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-struct __sFILEX           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-struct __sbuf             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant BUFSIZ           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant EOF              # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant FILENAME_MAX     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant FOPEN_MAX        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant L_tmpnam         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant P_tmpdir         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant TMP_MAX          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant _IOFBF           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant _IOLBF           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant _IONBF           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SALC           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SAPP           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SEOF           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SERR           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SIGN           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SLBF           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SMBF           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SMOD           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SNBF           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SNPT           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SOFF           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SOPT           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SRD            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SRW            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SSTR           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-constant __SWR            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-var __stderrp             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-var __stdinp              # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-var __stdoutp             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-var sys_errlist           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-var sys_nerr              # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-typedef FILE              # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-typedef fpos_t            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function __srget          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function __svfscanf       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function __swbuf          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function asprintf         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function clearerr         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function ctermid_r        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function dprintf          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fclose           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fdopen           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function feof             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function ferror           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fflush           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fgetc            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fgetln           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fgetpos          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fgets            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fileno           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function flockfile        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fmemopen         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fmtcheck         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fopen            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fprintf          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fpurge           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fputc            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fputs            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fread            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function freopen          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fscanf           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fseek            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fseeko           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fsetpos          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function ftell            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function ftello           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function ftrylockfile     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function funlockfile      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function funopen          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function fwrite           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function getc             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function getc_unlocked    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function getchar          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function getchar_unlocked # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function getdelim         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function getline          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function gets             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function getw             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function open_memstream   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function pclose           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function perror           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function popen            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function putc             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function putc_unlocked    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function putchar          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function putchar_unlocked # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function puts             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function putw             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function remove           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function rename           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function rewind           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function scanf            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function setbuf           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function setbuffer        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function setlinebuf       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function setvbuf          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function snprintf         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function sprintf          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function sscanf           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function tempnam          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function tmpfile          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function tmpnam           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function ungetc           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vasprintf        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vdprintf         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vfprintf         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vfscanf          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vprintf          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vscanf           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vsnprintf        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vsprintf         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+--include-function vsscanf          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_stdio.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types.h
+
+--include-constant _FORTIFY_SOURCE    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types.h
+--include-constant __DARWIN_WCHAR_MAX # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types.h
+--include-constant __DARWIN_WCHAR_MIN # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types.h
+--include-constant __DARWIN_WEOF      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types.h
+--include-typedef __darwin_nl_item    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types.h
+--include-typedef __darwin_wctrans_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types.h
+--include-typedef __darwin_wctype_t   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_intmax_t.h
+
+--include-typedef intmax_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_intmax_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uint16_t.h
+
+--include-typedef uint16_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uint16_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uint32_t.h
+
+--include-typedef uint32_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uint32_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uint64_t.h
+
+--include-typedef uint64_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uint64_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uint8_t.h
+
+--include-typedef uint8_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uint8_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uintmax_t.h
+
+--include-typedef uintmax_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_types/_uintmax_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+
+--include-constant USE_CLANG_TYPES    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-union __mbstate_t           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_clock_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_ct_rune_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_intptr_t   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_mbstate_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_natural_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_ptrdiff_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_rune_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_size_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_socklen_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_ssize_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_time_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_va_list    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_wchar_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __darwin_wint_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __int16_t           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __int32_t           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __int64_t           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __int8_t            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __uint16_t          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __uint32_t          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __uint64_t          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+--include-typedef __uint8_t           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_types.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+
+--include-constant USER_ADDR_NULL # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef register_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef syscall_arg_t   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef user_addr_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef user_long_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef user_off_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef user_size_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef user_ssize_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef user_time_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+--include-typedef user_ulong_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+
+--include-constant I          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-constant _Complex_I # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cabs       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cabsf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cabsl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cacos      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cacosf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cacosh     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cacoshf    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cacoshl    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cacosl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function carg       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cargf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cargl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function casin      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function casinf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function casinh     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function casinhf    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function casinhl    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function casinl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function catan      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function catanf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function catanh     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function catanhf    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function catanhl    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function catanl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ccos       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ccosf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ccosh      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ccoshf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ccoshl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ccosl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cexp       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cexpf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cexpl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cimag      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cimagf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cimagl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function clog       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function clogf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function clogl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function conj       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function conjf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function conjl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cpow       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cpowf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cpowl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cproj      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cprojf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function cprojl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function creal      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function crealf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function creall     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csin       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csinf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csinh      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csinhf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csinhl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csinl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csqrt      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csqrtf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function csqrtl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ctan       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ctanf      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ctanh      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ctanhf     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ctanhl     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+--include-function ctanl      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/complex.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/secure/_common.h
+
+--include-constant _USE_FORTIFY_LEVEL # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/secure/_common.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h
+
+--include-function __snprintf_chk  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h
+--include-function __sprintf_chk   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h
+--include-function __vsnprintf_chk # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h
+--include-function __vsprintf_chk  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/secure/_stdio.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+
+--include-constant INT16_MAX        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT16_MIN        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT32_MAX        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT32_MIN        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT64_MAX        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT64_MIN        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT8_MAX         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT8_MIN         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INTMAX_MAX       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INTMAX_MIN       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INTPTR_MAX       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INTPTR_MIN       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_FAST16_MAX   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_FAST16_MIN   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_FAST32_MAX   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_FAST32_MIN   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_FAST64_MAX   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_FAST64_MIN   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_FAST8_MAX    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_FAST8_MIN    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_LEAST16_MAX  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_LEAST16_MIN  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_LEAST32_MAX  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_LEAST32_MIN  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_LEAST64_MAX  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_LEAST64_MIN  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_LEAST8_MAX   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant INT_LEAST8_MIN   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant PTRDIFF_MAX      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant PTRDIFF_MIN      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant RSIZE_MAX        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant SIG_ATOMIC_MAX   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant SIG_ATOMIC_MIN   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant SIZE_MAX         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT16_MAX       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT32_MAX       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT64_MAX       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT8_MAX        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINTMAX_MAX      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINTPTR_MAX      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT_FAST16_MAX  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT_FAST32_MAX  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT_FAST64_MAX  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT_FAST8_MAX   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT_LEAST16_MAX # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT_LEAST32_MAX # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT_LEAST64_MAX # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant UINT_LEAST8_MAX  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant WCHAR_MAX        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant WCHAR_MIN        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant WINT_MAX         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant WINT_MIN         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-constant __WORDSIZE       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef int_fast16_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef int_fast32_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef int_fast64_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef int_fast8_t       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef int_least16_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef int_least32_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef int_least64_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef int_least8_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef uint_fast16_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef uint_fast32_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef uint_fast64_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef uint_fast8_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef uint_least16_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef uint_least32_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef uint_least64_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+--include-typedef uint_least8_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/stdint.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+
+--include-struct __darwin_pthread_handler_rec    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_attr_t          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_cond_t          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_condattr_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_mutex_t         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_mutexattr_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_once_t          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_rwlock_t        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_rwlockattr_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-struct _opaque_pthread_t               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_ATTR_SIZE__         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_CONDATTR_SIZE__     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_COND_SIZE__         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_MUTEXATTR_SIZE__    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_MUTEX_SIZE__        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_ONCE_SIZE__         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_RWLOCKATTR_SIZE__   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_RWLOCK_SIZE__       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-constant __PTHREAD_SIZE__              # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_attr_t        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_cond_t        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_condattr_t    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_key_t         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_mutex_t       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_mutexattr_t   # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_once_t        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_rwlock_t      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_rwlockattr_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+--include-typedef __darwin_pthread_t             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_pthread/_pthread_types.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+
+--include-constant USE_CLANG_TYPES           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-constant __DARWIN_NULL             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_blkcnt_t          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_blksize_t         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_dev_t             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_fsblkcnt_t        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_fsfilcnt_t        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_gid_t             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_id_t              # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_ino64_t           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_ino_t             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_mach_port_name_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_mach_port_t       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_mode_t            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_off_t             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_pid_t             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_sigset_t          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_suseconds_t       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_uid_t             # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_useconds_t        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_uuid_string_t     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+--include-typedef __darwin_uuid_t            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_int16_t.h
+
+--include-typedef int16_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_int16_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_int32_t.h
+
+--include-typedef int32_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_int32_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_int64_t.h
+
+--include-typedef int64_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_int64_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_int8_t.h
+
+--include-typedef int8_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_int8_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_intptr_t.h
+
+--include-typedef intptr_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_intptr_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_null.h
+
+--include-constant USE_CLANG_STDDEF # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_null.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_off_t.h
+
+--include-typedef off_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_off_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_seek_set.h
+
+--include-constant SEEK_CUR  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_seek_set.h
+--include-constant SEEK_DATA # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_seek_set.h
+--include-constant SEEK_END  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_seek_set.h
+--include-constant SEEK_HOLE # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_seek_set.h
+--include-constant SEEK_SET  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_seek_set.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_size_t.h
+
+--include-constant USE_CLANG_STDDEF # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_size_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_ssize_t.h
+
+--include-typedef ssize_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_ssize_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int16_t.h
+
+--include-typedef u_int16_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int16_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int32_t.h
+
+--include-typedef u_int32_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int32_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int64_t.h
+
+--include-typedef u_int64_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int64_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int8_t.h
+
+--include-typedef u_int8_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_u_int8_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_uintptr_t.h
+
+--include-typedef uintptr_t  # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_uintptr_t.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_va_list.h
+
+--include-constant USE_CLANG_STDARG # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_va_list.h
+--include-typedef va_list           # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_va_list.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+
+--include-constant _DARWIN_FEATURE_64_BIT_INODE          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant _DARWIN_FEATURE_ONLY_64_BIT_INODE     # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant _DARWIN_FEATURE_ONLY_UNIX_CONFORMANCE # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant _DARWIN_FEATURE_ONLY_VERS_1050        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant _DARWIN_FEATURE_UNIX_CONFORMANCE      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_64_BIT_INO_T                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_C_ANSI                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_C_FULL                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_C_LEVEL                      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_NON_CANCELABLE               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_NO_LONG_LONG                 # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_ONLY_64_BIT_INO_T            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_ONLY_UNIX_CONFORMANCE        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_ONLY_VERS_1050               # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_SUF_EXTSN                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_UNIX03                       # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __DARWIN_VERS_1050                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __STDC_WANT_LIB_EXT1__                # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __has_ptrcheck                        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+--include-constant __has_safe_buffers                    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h
+
+#### Extracted from: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+
+--include-constant RENAME_EXCL         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+--include-constant RENAME_NOFOLLOW_ANY # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+--include-constant RENAME_RESERVED1    # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+--include-constant RENAME_SECLUDE      # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+--include-constant RENAME_SWAP         # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+--include-function renameat            # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+--include-function renameatx_np        # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+--include-function renamex_np          # header: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/stdio.h
+
+#### Extracted from: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_max_align_t.h
+
+--include-typedef max_align_t  # header: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_max_align_t.h
+
+#### Extracted from: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_null.h
+
+--include-constant NULL # header: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_null.h
+
+#### Extracted from: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_ptrdiff_t.h
+
+--include-typedef ptrdiff_t  # header: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_ptrdiff_t.h
+
+#### Extracted from: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_size_t.h
+
+--include-typedef size_t  # header: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_size_t.h
+
+#### Extracted from: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_wchar_t.h
+
+--include-typedef wchar_t  # header: /Users/simon/Code/jextract-1/build/jextract/runtime/conf/jextract/__stddef_wchar_t.h
+
+#### Extracted from: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+
+--include-constant CblasColMajor                          # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasConjNoTrans                       # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasConjTrans                         # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasLeft                              # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasLower                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasNoTrans                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasNonUnit                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasRight                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasRowMajor                          # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasTrans                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasUnit                              # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasUpper                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant OPENBLAS_OPENMP                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant OPENBLAS_SEQUENTIAL                    # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant OPENBLAS_THREAD                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-typedef CBLAS_LAYOUT                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-typedef openblas_dojob_callback                 # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-typedef openblas_threads_callback               # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_caxpby                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_caxpy                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_caxpyc                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ccopy                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cdotc                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cdotc_sub                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cdotu                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cdotu_sub                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgeadd                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgemm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgemm3m                          # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgemm_batch                      # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgemmt                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgemv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgerc                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cgeru                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_chbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_chemm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_chemv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cher                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cher2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cher2k                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cherk                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_chpmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_chpr                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_chpr2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cimatcopy                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_comatcopy                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_crotg                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cscal                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_csrot                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_csscal                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_cswap                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_csymm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_csyr2k                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_csyrk                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ctbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ctbsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ctpmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ctpsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ctrmm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ctrmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ctrsm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ctrsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_damax                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_damin                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dasum                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_daxpby                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_daxpy                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dbf16tod                         # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dcopy                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ddot                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgeadd                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgemm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgemm_batch                      # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgemmt                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgemv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dger                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dimatcopy                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dnrm2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_domatcopy                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_drot                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_drotg                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_drotm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_drotmg                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dscal                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsdot                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dspmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dspr                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dspr2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsum                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dswap                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsymm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsymv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsyr                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsyr2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsyr2k                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dsyrk                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dtbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dtbsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dtpmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dtpsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dtrmm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dtrmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dtrsm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dtrsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dzamax                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dzamin                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dzasum                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dznrm2                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dzsum                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_icamax                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_icamin                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_icmax                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_icmin                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_idamax                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_idamin                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_idmax                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_idmin                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_isamax                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_isamin                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ismax                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ismin                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_izamax                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_izamin                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_izmax                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_izmin                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_samax                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_samin                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sasum                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_saxpby                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_saxpy                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sbdot                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sbdtobf16                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sbf16tos                         # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sbgemm                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sbgemm_batch                     # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sbgemv                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sbstobf16                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_scamax                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_scamin                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_scasum                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_scnrm2                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_scopy                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_scsum                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sdot                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sdsdot                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sgbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sgeadd                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sgemm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sgemm_batch                      # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sgemmt                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sgemv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sger                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_simatcopy                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_snrm2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_somatcopy                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_srot                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_srotg                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_srotm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_srotmg                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ssbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sscal                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sspmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sspr                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sspr2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ssum                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_sswap                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ssymm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ssymv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ssyr                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ssyr2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ssyr2k                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ssyrk                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_stbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_stbsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_stpmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_stpsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_strmm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_strmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_strsm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_strsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_xerbla                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zaxpby                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zaxpy                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zaxpyc                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zcopy                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zdotc                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zdotc_sub                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zdotu                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zdotu_sub                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zdrot                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zdscal                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgeadd                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgemm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgemm3m                          # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgemm_batch                      # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgemmt                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgemv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgerc                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zgeru                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zhbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zhemm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zhemv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zher                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zher2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zher2k                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zherk                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zhpmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zhpr                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zhpr2                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zimatcopy                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zomatcopy                        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zrotg                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zscal                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zswap                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zsymm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zsyr2k                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_zsyrk                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ztbmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ztbsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ztpmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ztpsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ztrmm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ztrmv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ztrsm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_ztrsv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function goto_set_num_threads                   # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function openblas_get_config                    # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function openblas_get_corename                  # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function openblas_get_num_procs                 # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function openblas_get_num_threads               # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function openblas_get_parallel                  # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function openblas_set_num_threads               # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function openblas_set_num_threads_local         # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function openblas_set_threads_callback_function # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+
+#### Extracted from: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+
+--include-constant OPENBLAS_ARCH_ARM64                 # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_CHAR_CORENAME              # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_C_GCC                      # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_DTB_DEFAULT_ENTRIES        # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_DTB_SIZE                   # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_GEMM_MULTITHREAD_THRESHOLD # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_HAVE_C11                   # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_L1_DATA_LINESIZE           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_L1_DATA_SIZE               # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_L2_ASSOCIATIVE             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_L2_LINESIZE                # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_L2_SIZE                    # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_NEEDBUNDERSCORE            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_OS_DARWIN                  # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS_VERSION                    # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-constant OPENBLAS___64BIT__                  # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-typedef BLASLONG                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-typedef BLASULONG                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-typedef bfloat16                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-typedef blasint                              # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-typedef openblas_complex_double              # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-typedef openblas_complex_float               # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
+--include-typedef openblas_complex_xdouble             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/openblas_config.h
