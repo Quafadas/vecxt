@@ -39,7 +39,6 @@ object JsDoubleMatrix:
 
     end matmul
 
-
     inline def *(vec: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         val newArr = Float64Array(m.rows)
@@ -62,8 +61,6 @@ object JsDoubleMatrix:
     end *
 
   end extension
-
-
 
 end JsDoubleMatrix
 

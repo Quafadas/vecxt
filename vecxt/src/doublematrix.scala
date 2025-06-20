@@ -58,9 +58,7 @@ object DoubleMatrix:
     inline def +(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.arrays.+(m.raw)(n), m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
-      else
-        println("arg")
-        ???
+      else ???
     end +
 
     inline def -(n: Double): Matrix[Double] =

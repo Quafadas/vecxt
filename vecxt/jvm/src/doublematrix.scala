@@ -72,7 +72,9 @@ object JvmDoubleMatrix:
 
     // TODO: Dim check
 
-    inline def *(vec: Array[Double], alpha : Double = 1.0, beta: Double = 1.0)(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def *(vec: Array[Double], alpha: Double = 1.0, beta: Double = 1.0)(using
+        inline boundsCheck: BoundsCheck
+    ): Array[Double] =
 
       if m.isDenseColMajor then
         require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")

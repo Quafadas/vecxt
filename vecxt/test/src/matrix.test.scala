@@ -202,7 +202,6 @@ class MatrixExtensionSuite extends FunSuite:
     // println((mat1.transpose * arr2).printArr)
     // assertVecEquals(mat1.transpose * arr2, NArray[Double](6.0, 30.0))
 
-
   }
 
   test("zeros") {
