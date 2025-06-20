@@ -92,8 +92,7 @@ object matrix:
       )
     end apply
 
-    /**
-      * Assumes column major order.
+    /** Assumes column major order.
       *
       * @param raw
       * @param rows

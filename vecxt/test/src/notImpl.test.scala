@@ -75,6 +75,10 @@ class NotImplTest extends FunSuite:
     intercept[NotImplementedError] { m.matmul(m.transpose) }
   }
 
+  test("JvmDoubleMatrix vector multiply") {
+    intercept[NotImplementedError] { m.matmul(m.transpose) }
+  }
+
   test("JvmDoubleMatrix.*:* with non-simple layout throws") {
     intercept[NotImplementedError] { m.*:*(bmat) }
   }

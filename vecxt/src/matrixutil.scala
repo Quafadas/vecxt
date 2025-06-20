@@ -82,7 +82,6 @@ object matrixUtil:
       Matrix[B](newArr, (1, m.cols))
     end mapColsToScalar
 
-    // TODO: Horrible performance
     inline def transpose: Matrix[A] = Matrix(
       raw = m.raw,
       rows = m.cols, // swap dimensions
@@ -135,8 +134,7 @@ object matrixUtil:
       newArr
     end diag
 
-    /**
-      * Returns a row of the matrix as an NArray.
+    /** Returns a row of the matrix as an NArray.
       *
       * Note that this copies the data. m.submatrix(i, ::) returns a zero copy view.
       *
@@ -165,8 +163,7 @@ object matrixUtil:
       arrArr.mkString("\n")
     end printMat
 
-    /**
-      * Note that m.submatrix(::, i) will give back a zero-copy matrix with the correct strides.
+    /** Note that m.submatrix(::, i) will give back a zero-copy matrix with the correct strides.
       *
       * It is probably more efficient
       *

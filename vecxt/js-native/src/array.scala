@@ -101,8 +101,8 @@ object JsNativeDoubleArrays:
           i += 1
         end while
         Matrix[Double](newArr, (m.rows, m.cols))
-      else
-        ???
+      else ???
+      end if
     end *:*
 
     inline def +=(n: Double): Unit =
@@ -140,29 +140,26 @@ object JsNativeDoubleArrays:
     inline def >=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](vecxt.arrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else
-        ???
-
+      else ???
 
     inline def >(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](vecxt.arrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else
-        ???
+      else ???
       end if
+    end >
 
     inline def <=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](vecxt.arrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else
-        ???
+      else ???
       end if
+    end <=
 
     inline def <(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else
-        ???
+      else ???
   end extension
 
   // extension [@specialized(Double, Int) A: Numeric](m: Matrix[A])

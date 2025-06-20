@@ -181,6 +181,30 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
+  test("dgemv precedance col major") {
+    val mat1 = Matrix.fromRows(
+      NArray(1.0, 2.0, 3.0),
+      NArray(4.0, 5.0, 6.0)
+    )
+
+    val arr1 = NArray[Double](1.0, 2.0, 3.0)
+
+    val arr2 = NArray[Double](1.0, 2.0)
+
+    assertVecEquals(mat1 * arr1, NArray[Double](14.0, 32.0))
+
+    // println("Mat1")
+    // println(mat1.transpose.printMat)
+    // println("Arr1")
+    // println(arr2.printArr)
+
+    // println("result")
+    // println((mat1.transpose * arr2).printArr)
+    // assertVecEquals(mat1.transpose * arr2, NArray[Double](6.0, 30.0))
+
+
+  }
+
   test("zeros") {
     val tensor = Matrix.zeros[Double](2, 2)
     assertVecEquals[Double](tensor.raw, NArray[Double](0.0, 0.0, 0.0, 0.0))

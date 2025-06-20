@@ -27,11 +27,9 @@ object DoubleMatrix:
     inline def /(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = ???
 
     inline def *=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = m *= d
-    inline def +=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = ??? //m += d
-    inline def -=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = ??? //m -= d
+    inline def +=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = ??? // m += d
+    inline def -=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = ??? // m -= d
     inline def /=(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Unit = ???
-
-
 
   end extension
 

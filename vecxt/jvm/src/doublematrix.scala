@@ -70,25 +70,31 @@ object JvmDoubleMatrix:
 
     // inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
+    // TODO: Dim check
 
-    //TODO: Dim check
+    inline def *(vec: Array[Double], alpha : Double = 1.0, beta: Double = 1.0)(using inline boundsCheck: BoundsCheck): Array[Double] =
 
-    inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
-      val newArr = Array.ofDim[Double](m.rows)
-      blas.dgemv(
-        "N",
-        m.rows,
-        m.cols,
-        1.0,
-        m.raw,
-        m.rows,
-        vec,
-        1,
-        0.0,
-        newArr,
-        1
-      )
-      newArr
+      if m.isDenseColMajor then
+        require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
+        val newArr = Array.ofDim[Double](m.rows)
+        val out = Array.fill(m.rows)(0.0)
+
+        blas.dgemv(
+          "N",
+          m.rows,
+          m.cols,
+          alpha,
+          m.raw,
+          m.rows,
+          vec,
+          1,
+          beta,
+          newArr,
+          1
+        )
+
+        newArr
+      else ???
     end *
 
     inline def >=(d: Double): Matrix[Boolean] =

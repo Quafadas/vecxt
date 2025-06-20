@@ -34,11 +34,37 @@ object JsDoubleMatrix:
           m.rows
         )
         Matrix[Double](newArr, (m.rows, b.cols))
-      else
-        ???
+      else ???
+      end if
 
     end matmul
+
+
+    inline def *(vec: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
+      if m.hasSimpleContiguousMemoryLayout then
+        val newArr = Float64Array(m.rows)
+        dgemv(
+          if m.isDenseColMajor then "column-major" else "row-major",
+          "no-transpose",
+          m.rows,
+          m.cols,
+          1.0,
+          m.raw,
+          m.rows,
+          vec,
+          1,
+          0.0,
+          newArr,
+          1
+        )
+        newArr
+      else ???
+    end *
+
   end extension
+
+
+
 end JsDoubleMatrix
 
 object JvmDoubleMatrix:

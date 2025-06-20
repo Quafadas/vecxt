@@ -17,11 +17,13 @@ object NativeDoubleMatrix:
     inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)
 
-
       if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
+        if !m.isDenseColMajor && b.isDenseColMajor then ???
+        end if
+
         val newArr = Array.ofDim[Double](m.rows * b.cols)
         blas.cblas_dgemm(
-          blasEnums.CblasColMajor,
+          if m.isDenseColMajor then blasEnums.CblasColMajor else blasEnums.CblasRowMajor,
           blasEnums.CblasNoTrans,
           blasEnums.CblasNoTrans,
           m.rows,
@@ -37,8 +39,31 @@ object NativeDoubleMatrix:
           m.rows
         )
         Matrix(newArr, (m.rows, b.cols))
-      else
-        ???
+      else ???
+      end if
+    end matmul
+
+    inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+
+      if m.hasSimpleContiguousMemoryLayout then
+        val newArr = Array.ofDim[Double](m.rows)
+        blas.cblas_dgemv(
+          if m.isDenseColMajor then blasEnums.CblasColMajor else blasEnums.CblasRowMajor,
+          blasEnums.CblasNoTrans,
+          m.rows,
+          m.cols,
+          1.0,
+          m.raw.at(0),
+          m.rows,
+          vec.at(0),
+          1,
+          0.0,
+          newArr.at(0),
+          1
+        )
+        newArr
+      else ???
+    end *
 
   end extension
 
