@@ -19,7 +19,7 @@ import vecxt.BoundsCheck
   def traindata = CSV.resource("train.csv")
 
   val samplePlot = false
-  val trainSize = 60000
+  val trainSize = 5000
 
   val labels = traindata.column["label"].map(_.toInt).toSeq.take(trainSize) // y data
   val others =
@@ -248,7 +248,7 @@ def gradient_decent(
 
   println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
 
-  println(s"weights1 first row: ${w1(0, ::).printMat}")
+  println(s"weights1 first row: ${w1(Array(0), ::).printMat}")
   println(s"weights1 shape: ${w1_.shape}")
   println(s"weights2: ${w2_.printMat}")
 

@@ -59,7 +59,10 @@ trait Common extends ScalaModule  with PublishModule with ScalafixModule {
 
 }
 
-val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
+val vecIncubatorFlag = Seq(
+  """--add-modules=jdk.incubator.vector""",
+  "-Ddev.ludovic.netlib.blas.nativeLibPath=/opt/homebrew/Cellar/openblas/0.3.30/lib/libopenblas.dylib"
+)
 
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.19.0"
@@ -79,6 +82,10 @@ trait CommonTests extends TestModule.Munit {
   def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.scalameta::munit::${V.munitVersion}",
   )
+}
+
+object generated extends JavaModule {
+
 }
 
 
