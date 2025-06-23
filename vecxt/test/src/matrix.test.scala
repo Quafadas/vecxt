@@ -536,6 +536,26 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals[Double](mapped3.row(0), NArray[Double](1.0, 2.0, 3.0) / 6.0)
   }
 
+  test("map rows in place") {
+    val mat = mat1to9
+    mat.mapRowsInPlace(row => row / row.sum)
+    assert(mat.rows == 3)
+    assert(mat.cols == 3)
+    assertVecEquals[Double](mat.row(0), NArray[Double](1.0, 2.0, 3.0) / 6.0)
+    assertVecEquals[Double](mat.row(1), NArray[Double](4.0, 5.0, 6.0) / 15.0)
+    assertVecEquals[Double](mat.row(2), NArray[Double](7.0, 8.0, 9.0) / 24.0)
+  }
+
+  test("map cols in place") {
+    val mat = mat1to9
+    mat.mapColsInPlace(col => col / col.sum)
+    assert(mat.rows == 3)
+    assert(mat.cols == 3)
+    assertVecEquals[Double](mat.col(0), NArray[Double](1.0, 4.0, 7.0) / 12.0)
+    assertVecEquals[Double](mat.col(1), NArray[Double](2.0, 5.0, 8.0) / 15.0)
+    assertVecEquals[Double](mat.col(2), NArray[Double](3.0, 6.0, 9.0) / 18.0)
+  }
+
   test("map cols") {
     val mapped = mat1to9.mapCols[Double](col => col * 2.0)
     assertVecEquals[Double](mapped.raw, mat1to9.raw * 2)

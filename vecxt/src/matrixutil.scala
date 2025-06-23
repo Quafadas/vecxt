@@ -25,7 +25,17 @@ object matrixUtil:
       (b / m.rows, b % m.rows)
     end tupleFromIdx
 
-    // TODO : probably has horrible performance
+    def mapRowsInPlace(
+        f: NArray[A] => NArray[A]
+    )(using ClassTag[A]): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+      var idx = 0
+      while idx < m.rows do
+        m.updateInPlace(NArray[Int](idx), ::, f(m.row(idx)))
+        idx += 1
+      end while
+    end mapRowsInPlace
+
     inline def mapRows[B](
         f: NArray[A] => NArray[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
@@ -52,6 +62,18 @@ object matrixUtil:
       end while
       Matrix(newArr, (m.rows, 1))
     end mapRowsToScalar
+
+    inline def mapColsInPlace(
+        f: NArray[A] => NArray[A]
+    )(using ClassTag[A]): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+
+      var idx = 0
+      while idx < m.cols do
+        m.updateInPlace(::, NArray[Int](idx), f(m.col(idx)))
+        idx += 1
+      end while
+    end mapColsInPlace
 
     inline def mapCols[B](
         f: NArray[A] => NArray[B]

@@ -12,7 +12,7 @@ object NativeDoubleMatrix:
   extension (m: Matrix[Double])
 
     inline def matmul(
-      b: Matrix[Double]
+        b: Matrix[Double]
     )(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)
 
@@ -41,6 +41,7 @@ object NativeDoubleMatrix:
         )
         Matrix(newArr, m.rows, b.cols)
       else ???
+      end if
     end matmul
 
     inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =

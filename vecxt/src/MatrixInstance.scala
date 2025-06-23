@@ -131,10 +131,10 @@ object MatrixInstance:
     inline def elementIndex(row: Row, col: Col)(using inline boundsCheck: BoundsCheck): Int =
       indexCheckMat(m, (row, col))
       // inline if boundsCheck == BoundsCheck.DoBoundsCheck.yes then
-        // println(s"Element index for ($row, $col) in matrix with shape ${m.shape} is being checked")
-        // println(s"Offset: ${m.offset}, Row stride: ${m.rowStride}, Col stride: ${m.colStride}")
-        // println(s"Calculated index: ${m.offset + row * m.rowStride + col * m.colStride}")
-        // println(s"element: ${m.raw(m.offset + row * m.rowStride + col * m.colStride)}")
+      // println(s"Element index for ($row, $col) in matrix with shape ${m.shape} is being checked")
+      // println(s"Offset: ${m.offset}, Row stride: ${m.rowStride}, Col stride: ${m.colStride}")
+      // println(s"Calculated index: ${m.offset + row * m.rowStride + col * m.colStride}")
+      // println(s"element: ${m.raw(m.offset + row * m.rowStride + col * m.colStride)}")
       // end if
       m.offset + row * m.rowStride + col * m.colStride
 

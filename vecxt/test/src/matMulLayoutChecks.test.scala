@@ -5,12 +5,8 @@ import munit.FunSuite
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
-/**
-  * Here we test the matrix multiplication with different memory layouts.
-  *  Col Major * Col Major
-  *  Row Major * Row Major
-  *  Col Major * Row Major
-  *  Row Major * Col Major
+/** Here we test the matrix multiplication with different memory layouts. Col Major * Col Major Row Major * Row Major
+  * Col Major * Row Major Row Major * Col Major
   *
   * If all of these work out, then we can hope that we are feeding BLAS the correct parameters.
   */
@@ -61,7 +57,6 @@ class DifferentMemoryLayoutTests extends FunSuite:
     assertEqualsDouble(mat3(0, 2), 1 * 3 + 2 * 6 + 3 * 9, 0.0001)
     assertEqualsDouble(mat3(1, 1), 4 * 2 + 5 * 5 + 6 * 8, 0.0001)
     assertEqualsDouble(mat3(2, 0), 7 * 1 + 8 * 4 + 9 * 7, 0.0001)
-
 
     val mat4 = matRow @@ matCol
     // println(matRow.printMat )
