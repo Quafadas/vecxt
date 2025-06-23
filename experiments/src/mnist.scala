@@ -268,6 +268,18 @@ def gradient_decent(
 
   writeMatrixToFile(w1_, "weights1.csv")
   writeMatrixToFile(w2_, "weights2.csv")
+  def writeArrayToFile(array: Array[Double], filename: String): Unit =
+    val pw = new PrintWriter(filename)
+    try
+      pw.println(array.mkString(","))
+    finally pw.close()
+    end try
+  end writeArrayToFile
+
+  writeArrayToFile(b1_, "biases1.csv")
+  writeArrayToFile(b2_, "biases2.csv")
+
+  println("Weights and biases saved to weights1.csv and weights2.csv")
 
   println("Gradient descent finished.")
 

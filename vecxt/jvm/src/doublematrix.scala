@@ -61,6 +61,16 @@ object JvmDoubleMatrix:
         Matrix(newArr, m.rows, m.cols)
       else ???
 
+    inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
+      if m.hasSimpleContiguousMemoryLayout then
+        sameDimMatCheck(m, bmat)
+        var i = 0
+        while i < m.raw.length do
+          m.raw.update(i, (if bmat.raw(i) then 1.0 else 0.0) * m.raw(i))
+          i += 1
+        end while
+      else ???
+
     // inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
 
     // inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
