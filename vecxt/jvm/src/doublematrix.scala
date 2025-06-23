@@ -14,7 +14,7 @@ object JvmDoubleMatrix:
   final val sp_int_doubleLanes =
     VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(vecxt.arrays.spdl * Integer.SIZE));
 
-  extension (m: Matrix[Double])    // inline def /(n: Double): Matrix[Double] =
+  extension (m: Matrix[Double]) // inline def /(n: Double): Matrix[Double] =
     //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     // TODO check whether this work with flexible memory layout patterns
@@ -44,8 +44,8 @@ object JvmDoubleMatrix:
         )
         Matrix(newArr, m.rows, b.cols)
       else ???
+      end if
 
-    
     end matmul
 
     // TODO: SIMD
