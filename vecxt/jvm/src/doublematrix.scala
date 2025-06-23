@@ -14,9 +14,7 @@ object JvmDoubleMatrix:
   final val sp_int_doubleLanes =
     VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(vecxt.arrays.spdl * Integer.SIZE));
 
-  extension (m: Matrix[Double])
-
-    // inline def /(n: Double): Matrix[Double] =
+  extension (m: Matrix[Double])    // inline def /(n: Double): Matrix[Double] =
     //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     // TODO check whether this work with flexible memory layout patterns
@@ -28,10 +26,6 @@ object JvmDoubleMatrix:
         val bStr = if b.isDenseColMajor then "N" else "T"
         val lda = if m.isDenseColMajor then m.rows else m.cols
         val ldb = if b.isDenseColMajor then b.rows else b.cols
-
-        // println(
-        //   s"mStr, bStr, m.rows, b.cols, m.cols, lda, ldb: $mStr, $bStr, ${m.rows}, ${b.cols}, ${m.cols}, $lda, $ldb"
-        // )
 
         blas.dgemm(
           mStr,
@@ -50,7 +44,8 @@ object JvmDoubleMatrix:
         )
         Matrix(newArr, m.rows, b.cols)
       else ???
-      end if
+
+    
     end matmul
 
     // TODO: SIMD

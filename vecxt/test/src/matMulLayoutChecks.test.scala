@@ -1,0 +1,87 @@
+package vecxt
+
+import all.*
+import munit.FunSuite
+import narr.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+
+class DifferentMemoryLayoutTests extends FunSuite:
+
+  test("matmul col major * row major"){
+    val matRow = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)
+    val matCol = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
+
+    
+
+    // def assertMatMulResult(mat: Matrix[Double]): Unit =
+    //   assertEqualsDouble(mat(0,0), 1 * 1 + 2 * 2 + 3 * 3, 0.0001)
+    //   assertEqualsDouble(mat(0,2), 1 * 7 + 2 * 8 + 3 * 9, 0.0001)
+    //   assertEqualsDouble(mat(1,1), 4 * 4 + 5 * 5 + 6 * 6, 0.0001)
+    //   assertEqualsDouble(mat(2,0), 7 * 1 + 8 * 2 + 9 * 3, 0.0001)
+
+    val mat = matCol @@ matCol
+
+    // println(matCol.printMat)
+    // println(matRow.printMat )
+    // println(mat.printMat)
+
+    assertEqualsDouble(mat(0,0), 1 * 1 + 4 * 2 + 3 * 7, 0.0001)
+    assertEqualsDouble(mat(0,2), 1 * 7 + 4 * 8 + 7 * 9, 0.0001)
+    assertEqualsDouble(mat(1,1), 4 * 2 + 5 * 5 + 8 * 6, 0.0001)
+    assertEqualsDouble(mat(2,0), 3 * 1 + 6 * 2 + 9 * 3, 0.0001)
+
+    
+    val mat2 = matCol @@ matRow 
+    // println(matCol.printMat )
+    // println("---")
+    // println(matRow.printMat )
+    // println("---")
+    // println(mat.printMat)
+    assertEqualsDouble(mat2(0,0), 1 * 1 + 4 * 4 + 7 * 7, 0.0001)
+    assertEqualsDouble(mat2(0,2), 1 * 3 + 4 * 6 + 7 * 9, 0.0001)
+    assertEqualsDouble(mat2(1,1), 2 * 2 + 5 * 5 + 8 * 8, 0.0001)
+    assertEqualsDouble(mat2(2,0), 3 * 1 + 6 * 4 + 9 * 7, 0.0001)
+
+    val mat3 = matRow @@ matRow
+    // println(matRow.printMat )
+    // println("---")
+    // println(mat3.printMat)
+    assertEqualsDouble(mat3(0,0), 1 * 1 + 2 * 4 + 7 * 3, 0.0001)
+    assertEqualsDouble(mat3(0,2), 1 * 3 + 2 * 6 + 3 * 9, 0.0001)
+    assertEqualsDouble(mat3(1,1), 4 * 2 + 5 * 5 + 6 * 8, 0.0001)
+    assertEqualsDouble(mat3(2,0), 7 * 1 + 8 * 4 + 9 * 7, 0.0001)
+
+
+    val mat4 = matRow @@ matCol
+    // println(matRow.printMat )
+    // println("---")
+    // println(matCol.printMat )
+    // println("---")
+    // println(mat4.printMat)
+    assertEqualsDouble(mat4(0,0), 1 * 1 + 2 * 2 + 3 * 3, 0.0001)
+    assertEqualsDouble(mat4(0,2), 1 * 7 + 2 * 8 + 3 * 9, 0.0001)
+    assertEqualsDouble(mat4(1,1), 4 * 4 + 5 * 5 + 6 * 6, 0.0001)
+    assertEqualsDouble(mat4(2,0), 7 * 1 + 8 * 2 + 9 * 3, 0.0001)
+
+  }
+
+  // test("matmul different dimensions"){
+  //   val mat1 = Matrix[Double](NArray.tabulate[Double](6)(_.toDouble + 1), 3, 2, 1, 3, 0)
+  //   val mat2 = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
+
+  //   val matMul = mat2 @@ mat1
+
+  //   println(mat1.printMat)
+  //   println(mat2.printMat)
+  //   println(matMul.printMat)
+
+  //   assertEqualsDouble(matMul(0,0), 1 * 1 + 2 * 2 + 3 * 3, 0.0001)
+  //   assertEqualsDouble(matMul(0,2), 1 * 7 + 2 * 8 + 3 * 9, 0.0001)
+  //   assertEqualsDouble(matMul(1,1), 4 * 4 + 5 * 5 + 6 * 6, 0.0001)
+    
+  // }
+
+
+end DifferentMemoryLayoutTests
+
+

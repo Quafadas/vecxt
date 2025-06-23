@@ -36,8 +36,7 @@ object DoubleMatrix:
   extension (m: Matrix[Double])
 
     inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      if sameDenseElementWiseMemoryLayoutCheck(m, b) then m.matmul(b)
-      else ???
+      m.matmul(b)      
 
     inline def *=(d: Double): Unit =
       if m.hasSimpleContiguousMemoryLayout then m.raw.multInPlace(d)
