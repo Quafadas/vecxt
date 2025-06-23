@@ -118,7 +118,7 @@ object JvmDoubleMatrix:
       import vecxt.BoundsCheck.DoBoundsCheck.no
       if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.+=(m.raw)(n)
       else
-        println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
+        // println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
         // Cache-friendly fallback: iterate with smallest stride in inner loop
         // (m.offset + row * m.rowStride + col * m.colStride
         if m.rowStride <= m.colStride then

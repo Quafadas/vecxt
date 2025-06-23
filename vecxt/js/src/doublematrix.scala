@@ -16,19 +16,24 @@ object JsDoubleMatrix:
       dimMatCheck(m, b)
       if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
         val newArr = Float64Array(m.rows * b.cols)
+        val lda = if m.isDenseColMajor then m.rows else m.cols
+        val ldb = if b.isDenseColMajor then b.rows else b.cols
+        val transB = if b.isDenseColMajor then "no-transpose" else "transpose"
+        val transA = if m.isDenseColMajor then "no-transpose" else "transpose"
+
         // Note, might need to deal with transpose later.
         dgemm(
-          "column-major",
-          "no-transpose",
-          "no-transpose",
+          if m.isDenseRowMajor && b.isDenseRowMajor then "row-major" else "column-major",
+          transA,
+          transB,
           m.rows,
           b.cols,
           m.cols,
           1.0,
           m.raw,
-          m.rows,
+          lda,
           b.raw,
-          b.rows,
+          ldb,
           1.0,
           newArr,
           m.rows

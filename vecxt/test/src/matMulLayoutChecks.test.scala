@@ -5,6 +5,15 @@ import munit.FunSuite
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
+/**
+  * Here we test the matrix multiplication with different memory layouts.
+  *  Col Major * Col Major
+  *  Row Major * Row Major
+  *  Col Major * Row Major
+  *  Row Major * Col Major
+  *
+  * If all of these work out, then we can hope that we are feeding BLAS the correct parameters.
+  */
 class DifferentMemoryLayoutTests extends FunSuite:
 
   test("matmul col major * row major") {
@@ -19,8 +28,11 @@ class DifferentMemoryLayoutTests extends FunSuite:
 
     val mat = matCol @@ matCol
 
+    // println("mat1")
     // println(matCol.printMat)
-    // println(matRow.printMat )
+    // println("mat2---")
+    // println(matCol.printMat )
+    // println("result---")
     // println(mat.printMat)
 
     assertEqualsDouble(mat(0, 0), 1 * 1 + 4 * 2 + 3 * 7, 0.0001)
@@ -33,7 +45,7 @@ class DifferentMemoryLayoutTests extends FunSuite:
     // println("---")
     // println(matRow.printMat )
     // println("---")
-    // println(mat.printMat)
+    // println(mat2.printMat)
     assertEqualsDouble(mat2(0, 0), 1 * 1 + 4 * 4 + 7 * 7, 0.0001)
     assertEqualsDouble(mat2(0, 2), 1 * 3 + 4 * 6 + 7 * 9, 0.0001)
     assertEqualsDouble(mat2(1, 1), 2 * 2 + 5 * 5 + 8 * 8, 0.0001)
@@ -42,11 +54,14 @@ class DifferentMemoryLayoutTests extends FunSuite:
     val mat3 = matRow @@ matRow
     // println(matRow.printMat )
     // println("---")
+    // println(matRow.printMat )
+    // println("---")
     // println(mat3.printMat)
     assertEqualsDouble(mat3(0, 0), 1 * 1 + 2 * 4 + 7 * 3, 0.0001)
     assertEqualsDouble(mat3(0, 2), 1 * 3 + 2 * 6 + 3 * 9, 0.0001)
     assertEqualsDouble(mat3(1, 1), 4 * 2 + 5 * 5 + 6 * 8, 0.0001)
     assertEqualsDouble(mat3(2, 0), 7 * 1 + 8 * 4 + 9 * 7, 0.0001)
+
 
     val mat4 = matRow @@ matCol
     // println(matRow.printMat )

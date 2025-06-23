@@ -11,36 +11,36 @@ import vecxt.matrix.*
 object NativeDoubleMatrix:
   extension (m: Matrix[Double])
 
-    // inline def /(n: Double): Matrix[Double] =
-    //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-
-    inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def matmul(
+      b: Matrix[Double]
+    )(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)
 
       if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
-        if !m.isDenseColMajor && b.isDenseColMajor then ???
-        end if
-
         val newArr = Array.ofDim[Double](m.rows * b.cols)
+        val lda = if m.isDenseColMajor then m.rows else m.cols
+        val ldb = if b.isDenseColMajor then b.rows else b.cols
+        val transB = if b.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+        val transA = if m.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+
         blas.cblas_dgemm(
-          if m.isDenseColMajor then blasEnums.CblasColMajor else blasEnums.CblasRowMajor,
-          blasEnums.CblasNoTrans,
-          blasEnums.CblasNoTrans,
+          if m.isDenseRowMajor && b.isDenseRowMajor then blasEnums.CblasRowMajor else blasEnums.CblasColMajor,
+          transA,
+          transB,
           m.rows,
           b.cols,
           m.cols,
           1.0,
           m.raw.at(0),
-          m.rows,
+          lda,
           b.raw.at(0),
-          b.rows,
-          1.0,
+          ldb,
+          0.0,
           newArr.at(0),
           m.rows
         )
-        Matrix(newArr, (m.rows, b.cols))
+        Matrix(newArr, m.rows, b.cols)
       else ???
-      end if
     end matmul
 
     inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
