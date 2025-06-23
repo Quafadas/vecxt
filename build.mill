@@ -60,8 +60,7 @@ trait Common extends ScalaModule  with PublishModule with ScalafixModule {
 }
 
 val vecIncubatorFlag = Seq(
-  """--add-modules=jdk.incubator.vector""",
-  "-Ddev.ludovic.netlib.blas.nativeLibPath=/opt/homebrew/Cellar/openblas/0.3.30/lib/libopenblas.dylib"
+  """--add-modules=jdk.incubator.vector"""
 )
 
 trait CommonJS extends ScalaJSModule {

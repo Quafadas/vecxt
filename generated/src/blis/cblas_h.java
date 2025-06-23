@@ -20,8 +20,12 @@ public class cblas_h extends cblas_h$shared {
 
     static final Arena LIBRARY_ARENA = Arena.ofAuto();
 
-    static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.libraryLookup("/opt/homebrew/opt/blis/lib/libblis.dylib", LIBRARY_ARENA)
-            .or(SymbolLookup.loaderLookup())
+
+    static {
+        System.loadLibrary("blis");
+    }
+
+        static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup()
             .or(Linker.nativeLinker().defaultLookup());
 
     private static final int CblasRowMajor = (int)101L;

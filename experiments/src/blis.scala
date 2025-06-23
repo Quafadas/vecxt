@@ -27,7 +27,6 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
   val vec1 = NArray[Double](1.0, 2.0, 1.0, 1.0)
   val vec2 = NArray[Double](0.0, 0.0, 0.0, 0.0)
 
-
   val arena = Arena.ofConfined()
   try {
     val a = arena.allocateFrom(

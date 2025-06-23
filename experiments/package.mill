@@ -11,15 +11,25 @@ object `package` extends RootModule with ScalaModule {
         super.compileResources() ++ resources()
     }
     def scalacOptions: T[Seq[String]] = Seq("-Xmax-inlines:10000")
-    override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+    override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
+        "-Djava.library.path=/opt/homebrew/Cellar/blis/1.1/lib"
+    )
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm, build.generated)
 
-    override def mainClass = Some("testBlis")
+    override def mainClass = Some("testBlisNative")
     override def ivyDeps = super.ivyDeps() ++ Seq(
         ivy"com.lihaoyi::os-lib::0.10.4",
         ivy"io.github.quafadas::scautable::0.0.24",
         ivy"io.github.quafadas::dedav4s::0.10.0-RC2"
 
     )
+
+    object test extends ScalaTests with TestModule.Munit {
+        def scalaVersion = build.vecxt.jvm.scalaVersion
+        override def ivyDeps= super.ivyDeps() ++ Agg(
+            ivy"org.scalameta::munit::${build.V.munitVersion}"
+        )
+        def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
+    }
 
 }

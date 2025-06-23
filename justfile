@@ -1,5 +1,6 @@
+set shell := ["zsh", "-cu"]
 
-MILL := "JAVA_OPTS=\"-Ddev.ludovic.netlib.blas.nativeLibPath=/opt/homebrew/Cellar/openblas/0.3.30/lib/libopenblas.dylib\" ./millw"
+MILL := "./millw"
 
 format:
   {{MILL}} mill.scalalib.scalafmt.ScalafmtModule/reformatAll __.sources
@@ -61,7 +62,8 @@ jextractBlis:
     --output generated/src \
     --include-function dgemv \
     -D FORCE_OPENBLAS_COMPLEX_STRUCT \
-    -l :/opt/homebrew/opt/blis/lib/libblis.dylib \
+    -l blis \
     -t blis \
+    --use-system-load-library \
     @myInclude.txt \
     /opt/homebrew/opt/blis/include/blis/cblas.h
