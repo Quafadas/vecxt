@@ -31,3 +31,8 @@ out/
 benchmark_history.json
 site/docs/_assets/benchmarks/benchmark_history.json
 experiments/resources/train.csv
+
+weights1.csv
+weights2.csv
+biases1.csv
+biases2.csv

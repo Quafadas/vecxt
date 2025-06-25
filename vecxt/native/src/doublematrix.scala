@@ -11,30 +11,61 @@ import vecxt.matrix.*
 object NativeDoubleMatrix:
   extension (m: Matrix[Double])
 
-    // inline def /(n: Double): Matrix[Double] =
-    //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-
-    inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def matmul(
+        b: Matrix[Double]
+    )(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       dimMatCheck(m, b)
-      val newArr = Array.ofDim[Double](m.rows * b.cols)
-      // Note, might need to deal with transpose later.
-      blas.cblas_dgemm(
-        blasEnums.CblasColMajor,
-        blasEnums.CblasNoTrans,
-        blasEnums.CblasNoTrans,
-        m.rows,
-        b.cols,
-        m.cols,
-        1.0,
-        m.raw.at(0),
-        m.rows,
-        b.raw.at(0),
-        b.rows,
-        1.0,
-        newArr.at(0),
-        m.rows
-      )
-      Matrix(newArr, (m.rows, b.cols))
+
+      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
+        val newArr = Array.ofDim[Double](m.rows * b.cols)
+        val lda = if m.isDenseColMajor then m.rows else m.cols
+        val ldb = if b.isDenseColMajor then b.rows else b.cols
+        val transB = if b.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+        val transA = if m.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+
+        blas.cblas_dgemm(
+          if m.isDenseRowMajor && b.isDenseRowMajor then blasEnums.CblasRowMajor else blasEnums.CblasColMajor,
+          transA,
+          transB,
+          m.rows,
+          b.cols,
+          m.cols,
+          1.0,
+          m.raw.at(0),
+          lda,
+          b.raw.at(0),
+          ldb,
+          0.0,
+          newArr.at(0),
+          m.rows
+        )
+        Matrix(newArr, m.rows, b.cols)
+      else ???
+      end if
+    end matmul
+
+    inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+
+      if m.hasSimpleContiguousMemoryLayout then
+        val newArr = Array.ofDim[Double](m.rows)
+        blas.cblas_dgemv(
+          if m.isDenseColMajor then blasEnums.CblasColMajor else blasEnums.CblasRowMajor,
+          blasEnums.CblasNoTrans,
+          m.rows,
+          m.cols,
+          1.0,
+          m.raw.at(0),
+          m.rows,
+          vec.at(0),
+          1,
+          0.0,
+          newArr.at(0),
+          1
+        )
+        newArr
+      else ???
+    end *
+
   end extension
 
 end NativeDoubleMatrix

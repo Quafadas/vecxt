@@ -76,9 +76,9 @@ import vecxt.BoundsCheck
     x = x,
     y = one_hot_Y,
     labels = labels.toArray,
-    iterations = 750,
-    alpha = 0.01,
-    decay_rate = 0.00002,
+    iterations = 150,
+    alpha = 0.075,
+    decay_rate = 0.0075,
     w1 = weight1,
     b1 = bias1,
     w2 = weight2,
@@ -113,15 +113,16 @@ def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: A
   // println(s"weight1 shape: ${w1.shape}, weight1 rows: ${w1.rows}, weight1 cols: ${w1.cols}")
   // println(s"weight2 shape: ${w2.shape}, weight2 rows: ${w2.rows}, weight2 cols: ${w2.cols}")
 
-  val z1 =
-    (x @@ w1).mapRows(r => r.tap(_ += b1)) // TODO: performance, map in place [(rows, 784) @ (784, 10)] = (rows, 10)
+  val z1 = (x @@ w1)
+  z1.mapRowsInPlace(r => r.tap(_ += b1))
   //  println(s"z1 shape: ${z1.shape}, z1 rows: ${z1.rows}, z1 cols: ${z1.cols}")
   //  println(s"z1 mean: ${z1.raw.mean}, min: ${z1.raw.minSIMD}, max: ${z1.raw.maxSIMD}")
   //  println(s"z1: ${z1(0 to 10, ::).printMat}")
   val a1 = reluM(z1) // get rid of negative values
   // println(s"a1 shape: ${a1.shape}, a1 rows: ${a1.rows}, a1 cols: ${a1.cols}")
   // println(s"a1: ${a1(0 to 10, ::).printMat}")
-  val z2 = (a1 @@ w2).mapRows(r => r.tap(_ += b2)) // results [(rows, 10) @ (10, 10)] = (rows, 10)
+  val z2 = (a1 @@ w2)
+  z2.mapRowsInPlace(r => r.tap(_ += b2)) // results [(rows, 10) @ (10, 10)] = (rows, 10)
   // println(s"z2 shape: ${z2.shape}, z2 rows: ${z2.rows}, z2 cols: ${z2.cols}")
   // println(s"z2: ${z2(0 to 10, ::).printMat}")
   // println(s"z2: ${z2.raw.take(10).mkString(", ")}")
@@ -233,24 +234,52 @@ def gradient_decent(
     if i % 10 == 0 then
       val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
       val acc = loss(mostLikely(a2), labels)
+      println(s"Iteration: $i, alpha: $alpha_")
       println(s"Accuracy : $acc")
     end if
   end for
 
   val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
   println(s"iterations: $iterations, alpha: $alpha_, samples: ${x.rows}, classes: ${w2_.cols}")
-  println(s"w1_ shape: ${w1_.shape}, w1_ rows: ${w1_.rows}, w1_ cols: ${w1_.cols}, ${w1.raw.take(10).printArr}")
-  println(s"b1_ shape: ${b1_.length}, b1_ values: ${b1_.mkString(", ")}")
-  println(s"w2_ shape: ${w2_.shape}, w2_ rows: ${w2_.rows}, w2_ cols: ${w2_.cols}, ${w2.raw.take(10).printArr}")
-  println(s"b2_ shape: ${b2_.length}, b2_ values: ${b2_.mkString(", ")}")
-  println(s"a2 shape: ${a2.shape}, a2 rows: ${a2.rows}, a2 cols: ${a2.cols}")
-  println(s"a2: ${a2(0 to 10, ::).printMat}")
+  // println(s"w1_ shape: ${w1_.shape}, w1_ rows: ${w1_.rows}, w1_ cols: ${w1_.cols}, ${w1.raw.take(10).printArr}")
+  // println(s"b1_ shape: ${b1_.length}, b1_ values: ${b1_.mkString(", ")}")
+  // println(s"w2_ shape: ${w2_.shape}, w2_ rows: ${w2_.rows}, w2_ cols: ${w2_.cols}, ${w2.raw.take(10).printArr}")
+  // println(s"b2_ shape: ${b2_.length}, b2_ values: ${b2_.mkString(", ")}")
+  // println(s"a2 shape: ${a2.shape}, a2 rows: ${a2.rows}, a2 cols: ${a2.cols}")
+  // println(s"a2: ${a2(::, ::).printMat}")
 
   println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
 
-  println(s"weights1 first row: ${w1(0, ::).printMat}")
+  println(s"weights1 first row: ${w1(Array(0), ::).printMat}")
   println(s"weights1 shape: ${w1_.shape}")
   println(s"weights2: ${w2_.printMat}")
+
+  import java.io.PrintWriter
+
+  def writeMatrixToFile(matrix: Matrix[Double], filename: String): Unit =
+    val pw = new PrintWriter(filename)
+    try
+      matrix.raw.grouped(matrix.rows).foreach { col =>
+        pw.println(col.mkString(","))
+      }
+    finally pw.close()
+    end try
+  end writeMatrixToFile
+
+  writeMatrixToFile(w1_, "weights1.csv")
+  writeMatrixToFile(w2_, "weights2.csv")
+  def writeArrayToFile(array: Array[Double], filename: String): Unit =
+    val pw = new PrintWriter(filename)
+    try
+      pw.println(array.mkString(","))
+    finally pw.close()
+    end try
+  end writeArrayToFile
+
+  writeArrayToFile(b1_, "biases1.csv")
+  writeArrayToFile(b2_, "biases2.csv")
+
+  println("Weights and biases saved to weights1.csv and weights2.csv")
 
   println("Gradient descent finished.")
 

@@ -451,28 +451,14 @@ object arrays:
       out
     end /
 
-    inline def +(arr: Array[Double]) =
-      val out = new Array[Double](arr.length)
-      val inc = DoubleVector.broadcast(spd, d)
+    inline def +(arr: Array[Double]): Array[Double] = arr.+(d)
 
-      var i = 0
-      while i < spd.loopBound(arr.length) do
-        DoubleVector.fromArray(spd, arr, i).add(inc).intoArray(out, i)
-        i += spdl
-      end while
-
-      while i < arr.length do
-        out(i) = d + arr(i)
-        i = i + 1
-      end while
-      out
-    end +
-
-    inline def -(arr: Array[Double]) =
+    inline def -(arr: Array[Double]): Array[Double] =
       val out = new Array[Double](arr.length)
       var i = 0
+      val bd = DoubleVector.broadcast(spd, d)
       while i < spd.loopBound(arr.length) do
-        DoubleVector.broadcast(spd, d).sub(DoubleVector.fromArray(spd, arr, i)).intoArray(out, i)
+        bd.sub(DoubleVector.fromArray(spd, arr, i)).intoArray(out, i)
         i += spdl
       end while
 
@@ -483,21 +469,7 @@ object arrays:
       out
     end -
 
-    inline def *(arr: Array[Double]) =
-      val out = new Array[Double](arr.length)
-      val inc = DoubleVector.broadcast(spd, d)
-      var i = 0
-      while i < spd.loopBound(arr.length) do
-        DoubleVector.fromArray(spd, arr, i).mul(inc).intoArray(out, i)
-        i += spdl
-      end while
-
-      while i < arr.length do
-        out(i) = d * arr(i)
-        i = i + 1
-      end while
-      out
-    end *
+    inline def *(arr: Array[Double]): Array[Double] = arr.*(d)
 
   end extension
 
@@ -1118,7 +1090,7 @@ object arrays:
         i += spdl
       end while
 
-      while i < vec.length - 1 do
+      while i < vec.length do
         out(i) = vec(i) - d
         i = i + 1
       end while
@@ -1136,7 +1108,7 @@ object arrays:
       end while
 
       while i < vec.length do
-        vec(i) = vec(i) * multiply + add
+        vec(i) = Math.fma(vec(i), multiply, add)
         i = i + 1
       end while
     end `fma!`

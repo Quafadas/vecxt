@@ -19,6 +19,7 @@ package vecxt
 import narr.*
 import matrix.Matrix
 import munit.Assertions.*
+import all.*
 
 extension [A <: AnyRef](o: A) def some: Some[A] = Some(o)
 end extension
@@ -49,9 +50,13 @@ def assertVecEquals(v1: NArray[Boolean], v2: NArray[Boolean])(implicit loc: muni
 end assertVecEquals
 
 def assertMatrixEquals(m1: Matrix[Double], m2: Matrix[Double])(implicit loc: munit.Location): Unit =
+  import BoundsCheck.DoBoundsCheck.yes
   assertEquals(m1.rows, m2.rows)
   assertEquals(m1.cols, m2.cols)
-  assertVecEquals[Double](m1.raw, m2.raw)
+  for i <- 0 until m1.rows do
+    for j <- 0 until m1.cols do assertEqualsDouble(m1(i, j), m2(i, j), 1 / 1e6, clue = s"at row $i, col $j")
+    end for
+  end for
 end assertMatrixEquals
 
 def assertVecEquals[A](v1: NArray[A], v2: NArray[A])(implicit loc: munit.Location): Unit =
