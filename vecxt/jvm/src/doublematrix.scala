@@ -60,6 +60,8 @@ object JvmDoubleMatrix:
         end while
         Matrix(newArr, m.rows, m.cols)
       else ???
+      end if
+    end *:*
 
     inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
