@@ -12,6 +12,23 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
   */
 class DifferentMemoryLayoutTests extends FunSuite:
 
+  test("scalars in matmul") {
+    def makeMat = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)
+    val eye = Matrix.eye[Double](3)
+    val eye2 = eye * 2.0
+
+    assertMatrixEquals(makeMat @@ eye, makeMat)
+
+    assertMatrixEquals(eye.matmul(makeMat, 2.0, 0.0), makeMat * 2.0)
+
+    val outMat = Matrix.eye[Double](3)
+
+    makeMat.`matmulInPlace!`(eye, outMat, 2.0, 2.0)
+
+    assertMatrixEquals(outMat, (makeMat * 2.0) + eye2)
+
+  }
+
   test("matmul col major * row major") {
     val matRow = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)
     val matCol = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)

@@ -11,13 +11,15 @@ import vecxt.matrix.*
 object NativeDoubleMatrix:
   extension (m: Matrix[Double])
 
-    inline def matmul(
-        b: Matrix[Double]
-    )(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def `matmulInPlace!`(
+        b: Matrix[Double],
+        c: Matrix[Double],
+        alpha: Double = 1.0,
+        beta: Double = 0.0
+    )(using inline boundsCheck: BoundsCheck): Unit =
       dimMatCheck(m, b)
 
       if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
-        val newArr = Array.ofDim[Double](m.rows * b.cols)
         val lda = if m.isDenseColMajor then m.rows else m.cols
         val ldb = if b.isDenseColMajor then b.rows else b.cols
         val transB = if b.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
@@ -30,19 +32,18 @@ object NativeDoubleMatrix:
           m.rows,
           b.cols,
           m.cols,
-          1.0,
+          alpha,
           m.raw.at(0),
           lda,
           b.raw.at(0),
           ldb,
-          0.0,
-          newArr.at(0),
+          beta,
+          c.raw.at(0),
           m.rows
         )
-        Matrix(newArr, m.rows, b.cols)
       else ???
       end if
-    end matmul
+    end `matmulInPlace!`
 
     inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
 

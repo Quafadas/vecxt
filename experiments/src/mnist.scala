@@ -16,15 +16,17 @@ import vecxt.BoundsCheck
 //
 
 @main def mnist =
-  def traindata = CSV.resource("train.csv")
+  def traindata = os.read.lines(os.resource / "train.csv").iterator.drop(1).map { line =>
+    line.split(",").toSeq
+  }
 
   val samplePlot = false
   val trainSize = 60000
 
-  val labels = traindata.column["label"].map(_.toInt).toSeq.take(trainSize) // y data
+  val labels = traindata.map(_.head.toInt).toSeq.take(trainSize) // y data
   val others =
     traindata
-      .dropColumn["label"]
+      .map(_.tail.map(_.toDouble))
       .take(trainSize)
       .map(_.toList.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
 
@@ -96,14 +98,13 @@ def dataToCoords(data: Array[Double]): IndexedSeq[(x: Int, y: Int, opacity: Doub
 
 // -- Below here is the neural network machinery
 
-def reluM(z: Matrix[Double]): Matrix[Double] = Matrix(z.raw.clampMin(0.0), z.shape)
+inline def reluM(z: Matrix[Double]): Matrix[Double] = Matrix(z.raw.clampMin(0.0), z.shape)
 
-def softmaxRows(z: Matrix[Double]): Matrix[Double] =
+inline def softmaxRows(z: Matrix[Double]): Matrix[Double] =
   z.mapRows { row =>
     row -= row.max
     row.`exp!`
     row /= row.sum
-    // println(s"row shape: ${row.mkString(", ")}")
     row
   }
 
@@ -152,20 +153,21 @@ def back_prop(
   val dw2 = m_inv * (a1.transpose @@ dz2) // TODO performance: transpose
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
   // println(s"dw2 shape: ${dw2.shape}, dw2 rows: ${dw2.rows}, dw2 cols: ${dw2.cols}")
-  val db2 = m_inv * dz2.mapColsToScalar(_.sum).raw
+  val db2 = dz2.mapColsToScalar(_.sum *).raw
   val dz1Check = (z1 > 0)
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}\n")
-  // println(s"dz1Check: ${dz1Check.shape}, dz1Check rows: ${dz1Check.rows}, dz1Check cols: ${dz1Check.cols}\n")
+  // println(s"dz1Check: ${dz1Check.shape}, dz1Check rows: ${dz1Check.rows}, dz1Check cols: ${dz1Check.cols}\n"``)
   // println(s"dz1Check: ${dz1Check(0 to 10, ::).printMat}\n")
-  val dz1 = (dz2 @@ w2.transpose) *:* dz1Check // (10, 784)
+  val dz1 = (dz2 @@ w2.transpose)
+  dz1 *:*= dz1Check // (10, 784)
   // print(s"dz1 shape: ${dz1.shape}, dz1 rows: ${dz1.rows}, dz1 cols: ${dz1.cols}\n")
   val dw1 = m_inv * (X.transpose @@ dz1)
-  val db1 = m_inv * dz1.mapColsToScalar(_.sum).raw
+  val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
   // println("back propagation done ----")
   (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
 end back_prop
 
-def oneHotEncode(labels: Seq[Int]): Matrix[Double] =
+inline def oneHotEncode(labels: Seq[Int]): Matrix[Double] =
   val n = labels.length
   val m = 10 // number of classes
   val oneHot = Array.fill(n * m)(0.0)

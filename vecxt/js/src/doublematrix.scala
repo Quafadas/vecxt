@@ -12,12 +12,14 @@ object JsDoubleMatrix:
 
   extension (m: Matrix[Double])
 
-    inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0)(using
+        inline boundsCheck: BoundsCheck
+    ): Unit =
       dimMatCheck(m, b)
       if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
-        val newArr = Float64Array(m.rows * b.cols)
         val lda = if m.isDenseColMajor then m.rows else m.cols
         val ldb = if b.isDenseColMajor then b.rows else b.cols
+
         val transB = if b.isDenseColMajor then "no-transpose" else "transpose"
         val transA = if m.isDenseColMajor then "no-transpose" else "transpose"
 
@@ -29,20 +31,19 @@ object JsDoubleMatrix:
           m.rows,
           b.cols,
           m.cols,
-          1.0,
+          alpha,
           m.raw,
           lda,
           b.raw,
           ldb,
-          1.0,
-          newArr,
+          beta,
+          c.raw,
           m.rows
         )
-        Matrix[Double](newArr, (m.rows, b.cols))
       else ???
       end if
 
-    end matmul
+    end `matmulInPlace!`
 
     inline def *(vec: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
       if m.hasSimpleContiguousMemoryLayout then

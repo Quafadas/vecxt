@@ -7,7 +7,8 @@ import matrix.*
 import MatrixInstance.*
 
 import narr.*
-import vecxt.rangeExtender.MatrixRange.RangeExtender
+
+import scala.util.chaining.*
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
   enum Vertical:
@@ -25,8 +26,12 @@ object matrixUtil:
       (b / m.rows, b % m.rows)
     end tupleFromIdx
 
-    def mapRowsInPlace(
-        f: NArray[A] => NArray[A]
+    /** There should be
+      *
+      * @param f
+      */
+    inline def mapRowsInPlace(
+        inline f: NArray[A] => NArray[A]
     )(using ClassTag[A]): Unit =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       var idx = 0
@@ -37,7 +42,7 @@ object matrixUtil:
     end mapRowsInPlace
 
     inline def mapRows[B](
-        f: NArray[A] => NArray[B]
+        inline f: NArray[A] => NArray[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.numel)
@@ -51,7 +56,7 @@ object matrixUtil:
     end mapRows
 
     inline def mapRowsToScalar[B](
-        f: NArray[A] => B
+        inline f: NArray[A] => B
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.rows)
@@ -64,7 +69,7 @@ object matrixUtil:
     end mapRowsToScalar
 
     inline def mapColsInPlace(
-        f: NArray[A] => NArray[A]
+        inline f: NArray[A] => NArray[A]
     )(using ClassTag[A]): Unit =
       import vecxt.BoundsCheck.DoBoundsCheck.no
 
@@ -76,7 +81,7 @@ object matrixUtil:
     end mapColsInPlace
 
     inline def mapCols[B](
-        f: NArray[A] => NArray[B]
+        inline f: NArray[A] => NArray[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.numel)
@@ -93,7 +98,7 @@ object matrixUtil:
     end mapCols
 
     inline def mapColsToScalar[B](
-        f: NArray[A] => B
+        inline f: NArray[A] => B
     )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
       val newArr = NArray.ofSize[B](m.cols)
       var i = 0
