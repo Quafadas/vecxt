@@ -50,8 +50,8 @@ object JvmDoubleMatrix:
 
     // TODO: SIMD
     inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then
-        sameDimMatCheck(m, bmat)
+      sameDimMatCheck(m, bmat)
+      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val newArr = Array.fill[Double](m.rows * m.cols)(0.0)
         var i = 0
         while i < newArr.length do
@@ -62,7 +62,7 @@ object JvmDoubleMatrix:
       else ???
 
     inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
-      if m.hasSimpleContiguousMemoryLayout then
+      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         sameDimMatCheck(m, bmat)
         var i = 0
         while i < m.raw.length do

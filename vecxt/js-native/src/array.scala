@@ -93,7 +93,7 @@ object JsNativeDoubleArrays:
     // TODO: SIMD
     inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, bmat)
-      if m.hasSimpleContiguousMemoryLayout then
+      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val newArr = NArray.ofSize[Double](m.rows * m.cols)
         var i = 0
         while i < newArr.length do
