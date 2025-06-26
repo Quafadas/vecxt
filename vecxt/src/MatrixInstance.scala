@@ -132,8 +132,8 @@ object MatrixInstance:
       val newRaw = NArray.ofSize[A](m.numel)
       val newMat = Matrix(newRaw, m.rows, m.cols, 1, m.rows, 0)
       var i = 0
-      for (row <- 0 until m.rows) do
-        for (col <- 0 until m.cols) do
+      for row <- 0 until m.rows do
+        for col <- 0 until m.cols do
           // println(s"Copying element ($row, $col) with value ${m(row, col)}")
           newMat(row, col) = m(row, col)
           i += 1

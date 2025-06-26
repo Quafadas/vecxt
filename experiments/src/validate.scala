@@ -1,12 +1,13 @@
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
-@main def validate(): Unit = {
+@main def validate(): Unit =
   import scala.io.Source
 
   def readMatrix(filename: String, rows: Int, cols: Int): Matrix[Double] =
     val data = Source.fromResource(filename).getLines().flatMap(_.split(",")).map(_.toDouble).toArray
     Matrix(data, (rows, cols))
+  end readMatrix
 
   def readArray(filename: String): Array[Double] =
     Source.fromResource(filename).getLines().flatMap(_.split(",")).map(_.toDouble).toArray
@@ -18,12 +19,17 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 
   println(s"w1: ${w1.shape}, w2: ${w2.shape}, b1: ${b1.length}, b2: ${b2.length}")
 
-  val testDataRaw = Source.fromResource("mnist_test.csv").getLines().drop(1).map { line =>
-    val values = line.split(",").map(_.toDouble)
-    val label = values.head.toInt
-    val features = values.tail.map(_/255.0)
-    (label, features)
-  }.toArray
+  val testDataRaw = Source
+    .fromResource("mnist_test.csv")
+    .getLines()
+    .drop(1)
+    .map { line =>
+      val values = line.split(",").map(_.toDouble)
+      val label = values.head.toInt
+      val features = values.tail.map(_ / 255.0)
+      (label, features)
+    }
+    .toArray
 
   val testLabels: Array[Int] = testDataRaw.map(_._1)
   val testFeatures: IndexedSeq[Array[Double]] = testDataRaw.map(_._2).toIndexedSeq
@@ -45,5 +51,4 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 
   println(s"Sanity: ${predict.take(10).mkString(", ")} ")
   println(s"Accuracy: $accuracy% (${correctPredictions} out of ${testLabels.length} correct)")
-
-}
+end validate

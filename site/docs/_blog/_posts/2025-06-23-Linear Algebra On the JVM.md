@@ -105,17 +105,20 @@ Option 1 is distasteful, we've jus expended significant effort trying exactly to
 Option 3 is more interesting. Project panama and jextract actually get you pretty close to calling BLIS quite quickly. But when you do, you realise that you can't just wrap an `Array[Double]` in a memory segment as far as I'm aware. We have to _copy_ the data in, call BLIS, and _copy_ it back out!
 
 # Conclusion
-I believe this strikes to the heart of why the JVM has seen little adoption in the scientific computing space. Essentially, `Array[Double]` leads you to inevitably to a catastrophic allocation strategy, in the absence of a modern hardware accelerated BLAS-like library. It appears increasingly implausible that someone capable of such a library, will spend their time on the JVM.
+I believe this strikes to the heart of why the JVM has seen little adoption in the scientific computing space. Essentially, `Array[Double]` leads you inevitably to a catastrophic allocation strategy (in the absence of a modern hardware accelerated BLAS+  library). This seems a vicious circle, it's non-existence appears increasingly unlikely, that someone capable of such a library, will spend their time on the JVM.
+
+I believe this to be quite fundamental - I don't think it can be easily worked around as a "user" of the JVM.
 
 To summarise the argument:
 
 - Zero-copy operations require flexible memory layout
-- There's no hardware accelerated BLAS-like library that supports flexible memory layout on the JVM
-- The alternatives I've explored lead to aggressive memory allocation strategies which are terminal for performance out of toy scale.
+- There's no hardware accelerated BLAS-like library that supports flexible memory layout on the JVM (that I know of).
+- Which means Level 3 BLAS operations slow...
+- The alternatives I've explored lead to aggressive memory allocation strategies which are terminal for performance beyond toy scale.
 
-In this context, Oracle's Project Panama appears critical to any future of scientific computing on the JVM, and the fact that the Vector API has converged with it, is suggestive that Oracle themselves, are not seeing a way out of this hole in a backwards compatible manner.
+In this context, Oracle's Project Panama appears critical to any future of scientific computing on the JVM. Speculatively, given that the Vector API has converged with `MemorySegment`, suggests to me that Oracle themselves, are not seeing a way out of this hole in a backwards compatible manner.
 
-`MemorySegment` appears to offer;
+[`MemorySegment`](https://download.java.net/java/early_access/loom/docs/api/java.base/java/lang/foreign/MemorySegment.html) appears to offer;
 
 - a C compatible memory layout
 - SIMD compatibility.
@@ -125,7 +128,7 @@ Perhaps, it is the future.
 
 _BUT_
 
-It does _not_ provide C interop with `Array[Double]` (as far as I'm aware), outside of copy-allocation.
+It does _not_ provide C interop with `Array[Double]` (as far as I'm aware), outside of copy-allocation. To gain C interop, it's must be allocated "off-heap".
 
 | Memory type                    | SIMD-accelerated | C-compatible |
 |--------------------------------|------------------|--------------|
@@ -133,4 +136,4 @@ It does _not_ provide C interop with `Array[Double]` (as far as I'm aware), outs
 | `MemorySegment.allocate(...)`  | ✅ Yes           | ✅ Yes       |
 | `MemorySegment.ofArray(...)`   | ❌ No            | ❌ No        |
 
-
+This restriction means that a zero-copy suite of operations (so crucial to allocation avoidance) would need to be built, from the gronud up.
