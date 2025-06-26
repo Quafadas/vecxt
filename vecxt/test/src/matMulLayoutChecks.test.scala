@@ -12,6 +12,34 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
   */
 class DifferentMemoryLayoutTests extends FunSuite:
 
+  /**
+    * I don't think this can work
+    */
+  // test("offsets".only) {
+  //   def makeMat = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
+  //   val r = Array(1,2)
+  //   val mat = makeMat(r, r)
+  //   val mat2 = makeMat(r, r)
+
+  //   println(s"mat.rowStride: ${mat.rowStride}, mat.colStride: ${mat.colStride}, mat.offset: ${mat.offset} rows: ${mat.rows}, cols: ${mat.cols}")
+
+
+
+  //   val mat3 = Matrix.fromRows(
+  //     NArray(5.0, 6.0),
+  //     NArray(8.0, 9.0)
+  //   )
+
+  //   println(mat.printMat)
+
+
+
+  //   println(mat3.printMat)
+  //   println((mat3 @@ mat3).printMat)
+
+  //   println((mat @@ mat2).printMat)
+  // }
+
   test("scalars in matmul") {
     def makeMat = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)
     val eye = Matrix.eye[Double](3)

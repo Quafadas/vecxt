@@ -22,12 +22,13 @@ object JvmDoubleMatrix:
         inline boundsCheck: BoundsCheck
     ): Unit =
       dimMatCheck(m, b)
-      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
 
-        val mStr = if m.isDenseColMajor then "N" else "T"
-        val bStr = if b.isDenseColMajor then "N" else "T"
-        val lda = if m.isDenseColMajor then m.rows else m.cols
-        val ldb = if b.isDenseColMajor then b.rows else b.cols
+      val mStr = if m.isDenseColMajor then "N" else "T"
+      val bStr = if b.isDenseColMajor then "N" else "T"
+      val lda = if m.isDenseColMajor then m.rows else m.cols
+      val ldb = if b.isDenseColMajor then b.rows else b.cols
+
+      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
 
         blas.dgemm(
           mStr,
@@ -44,7 +45,30 @@ object JvmDoubleMatrix:
           c.raw,
           m.rows
         )
-      else ???
+      else
+      //   if m.isColMajor && b.isColMajor then
+
+      //   blas.dgemm(
+      //     mStr,
+      //     bStr,
+      //     m.rows,
+      //     b.cols,
+      //     m.cols,
+      //     alpha,
+      //     m.raw,
+      //     m.offset,
+      //     lda,
+      //     b.raw,
+      //     b.offset,
+      //     ldb,
+      //     beta,
+      //     c.raw,
+      //     0,
+      //     m.rows
+      //   )
+      // else
+        // I don't think this is implementable with traditional BLAS
+        ???
       end if
 
     end `matmulInPlace!`
