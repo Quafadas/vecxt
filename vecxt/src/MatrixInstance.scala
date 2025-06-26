@@ -121,6 +121,22 @@ object MatrixInstance:
 
     end apply
 
+    /** Returns a deep copy of the matrix. Copies elements one by one.
+      *
+      * @param ct
+      * @return
+      */
+    def deepCopy(using ct: ClassTag[A]): Matrix[A] =
+      // println(s"Deep copying matrix with shape ${m.shape} and offset ${m.offset}")
+      val newRaw = NArray.ofSize[A](m.numel)
+      var i = 0
+      while i < m.numel do
+        newRaw(i) = m.raw(i)
+        i += 1
+      end while
+      Matrix(newRaw, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
+    end deepCopy
+
     /** Element retrieval
       */
     transparent inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck): A =

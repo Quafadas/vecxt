@@ -46,27 +46,27 @@ object JvmDoubleMatrix:
           m.rows
         )
       else
-      //   if m.isColMajor && b.isColMajor then
+        //   if m.isColMajor && b.isColMajor then
 
-      //   blas.dgemm(
-      //     mStr,
-      //     bStr,
-      //     m.rows,
-      //     b.cols,
-      //     m.cols,
-      //     alpha,
-      //     m.raw,
-      //     m.offset,
-      //     lda,
-      //     b.raw,
-      //     b.offset,
-      //     ldb,
-      //     beta,
-      //     c.raw,
-      //     0,
-      //     m.rows
-      //   )
-      // else
+        //   blas.dgemm(
+        //     mStr,
+        //     bStr,
+        //     m.rows,
+        //     b.cols,
+        //     m.cols,
+        //     alpha,
+        //     m.raw,
+        //     m.offset,
+        //     lda,
+        //     b.raw,
+        //     b.offset,
+        //     ldb,
+        //     beta,
+        //     c.raw,
+        //     0,
+        //     m.rows
+        //   )
+        // else
         // I don't think this is implementable with traditional BLAS
         ???
       end if

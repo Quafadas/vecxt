@@ -479,6 +479,13 @@ class MatrixExtensionSuite extends FunSuite:
     )
   }
 
+  test("deep copy") {
+    val mat = mat1to9
+    val copy = mat.deepCopy
+    assertMatrixEquals(mat, copy)
+    assert(mat.raw ne copy.raw)
+  }
+
   test("row syntax returns a hard copied array") {
     val mat = mat1to9
     assertVecEquals(mat.row(0), NArray[Double](1.0, 2.0, 3.0))
