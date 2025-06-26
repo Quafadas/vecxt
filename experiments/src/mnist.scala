@@ -150,7 +150,7 @@ def back_prop(
   val m_inv = 1.0 / m
   // println(s"m: $m, m_inv: $m_inv")
   val dz2 = a2 - Y
-  val dw2 = m_inv * (a1.transpose @@ dz2) // TODO performance: transpose
+  val dw2 = m_inv * (a1.transpose @@ dz2)
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
   // println(s"dw2 shape: ${dw2.shape}, dw2 rows: ${dw2.rows}, dw2 cols: ${dw2.cols}")
   val db2 = dz2.mapColsToScalar(_.sum *).raw

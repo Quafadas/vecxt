@@ -35,10 +35,8 @@ class SumMatrixTest extends FunSuite:
   test("sum different strides"):
     val mat1 = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0), 2, 2, 1, 2)
     val mat2 = Matrix[Double](NArray(5.0, 1.0, 7.0, 8.0), 2, 2, 2, 1)
-    val matSummed = Matrix[Double](NArray(6.0, 9.0, 4.0, 9.0), 2, 2, 1, 2)
+    val matSummed = Matrix[Double](NArray(6.0, 9.0, 4.0, 12.0), 2, 2, 1, 2)
 
-    // println(mat1.printMat)
-    // println(mat2.printMat)
-    intercept[NotImplementedError]((mat1 + mat2).printMat)
+    assertMatrixEquals(mat1 + mat2, matSummed)
 
 end SumMatrixTest
