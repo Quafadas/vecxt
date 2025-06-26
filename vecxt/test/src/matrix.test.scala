@@ -482,6 +482,9 @@ class MatrixExtensionSuite extends FunSuite:
   test("deep copy") {
     val mat = mat1to9
     val copy = mat.deepCopy
+    assertEquals(copy.rowStride, mat.cols)
+    assertEquals(copy.colStride, 1)
+    assertEquals(copy.offset, 0)
     assertMatrixEquals(mat, copy)
     assert(mat.raw ne copy.raw)
   }

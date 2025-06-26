@@ -128,13 +128,18 @@ object MatrixInstance:
       */
     def deepCopy(using ct: ClassTag[A]): Matrix[A] =
       // println(s"Deep copying matrix with shape ${m.shape} and offset ${m.offset}")
+      import BoundsCheck.DoBoundsCheck.no
       val newRaw = NArray.ofSize[A](m.numel)
+      val newMat = Matrix(newRaw, m.rows, m.cols, 1, m.rows, 0)
       var i = 0
-      while i < m.numel do
-        newRaw(i) = m.raw(i)
-        i += 1
-      end while
-      Matrix(newRaw, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
+      for (row <- 0 until m.rows) do
+        for (col <- 0 until m.cols) do
+          // println(s"Copying element ($row, $col) with value ${m(row, col)}")
+          newMat(row, col) = m(row, col)
+          i += 1
+        end for
+      end for
+      newMat
     end deepCopy
 
     /** Element retrieval

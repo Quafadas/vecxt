@@ -79,8 +79,9 @@ import vecxt.BoundsCheck
     y = one_hot_Y,
     labels = labels.toArray,
     iterations = 150,
+    batchSize = 120,
     alpha = 0.075,
-    decay_rate = 0.0075,
+    decayRate = 0.0125,
     w1 = weight1,
     b1 = bias1,
     w2 = weight2,
@@ -128,7 +129,7 @@ def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: A
   // println(s"z2: ${z2(0 to 10, ::).printMat}")
   // println(s"z2: ${z2.raw.take(10).mkString(", ")}")
   val a2 = softmaxRows(z2)
-  // println(s"a2 shape: ${a2.shape}, a2 rows: ${a2.rows}, a2 cols: ${a2.cols}")
+  // println(s"a2 shape: ${a2.shape}, a2 rows: ${a2.rows}, a2 cols: ${a2.cols}, a2 rowStride: ${a2.rowStride}, a2 colStride: ${a2.colStride} a2 offset: ${a2.offset}")
   // println("forward propagation done ----")
   (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
 end foward_prop
@@ -149,6 +150,7 @@ def back_prop(
   val m = Y.rows
   val m_inv = 1.0 / m
   // println(s"m: $m, m_inv: $m_inv")
+  // println(s"Y shape: ${Y.shape}, Y rows: ${Y.rows}, Y cols: ${Y.cols} y colStride: ${Y.colStride}, y rowStride: ${Y.rowStride}, y offset: ${Y.offset}")
   val dz2 = a2 - Y
   val dw2 = m_inv * (a1.transpose @@ dz2)
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
@@ -177,6 +179,7 @@ inline def oneHotEncode(labels: Seq[Int]): Matrix[Double] =
     oneHot(i + n * labels(i)) = 1.0
     i += 1
   end while
+  println("One hot encoding done")
   Matrix(oneHot, (n, m))
 end oneHotEncode
 
@@ -195,8 +198,9 @@ def gradient_decent(
     y: Matrix[Double],
     labels: Array[Int],
     iterations: Int,
+    batchSize: Int,
     alpha: Double,
-    decay_rate: Double,
+    decayRate: Double,
     w1: Matrix[Double],
     b1: Array[Double],
     w2: Matrix[Double],
@@ -204,34 +208,38 @@ def gradient_decent(
 ) =
   import BoundsCheck.DoBoundsCheck.yes
   println("Starting gradient descent...")
-  println(s"alpha: $alpha, decay_rate: $decay_rate, iterations: $iterations")
+  println(s"alpha: $alpha, decay_rate: $decayRate, iterations: $iterations")
+  val numEpochs = x.rows / batchSize
   var alpha_ = alpha
-  var w1_ = Matrix(w1.raw.clone(), w1.shape)
+  var w1_ = w1.deepCopy
   var b1_ = b1.clone()
-  var w2_ = Matrix(w2.raw.clone(), w2.shape)
+  var w2_ = w2.deepCopy
   var b2_ = b2.clone()
 
   for i <- 1.until(iterations + 1) do
-    val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
-    // println(s"z1 shape: ${z1.shape}, z1 rows: ${z1.rows}, z1 cols: ${z1.cols}")
-    // println(s"${z1(0 until 10, ::).printMat}")
-    // println(s"z1: ${z1(0 to 10,::).printMat}")
-    // println(s"a1: ${a1(0 to 10,::).printMat}")
-    // println(s"z2: ${z2(0 to 10,::).printMat}")
-    // println(s"a2: ${a2(0 to 10,::).printMat}")
-    val (dw1, db1, dw2, db2) = back_prop(w1_, b1_, w2_, b2_, z1, a1, z2, a2, x, y)
-    w1_ -= (dw1 * alpha_)
-    // println(s"dw1 shape: ${dw1.shape}, dw1 rows: ${dw1.rows}, dw1 cols: ${dw1.cols}")
-    // println(s"dw1: ${dw1(0 to 10, ::).printMat}")
-    // println(s"w1_: ${w1_(0 to 10, ::).printMat}")
+    for j <- 0.until(numEpochs) do
+      // println(s"Epoch: $j, iteration: $i, alpha: $alpha_")
+      val start = j * batchSize
+      val end = start + batchSize
+      val xBatch = x(start until end, ::).deepCopy
+      val yBatch = y(start until end, ::).deepCopy
+      // println(s"xBatch shape: ${xBatch.shape}, xBatch rows: ${xBatch.rows}, xBatch cols: ${xBatch.cols}")
+      // println(s"yBatch shape: ${yBatch.shape}, yBatch rows: ${yBatch.rows}, yBatch cols: ${yBatch.cols}")
+      val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, xBatch)
+      val (dw1, db1, dw2, db2) = back_prop(w1_, b1_, w2_, b2_, z1, a1, z2, a2, xBatch, yBatch)
+      w1_ -= (dw1 * alpha_)
+      // println(s"dw1 shape: ${dw1.shape}, dw1 rows: ${dw1.rows}, dw1 cols: ${dw1.cols}")
+      // println(s"dw1: ${dw1(0 to 10, ::).printMat}")
+      // println(s"w1_: ${w1_(0 to 10, ::).printMat}")
 
-    b1_ -= (db1 * alpha_)
-    w2_ -= (dw2 * alpha_)
-    b2_ -= (db2 * alpha_)
+      b1_ -= (db1 * alpha_)
+      w2_ -= (dw2 * alpha_)
+      b2_ -= (db2 * alpha_)
 
+
+    end for
     // decay the learning rate, can experiment with different rates here.
-    if (i + 1) % 50 == 0 then alpha_ = alpha_ - decay_rate
-    end if
+    if (i + 1) % 25 == 0 then alpha_ = alpha_ - decayRate
 
     if i % 10 == 0 then
       val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
