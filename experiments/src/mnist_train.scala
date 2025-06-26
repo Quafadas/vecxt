@@ -28,7 +28,7 @@ import vecxt.BoundsCheck
     traindata
       .map(_.tail.map(_.toDouble))
       .take(trainSize)
-      .map(_.toList.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
+      .map(_.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
 
   if samplePlot then
     (os.resource / "hist.vg.json").plot(
@@ -50,6 +50,7 @@ import vecxt.BoundsCheck
   end if
 
   val weight1 = Matrix(Array.fill(28 * 28 * 10)(scala.util.Random.nextDouble() * 0.2), (28 * 28, 10))
+  // w1 (784, 10)
   val bias1 = Array.fill(10)(0.0)
   val weight2 = Matrix(Array.fill(10 * 10)(scala.util.Random.nextDouble() * 0.2), (10, 10))
   val bias2 = Array.fill(10)(0.0)
@@ -66,21 +67,23 @@ import vecxt.BoundsCheck
   // println(one_hot_Y.printMat)
 
   println(s"x shape: ${x.shape}, x rows: ${x.rows}, x cols: ${x.cols}")
-  println(s"10 rows, 100-150 cols of x: ${x(0 until 10, 100 until 150).printMat}")
+  // println(s"10 rows, 100-150 cols of x: ${x(0 until 10, 100 until 150).printMat}")
 
-  println(s"initial weights: ${weight1(0 to 10, ::).printMat}")
-  println(s"initial biases: ${bias1.mkString(", ")}")
-  println(s"initial weights2: ${weight2(0 until 10, ::).printMat}")
-  println(s"initial biases2: ${bias2.mkString(", ")}")
+  // println(s"initial weights: ${weight1(0 to 10, ::).printMat}")
+  println(s"w1 ${weight1.shape}")
+  println(s"initial biases1: ${bias1.length}")
+  println(s"w2.shape: ${weight2.shape}")
+  println(s"initial biases2: ${bias2.length}")
   println(s"labels: ${labels.take(10).mkString(", ")}")
 
   val arg = gradient_decent(
     x = x,
     y = one_hot_Y,
     labels = labels.toArray,
-    iterations = 150,
-    alpha = 0.075,
-    decay_rate = 0.0075,
+    epochs = 750,
+    batch_size = 120,
+    alpha = 0.05,
+    decay_rate = 0.005,
     w1 = weight1,
     b1 = bias1,
     w2 = weight2,
@@ -194,7 +197,8 @@ def gradient_decent(
     x: Matrix[Double],
     y: Matrix[Double],
     labels: Array[Int],
-    iterations: Int,
+    epochs: Int,
+    batch_size: Int = 128,
     alpha: Double,
     decay_rate: Double,
     w1: Matrix[Double],
@@ -204,45 +208,49 @@ def gradient_decent(
 ) =
   import BoundsCheck.DoBoundsCheck.yes
   println("Starting gradient descent...")
-  println(s"alpha: $alpha, decay_rate: $decay_rate, iterations: $iterations")
+  println(s"alpha: $alpha, decay_rate: $decay_rate, iterations: $epochs")
   var alpha_ = alpha
   var w1_ = Matrix(w1.raw.clone(), w1.shape)
   var b1_ = b1.clone()
   var w2_ = Matrix(w2.raw.clone(), w2.shape)
   var b2_ = b2.clone()
 
-  for i <- 1.until(iterations + 1) do
-    val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
-    // println(s"z1 shape: ${z1.shape}, z1 rows: ${z1.rows}, z1 cols: ${z1.cols}")
-    // println(s"${z1(0 until 10, ::).printMat}")
-    // println(s"z1: ${z1(0 to 10,::).printMat}")
-    // println(s"a1: ${a1(0 to 10,::).printMat}")
-    // println(s"z2: ${z2(0 to 10,::).printMat}")
-    // println(s"a2: ${a2(0 to 10,::).printMat}")
-    val (dw1, db1, dw2, db2) = back_prop(w1_, b1_, w2_, b2_, z1, a1, z2, a2, x, y)
-    w1_ -= (dw1 * alpha_)
-    // println(s"dw1 shape: ${dw1.shape}, dw1 rows: ${dw1.rows}, dw1 cols: ${dw1.cols}")
-    // println(s"dw1: ${dw1(0 to 10, ::).printMat}")
-    // println(s"w1_: ${w1_(0 to 10, ::).printMat}")
+  for i <- 1.until(epochs + 1) do
+    for j <- 0.until(labels.length / batch_size, step = batch_size) do
+      val xBatch = x(Range(j * batch_size, (j + 1) * batch_size), ::)
+      val yBatch = y(Range(j * batch_size, (j + 1) * batch_size), ::)
+      val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, xBatch)
+      // println(s"z1 shape: ${z1.shape}, z1 rows: ${z1.rows}, z1 cols: ${z1.cols}")
+      // println(s"${z1(0 until 10, ::).printMat}")
+      // println(s"z1: ${z1(0 to 10,::).printMat}")
+      // println(s"a1: ${a1(0 to 10,::).printMat}")
+      // println(s"z2: ${z2(0 to 10,::).printMat}")
+      // println(s"a2: ${a2(0 to 10,::).printMat}")
+      val (dw1, db1, dw2, db2) = back_prop(w1_, b1_, w2_, b2_, z1, a1, z2, a2, xBatch, yBatch)
+      w1_ -= (dw1 * alpha_)
+      // println(s"dw1 shape: ${dw1.shape}, dw1 rows: ${dw1.rows}, dw1 cols: ${dw1.cols}")
+      // println(s"dw1: ${dw1(0 to 10, ::).printMat}")
+      // println(s"w1_: ${w1_(0 to 10, ::).printMat}")
 
-    b1_ -= (db1 * alpha_)
-    w2_ -= (dw2 * alpha_)
-    b2_ -= (db2 * alpha_)
+      b1_ -= (db1 * alpha_)
+      w2_ -= (dw2 * alpha_)
+      b2_ -= (db2 * alpha_)
 
-    // decay the learning rate, can experiment with different rates here.
-    if (i + 1) % 50 == 0 then alpha_ = alpha_ - decay_rate
-    end if
+      // decay the learning rate, can experiment with different rates here.
+      if (i + 1) % 50 == 0 then alpha_ = alpha_ - decay_rate
+      end if
 
-    if i % 10 == 0 then
-      val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
-      val acc = loss(mostLikely(a2), labels)
-      println(s"Iteration: $i, alpha: $alpha_")
-      println(s"Accuracy : $acc")
-    end if
+      if i % 10 == 0 then
+        val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
+        val acc = loss(mostLikely(a2), labels)
+        println(s"Iteration: $i, alpha: $alpha_")
+        println(s"Accuracy : $acc")
+      end if
+    end for
   end for
 
   val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
-  println(s"iterations: $iterations, alpha: $alpha_, samples: ${x.rows}, classes: ${w2_.cols}")
+  println(s"iterations: $epochs, alpha: $alpha_, samples: ${x.rows}, classes: ${w2_.cols}")
   // println(s"w1_ shape: ${w1_.shape}, w1_ rows: ${w1_.rows}, w1_ cols: ${w1_.cols}, ${w1.raw.take(10).printArr}")
   // println(s"b1_ shape: ${b1_.length}, b1_ values: ${b1_.mkString(", ")}")
   // println(s"w2_ shape: ${w2_.shape}, w2_ rows: ${w2_.rows}, w2_ cols: ${w2_.cols}, ${w2.raw.take(10).printArr}")

@@ -11,6 +11,8 @@ object `package` extends RootModule with ScalaModule {
         super.compileResources() ++ resources()
     }
     def scalacOptions: T[Seq[String]] = Seq("-Xmax-inlines:10000")
+
+    override def mainClass: T[Option[String]] = Some("mnist")
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)
     override def ivyDeps = super.ivyDeps() ++ Seq(
