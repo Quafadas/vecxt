@@ -75,7 +75,7 @@ object DoubleMatrix:
       else
         val newArr = NArray.ofSize[Double](m.numel)
         m.raw.copyToNArray(newArr)
-        val newMat = Matrix[Double](newArr , m.rows, m.cols, m.rowStride, m.colStride, m.offset)
+        val newMat = Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)
         var i = 0
         while i < m.rows do
           var j = 0
