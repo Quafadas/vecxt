@@ -31,6 +31,7 @@ out/
 benchmark_history.json
 site/docs/_assets/benchmarks/benchmark_history.json
 experiments/resources/train.csv
+experiments/resources/mnist_test.csv
 
 weights1.csv
 weights2.csv
