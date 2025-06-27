@@ -42,11 +42,15 @@ setJvm:
 
 jextractIncBlas:
   /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
-  --dump-includes includes_blas.txt /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+  --dump-includes generated/includes_blas.txt /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
 
 jextractIncBlis:
   /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
-  --dump-includes includes_blis.txt /opt/homebrew/opt/blis/include/blis/cblas.h
+  --dump-includes generated/includes_blis_cblas.txt /opt/homebrew/opt/blis/include/blis/cblas.h
+
+blisTyped:
+  /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
+  --dump-includes generated/includes_blis_typed.txt /opt/homebrew/opt/blis/include/blis/blis.h
 
 jextract:
   /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
@@ -54,7 +58,7 @@ jextract:
     -D FORCE_OPENBLAS_COMPLEX_STRUCT \
     -l :/opt/homebrew/Cellar/openblas/0.3.30/lib/libopenblas.dylib \
     -t blas \
-    @myInclude.txt \
+    @generated/myInclude.txt \
     /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
 
 jextractBlis:
@@ -65,5 +69,15 @@ jextractBlis:
     -l blis \
     -t blis \
     --use-system-load-library \
-    @myInclude.txt \
+    @generated/myInclude.txt \
     /opt/homebrew/opt/blis/include/blis/cblas.h
+
+jextractBlisTyped:
+  /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
+    --output generated/src \
+    -D FORCE_OPENBLAS_COMPLEX_STRUCT \
+    -l blis \
+    -t blis_typed \
+    --use-system-load-library \
+    @generated/my_includes_blis_typed.txt \
+    /opt/homebrew/opt/blis/include/blis/blis.h

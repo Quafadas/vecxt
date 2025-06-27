@@ -1,7 +1,5 @@
 package build
 
-import mill.scalalib.publish.Scope.Test
-
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import $ivy.`io.github.quafadas:millSite_mill0.12_2.13:0.0.38`
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
@@ -15,6 +13,8 @@ import io.github.quafadas.millSite._
 import mill._, scalalib._, publish._
 import mill.scalajslib.api._
 import mill.scalanativelib._
+import mill.define.ModuleRef
+// import mill.javalib._
 
 import mill.util.Jvm
 import mill.api.Result
@@ -28,9 +28,12 @@ object V {
   val spire = "0.18.0"
   val laminar = "17.2.0"
   val scalatags = "0.13.1"
-  val scalaVersion = "3.7.0"
+  val scalaVersion = "3.7.1"
   val munitVersion = "1.1.1"
 }
+
+
+
 
 trait Common extends ScalaModule  with PublishModule with ScalafixModule {
   def scalaVersion = V.scalaVersion
@@ -81,10 +84,6 @@ trait CommonTests extends TestModule.Munit {
   def ivyDeps = super.ivyDeps() ++ Agg(
     ivy"org.scalameta::munit::${V.munitVersion}",
   )
-}
-
-object generated extends JavaModule {
-
 }
 
 

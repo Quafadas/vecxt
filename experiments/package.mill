@@ -12,7 +12,7 @@ object `package` extends RootModule with ScalaModule {
     }
     def scalacOptions: T[Seq[String]] = Seq("-Xmax-inlines:10000")
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
-        "-Djava.library.path=/opt/homebrew/Cellar/blis/1.1/lib"
+        "-Djava.library.path=/opt/homebrew/Cellar/blis/2.0/lib"
     )
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm, build.generated)
 
@@ -29,7 +29,11 @@ object `package` extends RootModule with ScalaModule {
         override def ivyDeps= super.ivyDeps() ++ Agg(
             ivy"org.scalameta::munit::${build.V.munitVersion}"
         )
-        def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
+
+        override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
+        "-Djava.library.path=/opt/homebrew/Cellar/blis/2.0/lib"
+    )
+
     }
 
 }
