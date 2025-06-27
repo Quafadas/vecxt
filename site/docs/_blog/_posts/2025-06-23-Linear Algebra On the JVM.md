@@ -73,7 +73,7 @@ And if you start trying to abstract over the automatic differentation part? Not 
 So okay... I'm totally a sucker for punishment. We need zero copy transpose - how hard can it be? Let's see how deep this rabbit hole goes. In conversation with ChatGPT, we can update our `Matrix` to, instead of just having rows and column, have an offset, row and column strides.
 
 ```scala sc:nocompile
-  class Matrix[@specialized(Double, Boolean, Int) A] @publicInBinary() private[matrix] (
+  class Matrix[A] (
       val raw: NArray[A],
       val rows: Row,
       val cols: Col,
