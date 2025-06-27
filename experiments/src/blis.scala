@@ -5,8 +5,10 @@ import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 @main def testBlis() =
-  println("blis test" +
-    "")
+  println(
+    "blis test" +
+      ""
+  )
   val Layout = blis.cblas_h.CblasColMajor
   val transa = blis.cblas_h.CblasNoTrans
 
@@ -28,34 +30,46 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
   val vec2 = NArray[Double](0.0, 0.0, 0.0, 0.0)
 
   val arena = Arena.ofConfined()
-  try {
+  try
     val a = arena.allocateFrom(
-      ValueLayout.JAVA_DOUBLE, mat1.raw*
+      ValueLayout.JAVA_DOUBLE,
+      mat1.raw*
     )
     val x = arena.allocateFrom(
-      ValueLayout.JAVA_DOUBLE, vec1*
+      ValueLayout.JAVA_DOUBLE,
+      vec1*
     )
     val y = arena.allocateFrom(
-      ValueLayout.JAVA_DOUBLE, vec2*
+      ValueLayout.JAVA_DOUBLE,
+      vec2*
     )
     cblas_h.cblas_dgemv(
-      Layout, transa, m, n, alpha,
-      a, lda, x, incx, beta, y, incy
+      Layout,
+      transa,
+      m,
+      n,
+      alpha,
+      a,
+      lda,
+      x,
+      incx,
+      beta,
+      y,
+      incy
     )
     // Copy result from native y to vec2
     var i = 0
-    while (i < vec2.length) {
+    while i < vec2.length do
       vec2(i) = y.getAtIndex(ValueLayout.JAVA_DOUBLE, i)
       i += 1
-    }
-  }
-  finally
-    arena.close()
+    end while
+  finally arena.close()
+  end try
 
   // y0 = 12.0
   // y1 = 5.0
   // y2 = 22.0
   // y3 = 32.0
 
-
   println(vec2.printArr)
+end testBlis

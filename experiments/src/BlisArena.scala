@@ -7,10 +7,11 @@ import java.lang.foreign.ValueLayout
 import blis_typed.blis_h
 import scala.collection.mutable
 
-/**
-  * This _should_ be unecessary for blis objects initialised with `blis_obj_create_with_attached_buffer`. From the docs of BLIS blis_obj_create_with_attached_buffer:
+/** This _should_ be unecessary for blis objects initialised with `blis_obj_create_with_attached_buffer`. From the docs
+  * of BLIS blis_obj_create_with_attached_buffer:
   *
-  * > Objects initialized via this function should generally not be passed to bli_obj_free(), unless the user wishes to pass p into free().
+  * > Objects initialized via this function should generally not be passed to bli_obj_free(), unless the user wishes to
+  * pass p into free().
   *
   * @param underlying
   */
@@ -31,3 +32,5 @@ class BlisArena(private val underlying: Arena) extends Arena:
 
     // Then close the underlying arena
     underlying.close()
+  end close
+end BlisArena

@@ -1,6 +1,5 @@
 package vecxt.experiments
 
-
 import narr.*
 import java.lang.foreign.Arena
 import java.lang.foreign.MemorySegment
@@ -31,7 +30,6 @@ class SyntaxSuite extends munit.FunSuite:
 
     println(vec)
 
-
   test("DoubleVector length"):
 
     val vec = DoubleVector(10)
@@ -44,7 +42,7 @@ class SyntaxSuite extends munit.FunSuite:
     assertEquals(vec(1), 2.0)
     assertEquals(vec(2), 3.0)
 
-  test("blissable - BLIS integration working!") :
+  test("blissable - BLIS integration working!"):
     val arr = Vector(1.0, 2.0, 3.0)
     val vec = DoubleVector(arr)
     val vec2 = DoubleVector(arr)
