@@ -9,7 +9,7 @@ import vecxt.experiments.*
 import vecxt.experiments.DoubleVector.*
 import blis_typed.blis_h as blis
 
-class SyntaxSuite extends munit.FunSuite:
+class DoubleVectorSuite extends munit.FunSuite:
 
   given arena: BlisArena = BlisArena(Arena.global())
 
@@ -59,5 +59,4 @@ class SyntaxSuite extends munit.FunSuite:
     assertEqualsDouble(v3(0), 4.0, 0.0001)
     assertEqualsDouble(v3(1), 8.0, 0.0001)
     assertEqualsDouble(v3(2), 12.0, 0.0001)
-
-end SyntaxSuite
+end DoubleVectorSuite

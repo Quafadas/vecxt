@@ -5,9 +5,9 @@ import java.lang.foreign.Arena
 import java.lang.foreign.ValueLayout
 import blis_typed.blis_h
 
-opaque type DoubleVector = MemorySegment
 
-export DoubleVector.*
+
+opaque type DoubleVector = MemorySegment
 
 object DoubleVector:
 
@@ -65,10 +65,8 @@ object DoubleVector:
       result
     end +
   end extension
-end DoubleVector
 
-extension (dv: DoubleVector.type)
-
+  // Static methods for creating DoubleVector instances
   inline def ofSize(size: Long)(using arena: Arena): DoubleVector =
     arena.allocate(ValueLayout.JAVA_DOUBLE, size)
 
@@ -80,4 +78,4 @@ extension (dv: DoubleVector.type)
       ValueLayout.JAVA_DOUBLE,
       data*
     )
-end extension
+end DoubleVector
