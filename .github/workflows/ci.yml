@@ -67,9 +67,18 @@ jobs:
         if: matrix.project == 'native'
         run: ./millw vecxt.${{ matrix.project }}.test.nativeLink
 
-      - name: Test
+      - name: Test 
         run: ./millw vecxt.${{ matrix.project }}.test
+
+      - name: Test 
+        run: ./millw vecxtensions.${{ matrix.project }}.test
+
+      - name: Test 
+        if: matrix.project == 'jvm'
+        run: ./millw experiments.test
+
       - name: Doc Gen
+        if: matrix.project == 'jvm'
         run: ./millw site.publishDocs
 
   publish:
