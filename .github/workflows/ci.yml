@@ -57,7 +57,7 @@ jobs:
         run: npm install
 
       - if: matrix.project == 'native' || matrix.project == 'jvm'
-        run: sudo apt-get update && sudo apt-get install -y libatlas-base-dev libblis64-3 libblis-dev
+        run: sudo apt-get update && sudo apt-get install -y libatlas-base-dev libblis3 libblis-dev
 
       - name: scalaJSLink
         if: matrix.project == 'js'
