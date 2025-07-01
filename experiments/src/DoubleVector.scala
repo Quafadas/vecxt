@@ -5,8 +5,6 @@ import java.lang.foreign.Arena
 import java.lang.foreign.ValueLayout
 import blis_typed.blis_h
 
-
-
 opaque type DoubleVector = MemorySegment
 
 object DoubleVector:

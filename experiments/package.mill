@@ -1,11 +1,34 @@
 package build.experiments
-
 import mill._, scalalib._, publish._
 import contrib.jmh.JmhModule
 
 // mill benchmark.runJmh vecxt.benchmark.AndBooleanBenchmark -jvmArgs --add-modules=jdk.incubator.vector -rf json
 
 object `package` extends RootModule with ScalaModule {
+        // "-Djava.library.path=/opt/homebrew/Cellar/blis/2.0/lib"
+    
+    /**
+      * Path to the BLIS library. This assumes that you used 
+      * On mac: brew install blis 
+      * On ubuntu: apt install libblis3 libblis-dev [Not sure how general these settibngs are]
+      * Windows support is not implemented, not sure if BLIS is available on Windows.
+      */
+
+    def pathToBlis = T {
+        import scala.util.Properties
+
+        val osName = Properties.osName.toLowerCase
+        if (osName.contains("linux")) {
+            """/usr/lib/x86_64-linux-gnu/"""
+        } else if (osName.contains("mac")) {
+            """/opt/homebrew/Cellar/blis/2.0/lib"""
+        } else if (osName.contains("windows")) {
+            ???
+        } else {
+            throw new Exception(s"Unsupported OS: $osName")
+        }
+    }
+
     def scalaVersion = build.vecxt.jvm.scalaVersion
     override def compileResources = T {
         super.compileResources() ++ resources()
@@ -13,7 +36,7 @@ object `package` extends RootModule with ScalaModule {
     def scalacOptions: T[Seq[String]] = Seq("-Xmax-inlines:10000")
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     override def mainClass = Some("validate")
-    override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)
+    override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm, build.vecxtensions.jvm, build.generated)
     override def ivyDeps = super.ivyDeps() ++ Seq(
         ivy"com.lihaoyi::os-lib::0.10.4",
         ivy"io.github.quafadas::scautable::0.0.24",
@@ -27,9 +50,11 @@ object `package` extends RootModule with ScalaModule {
             ivy"org.scalameta::munit::${build.V.munitVersion}"
         )
 
+        override def moduleDeps: Seq[JavaModule] = Seq(build.experiments)
+
         override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
-        "-Djava.library.path=/opt/homebrew/Cellar/blis/2.0/lib"
-    )
+            s"-Djava.library.path=${pathToBlis()}"
+        )
 
     }
 
