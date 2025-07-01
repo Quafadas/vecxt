@@ -41,7 +41,7 @@ jobs:
 
       - uses: coursier/setup-action@main
         with:
-          jvm: temurin@17
+          jvm: temurin@24
           apps: scala-cli
 
       - name: Setup NodeJS v20 LTS
