@@ -121,6 +121,27 @@ object MatrixInstance:
 
     end apply
 
+    /** Returns a deep copy of the matrix. Copies elements one by one.
+      *
+      * @param ct
+      * @return
+      */
+    def deepCopy(using ct: ClassTag[A]): Matrix[A] =
+      // println(s"Deep copying matrix with shape ${m.shape} and offset ${m.offset}")
+      import BoundsCheck.DoBoundsCheck.no
+      val newRaw = NArray.ofSize[A](m.numel)
+      val newMat = Matrix(newRaw, m.rows, m.cols, 1, m.rows, 0)
+      var i = 0
+      for row <- 0 until m.rows do
+        for col <- 0 until m.cols do
+          // println(s"Copying element ($row, $col) with value ${m(row, col)}")
+          newMat(row, col) = m(row, col)
+          i += 1
+        end for
+      end for
+      newMat
+    end deepCopy
+
     /** Element retrieval
       */
     transparent inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck): A =
@@ -130,12 +151,12 @@ object MatrixInstance:
 
     inline def elementIndex(row: Row, col: Col)(using inline boundsCheck: BoundsCheck): Int =
       indexCheckMat(m, (row, col))
-      inline if boundsCheck == BoundsCheck.DoBoundsCheck.yes then
-        println(s"Element index for ($row, $col) in matrix with shape ${m.shape} is being checked")
-        println(s"Offset: ${m.offset}, Row stride: ${m.rowStride}, Col stride: ${m.colStride}")
-        println(s"Calculated index: ${m.offset + row * m.rowStride + col * m.colStride}")
-        println(s"element: ${m.raw(m.offset + row * m.rowStride + col * m.colStride)}")
-      end if
+      // inline if boundsCheck == BoundsCheck.DoBoundsCheck.yes then
+      // println(s"Element index for ($row, $col) in matrix with shape ${m.shape} is being checked")
+      // println(s"Offset: ${m.offset}, Row stride: ${m.rowStride}, Col stride: ${m.colStride}")
+      // println(s"Calculated index: ${m.offset + row * m.rowStride + col * m.colStride}")
+      // println(s"element: ${m.raw(m.offset + row * m.rowStride + col * m.colStride)}")
+      // end if
       m.offset + row * m.rowStride + col * m.colStride
 
     end elementIndex

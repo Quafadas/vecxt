@@ -22,15 +22,10 @@ class NotImplTest extends FunSuite:
     intercept[NotImplementedError](m / 2.0)
   }
 
-  test("DoubleMatrix.+ with non-simple layout throws") {
-    intercept[NotImplementedError](m + 2.0)
-  }
   test("DoubleMatrix.- with non-simple layout throws") {
     intercept[NotImplementedError](m - 2.0)
   }
-  test("DoubleMatrix.+ with matrix, non-simple layout throws") {
-    intercept[NotImplementedError](m + m)
-  }
+
   test("DoubleMatrix.hadamard with non-simple layout throws") {
     intercept[NotImplementedError](m.hadamard(m))
   }

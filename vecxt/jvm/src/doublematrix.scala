@@ -14,24 +14,21 @@ object JvmDoubleMatrix:
   final val sp_int_doubleLanes =
     VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(vecxt.arrays.spdl * Integer.SIZE));
 
-  extension (m: Matrix[Double])
-
-    // inline def /(n: Double): Matrix[Double] =
+  extension (m: Matrix[Double]) // inline def /(n: Double): Matrix[Double] =
     //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     // TODO check whether this work with flexible memory layout patterns
-    inline def matmul(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0)(using
+        inline boundsCheck: BoundsCheck
+    ): Unit =
       dimMatCheck(m, b)
-      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
-        val newArr = Array.ofDim[Double](m.rows * b.cols)
-        val mStr = if m.isDenseColMajor then "N" else "T"
-        val bStr = if b.isDenseColMajor then "N" else "T"
-        val lda = if m.isDenseColMajor then m.rows else m.cols
-        val ldb = if b.isDenseColMajor then b.rows else b.cols
 
-        // println(
-        //   s"mStr, bStr, m.rows, b.cols, m.cols, lda, ldb: $mStr, $bStr, ${m.rows}, ${b.cols}, ${m.cols}, $lda, $ldb"
-        // )
+      val mStr = if m.isDenseColMajor then "N" else "T"
+      val bStr = if b.isDenseColMajor then "N" else "T"
+      val lda = if m.isDenseColMajor then m.rows else m.cols
+      val ldb = if b.isDenseColMajor then b.rows else b.cols
+
+      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
 
         blas.dgemm(
           mStr,
@@ -39,24 +36,47 @@ object JvmDoubleMatrix:
           m.rows,
           b.cols,
           m.cols,
-          1.0,
+          alpha,
           m.raw,
           lda,
           b.raw,
           ldb,
-          0.0,
-          newArr,
+          beta,
+          c.raw,
           m.rows
         )
-        Matrix(newArr, m.rows, b.cols)
-      else ???
+      else
+        //   if m.isColMajor && b.isColMajor then
+
+        //   blas.dgemm(
+        //     mStr,
+        //     bStr,
+        //     m.rows,
+        //     b.cols,
+        //     m.cols,
+        //     alpha,
+        //     m.raw,
+        //     m.offset,
+        //     lda,
+        //     b.raw,
+        //     b.offset,
+        //     ldb,
+        //     beta,
+        //     c.raw,
+        //     0,
+        //     m.rows
+        //   )
+        // else
+        // I don't think this is implementable with traditional BLAS
+        ???
       end if
-    end matmul
+
+    end `matmulInPlace!`
 
     // TODO: SIMD
     inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then
-        sameDimMatCheck(m, bmat)
+      sameDimMatCheck(m, bmat)
+      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val newArr = Array.fill[Double](m.rows * m.cols)(0.0)
         var i = 0
         while i < newArr.length do
@@ -65,6 +85,20 @@ object JvmDoubleMatrix:
         end while
         Matrix(newArr, m.rows, m.cols)
       else ???
+      end if
+    end *:*
+
+    inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
+      sameDimMatCheck(m, bmat)
+      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
+        var i = 0
+        while i < m.raw.length do
+          m.raw.update(i, (if bmat.raw(i) then 1.0 else 0.0) * m.raw(i))
+          i += 1
+        end while
+      else ???
+      end if
+    end *:*=
 
     // inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
 

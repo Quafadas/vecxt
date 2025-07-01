@@ -66,6 +66,9 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("Col major") {
     assert(mat1to9.isDenseColMajor)
+    assert(mat1to9.hasSimpleContiguousMemoryLayout)
+    assert(mat1to9.transpose.isDenseRowMajor)
+    assert(mat1to9.transpose.hasSimpleContiguousMemoryLayout)
   }
 
   test("min reduction") {
@@ -479,6 +482,46 @@ class MatrixExtensionSuite extends FunSuite:
     )
   }
 
+  test("update") {
+    val mat = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0)
+    )
+    mat.update(1, 0, 10.0)
+
+    assertEquals(mat(1, 0), 10.0)
+    val m2 = mat.transpose
+    m2(0, 1) = (20.0)
+    assertEquals(m2(0, 1), 20.0)
+
+    val mat2 = mat1to9
+    mat2.update(1, 0, 10.0)
+    assertEquals(mat2(1, 0), 10.0)
+    val m3 = mat2.transpose
+    m3(0, 1) = (20.0)
+    assertEquals(m3(0, 1), 20.0)
+  }
+
+  test("deep copy") {
+    val mat = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0)
+    )
+    assert(mat.isDenseColMajor)
+    assertEquals(mat.rows, 2)
+    assertEquals(mat.cols, 3)
+    assertEquals(mat.rowStride, 1)
+    assertEquals(mat.colStride, 2)
+    val copy = mat.deepCopy
+    assertEquals(copy.rowStride, 1)
+    assertEquals(copy.colStride, 2)
+    assertEquals(copy.rows, 2)
+    assertEquals(copy.cols, 3)
+    assertEquals(copy.offset, 0)
+    assertMatrixEquals(mat, copy)
+    assert(mat.raw ne copy.raw)
+  }
+
   test("row syntax returns a hard copied array") {
     val mat = mat1to9
     assertVecEquals(mat.row(0), NArray[Double](1.0, 2.0, 3.0))
@@ -534,6 +577,26 @@ class MatrixExtensionSuite extends FunSuite:
     assert(mapped3.cols == 3)
 
     assertVecEquals[Double](mapped3.row(0), NArray[Double](1.0, 2.0, 3.0) / 6.0)
+  }
+
+  test("map rows in place") {
+    val mat = mat1to9
+    mat.mapRowsInPlace(row => row / row.sum)
+    assert(mat.rows == 3)
+    assert(mat.cols == 3)
+    assertVecEquals[Double](mat.row(0), NArray[Double](1.0, 2.0, 3.0) / 6.0)
+    assertVecEquals[Double](mat.row(1), NArray[Double](4.0, 5.0, 6.0) / 15.0)
+    assertVecEquals[Double](mat.row(2), NArray[Double](7.0, 8.0, 9.0) / 24.0)
+  }
+
+  test("map cols in place") {
+    val mat = mat1to9
+    mat.mapColsInPlace(col => col / col.sum)
+    assert(mat.rows == 3)
+    assert(mat.cols == 3)
+    assertVecEquals[Double](mat.col(0), NArray[Double](1.0, 4.0, 7.0) / 12.0)
+    assertVecEquals[Double](mat.col(1), NArray[Double](2.0, 5.0, 8.0) / 15.0)
+    assertVecEquals[Double](mat.col(2), NArray[Double](3.0, 6.0, 9.0) / 18.0)
   }
 
   test("map cols") {

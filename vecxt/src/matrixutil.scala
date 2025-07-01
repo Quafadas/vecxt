@@ -7,7 +7,8 @@ import matrix.*
 import MatrixInstance.*
 
 import narr.*
-import vecxt.rangeExtender.MatrixRange.RangeExtender
+
+import scala.util.chaining.*
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
   enum Vertical:
@@ -25,9 +26,23 @@ object matrixUtil:
       (b / m.rows, b % m.rows)
     end tupleFromIdx
 
-    // TODO : probably has horrible performance
+    /** There should be
+      *
+      * @param f
+      */
+    inline def mapRowsInPlace(
+        inline f: NArray[A] => NArray[A]
+    )(using ClassTag[A]): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+      var idx = 0
+      while idx < m.rows do
+        m.updateInPlace(NArray[Int](idx), ::, f(m.row(idx)))
+        idx += 1
+      end while
+    end mapRowsInPlace
+
     inline def mapRows[B](
-        f: NArray[A] => NArray[B]
+        inline f: NArray[A] => NArray[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.numel)
@@ -41,7 +56,7 @@ object matrixUtil:
     end mapRows
 
     inline def mapRowsToScalar[B](
-        f: NArray[A] => B
+        inline f: NArray[A] => B
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.rows)
@@ -53,8 +68,20 @@ object matrixUtil:
       Matrix(newArr, (m.rows, 1))
     end mapRowsToScalar
 
+    inline def mapColsInPlace(
+        inline f: NArray[A] => NArray[A]
+    )(using ClassTag[A]): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+
+      var idx = 0
+      while idx < m.cols do
+        m.updateInPlace(::, NArray[Int](idx), f(m.col(idx)))
+        idx += 1
+      end while
+    end mapColsInPlace
+
     inline def mapCols[B](
-        f: NArray[A] => NArray[B]
+        inline f: NArray[A] => NArray[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = NArray.ofSize[B](m.numel)
@@ -71,7 +98,7 @@ object matrixUtil:
     end mapCols
 
     inline def mapColsToScalar[B](
-        f: NArray[A] => B
+        inline f: NArray[A] => B
     )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
       val newArr = NArray.ofSize[B](m.cols)
       var i = 0

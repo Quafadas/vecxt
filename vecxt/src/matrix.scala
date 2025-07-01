@@ -41,7 +41,7 @@ object matrix:
       * @return
       */
     lazy val hasSimpleContiguousMemoryLayout: Boolean =
-      isDenseRowMajor || isDenseColMajor && raw.length == numel
+      (isDenseRowMajor || isDenseColMajor) && raw.length == numel
 
     /** If the matrix is dense and contiguous in row major order, it means that the data is stored in a single block of
       * memory in row major order. Useful for performance optimizations.
