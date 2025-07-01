@@ -21,7 +21,7 @@ import vecxt.BoundsCheck
   }
 
   val samplePlot = false
-  val trainSize = 60000
+  val trainSize = 5000
 
   val labels = traindata.map(_.head.toInt).toSeq.take(trainSize) // y data
   val others =
