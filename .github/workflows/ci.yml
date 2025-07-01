@@ -44,6 +44,25 @@ jobs:
           jvm: temurin@24
           apps: scala-cli
 
+      - name: Cache Mill
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/mill
+            out/
+          key: ${{ runner.os }}-mill-${{ matrix.project }}-${{ hashFiles('build.mill', '**/*.mill') }}
+          restore-keys: |
+            ${{ runner.os }}-mill-${{ matrix.project }}-
+            ${{ runner.os }}-mill-
+
+      - name: Cache Coursier
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/coursier
+          key: ${{ runner.os }}-coursier-${{ hashFiles('build.mill', '**/*.mill') }}
+          restore-keys: |
+            ${{ runner.os }}-coursier-
+
       - name: Setup NodeJS v20 LTS
         if: matrix.project == 'js'
         uses: actions/setup-node@v3
@@ -55,6 +74,17 @@ jobs:
 
       - if: matrix.project == 'js'
         run: npm install
+
+      - name: Cache native dependencies
+        if: matrix.project == 'native' || matrix.project == 'jvm'
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt
+            /var/lib/apt
+          key: ${{ runner.os }}-apt-blas-blis-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-blas-blis-
 
       - if: matrix.project == 'native' || matrix.project == 'jvm'
         run: sudo apt-get update && sudo apt-get install -y libatlas-base-dev libblis-dev
