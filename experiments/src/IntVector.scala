@@ -55,8 +55,6 @@ object IntVector:
       objSegment
     end blis_obj_t
 
-    /** Element-wise addition using simple loops (cross-platform compatible)
-      */
     def +=(vec2: IntVector)(using Arena): Unit =
       blis_h.bli_addv(vec2.blis_obj_t, v.blis_obj_t)
 
