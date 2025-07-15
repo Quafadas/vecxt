@@ -40,7 +40,24 @@ object JsDoubleMatrix:
           c.raw,
           m.rows
         )
-      else ???
+      else if m.rowStride == 1 && b.rowStride == 1 then
+        dgemm(
+          if m.isDenseRowMajor && b.isDenseRowMajor then "row-major" else "column-major",
+          "no-transpose",
+          "no-transpose",
+          m.rows,
+          b.cols,
+          m.cols,
+          alpha,
+          new Float64Array(m.raw.buffer, m.raw.byteOffset + m.offset * Float64Array.BYTES_PER_ELEMENT, m.raw.length - m.offset),
+          m.colStride,
+          new Float64Array(b.raw.buffer, b.raw.byteOffset + b.offset * Float64Array.BYTES_PER_ELEMENT, b.raw.length - b.offset),
+          b.colStride,
+          beta,
+          c.raw,
+          m.rows
+        )
+        else ???
       end if
 
     end `matmulInPlace!`

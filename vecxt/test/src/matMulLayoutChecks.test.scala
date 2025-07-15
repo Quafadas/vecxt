@@ -111,6 +111,37 @@ class DifferentMemoryLayoutTests extends FunSuite:
 
   }
 
+  test("Col major with offset") {
+    val mat1 = Matrix.fromRows(
+        NArray(1.0, 2, 3, 4),
+        NArray(5.0, 6, 7, 8),
+        NArray(9.0, 10, 11, 12),
+        NArray(13.0, 14, 15, 16)
+    )
+    val mat2 = Matrix.fromRows(
+        NArray(1.0, 2, 3, 4),
+        NArray(5.0, 6, 7, 8),
+        NArray(9.0, 10, 11, 12),
+        NArray(13.0, 14, 15, 16),
+        NArray(1.0, 2, 3, 4)
+    )
+
+    val subMat = Range.Inclusive(1, 2, 1)
+
+    // Zero copy submatrix
+    val zeroCopy = mat1(subMat, subMat) // Essentially a "view" of the original matrix
+    val zeroCopy2 = mat2(subMat, subMat)
+
+    val newMat = zeroCopy @@ zeroCopy2
+
+    assertEqualsDouble(newMat(0,0), 6 * 6 + 7 * 10, 0.000001)
+    assertEqualsDouble(newMat(1,0), 10 * 6 + 10 * 11, 0.000001)
+    assertEqualsDouble(newMat(1,1), 10 * 7 + 11 * 11, 0.000001)
+    assertEqualsDouble(newMat(0,1), 7 * 6 + 7 * 11, 0.000001)
+
+
+  }
+
   // test("matmul different dimensions"){
   //   val mat1 = Matrix[Double](NArray.tabulate[Double](6)(_.toDouble + 1), 3, 2, 1, 3, 0)
   //   val mat2 = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)

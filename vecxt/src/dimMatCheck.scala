@@ -19,8 +19,10 @@ end sameDimMatCheck
 /** If this is true, then we can use the same memory layout for element-wise operations
   */
 object sameDenseElementWiseMemoryLayoutCheck:
-  inline def apply[A, B](a: Matrix[A], b: Matrix[B]): Boolean =
-    a.isDenseColMajor && b.isDenseColMajor && a.rowStride == b.rowStride || a.isDenseRowMajor && b.isDenseRowMajor && a.colStride == b.colStride
+  inline def apply[A, B](a: Matrix[A], b: Matrix[B])(using inline doCheck: BoundsCheck): Boolean =
+    inline if doCheck then
+      a.isDenseColMajor && b.isDenseColMajor && a.rowStride == b.rowStride || a.isDenseRowMajor && b.isDenseRowMajor && a.colStride == b.colStride
+    else true
 end sameDenseElementWiseMemoryLayoutCheck
 
 object indexCheckMat:

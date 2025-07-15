@@ -38,37 +38,39 @@ object JvmDoubleMatrix:
           m.cols,
           alpha,
           m.raw,
+          0,
           lda,
           b.raw,
+          0,
           ldb,
           beta,
           c.raw,
+          0,
           m.rows
         )
       else
-        //   if m.isColMajor && b.isColMajor then
-
-        //   blas.dgemm(
-        //     mStr,
-        //     bStr,
-        //     m.rows,
-        //     b.cols,
-        //     m.cols,
-        //     alpha,
-        //     m.raw,
-        //     m.offset,
-        //     lda,
-        //     b.raw,
-        //     b.offset,
-        //     ldb,
-        //     beta,
-        //     c.raw,
-        //     0,
-        //     m.rows
-        //   )
-        // else
-        // I don't think this is implementable with traditional BLAS
-        ???
+        if m.rowStride == 1 && b.rowStride == 1 then
+          println
+          blas.dgemm(
+            "N",
+            "N",
+            m.rows,
+            b.cols,
+            m.cols,
+            alpha,
+            m.raw,
+            m.offset,
+            m.colStride,
+            b.raw,
+            b.offset,
+            b.colStride,
+            beta,
+            c.raw,
+            c.offset,
+            m.rows
+          )
+        else
+          ???
       end if
 
     end `matmulInPlace!`

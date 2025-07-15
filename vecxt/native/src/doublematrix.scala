@@ -41,7 +41,26 @@ object NativeDoubleMatrix:
           c.raw.at(0),
           m.rows
         )
-      else ???
+      else
+        if m.rowStride == 1 && b.rowStride == 1 then
+          blas.cblas_dgemm(
+            if m.isDenseRowMajor && b.isDenseRowMajor then blasEnums.CblasRowMajor else blasEnums.CblasColMajor,
+              blasEnums.CblasNoTrans,
+              blasEnums.CblasNoTrans,
+              m.rows,
+              b.cols,
+              m.cols,
+              alpha,
+              m.raw.at(m.offset),
+              m.colStride,
+              b.raw.at(b.offset),
+              b.colStride,
+              beta,
+              c.raw.at(c.offset),
+              m.rows
+            )
+        else ???
+
       end if
     end `matmulInPlace!`
 
