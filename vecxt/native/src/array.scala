@@ -239,8 +239,7 @@ object arrays:
       blas.cblas_ddot(vec.length, vec.at(0), 1, v1.at(0), 1)
     end dot
 
-    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
-      dimCheck(vec, vec2)
+    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
       vec.clone.tap(_ -= vec2)
     end -
 
@@ -249,8 +248,7 @@ object arrays:
       blas.cblas_daxpy(vec.length, -1.0, vec2.at(0), 1, vec.at(0), 1)
     end -=
 
-    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
-      dimCheck(vec, vec2)
+    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
       vec.clone.tap(_ += vec2)
     end +
 
@@ -259,7 +257,7 @@ object arrays:
       blas.cblas_daxpy(vec.length, 1.0, vec2.at(0), 1, vec.at(0), 1)
     end +=
 
-    inline def +:+(d: Double) =
+    inline def +:+(d: Double): Array[Double] =
       vec.clone.tap(_ +:+= d)
     end +:+
 
@@ -271,8 +269,8 @@ object arrays:
       end while
     end +:+=
 
-    inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck) = vec + d
-    inline def multInPlace(d: Double) = vec *= d
+    inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec + d
+    inline def multInPlace(d: Double): Unit = vec *= d
 
     inline def -(d: Double): Array[Double] =
       vec.clone().tap(_ -= d)
@@ -297,15 +295,15 @@ object arrays:
       end while
     end +=
 
-    inline def *=(d: Double) =
+    inline def *=(d: Double): Unit =
       blas.cblas_dscal(vec.length, d, vec.at(0), 1)
     end *=
 
-    inline def *(d: Double) =
+    inline def *(d: Double): Array[Double] =
       vec.clone.tap(_ *= d)
     end *
 
-    inline def /=(d: Double) =
+    inline def /=(d: Double): Unit =
       blas.cblas_dscal(vec.length, 1 / d, vec.at(0), 1)
 
     inline def /(d: Double) =

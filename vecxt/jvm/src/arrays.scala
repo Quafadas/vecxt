@@ -1203,8 +1203,20 @@ object arrays:
       vec.clone.tap(_ /= d)
     end /
 
-    inline def *=(d: Double): Array[Double] =
-      vec.tap(v => blas.dscal(v.length, d, v, 1))
+    inline def *=(d: Double): Unit =
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .mul(DoubleVector.broadcast(spd, d))
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) *= d
+        i += 1
+      end while
     end *=
 
     inline def *(d: Double): Array[Double] =
