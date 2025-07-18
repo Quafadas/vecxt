@@ -95,9 +95,25 @@ object DoubleMatrix:
         Matrix[Double](vecxt.arrays.-(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
           BoundsCheck.DoBoundsCheck.no
         )
-      else ???
+      else
+        import vecxt.BoundsCheck.DoBoundsCheck.no
+        val newArr = NArray.ofSize[Double](m.numel)
+        m.raw.copyToNArray(newArr)
+        val newMat = Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            newMat(i, j) = m(i, j) - n
+            j += 1
+          end while
+          i += 1
+        end while
+        newMat
     end -
 
+    // TODO: +:+=
+    // TODO: SIMD on JVM
     inline def +:+(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
@@ -141,12 +157,27 @@ object DoubleMatrix:
       end if
     end /:/
 
+    // TODO: -:-=
+    // TODO: SIMD on JVM
     inline def -:-(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         val newArr = vecxt.arrays.-(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = NArray.ofSize[Double](m.numel)
+        m.raw.copyToNArray(newArr)
+        val newMat = Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            newMat(i, j) = newMat(i, j) - m2(i, j)
+            j += 1
+          end while
+          i += 1
+        end while
+        newMat
       end if
     end -:-
     inline def -(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m -:- m2

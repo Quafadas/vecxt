@@ -8,6 +8,8 @@ import viz.Macros.Implicits.given_Writer_T
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import vecxt.BoundsCheck
+import scala.reflect.ClassTag
+import narr.*
 
 // File can be dowloaded from Kaggle at:
 // https://www.kaggle.com/datasets/quangphota/mnist-csv/data?select=train.csv
@@ -16,19 +18,26 @@ import vecxt.BoundsCheck
 //
 
 @main def mnist =
-  def traindata = os.read.lines(os.resource / "train.csv").iterator.drop(1).map { line =>
-    line.split(",").toSeq
-  }
+  def traindata
+   = LazyList.from(os.read.lines(os.resource / "train.csv").iterator.drop(1).map { line =>
+    line.split(",")
+  })
 
   val samplePlot = false
   val trainSize = 60000
 
-  val labels = traindata.map(_.head.toInt).toSeq.take(trainSize) // y data
+  val l1Size = 128
+  val l2Size = 64
+  val l3Size = 10 // output layer size, number of classes
+  val imageWidth = 28
+  val imageHeight = 28
+
+  val labels = traindata.map(_.head.toInt)
   val others =
     traindata
       .map(_.tail.map(_.toDouble))
-      .take(trainSize)
       .map(_.toList.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
+
 
   if samplePlot then
     (os.resource / "hist.vg.json").plot(
@@ -49,14 +58,17 @@ import vecxt.BoundsCheck
       )
   end if
 
-  val weight1 = Matrix(Array.fill(28 * 28 * 10)(scala.util.Random.nextDouble() * 0.2), (28 * 28, 10))
-  val bias1 = Array.fill(10)(0.0)
-  val weight2 = Matrix(Array.fill(10 * 10)(scala.util.Random.nextDouble() * 0.2), (10, 10))
-  val bias2 = Array.fill(10)(0.0)
+  val weight1 = Matrix(Array.fill(imageHeight * imageWidth * l1Size)(scala.util.Random.nextDouble() * 0.2), (imageWidth * imageHeight, l1Size))
+  val bias1 = Array.fill(l1Size)(0.0)
+  val weight2 = Matrix(Array.fill(l1Size * l3Size)(scala.util.Random.nextDouble() * 0.2), (l1Size, l3Size))
+  val bias2 = Array.fill(l3Size)(0.0)
 
   val x = Matrix.fromRows(others.toArray*)
+  println(s"x layout ${x.layout}")
+
 
   println(s"weight1 shape: ${weight1.shape}, weight1 rows: ${weight1.rows}, weight1 cols: ${weight1.cols}")
+  println(s"weight2 shape: ${weight2.shape}, weight2 rows: ${weight2.rows}, weight2 cols: ${weight2.cols}")
   // val i = x @@ weight1 // This is just to check that the matrix multiplication works
   // println(s"i shape: ${i.shape}, i rows: ${i.rows}, i cols: ${i.cols}")
   // println(labels)
@@ -65,22 +77,22 @@ import vecxt.BoundsCheck
   // println(s"one_hot_Y shape: ${one_hot_Y.shape}, one_hot_Y rows: ${one_hot_Y.rows}, one_hot_Y cols: ${one_hot_Y.cols}")
   // println(one_hot_Y.printMat)
 
-  println(s"x shape: ${x.shape}, x rows: ${x.rows}, x cols: ${x.cols}")
-  println(s"10 rows, 100-150 cols of x: ${x(0 until 10, 100 until 150).printMat}")
+  // println(s"x shape: ${x.shape}, x rows: ${x.rows}, x cols: ${x.cols}")
+  // println(s"10 rows, 100-150 cols of x: ${x(0 until 10, 100 until 150).printMat}")
 
-  println(s"initial weights: ${weight1(0 to 10, ::).printMat}")
-  println(s"initial biases: ${bias1.mkString(", ")}")
-  println(s"initial weights2: ${weight2(0 until 10, ::).printMat}")
-  println(s"initial biases2: ${bias2.mkString(", ")}")
-  println(s"labels: ${labels.take(10).mkString(", ")}")
+  // println(s"initial weights: ${weight1(0 to 10, ::).printMat}")
+  // println(s"initial biases: ${bias1.mkString(", ")}")
+  // println(s"initial weights2: ${weight2(0 until 10, ::).printMat}")
+  // println(s"initial biases2: ${bias2.mkString(", ")}")
+  // println(s"labels: ${labels.take(10).mkString(", ")}")
 
   val arg = gradient_decent(
     x = x,
     y = one_hot_Y,
     labels = labels.toArray,
-    iterations = 150,
+    iterations = 10,
     batchSize = 120,
-    alpha = 0.075,
+    alpha = 0.05,
     decayRate = 0.0125,
     w1 = weight1,
     b1 = bias1,
@@ -115,6 +127,8 @@ def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: A
   // println(s"weight1 shape: ${w1.shape}, weight1 rows: ${w1.rows}, weight1 cols: ${w1.cols}")
   // println(s"weight2 shape: ${w2.shape}, weight2 rows: ${w2.rows}, weight2 cols: ${w2.cols}")
 
+  // println(s"m:  ${x.layout}")
+  // println(s"b: ${w1.layout}")
   val z1 = (x @@ w1)
   z1.mapRowsInPlace(r => r.tap(_ += b1))
   //  println(s"z1 shape: ${z1.shape}, z1 rows: ${z1.rows}, z1 cols: ${z1.cols}")
@@ -151,6 +165,9 @@ def back_prop(
   val m_inv = 1.0 / m
   // println(s"m: $m, m_inv: $m_inv")
   // println(s"Y shape: ${Y.shape}, Y rows: ${Y.rows}, Y cols: ${Y.cols} y colStride: ${Y.colStride}, y rowStride: ${Y.rowStride}, y offset: ${Y.offset}")
+  // println(a2.layout)
+  // println(Y.layout)
+
   val dz2 = a2 - Y
   val dw2 = m_inv * (a1.transpose @@ dz2)
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
@@ -169,7 +186,15 @@ def back_prop(
   (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
 end back_prop
 
-inline def oneHotEncode(labels: Seq[Int]): Matrix[Double] =
+inline def oneHot[T](int: Int, numClasses: Int)(using ct: ClassTag[T], f: Numeric[T]): Array[T] =
+  val arr = NArray.fill[T](numClasses)(f.zero)
+  if int >= 0 && int < numClasses then
+    arr(int) = f.one
+  end if
+  arr
+end oneHot
+
+def oneHotEncode(labels: Seq[Int]): Matrix[Double] =
   val n = labels.length
   val m = 10 // number of classes
   val oneHot = Array.fill(n * m)(0.0)
@@ -221,10 +246,16 @@ def gradient_decent(
       // println(s"Epoch: $j, iteration: $i, alpha: $alpha_")
       val start = j * batchSize
       val end = start + batchSize
-      val xBatch = x(start until end, ::).deepCopy
-      val yBatch = y(start until end, ::).deepCopy
+      val range = start.until(end)
+      // println(range.toArray.mkString(", "))
+      val xBatch = x(range, ::)
+      val yBatch = y(range, ::)
       // println(s"xBatch shape: ${xBatch.shape}, xBatch rows: ${xBatch.rows}, xBatch cols: ${xBatch.cols}")
       // println(s"yBatch shape: ${yBatch.shape}, yBatch rows: ${yBatch.rows}, yBatch cols: ${yBatch.cols}")
+
+      // assert(xBatch.raw  == x.raw)
+      // println("xbatch.raw: " + xBatch.raw.length)
+
       val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, xBatch)
       val (dw1, db1, dw2, db2) = back_prop(w1_, b1_, w2_, b2_, z1, a1, z2, a2, xBatch, yBatch)
       w1_ -= (dw1 * alpha_)
@@ -241,7 +272,7 @@ def gradient_decent(
     // decay the learning rate, can experiment with different rates here.
     if (i + 1) % 25 == 0 then alpha_ = alpha_ - decayRate
 
-    if i % 10 == 0 then
+    if i % 1 == 0 then
       val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
       val acc = loss(mostLikely(a2), labels)
       println(s"Iteration: $i, alpha: $alpha_")

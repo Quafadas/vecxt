@@ -134,10 +134,49 @@ class DifferentMemoryLayoutTests extends FunSuite:
 
     val newMat = zeroCopy @@ zeroCopy2
 
+
     assertEqualsDouble(newMat(0,0), 6 * 6 + 7 * 10, 0.000001)
     assertEqualsDouble(newMat(1,0), 10 * 6 + 10 * 11, 0.000001)
     assertEqualsDouble(newMat(1,1), 10 * 7 + 11 * 11, 0.000001)
     assertEqualsDouble(newMat(0,1), 7 * 6 + 7 * 11, 0.000001)
+
+    val subMat3 = Range.Inclusive(1, 3, 1)
+
+    val hardCopy = mat1(subMat3, subMat)
+
+    val checkAgainst = hardCopy.deepCopy @@ hardCopy.transpose.deepCopy
+
+
+    val matMul = hardCopy @@ hardCopy.transpose
+
+    // println("to check")
+    // println(checkAgainst.printMat)
+    // println("against")
+    // println(matMul.printMat)
+
+    for i <- 0 until checkAgainst.rows do
+      for j <- 0 until checkAgainst.cols do
+        assertEqualsDouble(checkAgainst(i,j), matMul(i,j), 0.00001, (i, j))
+
+
+    val checkAgainst2 = hardCopy.transpose.deepCopy @@ hardCopy.deepCopy
+    val matMul2 = hardCopy.transpose @@ hardCopy
+
+    // println("to check")
+    // println(checkAgainst2.printMat)
+
+    // println("against")
+    // println(matMul2.printMat)
+
+    // println(checkAgainst2.layout)
+    // println(matMul2.layout)
+
+    for i <- 0 until checkAgainst2.rows do
+      for j <- 0 until checkAgainst2.cols do
+        assertEqualsDouble(checkAgainst2(i,j), matMul2(i,j), 0.00001, (i, j))
+
+
+
 
 
   }

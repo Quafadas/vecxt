@@ -53,7 +53,9 @@ object matrix:
     lazy val isDenseRowMajor: Boolean =
       rowStride == cols && colStride == 1 && offset == 0
 
-    lazy val numel = rows * cols
+    lazy val numel: Int = rows * cols
+
+    lazy val layout: String = s"rows: $rows, cols: $cols, rowStride: $rowStride, colStride: $colStride, offset: $offset, data length: ${raw.length}"
   end Matrix
 
   object Matrix:

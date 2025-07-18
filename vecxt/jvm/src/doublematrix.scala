@@ -8,6 +8,7 @@ import all.*
 import jdk.incubator.vector.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
+import org.netlib.blas.Dgemm;
 
 object JvmDoubleMatrix:
 
@@ -23,13 +24,12 @@ object JvmDoubleMatrix:
     ): Unit =
       dimMatCheck(m, b)
 
-      val mStr = if m.isDenseColMajor then "N" else "T"
-      val bStr = if b.isDenseColMajor then "N" else "T"
       val lda = if m.isDenseColMajor then m.rows else m.cols
       val ldb = if b.isDenseColMajor then b.rows else b.cols
 
       if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
-
+        val mStr = if m.isDenseColMajor then "N" else "T"
+        val bStr = if b.isDenseColMajor then "N" else "T"
         blas.dgemm(
           mStr,
           bStr,
@@ -49,26 +49,31 @@ object JvmDoubleMatrix:
           m.rows
         )
       else
-        if m.rowStride == 1 && b.rowStride == 1 then
-          println
-          blas.dgemm(
-            "N",
-            "N",
+
+        if m.rowStride == 1 || m.colStride == 1 && b.rowStride == 1 || b.colStride == 1 then
+          val mStr = if m.rowStride == 1 then "N" else "T"
+          val bStr = if b.rowStride == 1 then "N" else "T"
+          // If the matrix has an offset, then a call to blas.dgemm complains.
+          // https://github.com/luhenry/netlib/issues/23
+          Dgemm.dgemm(
+            mStr,
+            bStr,
             m.rows,
             b.cols,
             m.cols,
             alpha,
             m.raw,
             m.offset,
-            m.colStride,
+            if m.rowStride == 1 then m.colStride else m.rowStride,
             b.raw,
             b.offset,
-            b.colStride,
+            if b.colStride == 1 then b.rowStride else b.colStride,
             beta,
             c.raw,
             c.offset,
             m.rows
           )
+
         else
           ???
       end if

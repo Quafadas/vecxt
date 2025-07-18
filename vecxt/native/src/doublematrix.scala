@@ -42,19 +42,21 @@ object NativeDoubleMatrix:
           m.rows
         )
       else
-        if m.rowStride == 1 && b.rowStride == 1 then
+        if m.rowStride == 1 || m.colStride == 1 && b.rowStride == 1 || b.colStride == 1 then
+          val transB = if b.rowStride == 1 then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+          val transA = if m.rowStride == 1 then blasEnums.CblasNoTrans else blasEnums.CblasTrans
           blas.cblas_dgemm(
             if m.isDenseRowMajor && b.isDenseRowMajor then blasEnums.CblasRowMajor else blasEnums.CblasColMajor,
-              blasEnums.CblasNoTrans,
-              blasEnums.CblasNoTrans,
+              transA,
+              transB,
               m.rows,
               b.cols,
               m.cols,
               alpha,
               m.raw.at(m.offset),
-              m.colStride,
+              if m.rowStride == 1 then m.colStride else m.rowStride,
               b.raw.at(b.offset),
-              b.colStride,
+              if b.rowStride == 1 then b.colStride else b.rowStride,
               beta,
               c.raw.at(c.offset),
               m.rows

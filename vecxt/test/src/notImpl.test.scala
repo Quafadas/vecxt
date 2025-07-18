@@ -22,22 +22,13 @@ class NotImplTest extends FunSuite:
     intercept[NotImplementedError](m / 2.0)
   }
 
-  test("DoubleMatrix.- with non-simple layout throws") {
-    intercept[NotImplementedError](m - 2.0)
-  }
-
   test("DoubleMatrix.hadamard with non-simple layout throws") {
     intercept[NotImplementedError](m.hadamard(m))
   }
   test("DoubleMatrix./:/ with non-simple layout throws") {
     intercept[NotImplementedError](m./:/(m))
   }
-  test("DoubleMatrix.-:- with non-simple layout throws") {
-    intercept[NotImplementedError](m.-:-(m))
-  }
-  test("DoubleMatrix.unary_- with non-simple layout throws") {
-    intercept[NotImplementedError](-m)
-  }
+
   test("DoubleMatrix.exp! with non-simple layout throws") {
     intercept[NotImplementedError](m.`exp!`)
   }
@@ -64,15 +55,6 @@ class NotImplTest extends FunSuite:
   }
   test("DoubleMatrix.cos with non-simple layout throws") {
     intercept[NotImplementedError](m.cos)
-  }
-
-  // JvmDoubleMatrix
-  test("JvmDoubleMatrix.matmul with non-simple layout throws") {
-    intercept[NotImplementedError](m.matmul(m.transpose))
-  }
-
-  test("JvmDoubleMatrix vector multiply") {
-    intercept[NotImplementedError](m.matmul(m.transpose))
   }
 
   test("JvmDoubleMatrix.*:* with non-simple layout throws") {
