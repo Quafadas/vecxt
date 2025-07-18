@@ -119,7 +119,6 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertVecEquals(v2, NArray(v1.map(2.0 / _).toArray*))
   }
 
-
   test("Array / elementwise") {
     val v1 = NArray[Double](1.0, 2.0, 3.0)
 

@@ -48,34 +48,30 @@ object JvmDoubleMatrix:
           0,
           m.rows
         )
-      else
-
-        if m.rowStride == 1 || m.colStride == 1 && b.rowStride == 1 || b.colStride == 1 then
-          val mStr = if m.rowStride == 1 then "N" else "T"
-          val bStr = if b.rowStride == 1 then "N" else "T"
-          // If the matrix has an offset, then a call to blas.dgemm complains.
-          // https://github.com/luhenry/netlib/issues/23
-          Dgemm.dgemm(
-            mStr,
-            bStr,
-            m.rows,
-            b.cols,
-            m.cols,
-            alpha,
-            m.raw,
-            m.offset,
-            if m.rowStride == 1 then m.colStride else m.rowStride,
-            b.raw,
-            b.offset,
-            if b.colStride == 1 then b.rowStride else b.colStride,
-            beta,
-            c.raw,
-            c.offset,
-            m.rows
-          )
-
-        else
-          ???
+      else if m.rowStride == 1 || m.colStride == 1 && b.rowStride == 1 || b.colStride == 1 then
+        val mStr = if m.rowStride == 1 then "N" else "T"
+        val bStr = if b.rowStride == 1 then "N" else "T"
+        // If the matrix has an offset, then a call to blas.dgemm complains.
+        // https://github.com/luhenry/netlib/issues/23
+        Dgemm.dgemm(
+          mStr,
+          bStr,
+          m.rows,
+          b.cols,
+          m.cols,
+          alpha,
+          m.raw,
+          m.offset,
+          if m.rowStride == 1 then m.colStride else m.rowStride,
+          b.raw,
+          b.offset,
+          if b.colStride == 1 then b.rowStride else b.colStride,
+          beta,
+          c.raw,
+          c.offset,
+          m.rows
+        )
+      else ???
       end if
 
     end `matmulInPlace!`

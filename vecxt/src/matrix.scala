@@ -55,7 +55,8 @@ object matrix:
 
     lazy val numel: Int = rows * cols
 
-    lazy val layout: String = s"rows: $rows, cols: $cols, rowStride: $rowStride, colStride: $colStride, offset: $offset, data length: ${raw.length}"
+    lazy val layout: String =
+      s"rows: $rows, cols: $cols, rowStride: $rowStride, colStride: $colStride, offset: $offset, data length: ${raw.length}"
   end Matrix
 
   object Matrix:

@@ -46,14 +46,14 @@ class SubmatrixTest extends FunSuite:
     val mat1 = Matrix.fromRows[Double](
       NArray[Double](1.0, 2.0, 3.0),
       NArray[Double](1.0, 2.0, 3.0) + 3.0,
-      NArray[Double](1.0, 2.0, 3.0) + 6.0,
+      NArray[Double](1.0, 2.0, 3.0) + 6.0
     )
 
     val submat1 = Matrix.fromColumns[Double](NArray(1.0, 2, 3))
     val submat2 = Matrix.fromColumns[Double](NArray(1.0, 2))
 
     for i <- 0.until(2) do
-      val submat = mat1.submatrix( NArray(i, i+1), :: )
+      val submat = mat1.submatrix(NArray(i, i + 1), ::)
       val result = submat @@ submat1 // zero copy
       val expected = submat.deepCopy @@ submat1.deepCopy
       assertMatrixEquals(result, expected)
@@ -65,7 +65,6 @@ class SubmatrixTest extends FunSuite:
       // val resultN_T = submat.transpose @@ submat1.transpose
       // val expectedN_T = submat.transpose.deepCopy @@ submat1.transpose.deepCopy
       // assertMatrixEquals(result, expected)
-
-
+    end for
 
 end SubmatrixTest
