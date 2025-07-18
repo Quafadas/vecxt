@@ -165,8 +165,10 @@ object JvmDoubleMatrix:
       *   2. If `colStride == 1`, the elements of the vector are added to each row directly.
       *   3. Otherwise, a fallback mechanism is used.
       *
-      * @param arr The vector to be added to the matrix.
-      * @param boundsCheck Whether to perform bounds checking on the vector length.
+      * @param arr
+      *   The vector to be added to the matrix.
+      * @param boundsCheck
+      *   Whether to perform bounds checking on the vector length.
       */
     inline def +=(arr: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
 
