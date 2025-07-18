@@ -81,7 +81,6 @@ class ArrayAdditionSuite extends munit.FunSuite:
     val rowVector = NArray[Double](100.0, 200.0, 300.0, 400.0)
     mat += rowVector
 
-
     assertMatrixEquals(
       mat,
       Matrix.fromRows(
@@ -106,7 +105,6 @@ class ArrayAdditionSuite extends munit.FunSuite:
     val transposeCheck = mat.transpose
     transposeCheck += r2
 
-
     println("Transpose check:")
     println(transposeCheck.printMat)
     assertMatrixEquals(
@@ -118,3 +116,4 @@ class ArrayAdditionSuite extends munit.FunSuite:
         NArray[Double](104.0, 208.0, 312.0, 416.0, 516.0)
       )
     )
+end ArrayAdditionSuite

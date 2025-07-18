@@ -106,12 +106,10 @@ object JsNativeDoubleArrays:
       end if
     end *:*
 
-
     inline def +=(arr: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
 
-      if(boundsCheck){
-          assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
-      }
+      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
+      end if
 
       var i = 0
       while i < m.rows do
@@ -122,7 +120,6 @@ object JsNativeDoubleArrays:
         end while
         i += 1
       end while
-
 
     end +=
 

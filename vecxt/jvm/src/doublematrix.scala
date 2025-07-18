@@ -158,21 +158,18 @@ object JvmDoubleMatrix:
         Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
-    /**
-      * Adds this vector to each row of the matrix
+    /** Adds this vector to each row of the matrix
       *
       * @param arr
       * @param boundsCheck
       */
     inline def +=(arr: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
 
-      if(boundsCheck){
-          assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
-      }
+      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
+      end if
 
-      /**
-        * 1. It rowStride = 1, then we can broadcast each element of arr down it's each column SIMD
-        * 2. If colStride = 1, then we can add each element of the vector to each row
+      /**   1. It rowStride = 1, then we can broadcast each element of arr down it's each column SIMD
+        *   2. If colStride = 1, then we can add each element of the vector to each row
         *
         * else fallback
         */
@@ -186,16 +183,19 @@ object JvmDoubleMatrix:
           while j < spd.loopBound(m.rows) do
 
             val offsetJ = offsetI + j
-            DoubleVector.fromArray(
-              vecxt.arrays.spd,
-              m.raw,
-              offsetJ
-            ).add(
-              DoubleVector.broadcast(vecxt.arrays.spd, arr(i))
-            ).intoArray(
-              m.raw,
-              offsetJ
-            )
+            DoubleVector
+              .fromArray(
+                vecxt.arrays.spd,
+                m.raw,
+                offsetJ
+              )
+              .add(
+                DoubleVector.broadcast(vecxt.arrays.spd, arr(i))
+              )
+              .intoArray(
+                m.raw,
+                offsetJ
+              )
 
             j += spd.length
 
@@ -208,7 +208,6 @@ object JvmDoubleMatrix:
 
           i += 1
         end while
-
       else if m.colStride == 1 then
         var j = 0
         while j < m.rows do
@@ -216,16 +215,19 @@ object JvmDoubleMatrix:
           val offsetJ = m.offset + j * m.rowStride
           while i < spd.loopBound(m.cols) do
             val offsetI = offsetJ + i
-            DoubleVector.fromArray(
-              vecxt.arrays.spd,
-              m.raw,
-              offsetI
-            ).add(
-              DoubleVector.fromArray(vecxt.arrays.spd, arr, i)
-            ).intoArray(
-              m.raw,
-              offsetI
-            )
+            DoubleVector
+              .fromArray(
+                vecxt.arrays.spd,
+                m.raw,
+                offsetI
+              )
+              .add(
+                DoubleVector.fromArray(vecxt.arrays.spd, arr, i)
+              )
+              .intoArray(
+                m.raw,
+                offsetI
+              )
             i += spd.length()
 
           end while
@@ -236,9 +238,6 @@ object JvmDoubleMatrix:
           end while
           j = j + 1
         end while
-
-
-
       else // fallback for strides != 1
         var i = 0
         while i < m.rows do
@@ -249,7 +248,7 @@ object JvmDoubleMatrix:
           end while
           i += 1
         end while
-
+      end if
 
     end +=
 
