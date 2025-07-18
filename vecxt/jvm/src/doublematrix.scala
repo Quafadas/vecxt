@@ -158,10 +158,15 @@ object JvmDoubleMatrix:
         Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
-    /** Adds this vector to each row of the matrix
+    /** Adds the elements of this vector to the matrix with broadcasting behavior.
       *
-      * @param arr
-      * @param boundsCheck
+      * Depending on the matrix's memory layout:
+      *   1. If `rowStride == 1`, the elements of the vector are broadcasted down each column and added.
+      *   2. If `colStride == 1`, the elements of the vector are added to each row directly.
+      *   3. Otherwise, a fallback mechanism is used.
+      *
+      * @param arr The vector to be added to the matrix.
+      * @param boundsCheck Whether to perform bounds checking on the vector length.
       */
     inline def +=(arr: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
 
