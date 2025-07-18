@@ -168,7 +168,7 @@ object JvmDoubleMatrix:
       if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
       end if
 
-      /**   1. It rowStride = 1, then we can broadcast each element of arr down it's each column SIMD
+      /**   1. If rowStride = 1, then we can broadcast each element of arr down each column SIMD
         *   2. If colStride = 1, then we can add each element of the vector to each row
         *
         * else fallback
