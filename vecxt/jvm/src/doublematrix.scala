@@ -9,6 +9,8 @@ import jdk.incubator.vector.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import org.netlib.blas.Dgemm;
+import narr.*
+import vecxt.dimensionExtender.DimensionExtender.*
 
 object JvmDoubleMatrix:
 
@@ -155,6 +157,101 @@ object JvmDoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
+
+    /**
+      * Adds this vector to each row of the matrix
+      *
+      * @param arr
+      * @param boundsCheck
+      */
+    inline def +=(arr: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
+
+      if(boundsCheck){
+          assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
+      }
+
+      /**
+        * 1. It rowStride = 1, then we can broadcast each element of arr down it's each column SIMD
+        * 2. If colStride = 1, then we can add each element of the vector to each row
+        *
+        * else fallback
+        */
+
+      if m.rowStride == 1 then
+        var i = 0
+        while i < m.cols do
+
+          var j = 0
+          val offsetI = m.offset + i * m.colStride
+          while j < spd.loopBound(m.rows) do
+
+            val offsetJ = offsetI + j
+            DoubleVector.fromArray(
+              vecxt.arrays.spd,
+              m.raw,
+              offsetJ
+            ).add(
+              DoubleVector.broadcast(vecxt.arrays.spd, arr(i))
+            ).intoArray(
+              m.raw,
+              offsetJ
+            )
+
+            j += spd.length
+
+          end while
+          while j < m.rows do
+            val idx = offsetI + j
+            m.raw(idx) = m.raw(idx) + arr(i)
+            j += 1
+          end while
+
+          i += 1
+        end while
+
+      else if m.colStride == 1 then
+        var j = 0
+        while j < m.rows do
+          var i = 0
+          val offsetJ = m.offset + j * m.rowStride
+          while i < spd.loopBound(m.cols) do
+            val offsetI = offsetJ + i
+            DoubleVector.fromArray(
+              vecxt.arrays.spd,
+              m.raw,
+              offsetI
+            ).add(
+              DoubleVector.fromArray(vecxt.arrays.spd, arr, i)
+            ).intoArray(
+              m.raw,
+              offsetI
+            )
+            i += spd.length()
+
+          end while
+          while i < m.cols do
+            val idx = offsetJ + i
+            m.raw(idx) = m.raw(idx) + arr(i)
+            i += 1
+          end while
+          j = j + 1
+        end while
+
+
+
+      else // fallback for strides != 1
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            m(i, j) = m(i, j) + arr(j)
+            j += 1
+          end while
+          i += 1
+        end while
+
+
+    end +=
 
     def +=(n: Double): Unit =
       import vecxt.BoundsCheck.DoBoundsCheck.no

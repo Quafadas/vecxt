@@ -8,6 +8,7 @@ import scala.math.Ordering
 import narr.*
 import scala.reflect.ClassTag
 import MatrixInstance.*
+import vecxt.dimensionExtender.DimensionExtender.*
 
 object JsNativeBooleanArrays:
 
@@ -104,6 +105,26 @@ object JsNativeDoubleArrays:
       else ???
       end if
     end *:*
+
+
+    inline def +=(arr: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
+
+      if(boundsCheck){
+          assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
+      }
+
+      var i = 0
+      while i < m.rows do
+        var j = 0
+        while j < m.cols do
+          m(i, j) = m(i, j) + arr(j)
+          j += 1
+        end while
+        i += 1
+      end while
+
+
+    end +=
 
     inline def +=(n: Double): Unit =
       import vecxt.BoundsCheck.DoBoundsCheck.no
