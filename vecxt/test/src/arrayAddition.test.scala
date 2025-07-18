@@ -105,8 +105,7 @@ class ArrayAdditionSuite extends munit.FunSuite:
     val transposeCheck = mat.transpose
     transposeCheck += r2
 
-    println("Transpose check:")
-    println(transposeCheck.printMat)
+// Removed unnecessary debug print statements
     assertMatrixEquals(
       transposeCheck,
       Matrix.fromRows(
