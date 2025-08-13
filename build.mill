@@ -93,7 +93,7 @@ object vecxt extends CrossPlatform {
     override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
     def forkArgs = super.forkArgs() ++ vecIncubatorFlag
     def ivyDeps = super.ivyDeps() ++ Agg(
-      ivy"dev.ludovic.netlib:blas:3.0.3"
+      ivy"dev.ludovic.netlib:blas:3.0.4"
     )
 
     object test extends ScalaTests with SharedTests {

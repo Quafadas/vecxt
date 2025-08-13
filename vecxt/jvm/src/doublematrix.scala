@@ -55,7 +55,7 @@ object JvmDoubleMatrix:
         val bStr = if b.rowStride == 1 then "N" else "T"
         // If the matrix has an offset, then a call to blas.dgemm complains.
         // https://github.com/luhenry/netlib/issues/23
-        Dgemm.dgemm(
+        blas.dgemm(
           mStr,
           bStr,
           m.rows,
