@@ -6,10 +6,10 @@ import contrib.jmh.JmhModule
 
 object `package` extends RootModule with ScalaModule {
         // "-Djava.library.path=/opt/homebrew/Cellar/blis/2.0/lib"
-    
+
     /**
-      * Path to the BLIS library. This assumes that you used 
-      * On mac: brew install blis 
+      * Path to the BLIS library. This assumes that you used
+      * On mac: brew install blis
       * On ubuntu: apt install libblis3 libblis-dev [Not sure how general these settibngs are]
       * Windows support is not implemented, not sure if BLIS is available on Windows.
       */
@@ -29,13 +29,13 @@ object `package` extends RootModule with ScalaModule {
         }
     }
 
-    def scalaVersion = build.vecxt.jvm.scalaVersion
+    def scalaVersion = "3.7.2"
     override def compileResources = T {
         super.compileResources() ++ resources()
     }
     def scalacOptions: T[Seq[String]] = Seq("-Xmax-inlines:10000")
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
-    override def mainClass = Some("validate")
+    override def mainClass = Some("mlx")
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm, build.vecxtensions.jvm, build.generated)
     override def ivyDeps = super.ivyDeps() ++ Seq(
         ivy"com.lihaoyi::os-lib::0.10.4",

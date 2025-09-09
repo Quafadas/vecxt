@@ -81,3 +81,17 @@ jextractBlisTyped:
     --use-system-load-library \
     @generated/my_includes_blis_typed.txt \
     /opt/homebrew/opt/blis/include/blis/blis.h
+
+jextractMLX:
+  /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
+    -t mlx \
+    --output generated/src \
+    --include-dir /Users/simon/Code/mlx-c/ \
+    /Users/simon/Code/mlx-c/mlx/c/mlx.h
+
+jextractMLX2:
+  /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
+    -t mlx2 \
+    --output generated/src/mlx2 \
+    --include-dir /Users/simon/Code/mlx-c/ \
+    /Users/simon/Code/mlx-c/mlx/c/ops.h
