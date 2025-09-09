@@ -1,15 +1,22 @@
+//| mill-version: 1.0.4
+//| mill-jvm-version: 24
+//| mvnDeps:
+//| - io.github.quafadas:millSite_mill1_3.7:0.0.52
+//| - com.goyeau::mill-scalafix::0.6.0
+//| - com.lihaoyi::mill-contrib-jmh:$MILL_VERSION
+
+/**
+ * --add-modules=jdk.incubator.vector
+-Xss100m
+-Xmx4G
+  */
+
 package build
 
+import mill.util.VcsVersion
+import com.goyeau.mill.scalafix.ScalafixModule
+
 import mill.scalalib.publish.Scope.Test
-
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
-import $ivy.`io.github.quafadas:millSite_mill0.12_2.13:0.0.38`
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
-import $ivy.`com.lihaoyi::mill-contrib-jmh:`
-import $ivy.`com.goyeau::mill-scalafix::0.4.2`
-
-import de.tobiasroeser.mill.vcs.version._
-import com.github.lolgab.mill.crossplatform._
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
 import io.github.quafadas.millSite._
 import mill._, scalalib._, publish._
@@ -20,30 +27,30 @@ import mill.util.Jvm
 import mill.api.Result
 import com.goyeau.mill.scalafix.ScalafixModule
 
-import $packages._
-
 // mill __.compiledClassesAndSemanticDbFiles
-// mill --import ivy:com.lihaoyi::mill-contrib-bloop:  mill.contrib.bloop.Bloop/install
 object V {
   val spire = "0.18.0"
   val laminar = "17.2.0"
   val scalatags = "0.13.1"
-  val scalaVersion = "3.7.0"
+  val scalaVersion = "3.7.2"
   val munitVersion = "1.1.1"
+  val narr = mvn"ai.dragonfly::narr::1.0"
 }
 
-trait Common extends ScalaModule  with PublishModule with ScalafixModule {
+
+
+trait Common extends PublishModule with ScalafixModule {
   def scalaVersion = V.scalaVersion
 
   def publishVersion = VcsVersion.vcsState().format()
 
-  def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"ai.dragonfly::narr::1.0"
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    V.narr
   )
 
-  override def scalacOptions: Target[Seq[String]] = super.scalacOptions() ++ Seq("-explain-cyclic", "-Wunused:imports")
+  override def scalacOptions = super.scalacOptions() ++ Seq("-explain-cyclic", "-Wunused:imports")
 
-  override def pomSettings = T {
+  override def pomSettings = Task {
     PomSettings(
       description = "Making cross platform compute intense problems less vexing",
       organization = "io.github.quafadas",
@@ -63,120 +70,121 @@ val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
 
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.19.0"
-  // def ivyDeps = super.ivyDeps() ++ Seq(ivy"com.raquo::ew::0.2.0")
+  // def mvnDeps = super.mvnDeps() ++ Seq(mvn"com.raquo::ew::0.2.0")
   // def moduleKind = ModuleKind.
 }
 
 
 trait CommonNative extends ScalaNativeModule {
-  def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.ekrich::sblas::0.7.0"
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    mvn"org.ekrich::sblas::0.7.0"
   )
-  def scalaNativeVersion: mill.T[String] = "0.5.7"
+  def scalaNativeVersion = "0.5.7"
+  def scalaVersion: T[String] = V.scalaVersion
 }
 
 trait CommonTests extends TestModule.Munit {
-  def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.scalameta::munit::${V.munitVersion}",
+  def mvnDeps = super.mvnDeps() ++ Seq(
+    mvn"org.scalameta::munit::${V.munitVersion}",
   )
 }
 
 
-object vecxt extends CrossPlatform {
-  trait Shared extends CrossPlatformScalaModule with Common {
-    // common `core` settings here
-    trait SharedTests extends CommonTests {
-      // common `core` test settings here
-    }
-  }
-  object jvm extends Shared {
-    override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
-    def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-    def ivyDeps = super.ivyDeps() ++ Agg(
-      ivy"dev.ludovic.netlib:blas:3.0.4"
-    )
+// object vecxt extends Module {
+//   trait Shared extends CrossPlatformScalaModule with Common {
+//     // common `core` settings here
+//     trait SharedTests extends CommonTests {
+//       // common `core` test settings here
+//     }
+//   }
+//   object jvm extends Shared {
+//     override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
+//     def forkArgs = super.forkArgs() ++ vecIncubatorFlag
+//     def mvnDeps = super.mvnDeps() ++ Seq(
+//       mvn"dev.ludovic.netlib:blas:3.0.4"
+//     )
 
-    object test extends ScalaTests with SharedTests {
-      def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-    }
-  }
-  object js extends Shared with CommonJS {
-    // js specific settings here
-    object test extends ScalaJSTests with SharedTests {
-        def moduleKind = ModuleKind.CommonJSModule
-    }
-  }
+//     object test extends ScalaTests with SharedTests {
+//       def forkArgs = super.forkArgs() ++ vecIncubatorFlag
+//     }
+//   }
+//   object js extends Shared with CommonJS {
+//     // js specific settings here
+//     object test extends ScalaJSTests with SharedTests {
+//         def moduleKind = ModuleKind.CommonJSModule
+//     }
+//   }
 
-  object native extends Shared with CommonNative {
-    // native specific settings here
-    object test extends ScalaNativeTests with SharedTests
-  }
-}
+//   object native extends Shared with CommonNative {
+//     // native specific settings here
+//     object test extends ScalaNativeTests with SharedTests
+//   }
+// }
 
-object vecxtensions extends CrossPlatform {
-  override def moduleDeps: Seq[CrossPlatform] = Seq(vecxt)
-  trait Shared extends CrossPlatformScalaModule with Common {
+// object vecxtensions extends CrossPlatform {
+//   override def moduleDeps: Seq[CrossPlatform] = Seq(vecxt)
+//   trait Shared extends CrossPlatformScalaModule with Common {
 
-    // common `core` settings here
-    trait SharedTests extends CommonTests {
-      // common `core` test settings here
-    }
-  }
-  object jvm extends Shared {
-    override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
-    def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-    def ivyDeps = Agg(
-      ivy"org.typelevel::spire::${V.spire}"
-    )
-
-
-    object test extends ScalaTests with SharedTests {
-      def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-    }
-  }
-  object js extends Shared with CommonJS {
-    override def ivyDeps: Target[Agg[Dep]] = super.ivyDeps() ++ Agg(
-      ivy"com.lihaoyi::scalatags::${V.scalatags}",
-      ivy"com.raquo::laminar::${V.laminar}",
-      ivy"org.typelevel::spire::${V.spire}"
-    )
-    // js specific settings here
-    object test extends ScalaJSTests with SharedTests {
-      def moduleKind = ModuleKind.CommonJSModule
-    }
-  }
-
-  object native extends Shared with CommonNative {
-    // native specific settings here
-    object test extends ScalaNativeTests with SharedTests
-  }
-}
+//     // common `core` settings here
+//     trait SharedTests extends CommonTests {
+//       // common `core` test settings here
+//     }
+//   }
+//   object jvm extends Shared {
+//     override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
+//     def forkArgs = super.forkArgs() ++ vecIncubatorFlag
+//     def mvnDeps = Seq(
+//       mvn"org.typelevel::spire::${V.spire}"
+//     )
 
 
+//     object test extends ScalaTests with SharedTests {
+//       def forkArgs = super.forkArgs() ++ vecIncubatorFlag
+//     }
+//   }
+//   object js extends Shared with CommonJS {
+//     override def mvnDeps: Target[Agg[Dep]] = super.mvnDeps() ++ Seq(
+//       mvn"com.lihaoyi::scalatags::${V.scalatags}",
+//       mvn"com.raquo::laminar::${V.laminar}",
+//       mvn"org.typelevel::spire::${V.spire}"
+//     )
+//     // js specific settings here
+//     object test extends ScalaJSTests with SharedTests {
+//       def moduleKind = ModuleKind.CommonJSModule
+//     }
+//   }
 
-object jsSite extends SiteJSModule {
-
-  override def moduleDeps = Seq(vecxt.js, vecxtensions.js)
-  override def scalaVersion = vecxt.js.scalaVersion
-  override def scalaJSVersion = vecxt.js.scalaJSVersion
-
-  // override def scalaJsCompilerVersion: String = "3.6.2"
+//   object native extends Shared with CommonNative {
+//     // native specific settings here
+//     object test extends ScalaNativeTests with SharedTests
+//   }
+// }
 
 
-  // override def allScalacOptions: T[Seq[String]] = super.allScalacOptions`() ++ Seq("-experimental", "-language:experimental.namedTuples")
-  override def scalacOptions: T[Seq[String]] = super.scalacOptions()
-  override def moduleKind = ModuleKind.ESModule
-  override def ivyDeps = super.ivyDeps() ++ Agg(
-    ivy"org.scala-js::scalajs-dom::2.8.0",
-    ivy"com.lihaoyi::scalatags::${V.scalatags}",
-    ivy"com.raquo::laminar::${V.laminar}",
-    ivy"com.lihaoyi::upickle::4.0.2"
-  )
 
-  object test extends ScalaJSTests with CommonTests {
-    def moduleKind = ModuleKind.CommonJSModule
-  }
-}
+// object jsSite extends SiteJSModule {
+
+//   override def moduleDeps = Seq(vecxt.js, vecxtensions.js)
+//   override def scalaVersion = vecxt.js.scalaVersion
+//   override def scalaJSVersion = vecxt.js.scalaJSVersion
+
+//   // override def scalaJsCompilerVersion: String = "3.6.2"
+
+
+//   // override def allScalacOptions: T[Seq[String]] = super.allScalacOptions`() ++ Seq("-experimental", "-language:experimental.namedTuples")
+//   override def scalacOptions: T[Seq[String]] = super.scalacOptions()
+//   override def moduleKind = ModuleKind.ESModule
+//   override def mvnDeps = super.mvnDeps() ++ Seq(
+//     mvn"org.scala-js::scalajs-dom::2.8.0",
+//     mvn"com.lihaoyi::scalatags::${V.scalatags}",
+//     mvn"com.raquo::laminar::${V.laminar}",
+//     mvn"com.lihaoyi::upickle::4.0.2"
+//   )
+
+//   object test extends ScalaJSTests with CommonTests {
+//     def moduleKind = ModuleKind.CommonJSModule
+//   }
+// }
 
 // object integration extends ScalaModule with CommonTests {
 //   def scalaVersion: T[String] = vecxt.jvm.scalaVersion
@@ -184,14 +192,14 @@ object jsSite extends SiteJSModule {
 // }
 
 // note that scastic won't work, as I don't think we can start a JVM with the incubator flag.
-object site extends SiteModule {
+// object site extends SiteModule {
 
-  override val jsSiteModule = jsSite
-  override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
-  override def forkArgs: T[Seq[String]] = super.forkArgs() ++ vecIncubatorFlag
-  def scalaVersion = vecxt.jvm.scalaVersion
-  override def moduleDeps = Seq(vecxt.jvm)
+//   override val jsSiteModule = jsSite
+//   override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
+//   override def forkArgs: T[Seq[String]] = super.forkArgs() ++ vecIncubatorFlag
+//   def scalaVersion = vecxt.jvm.scalaVersion
+//   override def moduleDeps = Seq(vecxt.jvm)
 
-  override def scalacOptions: T[Seq[String]] = super.scalacOptions()
+//   override def scalacOptions: T[Seq[String]] = super.scalacOptions()
 
-}
+// }

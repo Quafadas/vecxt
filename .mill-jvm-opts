@@ -1,3 +1,0 @@
---add-modules=jdk.incubator.vector
--Xss100m
--Xmx4G
