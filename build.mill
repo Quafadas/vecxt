@@ -1,5 +1,6 @@
 //| mill-version: 1.0.4
 //| mill-jvm-version: 24
+//| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
 //| mvnDeps:
 //| - io.github.quafadas:millSite_mill1_3.7:0.0.52
 //| - com.goyeau::mill-scalafix::0.6.0
@@ -26,6 +27,7 @@ import mill.scalanativelib._
 import mill.util.Jvm
 import mill.api.Result
 import com.goyeau.mill.scalafix.ScalafixModule
+import mill.api.Task.Simple
 
 // mill __.compiledClassesAndSemanticDbFiles
 object V {
@@ -39,16 +41,16 @@ object V {
 
 
 
-trait Common extends PublishModule with ScalafixModule {
+trait VecxtPublishModule extends PublishModule, ScalaModule {
   def scalaVersion = V.scalaVersion
 
   def publishVersion = VcsVersion.vcsState().format()
 
-  def mvnDeps = super.mvnDeps() ++ Seq(
-    V.narr
-  )
+  // def mvnDeps = super.mvnDeps() ++ Seq(
+  //   V.narr
+  // )
 
-  override def scalacOptions = super.scalacOptions() ++ Seq("-explain-cyclic", "-Wunused:imports")
+  // override def scalacOptions = super.scalacOptions() ++ Seq("-explain-cyclic", "-Wunused:imports")
 
   override def pomSettings = Task {
     PomSettings(
@@ -66,28 +68,22 @@ trait Common extends PublishModule with ScalafixModule {
 
 }
 
-val vecIncubatorFlag = Seq("""--add-modules=jdk.incubator.vector""")
+val vecIncubatorFlag = Seq("--add-modules", "jdk.incubator.vector")
 
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.19.0"
   // def mvnDeps = super.mvnDeps() ++ Seq(mvn"com.raquo::ew::0.2.0")
-  // def moduleKind = ModuleKind.
+
 }
 
 
-trait CommonNative extends ScalaNativeModule {
+trait CommonNative extends ScalaNativeModule with VecxtPublishModule {
   def mvnDeps = super.mvnDeps() ++ Seq(
     mvn"org.ekrich::sblas::0.7.0"
   )
-  def scalaNativeVersion = "0.5.7"
-  def scalaVersion: T[String] = V.scalaVersion
+  def scalaNativeVersion = "0.5.8"
 }
 
-trait CommonTests extends TestModule.Munit {
-  def mvnDeps = super.mvnDeps() ++ Seq(
-    mvn"org.scalameta::munit::${V.munitVersion}",
-  )
-}
 
 
 // object vecxt extends Module {
