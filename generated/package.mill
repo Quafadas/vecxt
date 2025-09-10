@@ -3,6 +3,20 @@ package build.generated
 import mill._
 import mill.javalib._
 
+/**
+  * The MLC C ABI need to be built from source.
+* The MLX C ABI needs to be built from source:
+*
+* ```
+* git clone https://github.com/ml-explore/mlx-c.git
+* cd mlx-c
+* mkdir build && cd build
+* cmake .. -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
+* make -j
+* ```
+* To consume it, need to add the library path to the java.library.path
+* "-Djava.library.path=/Users/simon/Code/mlx-c/build",
+*/
 object `package` extends JavaModule {
     // Configure to use Java 24 for compilation and runtime
     override def javacOptions = Seq("--release", "24")

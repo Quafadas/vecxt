@@ -7,6 +7,7 @@ import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import mlx.{mlx_h, mlx_string, mlx_metal_device_info_t_}
 import MlxString.getStringData
+import MlxArrayNewData.*
 
 /**
   * /* Copyright © 2023-2024 Apple Inc. */
@@ -79,6 +80,24 @@ int main() {
     println("\n=== String creation with data test ===")
     val myString = MlxString.createString("Hello, MLX!")(using arena)
     println(s"Created string data: ${myString.getStringData}")
+
+    // Test creating and printing an MLX array
+    println("\n=== Array creation test ===")
+    val floatData = Array(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f)
+    val dataSegment = arena.allocateFrom(ValueLayout.JAVA_FLOAT, floatData*)
+
+    val shape = Array(2, 3)  // 2x3 matrix
+    val shapeSegment = arena.allocateFrom(ValueLayout.JAVA_INT, shape*)
+
+    val mlxArray = MlxArrayNewData.newArray(
+      dataSegment,
+      shapeSegment,
+      2, // dimensions
+      mlx.mlx_h_1.MLX_FLOAT32() // dtype
+    )(using arena)
+
+    println(s"Created MLX array:")
+    println(mlxArray.show(using arena))
   }
 
   finally {

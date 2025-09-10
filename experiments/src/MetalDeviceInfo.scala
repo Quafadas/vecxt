@@ -7,7 +7,7 @@ object MetalDeviceInfo {
 
   private lazy val deviceInfoInvoker = mlx_h.mlx_metal_device_info.makeInvoker()
 
-  def getDeviceInfoRaw(arena: Arena): MemorySegment = {
+  private def getDeviceInfoRaw(arena: Arena): MemorySegment = {
     deviceInfoInvoker.apply(arena)
   }
 
