@@ -2,12 +2,13 @@ package vecxt.experiments
 
 import java.lang.foreign.{Arena, MemorySegment, ValueLayout, SegmentAllocator}
 import blis.*
-import vecxt.all.*
+import _root_.vecxt.all.*
 import narr.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+import _root_.vecxt.BoundsCheck.DoBoundsCheck.yes
 import mlx.{mlx_h, mlx_string, mlx_metal_device_info_t_}
-import MlxString.getStringData
-import MlxArrayNewData.*
+import MlxString.*
+import MlxArray.*
+import MlxStream.*
 
 /**
   * /* Copyright © 2023-2024 Apple Inc. */
@@ -72,46 +73,48 @@ int main() {
   val arena = Arena.ofConfined()
 
   try {
-    println("\n=== Testing MetalDeviceInfo wrapper ===")
+    given thisArena: Arena = arena
+
     val deviceInfo = MetalDeviceInfo.getDeviceInfo(using arena)
+    println("\n=== Testing MetalDeviceInfo wrapper ===")
     println(s"Info: ${deviceInfo}")
 
     // Test creating a string with data
     println("\n=== String creation with data test ===")
-    val myString = MlxString.createString("Hello, MLX!")(using arena)
-    println(s"Created string data: ${myString.getStringData}")
+    val myString: MlxString = MlxString.createString("Hello, MLX!")(using arena)
+    println(s"Created string data: ${myString.show}")
 
     // Test creating and printing an MLX array
     println("\n=== Array creation test ===")
-    val floatData = Array(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f)
-    val dataSegment = arena.allocateFrom(ValueLayout.JAVA_FLOAT, floatData*)
 
     val shape = Array(2, 3)  // 2x3 matrix
-    val shapeSegment = arena.allocateFrom(ValueLayout.JAVA_INT, shape*)
 
-    val mlxArray = MlxArrayNewData.newArray(
-      dataSegment,
-      shapeSegment,
-      2, // dimensions
-      mlx.mlx_h_1.MLX_FLOAT32() // dtype
-    )(using arena)
+    val floatData: MlxArray = MlxArray.floatArray(
+      Array(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f), Some(shape)
+    )
+    val floatData2: MlxArray = MlxArray.floatArray(
+      Array(5.0f, 2.0f, 7.0f, 45.0f, 5.5f, 6.0f), Some(shape)
+    )
 
-    println(s"Created MLX array:")
-    println(mlxArray.show(using arena))
+    val gpu: MlxStream = MlxStream.gpu
+    val cpu: MlxStream = MlxStream.cpu
+    println(s"Created MLX stream: ${cpu.show}")
+    println(s"Created MLX stream: ${gpu.show}")
+
+    // adding arrays
+    val addedG: MlxArray = MlxArray.add(floatData, floatData2, gpu) // Just to test addition
+    val addedC: MlxArray = MlxArray.add(floatData, floatData2, cpu) // Just to test addition
+
+    println(s"Created MLX arrays:")
+    println(floatData.show)
+    println(floatData2.show)
+    println(s"Added on CPU:")
+    println(addedC.show)
+    println(s"Added on GPU:")
+    println(addedG.show)
   }
 
   finally {
     arena.close()
   }
-}
-
-def printArray(msg: String, arr: MemorySegment, allocator: SegmentAllocator): Unit = {
-  // TODO: Implement using the correct MLX bindings
-  // Should use:
-  // - mlx_string_new to create string
-  // - mlx_array_tostring to convert array to string
-  // - mlx_string_data to get string data
-  // - mlx_string_free to cleanup
-  println(s"$msg")
-  println("Array data would be printed here")
 }

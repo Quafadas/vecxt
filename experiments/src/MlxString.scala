@@ -8,7 +8,7 @@ object MlxString:
   opaque type MlxString = MemorySegment
 
   extension (mlxString: MlxString)
-    def getStringData: String = asString(mlxString)
+    def show: String = asString(mlxString)
 
   // Create an mlx_string structure by allocating memory for it and populate with string data
   def createString(s: String)(using arena: Arena): MlxString =
