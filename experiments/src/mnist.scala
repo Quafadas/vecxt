@@ -18,8 +18,7 @@ import narr.*
 //
 
 @main def mnist =
-  def traindata
-   = LazyList.from(os.read.lines(os.resource / "train.csv").iterator.drop(1).map { line =>
+  def traindata = LazyList.from(os.read.lines(os.resource / "train.csv").iterator.drop(1).map { line =>
     line.split(",")
   })
 
@@ -37,7 +36,6 @@ import narr.*
     traindata
       .map(_.tail.map(_.toDouble))
       .map(_.toList.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
-
 
   if samplePlot then
     (os.resource / "hist.vg.json").plot(
@@ -58,14 +56,16 @@ import narr.*
       )
   end if
 
-  val weight1 = Matrix(Array.fill(imageHeight * imageWidth * l1Size)(scala.util.Random.nextDouble() * 0.2), (imageWidth * imageHeight, l1Size))
+  val weight1 = Matrix(
+    Array.fill(imageHeight * imageWidth * l1Size)(scala.util.Random.nextDouble() * 0.2),
+    (imageWidth * imageHeight, l1Size)
+  )
   val bias1 = Array.fill(l1Size)(0.0)
   val weight2 = Matrix(Array.fill(l1Size * l3Size)(scala.util.Random.nextDouble() * 0.2), (l1Size, l3Size))
   val bias2 = Array.fill(l3Size)(0.0)
 
   val x = Matrix.fromRows(others.toArray*)
   println(s"x layout ${x.layout}")
-
 
   println(s"weight1 shape: ${weight1.shape}, weight1 rows: ${weight1.rows}, weight1 cols: ${weight1.cols}")
   println(s"weight2 shape: ${weight2.shape}, weight2 rows: ${weight2.rows}, weight2 cols: ${weight2.cols}")
@@ -172,7 +172,7 @@ def back_prop(
   val dw2 = m_inv * (a1.transpose @@ dz2)
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
   // println(s"dw2 shape: ${dw2.shape}, dw2 rows: ${dw2.rows}, dw2 cols: ${dw2.cols}")
-  val db2 = dz2.mapColsToScalar(_.sum *).raw
+  val db2 = dz2.mapColsToScalar(_.sum).raw
   val dz1Check = (z1 > 0)
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}\n")
   // println(s"dz1Check: ${dz1Check.shape}, dz1Check rows: ${dz1Check.rows}, dz1Check cols: ${dz1Check.cols}\n"``)
@@ -188,8 +188,7 @@ end back_prop
 
 inline def oneHot[T](int: Int, numClasses: Int)(using ct: ClassTag[T], f: Numeric[T]): Array[T] =
   val arr = NArray.fill[T](numClasses)(f.zero)
-  if int >= 0 && int < numClasses then
-    arr(int) = f.one
+  if int >= 0 && int < numClasses then arr(int) = f.one
   end if
   arr
 end oneHot
@@ -267,10 +266,10 @@ def gradient_decent(
       w2_ -= (dw2 * alpha_)
       b2_ -= (db2 * alpha_)
 
-
     end for
     // decay the learning rate, can experiment with different rates here.
     if (i + 1) % 25 == 0 then alpha_ = alpha_ - decayRate
+    end if
 
     if i % 1 == 0 then
       val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
