@@ -5,13 +5,13 @@ import contrib.jmh.JmhModule
 
 // mill benchmark.runJmh vecxt.benchmark.AndBooleanBenchmark -jvmArgs --add-modules=jdk.incubator.vector -rf json
 
-object `package` extends RootModule with JmhModule with ScalaModule {
+object `package` extends JmhModule with ScalaModule {
     def scalaVersion = build.vecxt.jvm.scalaVersion
     def jmhCoreVersion = "1.37"
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)
-    override def ivyDeps = super.ivyDeps() ++ Seq(
-      ivy"org.scalanlp::breeze:2.1.0"
+    override def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"org.scalanlp::breeze:2.1.0"
     )
 
 }

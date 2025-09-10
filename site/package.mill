@@ -1,0 +1,25 @@
+package build.site
+
+import mill.*, scalalib.*
+import mill.scalajslib.api.*
+import io.github.quafadas.millSite.*
+import mill.util.VcsVersion
+
+
+object `package` extends SiteModule {
+
+//   override val jsSiteModule = jsSite
+//   override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
+  def forkArgs: T[Seq[String]] = build.vecIncubatorFlag
+
+  override def unidocTitle = Task("Vecxt API")
+
+  override def repoLink = Task(
+    build.vecxt.jvm.pomSettings().url
+  )
+
+  override def unidocDeps = Seq(build.vecxt.jvm)
+
+  def scalaVersion = build.V.scalaVersion
+
+}

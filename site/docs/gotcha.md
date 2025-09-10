@@ -1,13 +1,14 @@
+# Gotchas
 ## On JVM
 
-```
+```scala
 val v : Array[Double] = ???
 
 v.sum
+v.sumSIMD // <- Faster
 
 ```
-You will possibly bleed 8x performance. [Performance Perils of JVM Array Operations](https://blog.simon.codes/posts/jvm-array-performance-perils/)
-
+Depending on whether sum dispatches to vecxt or stdlib, you may bleed up to 10x performrance.
 
 ## On JS
 

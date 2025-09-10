@@ -1,6 +1,3 @@
----
-title: Vector Examples
----
 # Vector Examples
 
 Some basic examples with doubles.

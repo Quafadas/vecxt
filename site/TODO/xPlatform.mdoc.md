@@ -1,17 +1,9 @@
----
-title: Cross Platform
----
-
-
-You may need to refresh the page.
-https://github.com/scala/scala3/issues/21637
-
 # Cross Platform
 
 This has the same algorithm as the [motivation](motivation.mdoc.md) example, but is expressed in a cross platform `NArray`, and runs in scalaJS - check your browser console to observer the output.
 
 
-```scala mdoc:js sc:nocompile
+```scala mdoc:js
 
 import vecxt.all.*
 import narr.*

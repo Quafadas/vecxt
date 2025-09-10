@@ -1,6 +1,5 @@
----
-title: Bounds Checks
----
+# Bounds Checking
+
 # Rationale
 
 In performance sensitive vector applications, bounds checking may be an unwelcome overhead.
