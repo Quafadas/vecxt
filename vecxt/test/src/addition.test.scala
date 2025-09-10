@@ -3,7 +3,6 @@ package vecxt
 import all.*
 import munit.FunSuite
 import narr.*
-import javax.print.attribute.standard.MediaSize.NA
 
 class MatrixAdditionTest extends FunSuite:
   import vecxt.BoundsCheck.DoBoundsCheck.yes

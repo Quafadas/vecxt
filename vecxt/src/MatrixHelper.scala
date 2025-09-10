@@ -14,25 +14,7 @@ object MatrixHelper:
     inline def fromRowsArray[@specialized(Double, Boolean, Int) A](
         a: NArray[NArray[A]]
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
-      val rows = a.size
-      val cols = a.head.size
-
-      assert(a.forall(_.size == cols))
-
-      val newArr = NArray.ofSize[A](rows * cols)
-      var idx = 0
-      var i = 0
-      while i < cols do
-        var j = 0
-        while j < rows do
-          newArr(idx) = a(j)(i)
-          // println(s"row: $i || col: $j || ${a(j)(i)} entered at index ${idx}")
-          j += 1
-          idx += 1
-        end while
-        i += 1
-      end while
-      Matrix(newArr, (rows, cols))
+      Matrix.fromRows(a.toSeq*)
     end fromRowsArray
 
     inline def fromRows[@specialized(Double, Boolean, Int) A](

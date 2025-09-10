@@ -1,0 +1,1 @@
+https://www.kaggle.com/code/jpvargas/handcrafted-cnn-learning-deep-learning-hard-way

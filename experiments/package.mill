@@ -1,5 +1,5 @@
 package build.experiments
-import mill._, scalalib._, publish._
+import mill.*, scalalib.*, publish.*
 import contrib.jmh.JmhModule
 
 // mill benchmark.runJmh vecxt.benchmark.AndBooleanBenchmark -jvmArgs --add-modules=jdk.incubator.vector -rf json
@@ -39,7 +39,7 @@ object `package` extends RootModule with ScalaModule {
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm, build.vecxtensions.jvm, build.generated)
     override def ivyDeps = super.ivyDeps() ++ Seq(
         ivy"com.lihaoyi::os-lib::0.10.4",
-        ivy"io.github.quafadas::scautable::0.0.24",
+        ivy"io.github.quafadas::scautable::0.0.28",
         ivy"io.github.quafadas::dedav4s::0.10.0-RC2"
 
     )

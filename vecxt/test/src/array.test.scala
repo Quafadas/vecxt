@@ -119,6 +119,36 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertVecEquals(v2, NArray(v1.map(2.0 / _).toArray*))
   }
 
+  test("Array / elementwise") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+
+    val v2 = v1 / 2
+
+    assertEqualsDouble(v2(0), 0.5, 0.00001)
+    assertEqualsDouble(v2(1), 1.0, 0.00001)
+    assertEqualsDouble(v2(2), 1.5, 0.00001)
+  }
+
+  test("Array *= elementwise") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    v1 *= 2
+
+    assertEqualsDouble(v1(0), 2, 0.00001)
+    assertEqualsDouble(v1(1), 4, 0.00001)
+    assertEqualsDouble(v1(2), 6, 0.00001)
+
+  }
+
+  test("Array * elementwise") {
+    val v1 = NArray[Double](1.0, 2.0, 3.0)
+
+    val v2 = v1 * 2
+
+    assertEqualsDouble(v2(0), 2.0, 0.00001)
+    assertEqualsDouble(v2(1), 4, 0.00001)
+    assertEqualsDouble(v2(2), 6, 0.00001)
+  }
+
   test("array indexing") {
     // val v1 = NArray[Double](1.0, 2.0, 3.0)
     // val vIdx = NArray[Boolean](true, false, true)
@@ -251,46 +281,6 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(v3(0), -2, 0.00001)
     assertEqualsDouble(v3(1), 0, 0.00001)
     assertEqualsDouble(v3(2), 2, 0.00001)
-  }
-
-  test("Array /= elementwise") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    v1 /= 2
-
-    assertEqualsDouble(v1(0), 0.5, 0.00001)
-    assertEqualsDouble(v1(1), 1.0, 0.00001)
-    assertEqualsDouble(v1(2), 1.5, 0.00001)
-
-  }
-
-  test("Array / elementwise") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-
-    val v2 = v1 / 2
-
-    assertEqualsDouble(v2(0), 0.5, 0.00001)
-    assertEqualsDouble(v2(1), 1.0, 0.00001)
-    assertEqualsDouble(v2(2), 1.5, 0.00001)
-  }
-
-  test("Array *= elementwise") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    v1 *= 2
-
-    assertEqualsDouble(v1(0), 2, 0.00001)
-    assertEqualsDouble(v1(1), 4, 0.00001)
-    assertEqualsDouble(v1(2), 6, 0.00001)
-
-  }
-
-  test("Array * elementwise") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-
-    val v2 = v1 * 2
-
-    assertEqualsDouble(v2(0), 2.0, 0.00001)
-    assertEqualsDouble(v2(1), 4, 0.00001)
-    assertEqualsDouble(v2(2), 6, 0.00001)
   }
 
   test("Array * Array elementwise") {

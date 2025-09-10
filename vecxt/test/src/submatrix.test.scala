@@ -42,4 +42,29 @@ class SubmatrixTest extends FunSuite:
     assertEqualsDouble(submat(1, 1), 16.0, 0.0000001)
     assertEqualsDouble(submat(1, 2), 18.0, 0.0000001)
 
+  test("Offset"):
+    val mat1 = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](1.0, 2.0, 3.0) + 3.0,
+      NArray[Double](1.0, 2.0, 3.0) + 6.0
+    )
+
+    val submat1 = Matrix.fromColumns[Double](NArray(1.0, 2, 3))
+    val submat2 = Matrix.fromColumns[Double](NArray(1.0, 2))
+
+    for i <- 0.until(2) do
+      val submat = mat1.submatrix(NArray(i, i + 1), ::)
+      val result = submat @@ submat1 // zero copy
+      val expected = submat.deepCopy @@ submat1.deepCopy
+      assertMatrixEquals(result, expected)
+
+      val resultT = submat.transpose @@ submat2
+      val expectedT = submat.transpose.deepCopy @@ submat2.deepCopy
+      assertMatrixEquals(result, expected)
+
+      // val resultN_T = submat.transpose @@ submat1.transpose
+      // val expectedN_T = submat.transpose.deepCopy @@ submat1.transpose.deepCopy
+      // assertMatrixEquals(result, expected)
+    end for
+
 end SubmatrixTest
