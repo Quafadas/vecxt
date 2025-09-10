@@ -88,7 +88,7 @@ jobs:
           apps: scala-cli
 
       - name: Publish to Maven Central
-        run: ./mill mill.javalib.SonatypeCentralPublishModule/
+        run: ./millw mill.javalib.SonatypeCentralPublishModule/
         env:
           MILL_PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           MILL_PGP_SECRET_BASE64: ${{ secrets.PGP_SECRET }}
@@ -127,7 +127,7 @@ jobs:
         run: mkdir -p site/docs/_assets/benchmarks && cp benchmark_history.json site/docs/_assets/benchmarks/benchmark_history.json
 
       - name: Generate static site
-        run: ./mill site.siteGen
+        run: ./millw site.siteGen
 
       - name: Setup Pages
         uses: actions/configure-pages@main
