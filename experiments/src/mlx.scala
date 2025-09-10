@@ -1,10 +1,6 @@
 package vecxt.experiments
 
 import java.lang.foreign.{Arena, MemorySegment, ValueLayout, SegmentAllocator}
-import blis.*
-import _root_.vecxt.all.*
-import narr.*
-import _root_.vecxt.BoundsCheck.DoBoundsCheck.yes
 import mlx.{mlx_h, mlx_string, mlx_metal_device_info_t_}
 import MlxString.*
 import MlxArray.*
