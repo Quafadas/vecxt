@@ -6,10 +6,7 @@
 //| - com.goyeau::mill-scalafix::0.6.0
 //| - com.lihaoyi::mill-contrib-jmh:$MILL_VERSION
 
-/**
- * --add-modules=jdk.incubator.vector
--Xss100m
--Xmx4G
+/** --add-modules=jdk.incubator.vector -Xss100m -Xmx4G
   */
 
 package build
@@ -18,11 +15,11 @@ import mill.util.VcsVersion
 import com.goyeau.mill.scalafix.ScalafixModule
 
 import mill.scalalib.publish.Scope.Test
-import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import io.github.quafadas.millSite._
-import mill._, scalalib._, publish._
-import mill.scalajslib.api._
-import mill.scalanativelib._
+import mill.*, mill.scalalib.*, mill.scalajslib.*, mill.scalanativelib.*
+import io.github.quafadas.millSite.*
+import mill.*, scalalib.*, publish.*
+import mill.scalajslib.api.*
+import mill.scalanativelib.*
 
 import mill.util.Jvm
 import mill.api.Result
@@ -32,7 +29,7 @@ import mill.api.Task.Simple
 def format = mill.scalalib.scalafmt.ScalafmtModule
 
 // mill __.compiledClassesAndSemanticDbFiles
-object V {
+object V:
   val spire = mvn"org.typelevel::spire::0.18.0"
   val laminar = mvn"com.raquo::laminar::17.2.0"
   val scalaTags = mvn"com.lihaoyi::scalatags::0.13.1"
@@ -40,11 +37,9 @@ object V {
   val munitVersion = "1.1.1"
   val narr = mvn"ai.dragonfly::narr::1.0"
   val blas = mvn"dev.ludovic.netlib:blas:3.0.4"
-}
+end V
 
-
-
-trait VecxtPublishModule extends PublishModule, ScalaModule {
+trait VecxtPublishModule extends PublishModule, ScalaModule:
   def scalaVersion = V.scalaVersion
 
   def publishVersion = VcsVersion.vcsState().format()
@@ -61,33 +56,27 @@ trait VecxtPublishModule extends PublishModule, ScalaModule {
       organization = "io.github.quafadas",
       url = "https://github.com/Quafadas/vecxt",
       licenses = Seq(License.`Apache-2.0`),
-      versionControl =
-        VersionControl.github("quafadas", "vecxt"),
+      versionControl = VersionControl.github("quafadas", "vecxt"),
       developers = Seq(
         Developer("quafadas", "Simon Parten", "https://github.com/quafadas")
       )
     )
   }
-
-}
+end VecxtPublishModule
 
 val vecIncubatorFlag = Seq("--add-modules", "jdk.incubator.vector")
 
-trait CommonJS extends ScalaJSModule {
+trait CommonJS extends ScalaJSModule:
   def scalaJSVersion = "1.19.0"
   // def mvnDeps = super.mvnDeps() ++ Seq(mvn"com.raquo::ew::0.2.0")
+end CommonJS
 
-}
-
-
-trait CommonNative extends ScalaNativeModule with VecxtPublishModule {
+trait CommonNative extends ScalaNativeModule with VecxtPublishModule:
   def mvnDeps = super.mvnDeps() ++ Seq(
     mvn"org.ekrich::sblas::0.7.0"
   )
   def scalaNativeVersion = "0.5.8"
-}
-
-
+end CommonNative
 
 // object vecxt extends Module {
 //   trait Shared extends CrossPlatformScalaModule with Common {
@@ -136,7 +125,6 @@ trait CommonNative extends ScalaNativeModule with VecxtPublishModule {
 //       mvn"org.typelevel::spire::${V.spire}"
 //     )
 
-
 //     object test extends ScalaTests with SharedTests {
 //       def forkArgs = super.forkArgs() ++ vecIncubatorFlag
 //     }
@@ -159,8 +147,6 @@ trait CommonNative extends ScalaNativeModule with VecxtPublishModule {
 //   }
 // }
 
-
-
 // object jsSite extends SiteJSModule {
 
 //   override def moduleDeps = Seq(vecxt.js, vecxtensions.js)
@@ -168,7 +154,6 @@ trait CommonNative extends ScalaNativeModule with VecxtPublishModule {
 //   override def scalaJSVersion = vecxt.js.scalaJSVersion
 
 //   // override def scalaJsCompilerVersion: String = "3.6.2"
-
 
 //   // override def allScalacOptions: T[Seq[String]] = super.allScalacOptions`() ++ Seq("-experimental", "-language:experimental.namedTuples")
 //   override def scalacOptions: T[Seq[String]] = super.scalacOptions()
