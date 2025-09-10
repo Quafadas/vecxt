@@ -1,4 +1,4 @@
-package build.vecxt
+package build.vecxtensions
 
 import mill.*, scalalib.*, scalajslib.*, publish.*
 import mill.scalajslib.api.ModuleKind
@@ -7,9 +7,10 @@ import mill.api.Task.Simple
 
 
 object `package` extends Module {
-  trait VecxtModule extends PlatformScalaModule with build.VecxtPublishModule  {
+  trait VecxtensionModule extends PlatformScalaModule with build.VecxtPublishModule  {
     def mvnDeps = super.mvnDeps() ++ Seq(
-      build.V.narr
+      build.V.narr,
+      build.V.scalaTags
     )
     trait VecxtTest extends ScalaTests, TestModule.Munit   {
       def mvnDeps = super.mvnDeps() ++ Seq(
@@ -21,11 +22,13 @@ object `package` extends Module {
 
 
 
-  object jvm extends VecxtModule {
+  object jvm extends VecxtensionModule {
+    def moduleDeps = Seq(build.vecxt.jvm)
     override def scalaVersion = build.V.scalaVersion
     override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
     def mvnDeps = super.mvnDeps() ++ Seq(
-      mvn"dev.ludovic.netlib:blas:3.0.4"
+      build.V.blas,
+      build.V.spire
     )
 
     object test extends VecxtTest, ScalaTests {
@@ -33,15 +36,20 @@ object `package` extends Module {
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     }
   }
-  object js extends VecxtModule with build.CommonJS {
-    override def mvnDeps = super.mvnDeps()
+  object js extends VecxtensionModule with build.CommonJS {
+    def moduleDeps = Seq(build.vecxt.js)
+    override def mvnDeps = super.mvnDeps() ++ Seq(
+      build.V.laminar,
+      build.V.spire
+    )
     def moduleKind = ModuleKind.ESModule
     object test extends VecxtTest, ScalaJSTests {
       def moduleDeps = Seq(js)
       def moduleKind = ModuleKind.CommonJSModule
     }
   }
-  object native extends VecxtModule with build.CommonNative {
+  object native extends VecxtensionModule with build.CommonNative {
+    def moduleDeps = Seq(build.vecxt.native)
     override def mvnDeps = super.mvnDeps()
 
     object test extends ScalaNativeTests, VecxtTest {

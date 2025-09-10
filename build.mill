@@ -2,7 +2,7 @@
 //| mill-jvm-version: 24
 //| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
 //| mvnDeps:
-//| - io.github.quafadas:millSite_mill1_3.7:0.0.52
+//| - io.github.quafadas:millSite_mill1_3.7:0.0.52-DIRTY8a929c24
 //| - com.goyeau::mill-scalafix::0.6.0
 //| - com.lihaoyi::mill-contrib-jmh:$MILL_VERSION
 
@@ -31,12 +31,13 @@ import mill.api.Task.Simple
 
 // mill __.compiledClassesAndSemanticDbFiles
 object V {
-  val spire = "0.18.0"
-  val laminar = "17.2.0"
-  val scalatags = "0.13.1"
+  val spire = mvn"org.typelevel::spire::0.18.0"
+  val laminar = mvn"com.raquo::laminar::17.2.0"
+  val scalaTags = mvn"com.lihaoyi::scalatags::0.13.1"
   val scalaVersion = "3.7.2"
   val munitVersion = "1.1.1"
   val narr = mvn"ai.dragonfly::narr::1.0"
+  val blas = mvn"dev.ludovic.netlib:blas:3.0.4"
 }
 
 
@@ -188,14 +189,3 @@ trait CommonNative extends ScalaNativeModule with VecxtPublishModule {
 // }
 
 // note that scastic won't work, as I don't think we can start a JVM with the incubator flag.
-// object site extends SiteModule {
-
-//   override val jsSiteModule = jsSite
-//   override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
-//   override def forkArgs: T[Seq[String]] = super.forkArgs() ++ vecIncubatorFlag
-//   def scalaVersion = vecxt.jvm.scalaVersion
-//   override def moduleDeps = Seq(vecxt.jvm)
-
-//   override def scalacOptions: T[Seq[String]] = super.scalacOptions()
-
-// }

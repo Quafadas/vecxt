@@ -1,6 +1,3 @@
----
-title: Matrix Examples
----
 # Matrix Examples
 
 Some examples. You shouldn't use `toString()` to find out about matricies. Mdoc calls it on each line anyway - not much i can do about that.
@@ -48,14 +45,14 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 import narr.*
 
 val mat1 = Matrix.fromRows(
-  NArray(1.0, 4.0, 2.0), 
+  NArray(1.0, 4.0, 2.0),
   NArray(5.0, 3.0, 6.0)
 )
 
 println(mat1.printMat)
 
 val mat2 = Matrix.fromRows(
-  NArray(7.0, 9.0), 
+  NArray(7.0, 9.0),
   NArray(8.0, 11.0),
   NArray(10, 12.0)
 )

@@ -1,6 +1,6 @@
+# Setup
 
-
-# JVM
+## JVM
 
 
 Adding this flag, to your JVM startup commands.
@@ -20,7 +20,7 @@ The console warnings on startup will tell you the implementations you are missin
 My understanding, is that for level 1 BLAS operations (i.e. this library), the performance of the SIMD implementation is comparable to native - i.e. C performance.
 
 
-# JS
+## JS
 
 The best way is without a bundler using ESModules. Use this import map to load the module out of JSdelivr.
 
@@ -42,11 +42,11 @@ If you gotta bundle, you gotta bundle
 }
 ```
 
-# Native
+## Native
 
 Is less tested, but works according to the tests. You'll need CBLAS on the path one way or another.
 
-## Linux
+### Linux
 On linux,
 
 `sudo apt-get install -y libatlas-base-dev`
