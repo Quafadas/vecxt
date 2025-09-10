@@ -5,7 +5,8 @@ import blis.*
 import vecxt.all.*
 import narr.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
-import mlx.{mlx_h, mlx_string}
+import mlx.{mlx_h, mlx_string, mlx_metal_device_info_t_}
+import MlxString.getStringData
 
 /**
   * /* Copyright © 2023-2024 Apple Inc. */
@@ -63,44 +64,24 @@ int main() {
   *
   */
 
-var invoker = mlx_h.mlx_metal_device_info.makeInvoker();
+
 
 @main def mlxDemo(): Unit = {
-  import java.util.stream.IntStream
-
+  println("MLX Demo - Scala version of the C code")
   val arena = Arena.ofConfined()
-  val allocator = arena
 
   try {
-    println("MLX Demo - Scala version of the C code")
+    println("\n=== Testing MetalDeviceInfo wrapper ===")
+    val deviceInfo = MetalDeviceInfo.getDeviceInfo(using arena)
+    println(s"Info: ${deviceInfo}")
 
+    // Test creating a string with data
+    println("\n=== String creation with data test ===")
+    val myString = MlxString.createString("Hello, MLX!")(using arena)
+    println(s"Created string data: ${myString.getStringData}")
+  }
 
-    val deviceInfo = invoker.apply(allocator)
-
-    println(s"Device Info: $deviceInfo")
-
-    // TODO: Fix function access - the generated bindings seem to have issues
-    // The functions we need are:
-    // - mlx_string_new (variadic)
-    // - mlx_version
-    // - mlx_string_data
-    // - mlx_metal_device_info
-    // - mlx_default_gpu_stream_new (variadic)
-    // - mlx_array_new_data
-    // - mlx_array_new_int
-    // - mlx_divide
-    // - mlx_arange
-    // - mlx_array_free
-    // - mlx_stream_free
-    // - mlx_string_free
-    // - MLX_FLOAT32 constant
-
-    // These functions should be available in the generated bindings but seem
-    // to have inheritance/access issues between mlx_h and mlx_h_1
-
-    println("Demo structure created - functions need to be fixed")
-
-  } finally {
+  finally {
     arena.close()
   }
 }

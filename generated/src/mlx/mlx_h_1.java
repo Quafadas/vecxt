@@ -20,6 +20,11 @@ class mlx_h_1 extends mlx_h_shared {
 
     static final Arena LIBRARY_ARENA = Arena.ofAuto();
 
+
+    static {
+        System.loadLibrary("mlxc");
+    }
+
     static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup()
             .or(Linker.nativeLinker().defaultLookup());
 

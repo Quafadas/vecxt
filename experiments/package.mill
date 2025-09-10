@@ -34,8 +34,12 @@ object `package` extends ScalaModule {
         super.compileResources() ++ resources()
     }
     def scalacOptions: T[Seq[String]] = Seq("-Xmax-inlines:10000")
-    override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
-    override def mainClass = Some("mlx")
+    override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
+        s"-Djava.library.path=${pathToBlis()}",
+        "-Djava.library.path=/Users/simon/Code/mlx-c/build",
+        "--enable-native-access=ALL-UNNAMED"
+    )
+    override def mainClass = Some("vecxt.experiments.mlxDemo")
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm, build.vecxtensions.jvm, build.generated)
     override def mvnDeps = super.mvnDeps() ++ Seq(
         mvn"com.lihaoyi::os-lib::0.10.4",

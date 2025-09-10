@@ -85,6 +85,8 @@ jextractBlisTyped:
 jextractMLX:
   /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
     -t mlx \
+    --use-system-load-library \
+    -l mlxc \
     --output generated/src \
     --include-dir /Users/simon/Code/mlx-c/ \
     /Users/simon/Code/mlx-c/mlx/c/mlx.h
