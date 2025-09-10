@@ -1,0 +1,16 @@
+--include-constant CblasColMajor                          # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasConjNoTrans                       # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasConjTrans                         # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasLeft                              # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasLower                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasNoTrans                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasNonUnit                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasRight                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasRowMajor                          # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasTrans                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasUnit                              # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-constant CblasUpper                             # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgemm                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgemm_batch                      # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgemmt                           # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
+--include-function cblas_dgemv                            # header: /opt/homebrew/Cellar/openblas/0.3.30/include/cblas.h
