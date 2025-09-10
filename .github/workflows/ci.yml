@@ -87,14 +87,8 @@ jobs:
           jvm: temurin@17
           apps: scala-cli
 
-      - name: Setup GPG secrets
-        run: |
-          gpg --version
-          cat <(echo "${{ secrets.PGP_SECRET }}") | base64 --decode | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-
       - name: Publish to Maven Central
-        run: ./millw --import "ivy:com.lihaoyi::mill-contrib-sonatypecentral:" mill.contrib.sonatypecentral.SonatypeCentralPublishModule/publishAll --publishArtifacts __.publishArtifacts
+        run: ./mill mill.javalib.SonatypeCentralPublishModule/
         env:
           MILL_PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           MILL_PGP_SECRET_BASE64: ${{ secrets.PGP_SECRET }}
@@ -133,14 +127,14 @@ jobs:
         run: mkdir -p site/docs/_assets/benchmarks && cp benchmark_history.json site/docs/_assets/benchmarks/benchmark_history.json
 
       - name: Generate static site
-        run: ./millw site.publishDocs
+        run: ./mill site.siteGen
 
       - name: Setup Pages
         uses: actions/configure-pages@main
       - uses: actions/upload-artifact@main
         with:
           name: page
-          path: out/site/publishDocs.dest
+          path: out/site/laika/generateSite.dest
           if-no-files-found: error
 
   deploy:
