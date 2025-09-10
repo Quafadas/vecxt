@@ -3,7 +3,7 @@ package build.generated
 import mill._
 import mill.javalib._
 
-object `package` extends RootModule with JavaModule {
+object `package` extends JavaModule {
     // Configure to use Java 24 for compilation and runtime
     override def javacOptions = Seq("--release", "24")
     override def forkArgs = Seq("--add-modules=jdk.incubator.vector")

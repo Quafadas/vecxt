@@ -12,9 +12,9 @@ import java.util.stream.*;
 import static java.lang.foreign.ValueLayout.*;
 import static java.lang.foreign.MemoryLayout.PathElement.*;
 
-public class mlx_h$shared {
+public class mlx_h_shared {
 
-    mlx_h$shared() {
+    mlx_h_shared() {
         // Should not be called directly
     }
 

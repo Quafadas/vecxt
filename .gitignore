@@ -22,6 +22,7 @@ metals.sbt
 .vscode
 sbt-launch.jar
 .scala-build
+.DS_Store
 
 # npm
 node_modules/
