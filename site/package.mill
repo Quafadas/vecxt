@@ -12,10 +12,6 @@ object `package` extends SiteModule {
 //   override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
   def forkArgs: T[Seq[String]] = build.vecIncubatorFlag
 
-  def latestVersion: T[String] = Task {
-    VcsVersion.vcsState().lastTag.getOrElse("0.0.0").replace("v", "")
-  }
-
   override def unidocTitle = Task("Vecxt API")
 
   override def repoLink = Task(
