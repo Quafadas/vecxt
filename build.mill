@@ -1,8 +1,8 @@
-//| mill-version: 1.0.4
+//| mill-version: 1.0.5
 //| mill-jvm-version: 24
 //| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
 //| mvnDeps:
-//| - io.github.quafadas:millSite_mill1_3.7:0.0.53
+//| - io.github.quafadas:millSite_mill1_3.7:0.0.54
 //| - com.goyeau::mill-scalafix::0.6.0
 //| - com.lihaoyi::mill-contrib-jmh:$MILL_VERSION
 
@@ -144,29 +144,6 @@ end CommonNative
 //   object native extends Shared with CommonNative {
 //     // native specific settings here
 //     object test extends ScalaNativeTests with SharedTests
-//   }
-// }
-
-// object jsSite extends SiteJSModule {
-
-//   override def moduleDeps = Seq(vecxt.js, vecxtensions.js)
-//   override def scalaVersion = vecxt.js.scalaVersion
-//   override def scalaJSVersion = vecxt.js.scalaJSVersion
-
-//   // override def scalaJsCompilerVersion: String = "3.6.2"
-
-//   // override def allScalacOptions: T[Seq[String]] = super.allScalacOptions`() ++ Seq("-experimental", "-language:experimental.namedTuples")
-//   override def scalacOptions: T[Seq[String]] = super.scalacOptions()
-//   override def moduleKind = ModuleKind.ESModule
-//   override def mvnDeps = super.mvnDeps() ++ Seq(
-//     mvn"org.scala-js::scalajs-dom::2.8.0",
-//     mvn"com.lihaoyi::scalatags::${V.scalatags}",
-//     mvn"com.raquo::laminar::${V.laminar}",
-//     mvn"com.lihaoyi::upickle::4.0.2"
-//   )
-
-//   object test extends ScalaJSTests with CommonTests {
-//     def moduleKind = ModuleKind.CommonJSModule
 //   }
 // }
 

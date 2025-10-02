@@ -1,6 +1,4 @@
----
-title:  Linear Algebra and Array[Double] on the JVM. Beware All Ye Who Enter Here.
----
+# Linear Algebra and `Array[Double]` on the JVM. Beware All Ye Who Enter Here.
 
 ## Part I
 

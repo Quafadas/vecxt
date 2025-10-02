@@ -8,7 +8,7 @@ v.sum
 v.sumSIMD // <- Faster
 
 ```
-Depending on whether sum dispatches to vecxt or stdlib, you may bleed up to 10x performrance.
+Depending on whether sum dispatches to vecxt (fast) or stdlib (slower), you may bleed up to 10x performance.
 
 ## On JS
 

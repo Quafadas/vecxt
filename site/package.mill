@@ -8,7 +8,7 @@ import mill.util.VcsVersion
 
 object `package` extends SiteModule {
 
-//   override val jsSiteModule = jsSite
+  override lazy val jsSiteModule = Some(build.jsSite)
 //   override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
   def forkArgs: T[Seq[String]] = build.vecIncubatorFlag
 
@@ -20,6 +20,18 @@ object `package` extends SiteModule {
 
   override def unidocDeps = Seq(build.vecxt.jvm)
 
+  override def scalaJSImportMap = Task{
+    Seq(
+      ESModuleImportMapping.Prefix("@stdlib/blas/base", "https://cdn.jsdelivr.net/npm/@stdlib/blas@0.2.0/base/+esm" )
+    )
+  }
+
   def scalaVersion = build.V.scalaVersion
+
+  override def lcs = Task.Worker{
+    super.lcs().copy(
+      logLevel = "debug"
+    )
+  }
 
 }

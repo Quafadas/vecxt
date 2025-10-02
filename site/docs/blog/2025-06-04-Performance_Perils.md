@@ -1,8 +1,6 @@
----
-title:  Performance Perils
----
+# Performance Perils
 
-I decided that I wanted to find the sum of an Array[Double]. I also decided, that I was sensitive about the performance of it. So I broke out jmh, here are the results.
+I decided that I wanted to find the sum of an `Array[Double]`. I also decided, that I was sensitive about the performance of it. So I broke out jmh, here are the results.
 
 ```
 Benchmark                                               (matDim)   Mode  Cnt     Score     Error  Units

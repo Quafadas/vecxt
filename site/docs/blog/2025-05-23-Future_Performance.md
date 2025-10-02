@@ -1,6 +1,6 @@
----
-title:  Future Performance
----
+# Future Performance
+
+$Date: 2025-05-23T10:00:00+01:00
 
 This project tries to keep up with javas SIMD API. here's the latest video;
 

@@ -1,6 +1,6 @@
 # Cross Platform
 
-This has the same algorithm as the [motivation](motivation.mdoc.md) example, but is expressed in a cross platform `NArray`, and runs in scalaJS - check your browser console to observer the output.
+Expressed in a cross platform `NArray`, and runs in scalaJS - check your browser console to observer the output.
 
 
 ```scala mdoc:js
@@ -40,7 +40,7 @@ It should be possible, to make lovely renders of our matricies in browser, for t
 
 Although it currently requires a rather hacky workaround, PRs are in flight for (hopefully scala js and laminar)
 
-```scala mdoc:js sc:nocompile
+```scala mdoc:js
 import org.scalajs.dom
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.DomApi

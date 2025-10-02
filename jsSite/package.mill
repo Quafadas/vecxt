@@ -1,0 +1,38 @@
+package build.jsSite
+
+import mill.*, scalalib.*, scalajslib.*
+import mill.scalajslib.api.*
+import io.github.quafadas.millSite.*
+import mill.util.VcsVersion
+import build.V
+import mill.scalajslib.api.ESModuleImportMapping
+
+
+object `package` extends SiteJSModule {
+
+  override def moduleDeps = Seq(build.vecxt.js, build.vecxtensions.js)
+  override def scalaVersion = build.vecxt.js.scalaVersion
+  override def scalaJSVersion = build.vecxt.js.scalaJSVersion
+
+  override def scalaJSImportMap = Task{
+    Seq(
+      ESModuleImportMapping.Prefix("@stdlib/blas/base", "https://cdn.jsdelivr.net/npm/@stdlib/blas@0.2.0/base/+esm" )
+    )
+  }
+
+  // override def scalaJsCompilerVersion: String = "3.6.2"
+
+  // override def allScalacOptions: T[Seq[String]] = super.allScalacOptions`() ++ Seq("-experimental", "-language:experimental.namedTuples")
+  override def scalacOptions: T[Seq[String]] = super.scalacOptions()
+  override def moduleKind = ModuleKind.ESModule
+  override def mvnDeps = super.mvnDeps() ++ Seq(
+    mvn"org.scala-js::scalajs-dom::2.8.0",
+    V.scalaTags,
+    V.laminar,
+    mvn"com.lihaoyi::upickle::4.0.2"
+  )
+
+  // object test extends ScalaJSTests with CommonTests {
+  //   def moduleKind = ModuleKind.CommonJSModule
+  // }
+}

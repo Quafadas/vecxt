@@ -1,4 +1,4 @@
-# Vector Examples
+# Array Examples
 
 Some basic examples with doubles.
 
