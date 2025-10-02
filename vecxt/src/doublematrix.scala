@@ -142,9 +142,18 @@ object DoubleMatrix:
       sameDimMatCheck(m, m2)
 
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
+        // Fast path: use SIMD-optimized array multiplication
         val newArr = vecxt.arrays.*(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        // Different memory layouts: materialize to dense column-major and use SIMD
+        // Always materialize at least one to ensure compatible layouts
+        val mDense = m.deepCopy
+        val m2Dense = if m2.isDenseColMajor then m2 else m2.deepCopy
+
+        // Now both are column-major dense, use SIMD multiplication
+        val newArr = vecxt.arrays.*(mDense.raw)(m2Dense.raw)
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
       end if
     end hadamard
 
