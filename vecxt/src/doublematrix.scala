@@ -146,44 +146,31 @@ object DoubleMatrix:
         val newArr = vecxt.arrays.*(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
       else
-        // Different memory layouts: materialize only one matrix and multiply in-place
-        // Choose which matrix to materialize based on which is already dense column-major
+        // Different memory layouts: materialize one matrix to match the other's layout
         if m.isDenseColMajor then
-          // m is already dense, materialize m2 and multiply in-place
-          val m2Dense = m2.deepCopy
-          // Multiply m2Dense in-place with m
-          var idx = 0
-          var j = 0
-          while j < m.cols do
-            var i = 0
-            while i < m.rows do
-              m2Dense.raw(idx) = m2Dense.raw(idx) * m(i, j)
-              i += 1
-              idx += 1
-            end while
-            j += 1
-          end while
+          // m is dense column-major, materialize m2 to column-major and multiply in-place
+          val m2Dense = m2.deepCopy(asRowMajor = false)
+          vecxt.arrays.*=(m2Dense.raw)(m.raw)
+          m2Dense
+        else if m.isDenseRowMajor then
+          // m is dense row-major, materialize m2 to row-major and multiply in-place
+          val m2Dense = m2.deepCopy(asRowMajor = true)
+          vecxt.arrays.*=(m2Dense.raw)(m.raw)
           m2Dense
         else if m2.isDenseColMajor then
-          // m2 is already dense, materialize m and multiply in-place
-          val mDense = m.deepCopy
-          // Multiply mDense in-place with m2
-          var idx = 0
-          var j = 0
-          while j < m.cols do
-            var i = 0
-            while i < m.rows do
-              mDense.raw(idx) = mDense.raw(idx) * m2(i, j)
-              i += 1
-              idx += 1
-            end while
-            j += 1
-          end while
+          // m2 is dense column-major, materialize m to column-major and multiply in-place
+          val mDense = m.deepCopy(asRowMajor = false)
+          vecxt.arrays.*=(mDense.raw)(m2.raw)
+          mDense
+        else if m2.isDenseRowMajor then
+          // m2 is dense row-major, materialize m to row-major and multiply in-place
+          val mDense = m.deepCopy(asRowMajor = true)
+          vecxt.arrays.*=(mDense.raw)(m2.raw)
           mDense
         else
-          // Neither is dense column-major, materialize m and use SIMD multiplication
-          val mDense = m.deepCopy
-          val m2Dense = m2.deepCopy
+          // Neither is dense, materialize both to column-major and use SIMD multiplication
+          val mDense = m.deepCopy(asRowMajor = false)
+          val m2Dense = m2.deepCopy(asRowMajor = false)
           val newArr = vecxt.arrays.*(mDense.raw)(m2Dense.raw)
           Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
         end if
