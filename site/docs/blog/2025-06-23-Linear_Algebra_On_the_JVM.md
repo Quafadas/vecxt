@@ -135,3 +135,9 @@ It does _not_ provide C interop with `Array[Double]` (as far as I'm aware), outs
 | `MemorySegment.ofArray(...)`   | ❌ No            | ❌ No        |
 
 This restriction means that a zero-copy suite of operations (so crucial to allocation avoidance) would need to be built, from the gronud up.
+
+## Update
+
+Fixed this bug in netlib-java, so offsets with non-contiguous memory layouts now work. So we can do zero copy sub-matricies with netlib BLAS.
+
+https://github.com/luhenry/netlib/issues/23
