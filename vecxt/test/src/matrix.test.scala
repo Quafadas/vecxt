@@ -565,6 +565,75 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals[Double](result.raw, NArray[Double](2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0))
   }
 
+  test("hadamard product with non-simple layout") {
+    // Create base matrices
+    val base1 = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 1).toDouble), 3, 3)
+    val base2 = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 10).toDouble), 3, 3)
+
+    // Create views with non-simple layouts
+    val view1 = base1(::, NArray(1, 2)) // columns 1 and 2
+    val view2 = base2(::, NArray(1, 2)) // columns 1 and 2
+
+    // Compute hadamard product
+    val result = view1.hadamard(view2)
+
+    // Expected values (column-major):
+    // view1 columns 1,2 of base1 = [[4,7], [5,8], [6,9]]
+    // view2 columns 1,2 of base2 = [[13,16], [14,17], [15,18]]
+    // hadamard should give element-wise multiplication
+    assert(result.rows == 3)
+    assert(result.cols == 2)
+    assertEqualsDouble(result(0, 0), 4.0 * 13.0, 0.0001) // 52
+    assertEqualsDouble(result(1, 0), 5.0 * 14.0, 0.0001) // 70
+    assertEqualsDouble(result(2, 0), 6.0 * 15.0, 0.0001) // 90
+    assertEqualsDouble(result(0, 1), 7.0 * 16.0, 0.0001) // 112
+    assertEqualsDouble(result(1, 1), 8.0 * 17.0, 0.0001) // 136
+    assertEqualsDouble(result(2, 1), 9.0 * 18.0, 0.0001) // 162
+  }
+
+  test("hadamard product with mixed layouts") {
+    // One matrix with simple layout, one with non-simple
+    val simple = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 3, 2)
+    val base = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 10).toDouble), 3, 3)
+    val view = base(::, NArray(0, 2)) // columns 0 and 2
+
+    val result = simple.hadamard(view)
+
+    assert(result.rows == 3)
+    assert(result.cols == 2)
+    assertEqualsDouble(result(0, 0), 1.0 * 10.0, 0.0001)
+    assertEqualsDouble(result(1, 0), 2.0 * 11.0, 0.0001)
+    assertEqualsDouble(result(2, 0), 3.0 * 12.0, 0.0001)
+    assertEqualsDouble(result(0, 1), 4.0 * 16.0, 0.0001)
+    assertEqualsDouble(result(1, 1), 5.0 * 17.0, 0.0001)
+    assertEqualsDouble(result(2, 1), 6.0 * 18.0, 0.0001)
+  }
+
+  test("hadamard product with transposed matrix") {
+    val mat1 = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)
+    val mat2 = Matrix[Double](NArray(10.0, 20.0, 30.0, 40.0, 50.0, 60.0), 3, 2)
+
+    // Transpose mat2 to have the same shape as mat1
+    val mat2T = mat2.transpose
+
+    assert(mat1.rows == mat2T.rows)
+    assert(mat1.cols == mat2T.cols)
+
+    val result = mat1.hadamard(mat2T)
+
+    assert(result.rows == 2)
+    assert(result.cols == 3)
+    // mat1 (col-major 2x3): [[1,3,5], [2,4,6]]
+    // mat2 (col-major 3x2): [[10,40], [20,50], [30,60]]
+    // mat2T (row-major 2x3): [[10,20,30], [40,50,60]]
+    assertEqualsDouble(result(0, 0), 1.0 * 10.0, 0.0001) // 10
+    assertEqualsDouble(result(1, 0), 2.0 * 40.0, 0.0001) // 80
+    assertEqualsDouble(result(0, 1), 3.0 * 20.0, 0.0001) // 60
+    assertEqualsDouble(result(1, 1), 4.0 * 50.0, 0.0001) // 200
+    assertEqualsDouble(result(0, 2), 5.0 * 30.0, 0.0001) // 150
+    assertEqualsDouble(result(1, 2), 6.0 * 60.0, 0.0001) // 360
+  }
+
   test("map rows") {
     val mapped = mat1to9.mapRows[Double](row => row * 2)
     assertVecEquals[Double](mapped.raw, mat1to9.raw * 2)

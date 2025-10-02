@@ -142,9 +142,38 @@ object DoubleMatrix:
       sameDimMatCheck(m, m2)
 
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
+        // Fast path: use SIMD-optimized array multiplication
         val newArr = vecxt.arrays.*(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        // Different memory layouts: materialize one matrix to match the other's layout
+        if m.isDenseColMajor then
+          // m is dense column-major, materialize m2 to column-major and multiply in-place
+          val m2Dense = m2.deepCopy(asRowMajor = false)
+          vecxt.arrays.*=(m2Dense.raw)(m.raw)
+          m2Dense
+        else if m.isDenseRowMajor then
+          // m is dense row-major, materialize m2 to row-major and multiply in-place
+          val m2Dense = m2.deepCopy(asRowMajor = true)
+          vecxt.arrays.*=(m2Dense.raw)(m.raw)
+          m2Dense
+        else if m2.isDenseColMajor then
+          // m2 is dense column-major, materialize m to column-major and multiply in-place
+          val mDense = m.deepCopy(asRowMajor = false)
+          vecxt.arrays.*=(mDense.raw)(m2.raw)
+          mDense
+        else if m2.isDenseRowMajor then
+          // m2 is dense row-major, materialize m to row-major and multiply in-place
+          val mDense = m.deepCopy(asRowMajor = true)
+          vecxt.arrays.*=(mDense.raw)(m2.raw)
+          mDense
+        else
+          // Neither is dense, materialize both to column-major and use SIMD multiplication
+          val mDense = m.deepCopy(asRowMajor = false)
+          val m2Dense = m2.deepCopy(asRowMajor = false)
+          val newArr = vecxt.arrays.*(mDense.raw)(m2Dense.raw)
+          Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        end if
       end if
     end hadamard
 

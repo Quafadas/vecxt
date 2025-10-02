@@ -1176,6 +1176,23 @@ object arrays:
       out
     end *
 
+    inline def *=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, d)
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .mul(DoubleVector.fromArray(spd, d, i))
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) = vec(i) * d(i)
+        i = i + 1
+      end while
+    end *=
+
     inline def /(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, d)
       val out = new Array[Double](vec.length)

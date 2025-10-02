@@ -456,6 +456,17 @@ object JsNativeDoubleArrays:
       res
     end *
 
+    inline def *=(d: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, d)
+      val n = vec.length
+
+      var i = 0
+      while i < n do
+        vec(i) = vec(i) * d(i)
+        i += 1
+      end while
+    end *=
+
     inline def outer(other: NArray[Double])(using ClassTag[Double]): Matrix[Double] =
       val n = vec.length
       val m = other.length
