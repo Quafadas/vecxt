@@ -50,6 +50,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          
       - name: formatCheck
         run: ./millw mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 

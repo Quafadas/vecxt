@@ -26,7 +26,7 @@ import mill.api.Result
 import com.goyeau.mill.scalafix.ScalafixModule
 import mill.api.Task.Simple
 
-def format = mill.scalalib.scalafmt.ScalafmtModule
+// def format = mill.scalalib.scalafmt.ScalafmtModule
 
 // mill __.compiledClassesAndSemanticDbFiles
 object V:
