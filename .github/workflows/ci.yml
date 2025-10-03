@@ -50,7 +50,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          
+
       - name: formatCheck
         run: ./millw mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 
@@ -98,7 +98,6 @@ jobs:
 
 
   site:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -139,6 +138,7 @@ jobs:
           if-no-files-found: error
 
   deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: site
     permissions:
       pages: write
