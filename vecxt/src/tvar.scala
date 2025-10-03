@@ -39,6 +39,84 @@ extension [N <: Int](thisVector: NArray[Double])
     tailSum / fte.toDouble;
   end tVar
 
+  /** Calculate Value at Risk (VaR) at the given confidence level alpha. VaR is the threshold value at the (1-alpha)
+    * quantile of the distribution.
+    *
+    * @param alpha
+    *   Confidence level (e.g., 0.95 for 95% confidence)
+    * @return
+    *   The VaR value at the specified confidence level
+    */
+  def vAr(alpha: Double): Double =
+    val numYears = thisVector.length
+    val nte = numYears * (1.0 - alpha);
+    val fte = Math.floor(nte + 0.00000000001).toInt;
+    val sorted = thisVector.sort()
+    if fte > 0 then sorted(fte - 1) else sorted(0)
+    end if
+  end vAr
+
+  /** Calculate both TVaR and VaR at the given confidence level alpha.
+    *
+    * @param alpha
+    *   Confidence level (e.g., 0.95 for 95% confidence)
+    * @return
+    *   A tuple of (TVaR, VaR) values
+    */
+  def tVarWithVaR(alpha: Double): (Double, Double) =
+    val numYears = thisVector.length
+    val nte = numYears * (1.0 - alpha);
+    val fte = Math.floor(nte + 0.00000000001).toInt;
+    val sorted = thisVector.sort()
+
+    var i = 0
+    var tailSum = 0.0;
+    while i < fte do
+      tailSum += sorted(i);
+      i += 1;
+    end while
+    val tvar = tailSum / fte.toDouble
+    val var_value = if fte > 0 then sorted(fte - 1) else sorted(0)
+
+    (tvar, var_value)
+  end tVarWithVaR
+
+  /** Calculate multiple (TVaR, VaR) pairs for different confidence levels. This is more efficient than calling
+    * tVarWithVaR multiple times as it only sorts once.
+    *
+    * @param alphas
+    *   Array of confidence levels
+    * @return
+    *   Array of tuples containing (alpha, TVaR, VaR) for each confidence level
+    */
+  def tVarWithVaRBatch(alphas: NArray[Double]): NArray[(Double, Double, Double)] =
+    val sorted = thisVector.sort()
+    val numYears = thisVector.length
+    val result = NArray.ofSize[(Double, Double, Double)](alphas.length)
+
+    var alphaIdx = 0
+    while alphaIdx < alphas.length do
+      val alpha = alphas(alphaIdx)
+      val nte = numYears * (1.0 - alpha)
+      val fte = Math.floor(nte + 0.00000000001).toInt
+
+      var i = 0
+      var tailSum = 0.0
+      while i < fte do
+        tailSum += sorted(i)
+        i += 1
+      end while
+
+      val tvar = tailSum / fte.toDouble
+      val var_value = if fte > 0 then sorted(fte - 1) else sorted(0)
+
+      result(alphaIdx) = (alpha, tvar, var_value)
+      alphaIdx += 1
+    end while
+
+    result
+  end tVarWithVaRBatch
+
   def tVarIdx(alpha: Double): NArray[Boolean] =
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
