@@ -127,3 +127,51 @@ v1.dot(v2)
 (v1(v1 <= 2)).printArr
 
 ```
+
+## Risk Measures (TVaR/VaR)
+
+The library includes methods for calculating Tail Value at Risk (TVaR) and Value at Risk (VaR), which are commonly used in reinsurance and risk management.
+
+```scala mdoc:reset
+import vecxt.all.*
+import narr.*
+import vecxt.reinsurance.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+
+// Create a sample loss distribution
+val losses = NArray[Double](10.0, 25.0, 15.0, 50.0, 5.0, 30.0, 20.0, 8.0, 45.0, 12.0)
+
+// Calculate Value at Risk (VaR) at 90% confidence level
+// VaR represents the threshold value - 90% of losses are above this value
+val var90 = losses.VaR(0.90)
+
+// Calculate Tail Value at Risk (TVaR) at 90% confidence level
+// TVaR is the expected loss in the worst 10% of cases (average of the tail)
+val tvar90 = losses.tVar(0.90)
+
+// Calculate both TVaR and VaR together (more efficient)
+val result = losses.tVarWithVaR(0.90)
+val confidenceLevel = result.cl  // = 0.10 (1 - 0.90)
+val varValue = result.VaR
+val tvarValue = result.TVaR
+
+// Calculate multiple confidence levels at once (most efficient for batch analysis)
+val alphas = NArray[Double](0.85, 0.90, 0.95, 0.99)
+val results = losses.tVarWithVaRBatch(alphas)
+// Each result contains (cl, VaR, TVaR)
+results(0).cl   // Confidence level for first alpha
+results(0).VaR  // VaR for 85% confidence
+results(0).TVaR // TVaR for 85% confidence
+
+// Get a boolean mask indicating which values are in the tail
+val tailMask = losses.tVarIdx(0.90)
+// tailMask(i) is true if losses(i) is in the worst 10%
+
+// Calculate tail dependence between two distributions
+// Measures how often extreme values occur together
+val losses1 = NArray[Double](5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0)
+val losses2 = NArray[Double](8.0, 12.0, 18.0, 22.0, 28.0, 32.0, 38.0, 42.0, 48.0, 52.0)
+val tailDep = losses1.qdep(0.90, losses2)
+// Returns proportion of tail observations that are shared (0.0 to 1.0)
+
+```

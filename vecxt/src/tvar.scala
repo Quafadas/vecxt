@@ -5,6 +5,17 @@ import narr.*
 
 extension [N <: Int](thisVector: NArray[Double])
 
+  /** Calculate tail dependence between two distributions. Tail dependence measures the proportion of observations that
+    * appear in both tails at a given confidence level. This is useful for understanding the co-movement of extreme
+    * values in two related datasets.
+    *
+    * @param alpha
+    *   Confidence level (e.g., 0.95 for 95% confidence)
+    * @param thatVector
+    *   The second array to compare against
+    * @return
+    *   The proportion of shared tail observations (0.0 to 1.0)
+    */
   def qdep(alpha: Double, thatVector: NArray[Double]): Double =
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
@@ -25,6 +36,15 @@ extension [N <: Int](thisVector: NArray[Double])
     sharedTail.toDouble / nte
   end qdep
 
+  /** Calculate Tail Value at Risk (TVaR), also known as Conditional Value at Risk (CVaR) or Expected Shortfall. TVaR is
+    * the expected value of losses in the tail beyond the VaR threshold. It represents the average of all values in the
+    * worst (1-alpha) portion of the distribution.
+    *
+    * @param alpha
+    *   Confidence level (e.g., 0.95 for 95% confidence)
+    * @return
+    *   The average value in the tail (lower values)
+    */
   def tVar(alpha: Double): Double =
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
@@ -119,6 +139,14 @@ extension [N <: Int](thisVector: NArray[Double])
     result
   end tVarWithVaRBatch
 
+  /** Return a boolean mask indicating which elements are in the tail (used in TVaR calculation). This is useful for
+    * identifying which observations contribute to the tail risk.
+    *
+    * @param alpha
+    *   Confidence level (e.g., 0.95 for 95% confidence)
+    * @return
+    *   A boolean array where true indicates the element is in the tail
+    */
   def tVarIdx(alpha: Double): NArray[Boolean] =
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
