@@ -452,29 +452,31 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("VaR") {
-    import vecxt.reinsurance.vAr
+    import vecxt.reinsurance.VaR
     val v1 = NArray.tabulate(100)(_.toDouble)
-    val var95 = v1.vAr(0.95)
+    val var95 = v1.VaR(0.95)
     // At 95% confidence, we expect the 5th value (0-indexed: 4) in sorted array
     assertEqualsDouble(var95, 4.0, 0.0001)
 
     // Test different confidence levels
-    val var90 = v1.vAr(0.90)
+    val var90 = v1.VaR(0.90)
     assertEqualsDouble(var90, 9.0, 0.0001)
 
-    val var99 = v1.vAr(0.99)
+    val var99 = v1.VaR(0.99)
     assertEqualsDouble(var99, 0.0, 0.0001)
   }
 
   test("tVarWithVaR") {
     import vecxt.reinsurance.tVarWithVaR
     val v1 = NArray.tabulate(100)(_.toDouble)
-    val (tvar, var_value) = v1.tVarWithVaR(0.95)
+    val result = v1.tVarWithVaR(0.95)
 
     // TVaR should be the average of the tail (first 5 values: 0,1,2,3,4)
-    assertEqualsDouble(tvar, 2.0, 0.0001)
+    assertEqualsDouble(result.TVaR, 2.0, 0.0001)
     // VaR should be the threshold value (4th value)
-    assertEqualsDouble(var_value, 4.0, 0.0001)
+    assertEqualsDouble(result.VaR, 4.0, 0.0001)
+    // cl should be 1 - alpha = 0.05
+    assertEqualsDouble(result.cl, 0.05, 0.0001)
   }
 
   test("tVarWithVaRBatch") {
@@ -486,37 +488,38 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(results.length, 3)
 
     // Check 90% confidence level
-    val (alpha90, tvar90, var90) = results(0)
-    assertEqualsDouble(alpha90, 0.90, 0.0001)
-    assertEqualsDouble(tvar90, 4.5, 0.0001) // avg of 0-9
-    assertEqualsDouble(var90, 9.0, 0.0001)
+    val result90 = results(0)
+    assertEqualsDouble(result90.cl, 0.10, 0.0001)
+    assertEqualsDouble(result90.TVaR, 4.5, 0.0001) // avg of 0-9
+    assertEqualsDouble(result90.VaR, 9.0, 0.0001)
 
     // Check 95% confidence level
-    val (alpha95, tvar95, var95) = results(1)
-    assertEqualsDouble(alpha95, 0.95, 0.0001)
-    assertEqualsDouble(tvar95, 2.0, 0.0001) // avg of 0-4
-    assertEqualsDouble(var95, 4.0, 0.0001)
+    val result95 = results(1)
+    assertEqualsDouble(result95.cl, 0.05, 0.0001)
+    assertEqualsDouble(result95.TVaR, 2.0, 0.0001) // avg of 0-4
+    assertEqualsDouble(result95.VaR, 4.0, 0.0001)
 
     // Check 99% confidence level
-    val (alpha99, tvar99, var99) = results(2)
-    assertEqualsDouble(alpha99, 0.99, 0.0001)
-    assertEqualsDouble(tvar99, 0.0, 0.0001) // avg of 0
-    assertEqualsDouble(var99, 0.0, 0.0001)
+    val result99 = results(2)
+    assertEqualsDouble(result99.cl, 0.01, 0.0001)
+    assertEqualsDouble(result99.TVaR, 0.0, 0.0001) // avg of 0
+    assertEqualsDouble(result99.VaR, 0.0, 0.0001)
   }
 
   test("VaR with unsorted data") {
-    import vecxt.reinsurance.{vAr, tVarWithVaR}
+    import vecxt.reinsurance.{VaR, tVarWithVaR}
     // Test with shuffled data to ensure sorting works correctly
     val v1 = NArray[Double](45.0, 12.0, 89.0, 3.0, 67.0, 23.0, 56.0, 8.0, 34.0, 91.0)
-    val var90 = v1.vAr(0.90)
+    val var90 = v1.VaR(0.90)
     // Sorted: 3, 8, 12, 23, 34, 45, 56, 67, 89, 91
     // 90% confidence means tail size = 10 * (1-0.9) = 1
     // VaR should be value at index 0 (3.0)
     assertEqualsDouble(var90, 3.0, 0.0001)
 
-    val (tvar, var_value) = v1.tVarWithVaR(0.90)
-    assertEqualsDouble(tvar, 3.0, 0.0001)
-    assertEqualsDouble(var_value, 3.0, 0.0001)
+    val result = v1.tVarWithVaR(0.90)
+    assertEqualsDouble(result.TVaR, 3.0, 0.0001)
+    assertEqualsDouble(result.VaR, 3.0, 0.0001)
+    assertEqualsDouble(result.cl, 0.10, 0.0001)
   }
 
   test("tvar index 2") {

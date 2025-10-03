@@ -47,23 +47,23 @@ extension [N <: Int](thisVector: NArray[Double])
     * @return
     *   The VaR value at the specified confidence level
     */
-  def vAr(alpha: Double): Double =
+  def VaR(alpha: Double): Double =
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
     val fte = Math.floor(nte + 0.00000000001).toInt;
     val sorted = thisVector.sort()
     if fte > 0 then sorted(fte - 1) else sorted(0)
     end if
-  end vAr
+  end VaR
 
   /** Calculate both TVaR and VaR at the given confidence level alpha.
     *
     * @param alpha
     *   Confidence level (e.g., 0.95 for 95% confidence)
     * @return
-    *   A tuple of (TVaR, VaR) values
+    *   A named tuple with (cl, VaR, TVaR) where cl = 1-alpha
     */
-  def tVarWithVaR(alpha: Double): (Double, Double) =
+  def tVarWithVaR(alpha: Double): (cl: Double, VaR: Double, TVaR: Double) =
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
     val fte = Math.floor(nte + 0.00000000001).toInt;
@@ -77,8 +77,9 @@ extension [N <: Int](thisVector: NArray[Double])
     end while
     val tvar = tailSum / fte.toDouble
     val var_value = if fte > 0 then sorted(fte - 1) else sorted(0)
+    val confidence_level = 1.0 - alpha
 
-    (tvar, var_value)
+    (cl = confidence_level, VaR = var_value, TVaR = tvar)
   end tVarWithVaR
 
   /** Calculate multiple (TVaR, VaR) pairs for different confidence levels. This is more efficient than calling
@@ -87,12 +88,12 @@ extension [N <: Int](thisVector: NArray[Double])
     * @param alphas
     *   Array of confidence levels
     * @return
-    *   Array of tuples containing (alpha, TVaR, VaR) for each confidence level
+    *   Array of named tuples containing (cl, VaR, TVaR) for each confidence level where cl = 1-alpha
     */
-  def tVarWithVaRBatch(alphas: NArray[Double]): NArray[(Double, Double, Double)] =
+  def tVarWithVaRBatch(alphas: NArray[Double]): NArray[(cl: Double, VaR: Double, TVaR: Double)] =
     val sorted = thisVector.sort()
     val numYears = thisVector.length
-    val result = NArray.ofSize[(Double, Double, Double)](alphas.length)
+    val result = NArray.ofSize[(cl: Double, VaR: Double, TVaR: Double)](alphas.length)
 
     var alphaIdx = 0
     while alphaIdx < alphas.length do
@@ -109,8 +110,9 @@ extension [N <: Int](thisVector: NArray[Double])
 
       val tvar = tailSum / fte.toDouble
       val var_value = if fte > 0 then sorted(fte - 1) else sorted(0)
+      val confidence_level = 1.0 - alpha
 
-      result(alphaIdx) = (alpha, tvar, var_value)
+      result(alphaIdx) = (cl = confidence_level, VaR = var_value, TVaR = tvar)
       alphaIdx += 1
     end while
 
