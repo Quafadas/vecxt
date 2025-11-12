@@ -4,6 +4,7 @@ import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.*
+import vecxt.Determinant.* // Import JS/Native-specific determinant implementation
 
 import scala.annotation.nowarn
 import narr.*

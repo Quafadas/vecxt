@@ -30,11 +30,11 @@ vecxt/
 ├── millw                      # Mill wrapper script for cross-platform builds
 ├── styleguide.md             # Coding style guidelines
 ├── benchmarks/              # Benchmarking code - not published, may be run in CI on request
-├── experiments/              # Not published, inlined experiments - use this as a sandbox 
+├── experiments/              # Not published, inlined experiments - use this as a sandbox
 ├── vecxtensions/             # Published module with experiments / concepts which may not be suitable for main module
 │   ├── src/                  # Cross-platform shared source code
 │   ├── src-jvm/              # JVM-specific implementations (SIMD Vector API)
-│   ├── src-js/               # JavaScript-specific implementations 
+│   ├── src-js/               # JavaScript-specific implementations
 │   ├── src-native/           # Scala Native-specific implementations
 │   └── test/                 # Cross-platform test suite (munit)
 │       ├── src/              # Shared test source files
@@ -44,7 +44,8 @@ vecxt/
 ├── vecxt/                    # Main source directory and core published module
 │   ├── src/                  # Cross-platform shared source code
 │   ├── src-jvm/              # JVM-specific implementations (SIMD Vector API)
-│   ├── src-js/               # JavaScript-specific implementations 
+│   ├── src-js/               # JavaScript-specific implementations
+│   ├── src-js-native/        # JavaScript / native shared (DRY) implementations
 │   ├── src-native/           # Scala Native-specific implementations
 │   └── test/                 # Cross-platform test suite (munit)
 │       ├── src/              # Shared test source files
@@ -53,13 +54,13 @@ vecxt/
 │       └── src-native/       # Scala Native-specific tests
 ├── site/                    # Source for docsite
 │   └── docs/                  # Markdown files for docsite
-└── README.md  
+└── README.md
 
 ##  Validation
 
-The primary form of validation is via unit testing. 
+The primary form of validation is via unit testing.
 
-Tests are writting using scala munit, see the folder structure for locations. 
+Tests are writting using scala munit, see the folder structure for locations.
 
 In general it is expected that all tests, pass on all platforms. The number 1 goal of this library is *correctness* - this goal takes precedeance above all else. Continually check and flag potentially any suspected incorrect calculation.
 

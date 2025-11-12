@@ -320,6 +320,11 @@ object DoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.sum(m.raw)
       else ???
 
+    // Note: det method is provided by platform-specific implementations
+    // See: vecxt.JvmDeterminant (JVM with SIMD) and vecxt.JsNativeDeterminant (JS/Native)
+
+    // inline def >=(d: Double): Matrix[Boolean] =
+
     // inline def >=(d: Double): Matrix[Boolean] =
     //   Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
 

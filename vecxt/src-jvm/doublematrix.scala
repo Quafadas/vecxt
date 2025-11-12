@@ -4,6 +4,7 @@ import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
 import all.*
+import vecxt.Determinant.* // Import JVM-specific determinant implementation
 
 import jdk.incubator.vector.*
 

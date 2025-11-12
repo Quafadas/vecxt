@@ -10,36 +10,6 @@ import scala.reflect.ClassTag
 import MatrixInstance.*
 import vecxt.dimensionExtender.DimensionExtender.*
 
-object JsNativeBooleanArrays:
-
-  extension (vec: NArray[Boolean])
-
-    inline def allTrue = vec.forall(identity)
-
-    inline def any: Boolean =
-      var i = 0
-      var any = false
-      while i < vec.length && any == false do
-        if vec(i) then any = true
-        end if
-        i += 1
-      end while
-      any
-    end any
-
-    inline def trues: Int =
-      var i = 0
-      var sum = 0
-      while i < vec.length do
-        if vec(i) then sum += 1
-        end if
-        i += 1
-      end while
-      sum
-    end trues
-  end extension
-end JsNativeBooleanArrays
-
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
 object JsNativeDoubleArrays:
 
@@ -157,26 +127,26 @@ object JsNativeDoubleArrays:
 
     inline def >=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.arrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
     inline def >(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.arrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](m.raw > d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
     end >
 
     inline def <=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.arrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](m.raw <= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
     end <=
 
     inline def <(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](m.raw < d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
   end extension
 

@@ -23,7 +23,7 @@ import vecxt.BoundsCheck.BoundsCheck
 
 import narr.*
 import scala.reflect.ClassTag
-import vecxt.JsNativeBooleanArrays.trues
+import vecxt.BooleanArrays.trues
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")

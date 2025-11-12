@@ -6,7 +6,7 @@ object all:
   export vecxt.arrays.*
   export vecxt.DoubleArrays.*
   // export vecxt.JsNativeDoubleArrays.*
-  export vecxt.JsNativeBooleanArrays.*
+  export vecxt.BooleanArrays.*
 
   // matricies
   export vecxt.OneAndZero.given_OneAndZero_Boolean
@@ -22,6 +22,7 @@ object all:
   export vecxt.JvmNativeDoubleMatrix.*
   export vecxt.dimensionExtender.DimensionExtender.*
   export vecxt.IntArrays.*
+  export vecxt.Determinant.* // Import determinant implementations
 
   // Random
   export vecxt.cosineSimilarity
