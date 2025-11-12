@@ -10,7 +10,6 @@ object BooleanArrays:
   private final val spb = ByteVector.SPECIES_PREFERRED
   private final val spbl = spb.length()
 
-
   extension (vec: Array[Boolean])
     // TODO, benchmark
     inline def allTrue: Boolean =
@@ -117,3 +116,4 @@ object BooleanArrays:
       result
     end ||
   end extension
+end BooleanArrays

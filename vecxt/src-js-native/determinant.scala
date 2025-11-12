@@ -20,13 +20,14 @@ import narr.*
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
 import vecxt.MatrixInstance.* // For apply and deepCopy
+import vecxt.MatrixHelper.* // For fromRows and zeros
 
 /** Shared determinant implementation for JS and Native platforms using scalar operations
   */
 object Determinant:
 
   extension (m: Matrix[Double])
-    
+
     /** Calculate the determinant of a square matrix using LU decomposition
       *
       * The determinant is computed by:
@@ -136,7 +137,159 @@ object Determinant:
         end if
       end if
     end det
-    
+
+    /** Calculate the adjugate (classical adjoint) matrix
+      *
+      * The adjugate is the transpose of the cofactor matrix. For a matrix A, adj(A) satisfies: A * adj(A) = det(A) * I
+      *
+      * This is useful for computing matrix inverses: A⁻¹ = adj(A) / det(A)
+      *
+      * Time complexity: O(n⁴) for general case using cofactor expansion
+      *
+      * @return
+      *   the adjugate matrix
+      * @throws IllegalArgumentException
+      *   if the matrix is not square
+      */
+    inline def adj(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      inline if boundsCheck then
+        if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
+      end if
+
+      val n = m.rows
+
+      // Handle small cases directly
+      if n == 1 then
+        // Adjugate of 1x1 matrix [a] is [1]
+        Matrix.fromRows[Double](NArray(1.0))
+      else if n == 2 then
+        // For 2x2 matrix | a  b |, adjugate is | d  -b |
+        //                | c  d |              |-c   a |
+        val a = m(0, 0)
+        val b = m(0, 1)
+        val c = m(1, 0)
+        val d = m(1, 1)
+        Matrix.fromRows[Double](
+          NArray(d, -b),
+          NArray(-c, a)
+        )
+      else
+        // For larger matrices, compute cofactor matrix and transpose
+        val result = Matrix.zeros[Double](n, n)
+
+        // Compute each element of the adjugate (which is C^T where C is cofactor matrix)
+        // adj(A)[i,j] = cofactor(A)[j,i] = (-1)^(i+j) * det(M_ji)
+        // where M_ji is the minor obtained by removing row j and column i
+        var i = 0
+        while i < n do
+          var j = 0
+          while j < n do
+            // Compute cofactor[j,i] which goes into adj[i,j]
+            val minor = getMinor(m, j, i, n)(using boundsCheck)
+            val minorDet = minor.det
+            val sign = if (i + j) % 2 == 0 then 1.0 else -1.0
+            result(i, j) = sign * minorDet
+            j += 1
+          end while
+          i += 1
+        end while
+
+        result
+      end if
+    end adj
+
+    /** Helper function to compute the minor matrix by removing a specific row and column
+      */
+    private inline def getMinor(mat: Matrix[Double], removeRow: Int, removeCol: Int, n: Int)(using
+        inline boundsCheck: BoundsCheck
+    ): Matrix[Double] =
+      val minorSize = n - 1
+      val minorData = NArray.ofSize[Double](minorSize * minorSize)
+
+      var srcRow = 0
+      var dstRow = 0
+      while srcRow < n do
+        if srcRow != removeRow then
+          var srcCol = 0
+          var dstCol = 0
+          while srcCol < n do
+            if srcCol != removeCol then
+              minorData(dstRow * minorSize + dstCol) = mat(srcRow, srcCol)
+              dstCol += 1
+            end if
+            srcCol += 1
+          end while
+          dstRow += 1
+        end if
+        srcRow += 1
+      end while
+
+      Matrix(minorData, minorSize, minorSize)
+    end getMinor
+
+    /** Calculate the inverse of a square matrix
+      *
+      * The inverse is computed using: A⁻¹ = adj(A) / det(A)
+      *
+      * Time complexity: O(n⁴) using cofactor expansion
+      *
+      * @return
+      *   the inverse matrix
+      * @throws IllegalArgumentException
+      *   if the matrix is not square
+      * @throws ArithmeticException
+      *   if the matrix is singular (determinant is zero)
+      */
+    inline def inverse(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      inline if boundsCheck then
+        if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
+      end if
+
+      val n = m.rows
+
+      // Handle small cases directly for efficiency
+      if n == 1 then
+        val det = m(0, 0)
+        if math.abs(det) < 1e-14 then throw new ArithmeticException("Matrix is singular (determinant is zero)")
+        end if
+        Matrix.fromRows[Double](NArray(1.0 / det))
+      else if n == 2 then
+        val a = m(0, 0)
+        val b = m(0, 1)
+        val c = m(1, 0)
+        val d = m(1, 1)
+        val det = a * d - b * c
+        if math.abs(det) < 1e-14 then throw new ArithmeticException("Matrix is singular (determinant is zero)")
+        end if
+        val invDet = 1.0 / det
+        Matrix.fromRows[Double](
+          NArray(d * invDet, -b * invDet),
+          NArray(-c * invDet, a * invDet)
+        )
+      else
+        // For larger matrices, use adj(A) / det(A)
+        val det = m.det
+        if math.abs(det) < 1e-14 then throw new ArithmeticException("Matrix is singular (determinant is zero)")
+        end if
+
+        val adj = m.adj
+        val invDet = 1.0 / det
+
+        // Scale adjugate by 1/det
+        val result = Matrix.zeros[Double](n, n)
+        var i = 0
+        while i < n do
+          var j = 0
+          while j < n do
+            result(i, j) = adj(i, j) * invDet
+            j += 1
+          end while
+          i += 1
+        end while
+        result
+      end if
+    end inverse
+
   end extension
-  
+
 end Determinant

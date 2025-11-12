@@ -126,27 +126,23 @@ object JsNativeDoubleArrays:
     end +=
 
     inline def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
     inline def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](m.raw > d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](m.raw > d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
     end >
 
     inline def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](m.raw <= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](m.raw <= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
     end <=
 
     inline def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](m.raw < d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](m.raw < d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
   end extension
 

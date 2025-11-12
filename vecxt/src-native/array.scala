@@ -18,7 +18,6 @@ object arrayUtil:
   // end extension
 end arrayUtil
 
-
 object arrays:
 
   export vecxt.JsNativeDoubleArrays.*

@@ -148,6 +148,50 @@ object MatrixHelper:
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end zerosOf
 
+    inline def rand(rows: Int, cols: Int)(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      val size = rows * cols
+      val newArr = NArray.ofSize[Double](size)
+      val rng = new scala.util.Random()
+      var i = 0
+      while i < size do
+        newArr(i) = rng.nextDouble()
+        i += 1
+      end while
+      Matrix[Double](newArr, (rows, cols))
+    end rand
+
+    inline def rand(dim: RowCol)(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      rand(dim._1, dim._2)
+    end rand
+
+    inline def randInt(rows: Int, cols: Int, minVal: Int, maxVal: Int)(using
+        inline boundsCheck: BoundsCheck
+    ): Matrix[Int] =
+      val size = rows * cols
+      val newArr = NArray.ofSize[Int](size)
+      val rng = new scala.util.Random()
+      val range = maxVal - minVal
+      var i = 0
+      while i < size do
+        newArr(i) = minVal + rng.nextInt(range)
+        i += 1
+      end while
+      Matrix[Int](newArr, (rows, cols))
+    end randInt
+
+    inline def randInt(rows: Int, cols: Int)(using inline boundsCheck: BoundsCheck): Matrix[Int] =
+      randInt(rows, cols, 0, 100)
+    end randInt
+
+    inline def randInt(dim: RowCol, minVal: Int, maxVal: Int)(using
+        inline boundsCheck: BoundsCheck
+    ): Matrix[Int] =
+      randInt(dim._1, dim._2, minVal, maxVal)
+    end randInt
+
+    inline def randInt(dim: RowCol)(using inline boundsCheck: BoundsCheck): Matrix[Int] =
+      randInt(dim._1, dim._2, 0, 100)
+    end randInt
   end extension
 
 end MatrixHelper
