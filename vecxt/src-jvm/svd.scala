@@ -11,10 +11,14 @@ object Svd:
   enum SVDMode:
     case CompleteSVD // all M columns of U and all N rows of V**T are returned in the arrays U and VT
     case ReducedSVD // the first min(M,N) columns of U and the first min(M,N) rows of V**T are returned in the arrays U and VT
+  end SVDMode
 
   private val lapack = JavaLAPACK.getInstance()
 
-  def svd(matrix: Matrix[Double], mode: SVDMode = SVDMode.CompleteSVD): (U : Matrix[Double], s: Array[Double], Vt: Matrix[Double]) =
+  def svd(
+      matrix: Matrix[Double],
+      mode: SVDMode = SVDMode.CompleteSVD
+  ): (U: Matrix[Double], s: Array[Double], Vt: Matrix[Double]) =
     val (m, n) = matrix.shape
     require(m > 0 && n > 0, s"Matrix dimensions must be positive, got ($m, $n)")
 
@@ -68,8 +72,8 @@ object Svd:
       info
     )
 
-    if info.`val` != 0 then
-      throw IllegalStateException(s"SVD workspace query failed. INFO=${info.`val`}")
+    if info.`val` != 0 then throw IllegalStateException(s"SVD workspace query failed. INFO=${info.`val`}")
+    end if
 
     val optimalWork = math.max(1, workQuery(0).toInt)
     val work = Array.ofDim[Double](optimalWork)
@@ -100,10 +104,11 @@ object Svd:
 
     if info.`val` < 0 then
       throw IllegalArgumentException(s"SVD failed: the ${-info.`val`}th argument had an illegal value")
-    else if info.`val` > 0 then
-      throw IllegalStateException(s"SVD failed to converge. INFO=${info.`val`}")
+    else if info.`val` > 0 then throw IllegalStateException(s"SVD failed to converge. INFO=${info.`val`}")
+    end if
 
     val uMatrix = Matrix(uArr, m, uCols)(using false)
     val vtMatrix = Matrix(vtArr, vtRows, n)(using false)
     (U = uMatrix, s = singularValues, Vt = vtMatrix)
-
+  end svd
+end Svd

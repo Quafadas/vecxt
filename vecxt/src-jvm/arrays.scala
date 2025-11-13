@@ -538,7 +538,7 @@ object arrays:
     inline def tanh: Array[Double] =
       vec.clone().tap(_.unaryOp(VectorOperators.TANH))
 
-    inline def `**!` (power: Double): Unit =
+    inline def `**!`(power: Double): Unit =
       var i = 0
       val bp = DoubleVector.broadcast(spd, power)
       while i < spd.loopBound(vec.length) do

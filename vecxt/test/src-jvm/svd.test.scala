@@ -33,14 +33,16 @@ class SvdSuite extends FunSuite:
     for
       i <- 0 until m
       j <- 0 until n
-    do
-      assertEqualsDouble(actual(i, j), expected(i, j), tol, s"Element at ($i, $j) differs")
+    do assertEqualsDouble(actual(i, j), expected(i, j), tol, s"Element at ($i, $j) differs")
+    end for
+  end assertMatrixEquals
 
   def assertArrayEquals(actual: Array[Double], expected: Array[Double], tol: Double = epsilon): Unit =
     assertEquals(actual.length, expected.length, "Array lengths don't match")
     actual.zip(expected).zipWithIndex.foreach { case ((a, e), i) =>
       assertEqualsDouble(a, e, tol, s"Element at index $i differs")
     }
+  end assertArrayEquals
 
   def reconstruct(U: Matrix[Double], s: Array[Double], Vt: Matrix[Double]): Matrix[Double] =
     val k = s.length
@@ -49,7 +51,9 @@ class SvdSuite extends FunSuite:
     while i < k do
       S(i, i) = s(i)
       i += 1
+    end while
     U.matmul(S).matmul(Vt)
+  end reconstruct
 
   def relativeFrobeniusError(actual: Matrix[Double], expected: Matrix[Double]): Double =
     assertEquals(actual.shape, expected.shape, "Matrix dimensions must match for error computation")
@@ -65,23 +69,29 @@ class SvdSuite extends FunSuite:
         val ref = expected(row, col)
         refSq += ref * ref
         col += 1
+      end while
       row += 1
+    end while
     val denom = math.max(math.sqrt(refSq), 1e-30)
     math.sqrt(diffSq) / denom
+  end relativeFrobeniusError
 
   def assertOrthonormalCols(Q: Matrix[Double], tol: Double = epsilon): Unit =
     val (_, n) = Q.shape
     val gram = Q.T.matmul(Q)
     val I = Matrix.eye[Double](n)
     assertMatrixEquals(gram, I, tol)
+  end assertOrthonormalCols
 
   test("SVD CompleteSVD - square matrix reconstruction"):
     // Create a simple 3x3 matrix
-    val A = Matrix(Array[Double](
-      1.0, 2.0, 3.0,
-      4.0, 5.0, 6.0,
-      7.0, 8.0, 9.0
-    ), 3, 3)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0
+      ),
+      3,
+      3
+    )
 
     val result = svd(A, SVDMode.CompleteSVD)
 
@@ -92,14 +102,19 @@ class SvdSuite extends FunSuite:
 
     // Check singular values are non-negative and sorted in descending order
     assert(result.s.forall(_ >= 0.0), "All singular values should be non-negative")
-    assert(result.s.zip(result.s.tail).forall { case (a, b) => a >= b }, "Singular values should be in descending order")
+    assert(
+      result.s.zip(result.s.tail).forall { case (a, b) => a >= b },
+      "Singular values should be in descending order"
+    )
 
   test("SVD ReducedSVD - square matrix reconstruction"):
-    val A = Matrix(Array[Double](
-      1.0, 2.0, 3.0,
-      4.0, 5.0, 6.0,
-      7.0, 8.0, 9.0
-    ), 3, 3)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0
+      ),
+      3,
+      3
+    )
 
     val result = svd(A, SVDMode.ReducedSVD)
 
@@ -110,12 +125,13 @@ class SvdSuite extends FunSuite:
 
   test("SVD CompleteSVD - tall matrix (m > n)"):
     // Create a 4x2 matrix
-    val A = Matrix(Array[Double](
-      1.0, 2.0,
-      3.0, 4.0,
-      5.0, 6.0,
-      7.0, 8.0
-    ), 4, 2)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0
+      ),
+      4,
+      2
+    )
 
     val result = svd(A, SVDMode.CompleteSVD)
 
@@ -126,15 +142,19 @@ class SvdSuite extends FunSuite:
 
     // Verify singular values properties
     assert(result.s.forall(_ >= 0.0), "All singular values should be non-negative")
-    assert(result.s.zip(result.s.tail).forall { case (a, b) => a >= b }, "Singular values should be in descending order")
+    assert(
+      result.s.zip(result.s.tail).forall { case (a, b) => a >= b },
+      "Singular values should be in descending order"
+    )
 
   test("SVD ReducedSVD - tall matrix (m > n)"):
-    val A = Matrix(Array[Double](
-      1.0, 2.0,
-      3.0, 4.0,
-      5.0, 6.0,
-      7.0, 8.0
-    ), 4, 2)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0
+      ),
+      4,
+      2
+    )
 
     val result = svd(A, SVDMode.ReducedSVD)
 
@@ -145,10 +165,13 @@ class SvdSuite extends FunSuite:
 
   test("SVD CompleteSVD - wide matrix (m < n)"):
     // Create a 2x4 matrix
-    val A = Matrix(Array[Double](
-      1.0, 2.0, 3.0, 4.0,
-      5.0, 6.0, 7.0, 8.0
-    ), 2, 4)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0
+      ),
+      2,
+      4
+    )
 
     val result = svd(A, SVDMode.CompleteSVD)
 
@@ -158,10 +181,13 @@ class SvdSuite extends FunSuite:
     assertEquals(result.Vt.shape, (4, 4), "Vt should be 4x4 for CompleteSVD")
 
   test("SVD ReducedSVD - wide matrix (m < n)"):
-    val A = Matrix(Array[Double](
-      1.0, 2.0, 3.0, 4.0,
-      5.0, 6.0, 7.0, 8.0
-    ), 2, 4)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0
+      ),
+      2,
+      4
+    )
 
     val result = svd(A, SVDMode.ReducedSVD)
 
@@ -171,11 +197,13 @@ class SvdSuite extends FunSuite:
     assertEquals(result.Vt.shape, (2, 4), "Vt should be 2x4 for ReducedSVD (min(m,n) x n)")
 
   test("SVD - identity matrix"):
-    val I = Matrix(Array[Double](
-      1.0, 0.0, 0.0,
-      0.0, 1.0, 0.0,
-      0.0, 0.0, 1.0
-    ), 3, 3)
+    val I = Matrix(
+      Array[Double](
+        1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0
+      ),
+      3,
+      3
+    )
 
     val result = svd(I, SVDMode.CompleteSVD)
 
@@ -183,11 +211,13 @@ class SvdSuite extends FunSuite:
     assertArrayEquals(result.s, Array(1.0, 1.0, 1.0), 1e-10)
 
   test("SVD - diagonal matrix"):
-    val D = Matrix(Array[Double](
-      5.0, 0.0, 0.0,
-      0.0, 3.0, 0.0,
-      0.0, 0.0, 1.0
-    ), 3, 3)
+    val D = Matrix(
+      Array[Double](
+        5.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 1.0
+      ),
+      3,
+      3
+    )
 
     val result = svd(D, SVDMode.CompleteSVD)
 
@@ -195,19 +225,20 @@ class SvdSuite extends FunSuite:
     assertArrayEquals(result.s, Array(5.0, 3.0, 1.0), 1e-10)
 
   test("SVD - reconstruction A = U * S * Vt (ReducedSVD)"):
-    val A = Matrix(Array[Double](
-      2.0, 4.0,
-      1.0, 3.0,
-      0.0, 0.0,
-      0.0, 0.0
-    ), 4, 2)
+    val A = Matrix(
+      Array[Double](
+        2.0, 4.0, 1.0, 3.0, 0.0, 0.0, 0.0, 0.0
+      ),
+      4,
+      2
+    )
 
     val result = svd(A, SVDMode.ReducedSVD)
 
     // Create diagonal matrix S from singular values
     val S = Matrix.zeros[Double](2, 2)
-    for i <- 0 until 2 do
-      S(i, i) = result.s(i)
+    for i <- 0 until 2 do S(i, i) = result.s(i)
+    end for
 
     // Reconstruct: A_reconstructed = U * S * Vt
     val US = result.U.matmul(S)
@@ -216,11 +247,13 @@ class SvdSuite extends FunSuite:
     assertMatrixEquals(reconstructed, A, 1e-10)
 
   test("SVD - orthogonality of U (CompleteSVD)"):
-    val A = Matrix(Array[Double](
-      1.0, 2.0,
-      3.0, 4.0,
-      5.0, 6.0
-    ), 3, 2)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0
+      ),
+      3,
+      2
+    )
 
     val result = svd(A, SVDMode.CompleteSVD)
 
@@ -231,11 +264,13 @@ class SvdSuite extends FunSuite:
     assertMatrixEquals(UtU, I, 1e-10)
 
   test("SVD - orthogonality of Vt (CompleteSVD)"):
-    val A = Matrix(Array[Double](
-      1.0, 2.0,
-      3.0, 4.0,
-      5.0, 6.0
-    ), 3, 2)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 4.0, 5.0, 6.0
+      ),
+      3,
+      2
+    )
 
     val result = svd(A, SVDMode.CompleteSVD)
 
@@ -247,11 +282,13 @@ class SvdSuite extends FunSuite:
 
   test("SVD - rank deficient matrix"):
     // Create a rank-1 matrix (all rows are multiples of first row)
-    val A = Matrix(Array[Double](
-      1.0, 2.0, 3.0,
-      2.0, 4.0, 6.0,
-      3.0, 6.0, 9.0
-    ), 3, 3)
+    val A = Matrix(
+      Array[Double](
+        1.0, 2.0, 3.0, 2.0, 4.0, 6.0, 3.0, 6.0, 9.0
+      ),
+      3,
+      3
+    )
 
     val result = svd(A, SVDMode.CompleteSVD)
 
@@ -278,10 +315,16 @@ class SvdSuite extends FunSuite:
     assertEqualsDouble(result.s(0), 5.0, epsilon)
 
   test("SVD - negative values"):
-    val A = Matrix(Array[Double](
-      -1.0, -2.0,
-      -3.0, -4.0
-    ), 2, 2)
+    val A = Matrix(
+      Array[Double](
+        -1.0,
+        -2.0,
+        -3.0,
+        -4.0
+      ),
+      2,
+      2
+    )
 
     val result = svd(A, SVDMode.CompleteSVD)
 
@@ -290,17 +333,23 @@ class SvdSuite extends FunSuite:
 
     // Reconstruction should work
     val S = Matrix.zeros[Double](2, 2)
-    for i <- 0 until 2 do
-      S(i, i) = result.s(i)
+    for i <- 0 until 2 do S(i, i) = result.s(i)
+    end for
 
     val reconstructed = result.U.matmul(S).matmul(result.Vt)
     assertMatrixEquals(reconstructed, A, 1e-10)
 
   test("SVD - does not mutate input matrix"):
-    val original = Matrix(Array[Double](
-      1.0, 2.0,
-      3.0, 4.0
-    ), 2, 2)
+    val original = Matrix(
+      Array[Double](
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ),
+      2,
+      2
+    )
 
     val originalCopy = original.deepCopy
 
@@ -326,11 +375,21 @@ class SvdSuite extends FunSuite:
 
   test("SVD - handles extremely scaled magnitudes"):
     val scale = 1e150
-    val A = Matrix(Array[Double](
-      scale, 0.0, 0.0,
-      0.0, scale * 1e-120, 0.0,
-      0.0, 0.0, 1e-150
-    ), 3, 3)
+    val A = Matrix(
+      Array[Double](
+        scale,
+        0.0,
+        0.0,
+        0.0,
+        scale * 1e-120,
+        0.0,
+        0.0,
+        0.0,
+        1e-150
+      ),
+      3,
+      3
+    )
 
     val result = svd(A, SVDMode.CompleteSVD)
 
@@ -342,11 +401,24 @@ class SvdSuite extends FunSuite:
 
   test("SVD - near rank deficient matrix reveals tiny singular values"):
     // Matrix is column-major, so data is arranged by columns
-    val A = Matrix(Array[Double](
-      1.0, 2.0, 3.0, 4.0,              // Column 0
-      2.0, 4.0, 6.0, 8.0 - 1e-8,       // Column 1
-      3.0, 6.0, 9.0 + 1e-8, 12.0       // Column 2
-    ), 4, 3)
+    val A = Matrix(
+      Array[Double](
+        1.0,
+        2.0,
+        3.0,
+        4.0, // Column 0
+        2.0,
+        4.0,
+        6.0,
+        8.0 - 1e-8, // Column 1
+        3.0,
+        6.0,
+        9.0 + 1e-8,
+        12.0 // Column 2
+      ),
+      4,
+      3
+    )
 
     val result = svd(A, SVDMode.ReducedSVD)
 
@@ -356,10 +428,14 @@ class SvdSuite extends FunSuite:
 
   test("SVD - matches golden singular values for 3x2 matrix"):
     // Matrix is column-major, so data is arranged by columns
-    val A = Matrix(Array[Double](
-      1.0, 3.0, -1.0,  // Column 0
-      2.0, 4.0, 0.5    // Column 1
-    ), 3, 2)
+    val A = Matrix(
+      Array[Double](
+        1.0, 3.0, -1.0, // Column 0
+        2.0, 4.0, 0.5 // Column 1
+      ),
+      3,
+      2
+    )
 
     val result = svd(A, SVDMode.ReducedSVD)
 
@@ -382,5 +458,6 @@ class SvdSuite extends FunSuite:
       assertOrthonormalCols(result.U)
       assertOrthonormalCols(result.Vt.T)
       t += 1
+    end while
 
 end SvdSuite

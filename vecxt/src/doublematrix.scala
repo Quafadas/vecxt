@@ -263,8 +263,7 @@ object DoubleMatrix:
       else ???
 
     inline def mean: Double =
-      if m.hasSimpleContiguousMemoryLayout then
-        m.sumSIMD / (m.rows * m.cols)
+      if m.hasSimpleContiguousMemoryLayout then m.sumSIMD / (m.rows * m.cols)
       else ???
 
     inline def **(power: Double): Matrix[Double] =

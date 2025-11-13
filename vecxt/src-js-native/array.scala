@@ -266,8 +266,7 @@ object JsNativeDoubleArrays:
 
     inline def sumSIMD: Double = vecxt.arrays.sum(vec)
 
-
-    inline def `**!` (power: Double): Unit =
+    inline def `**!`(power: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.pow(vec(i), power)
