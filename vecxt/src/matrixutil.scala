@@ -108,6 +108,30 @@ object matrixUtil:
       Matrix[B](newArr, (1, m.cols))
     end mapColsToScalar
 
+    /** Alias for transpose
+      *
+      * @return
+      */
+    inline def T: Matrix[A] = m.transpose
+
+    /** Returns the transpose of this matrix by swapping rows and columns.
+      *
+      * This operation is performed efficiently by swapping the dimensions and strides without copying the underlying
+      * data. The transposed matrix shares the same underlying raw data as the original matrix.
+      *
+      * @return
+      *   a new Matrix with rows and columns swapped, sharing the same underlying data
+      *
+      * @example
+      *   {{{
+      * val m = Matrix(Array(1, 2, 3, 4), rows = 2, cols = 2)
+      * // m = [[1, 2],
+      * //      [3, 4]]
+      * val mt = m.transpose
+      * // mt = [[1, 3],
+      * //       [2, 4]]
+      *   }}}
+      */
     inline def transpose: Matrix[A] = Matrix(
       raw = m.raw,
       rows = m.cols, // swap dimensions

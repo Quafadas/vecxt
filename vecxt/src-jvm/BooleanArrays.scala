@@ -97,6 +97,29 @@ object BooleanArrays:
       result
     end &&
 
+    inline def not: Array[Boolean] =
+      val dup = vec.clone()
+      dup.`not!`
+      dup
+    end not
+
+    inline def `not!`: Unit =
+      var i = 0
+
+      while i < spb.loopBound(vec.length) do
+        ByteVector
+          .fromBooleanArray(spb, vec, i)
+          .not()
+          .intoBooleanArray(vec, i)
+        i += spbl
+      end while
+
+      while i < vec.length do
+        vec(i) = !vec(i)
+        i += 1
+      end while
+    end `not!`
+
     inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
 
       val result: Array[Boolean] = new Array[Boolean](vec.length)

@@ -14,11 +14,12 @@ Mill may be found via it's wrapper script `./millw` in the root of the repositor
 
 Each module contains it's own build definition in the package.mill file in it's module directory.
 
-- BUILDS: Mill cold compilation takes 2 minutes or so. Tests take 1-3 minutes from cold. Set timeout to 2+ minutes.
+- BUILDS: Mill cold compilation takes 2 minutes or so. Stay patient!
 - Compile specific platforms (e.g. jvm) with `./millw vecxt.jvm.compile` or `./millw vecxt.js.compile` etc.
-- Run tests with the same patterns `./millw vecxt.__.test`
+- Run all tests by following with the same pattern `./millw vecxt.__.test`
 - Format code with `./millw mill.scalalib.scalafmt.ScalafmtModule/`. CI will enforce formatting, and will fail if code is not formatted.
 - If you see an error like this is JS `[error] @scala.scalajs.js.annotation.internal.JSType is for compiler internal use only. Do not use it yourself.`, run `./millw clean vecxt.js._` to clear the build cache.
+- To run a specific main class, use the runMain command and specify the package. `./millw experiments.runMain testCheatsheet` for example.
 
 ## Folder structure
 

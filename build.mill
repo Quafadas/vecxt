@@ -37,6 +37,7 @@ object V:
   val munitVersion = "1.1.1"
   val narr = mvn"ai.dragonfly::narr::1.0"
   val blas = mvn"dev.ludovic.netlib:blas:3.0.4"
+  val lapack = mvn"dev.ludovic.netlib:lapack:3.0.4"
 end V
 
 trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule:

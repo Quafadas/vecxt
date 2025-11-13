@@ -290,7 +290,7 @@ object Determinant:
       * @throws ArithmeticException
       *   if the matrix is singular (determinant is zero)
       */
-    inline def inverse(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def inv(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       inline if boundsCheck then
         if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
       end if
@@ -338,7 +338,7 @@ object Determinant:
         end while
         result
       end if
-    end inverse
+    end inv
 
   end extension
 

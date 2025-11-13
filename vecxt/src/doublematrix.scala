@@ -130,6 +130,8 @@ object DoubleMatrix:
 
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m +:+ m2
 
+    inline def *(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.hadamard(m2)
+
     inline def hadamard(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
 
@@ -250,6 +252,25 @@ object DoubleMatrix:
       else ???
 
     inline def `cos!` = vecxt.arrays.`cos!`(m.raw)
+
+    inline def tan =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Double](vecxt.all.tan(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+
+    inline def `tan!` =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.`tan!`(m.raw)
+      else ???
+
+    inline def mean: Double =
+      if m.hasSimpleContiguousMemoryLayout then
+        m.sumSIMD / (m.rows * m.cols)
+      else ???
+
+    inline def **(power: Double): Matrix[Double] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Double](vecxt.all.**(m.raw)(power), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
 
     private inline def reduceAlongDimension(
         dim: DimensionExtender,

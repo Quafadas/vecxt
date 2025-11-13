@@ -38,6 +38,10 @@ class MatrixExtensionSuite extends FunSuite:
 
   def raw1to9 = mat1to9.raw
 
+  test("pow") {
+    mat1to9 ** 2.0
+  }
+
   test("from rows") {
     assert(mat1to9.isDenseColMajor)
 

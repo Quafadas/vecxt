@@ -28,5 +28,23 @@ object BooleanArrays:
       end while
       sum
     end trues
+
+    inline def not: NArray[Boolean] =
+      val result = new NArray[Boolean](vec.length)
+      var i = 0
+      while i < vec.length do
+        result(i) = !vec(i)
+        i += 1
+      end while
+      result
+    end not
+
+    inline def `not!`: Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = !vec(i)
+        i += 1
+      end while
+    end `not!`
   end extension
 end BooleanArrays

@@ -13,7 +13,7 @@ object `package` extends ScalaModule:
   }
   def scalacOptions = Seq("-Xmax-inlines:10000")
   override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
-  override def mainClass = Some("mnist")
+  // override def mainClass = Some("mnist")
 
 
 

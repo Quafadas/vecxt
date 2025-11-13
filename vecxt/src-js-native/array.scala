@@ -2,6 +2,7 @@ package vecxt
 
 import scala.math.Ordering
 import scala.reflect.ClassTag
+import scala.util.chaining.*
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
@@ -182,6 +183,7 @@ object JsNativeDoubleArrays:
     end `clampMin!`
 
     inline def maxClamp(max: Double): NArray[Double] = clampMax(max)
+
     inline def minClamp(min: Double): NArray[Double] = clampMin(min)
 
     inline def clampMax(max: Double): NArray[Double] =
@@ -195,6 +197,7 @@ object JsNativeDoubleArrays:
       end while
       res
     end clampMax
+
     inline def `clampMax!`(max: Double): Unit =
       var i = 0
       while i < vec.length do
@@ -202,6 +205,7 @@ object JsNativeDoubleArrays:
         i += 1
       end while
     end `clampMax!`
+
     inline def clamp(min: Double, max: Double): NArray[Double] =
       val n = vec.length
       val res = NArray.ofSize[Double](n)
@@ -259,7 +263,27 @@ object JsNativeDoubleArrays:
     end argmin
 
     inline def productSIMD: Double = vecxt.arrays.product(vec)
+
     inline def sumSIMD: Double = vecxt.arrays.sum(vec)
+
+
+    inline def `**!` (power: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = Math.pow(vec(i), power)
+        i += 1
+      end while
+    end `**!`
+
+    inline def **(power: Double): NArray[Double] =
+      val newVec = NArray.ofSize[Double](vec.length)
+      var i = 0
+      while i < vec.length do
+        newVec(i) = Math.pow(vec(i), power)
+        i += 1
+      end while
+      newVec
+    end **
 
     inline def `fma!`(multiply: Double, add: Double): Unit =
       var i = 0

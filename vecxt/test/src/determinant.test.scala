@@ -327,7 +327,7 @@ class DeterminantSuite extends FunSuite:
     val mat = Matrix.fromRows[Double](
       NArray(5.0)
     )
-    val inv = mat.inverse
+    val inv = mat.inv
     assertEqualsDouble(inv(0, 0), 0.2, tolerance, "1/5 = 0.2")
   }
 
@@ -338,7 +338,7 @@ class DeterminantSuite extends FunSuite:
       NArray(3.0, 8.0),
       NArray(4.0, 6.0)
     )
-    val inv = mat.inverse
+    val inv = mat.inv
     assertEqualsDouble(inv(0, 0), -3.0 / 7.0, tolerance, "Element (0,0)")
     assertEqualsDouble(inv(0, 1), 4.0 / 7.0, tolerance, "Element (0,1)")
     assertEqualsDouble(inv(1, 0), 2.0 / 7.0, tolerance, "Element (1,0)")
@@ -347,7 +347,7 @@ class DeterminantSuite extends FunSuite:
 
   test("inverse of 2x2 identity matrix") {
     val mat = Matrix.eye[Double](2)
-    val inv = mat.inverse
+    val inv = mat.inv
     // Inverse of identity is identity
     for
       i <- 0 until 2
@@ -362,7 +362,7 @@ class DeterminantSuite extends FunSuite:
       NArray(0.0, 4.0, 5.0),
       NArray(1.0, 0.0, 6.0)
     )
-    val inv = mat.inverse
+    val inv = mat.inv
     val product = mat @@ inv
     val identity = Matrix.eye[Double](3)
 
@@ -379,7 +379,7 @@ class DeterminantSuite extends FunSuite:
       NArray(0.0, 4.0, 5.0),
       NArray(1.0, 0.0, 6.0)
     )
-    val inv = mat.inverse
+    val inv = mat.inv
     val product = inv @@ mat
     val identity = Matrix.eye[Double](3)
 
@@ -397,7 +397,7 @@ class DeterminantSuite extends FunSuite:
       NArray(2.0, 5.0, 3.0, 1.0),
       NArray(1.0, 4.0, 2.0, 4.0)
     )
-    val inv = mat.inverse
+    val inv = mat.inv
     val product = mat @@ inv
     val identity = Matrix.eye[Double](4)
 
@@ -414,7 +414,7 @@ class DeterminantSuite extends FunSuite:
       NArray(0.0, 3.0, 0.0),
       NArray(0.0, 0.0, 4.0)
     )
-    val inv = mat.inverse
+    val inv = mat.inv
 
     // Inverse of diagonal matrix has reciprocal diagonal elements
     assertEqualsDouble(inv(0, 0), 0.5, tolerance, "1/2")
@@ -436,7 +436,7 @@ class DeterminantSuite extends FunSuite:
       NArray(4.0, 5.0, 6.0)
     )
     intercept[IllegalArgumentException] {
-      mat.inverse
+      mat.inv
     }
   }
 
@@ -448,7 +448,7 @@ class DeterminantSuite extends FunSuite:
       NArray(3.0, 6.0, 9.0)
     )
     intercept[ArithmeticException] {
-      mat.inverse
+      mat.inv
     }
   }
 
@@ -457,8 +457,8 @@ class DeterminantSuite extends FunSuite:
       NArray(1.0, 2.0),
       NArray(3.0, 4.0)
     )
-    val inv = mat.inverse
-    val doubleInv = inv.inverse
+    val inv = mat.inv
+    val doubleInv = inv.inv
 
     for
       i <- 0 until 2
@@ -467,10 +467,10 @@ class DeterminantSuite extends FunSuite:
     end for
   }
 
-  test("A * A.inverse ≈ I for random invertible 5x5 matrix") {
+  test("A * A.inv ≈ I for random invertible 5x5 matrix") {
     val mat = Matrix.rand(5, 5)
     if math.abs(mat.det) > 1e-8 then
-      val inv = mat.inverse
+      val inv = mat.inv
       val product = mat @@ inv
       val identity = Matrix.eye[Double](5)
       for i <- 0 until 5; j <- 0 until 5 do assertEqualsDouble(product(i, j), identity(i, j), 1e-6)
@@ -486,7 +486,7 @@ class DeterminantSuite extends FunSuite:
     )
     val det = mat.det
     val adj = mat.adj
-    val inv = mat.inverse
+    val inv = mat.inv
 
     val scaledAdj = adj / det
     for i <- 0 until 3; j <- 0 until 3 do assertEqualsDouble(scaledAdj(i, j), inv(i, j), 1e-9, s"Mismatch at ($i,$j)")

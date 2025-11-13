@@ -132,7 +132,7 @@ object arrays:
       Math.sqrt(diffs_2.sum / (vec.length - 1))
     end stdDev
 
-    inline def mean: Double = vec.sum / vec.length
+    inline def mean: Double = vec.sumSIMD / vec.length
 
     inline def sum: Double =
       var sum = 0.0

@@ -526,6 +526,38 @@ object arrays:
     inline def `sinh!`: Unit =
       unaryOp(VectorOperators.SINH)
 
+    inline def `tan!`: Unit =
+      unaryOp(VectorOperators.TAN)
+
+    inline def tan: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.TAN))
+
+    inline def `tanh!`: Unit =
+      unaryOp(VectorOperators.TANH)
+
+    inline def tanh: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.TANH))
+
+    inline def `**!` (power: Double): Unit =
+      var i = 0
+      val bp = DoubleVector.broadcast(spd, power)
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .lanewise(VectorOperators.POW, bp)
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) = Math.pow(vec(i), power)
+        i += 1
+      end while
+    end `**!`
+
+    inline def **(power: Double): Array[Double] =
+      vec.clone().tap(_.`**!`(power))
+
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
 
@@ -868,6 +900,14 @@ object arrays:
 
     end `clamp!`
 
+    /** Clamps the values in the array to a specified range.
+      * @param ceil
+      *   The maximum value to clamp to.
+      * @param floor
+      *   The minimum value to clamp to.
+      * @return
+      *   A new array with values clamped to the specified range.
+      */
     inline def clamp(floor: Double, ceil: Double): Array[Double] =
       vec.clone.tap(_.`clamp!`(floor, ceil))
 
