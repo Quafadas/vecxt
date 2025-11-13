@@ -16,12 +16,13 @@
 
 package vecxt
 
-import narr.*
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixHelper.*
+import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
-import vecxt.MatrixInstance.* // For apply and deepCopy
-import vecxt.MatrixHelper.* // For fromRows and zeros
+
 import jdk.incubator.vector.*
+import narr.*
 
 /** JVM-specific determinant implementation with SIMD optimizations
   *

@@ -1,13 +1,13 @@
 package vecxt
 
-import vecxt.matrix.Matrix
-import vecxt.BoundsCheck.BoundsCheck
-
 import scala.math.Ordering
+import scala.reflect.ClassTag
+
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixInstance.*
+import vecxt.matrix.Matrix
 
 import narr.*
-import scala.reflect.ClassTag
-import MatrixInstance.*
 
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
 object JsNativeDoubleArrays:

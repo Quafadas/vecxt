@@ -1,8 +1,8 @@
 package vecxt
 
-import narr.*
+import vecxt.BoundsCheck.BoundsCheck
 
-import BoundsCheck.BoundsCheck
+import narr.*
 
 /** strideMatInstantiateCheck performs a set of safety checks when constructing a matrix view with arbitrary strides and
   * offset into a backing array. The checks include:

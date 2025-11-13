@@ -17,8 +17,10 @@
 package vecxt
 
 import scala.scalajs.js.typedarray.Float64Array
-import narr.*
+
 import vecxt.BoundsCheck.BoundsCheck
+
+import narr.*
 
 case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
     extends Exception(

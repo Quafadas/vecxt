@@ -18,19 +18,19 @@
  */
 package vecxt
 
+import scala.reflect.ClassTag
 import scala.util.chaining.*
 
+import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
-import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorMask
-import scala.reflect.ClassTag
-import vecxt.BooleanArrays.trues
+import jdk.incubator.vector.VectorOperators
 
 object arrays:
 

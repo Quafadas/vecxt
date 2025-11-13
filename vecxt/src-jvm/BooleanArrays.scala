@@ -2,6 +2,7 @@ package vecxt
 
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
+
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.VectorMask
 

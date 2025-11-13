@@ -1,20 +1,14 @@
 package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.JvmDoubleMatrix.*
-import vecxt.JsNativeDoubleArrays.*
-import vecxt.arrays.*
-import vecxt.matrix.*
-
-// These are used in cross compilation.
-import vecxt.JsDoubleMatrix.*
-import vecxt.NativeDoubleMatrix.*
-
-import vecxt.matrixUtil.*
 import vecxt.MatrixInstance.*
+import vecxt.all.`matmulInPlace!`
+import vecxt.arrays.*
+import vecxt.dimensionExtender.DimensionExtender.*
+import vecxt.matrix.*
+import vecxt.matrixUtil.*
 
 import narr.*
-import dimensionExtender.DimensionExtender.*
 
 
 object DoubleMatrix:

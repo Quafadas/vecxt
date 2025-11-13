@@ -2,8 +2,8 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-import BoundsCheck.BoundsCheck
-import matrix.*
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.matrix.*
 
 import narr.*
 

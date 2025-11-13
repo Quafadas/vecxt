@@ -1,7 +1,5 @@
 package vecxt
-
-import vecxt.BoundsCheck.BoundsCheck
-import vecxt.Determinant.* // Import JS/Native-specific determinant implementation
+ // Import JS/Native-specific determinant implementation
 
 object JvmNativeDoubleMatrix:
   // extension (m: Matrix[Double])

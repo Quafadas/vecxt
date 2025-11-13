@@ -16,11 +16,12 @@
 
 package vecxt
 
-import narr.*
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixHelper.*
+import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
-import vecxt.MatrixInstance.* // For apply and deepCopy
-import vecxt.MatrixHelper.* // For fromRows and zeros
+
+import narr.* // For fromRows and zeros
 
 /** Shared determinant implementation for JS and Native platforms using scalar operations
   */

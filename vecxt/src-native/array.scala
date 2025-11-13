@@ -1,15 +1,15 @@
 package vecxt
 
-import narr.*
-import vecxt.BooleanArrays.trues
 import scala.reflect.ClassTag
-
 import scala.scalanative.unsafe.*
 import scala.util.chaining.*
 
 import org.ekrich.blas.unsafe.*
 
+import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
+
+import narr.*
 object arrayUtil:
 
   extension [A](d: NArray[A]) def printArr: String = d.mkString("[", ",", "]")

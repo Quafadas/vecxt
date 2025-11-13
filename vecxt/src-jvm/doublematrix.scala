@@ -3,11 +3,10 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
-import all.*
-
-import jdk.incubator.vector.*
+import vecxt.all.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
+import jdk.incubator.vector.*
 import narr.*
 
 object JvmDoubleMatrix:

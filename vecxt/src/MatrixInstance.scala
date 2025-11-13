@@ -1,17 +1,15 @@
 package vecxt
 
-import narr.*
-import BoundsCheck.BoundsCheck
-
-import rangeExtender.*
-
 import scala.annotation.targetName
-
 import scala.reflect.ClassTag
 
-import matrix.*
-import MatrixHelper.zeros
+import vecxt.BoundsCheck.BoundsCheck
 import vecxt.IntArrays.contiguous
+import vecxt.MatrixHelper.zeros
+import vecxt.matrix.*
+import vecxt.rangeExtender.*
+
+import narr.*
 
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])

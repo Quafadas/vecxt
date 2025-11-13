@@ -15,15 +15,15 @@
  */
 package vecxt
 
+import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 
+import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 
 import narr.*
-import scala.reflect.ClassTag
-import vecxt.BooleanArrays.trues
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")

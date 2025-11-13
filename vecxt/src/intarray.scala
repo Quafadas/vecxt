@@ -1,6 +1,7 @@
 package vecxt
 
 import scala.util.control.Breaks.*
+
 import narr.*
 
 object IntArrays:

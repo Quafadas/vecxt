@@ -2,9 +2,9 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-import BoundsCheck.BoundsCheck
-import matrix.*
-import MatrixInstance.*
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixInstance.*
+import vecxt.matrix.*
 
 import narr.*
 

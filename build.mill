@@ -39,7 +39,7 @@ object V:
   val blas = mvn"dev.ludovic.netlib:blas:3.0.4"
 end V
 
-trait VecxtPublishModule extends PublishModule, ScalaModule:
+trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule, ScalaFmtModule:
   def scalaVersion = V.scalaVersion
 
   def publishVersion = VcsVersion.vcsState().format()
