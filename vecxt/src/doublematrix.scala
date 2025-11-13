@@ -10,7 +10,6 @@ import vecxt.matrixUtil.*
 
 import narr.*
 
-
 object DoubleMatrix:
 
   extension (d: Double)

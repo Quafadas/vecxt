@@ -1,5 +1,4 @@
 package vecxt
- // Import JS/Native-specific determinant implementation
 
 object JvmNativeDoubleMatrix:
   // extension (m: Matrix[Double])

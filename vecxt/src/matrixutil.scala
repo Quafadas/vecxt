@@ -8,7 +8,6 @@ import vecxt.matrix.*
 
 import narr.*
 
-
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
   enum Vertical:
