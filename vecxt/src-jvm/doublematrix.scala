@@ -4,14 +4,11 @@ import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
 import all.*
-import vecxt.Determinant.* // Import JVM-specific determinant implementation
 
 import jdk.incubator.vector.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
-import org.netlib.blas.Dgemm;
 import narr.*
-import vecxt.dimensionExtender.DimensionExtender.*
 
 object JvmDoubleMatrix:
 

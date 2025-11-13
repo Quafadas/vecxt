@@ -8,7 +8,7 @@ import MatrixInstance.*
 
 import narr.*
 
-import scala.util.chaining.*
+
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
   enum Vertical:

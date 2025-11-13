@@ -82,14 +82,6 @@ object arrays:
     end ||
   end extension
 
-  extension (vec: NArray[Double])
-    inline def update(idx: Int, d: Double)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
-      indexCheck(vec, idx)
-      vec(idx) = d
-    end update
-
-  end extension
-
   extension (vec: NArray[Int])
 
     def apply(index: js.Array[Boolean]): NArray[Int] =

@@ -7,7 +7,6 @@ import scala.reflect.ClassTag
 import scala.scalanative.unsafe.*
 import scala.util.chaining.*
 
-import org.ekrich.blas.*
 import org.ekrich.blas.unsafe.*
 
 import vecxt.BoundsCheck.BoundsCheck

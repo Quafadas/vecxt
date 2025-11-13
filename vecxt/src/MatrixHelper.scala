@@ -1,6 +1,5 @@
 package vecxt
 
-import scala.compiletime.*
 import scala.reflect.ClassTag
 
 import BoundsCheck.BoundsCheck

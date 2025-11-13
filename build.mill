@@ -1,9 +1,9 @@
-//| mill-version: 1.0.5
+//| mill-version: 1.1.0-RC1
 //| mill-jvm-version: 24
 //| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
 //| mvnDeps:
 //| - io.github.quafadas:millSite_mill1_3.7:0.0.54
-//| - com.goyeau::mill-scalafix::0.6.0
+//| - com.goyeau:mill-scalafix_mill1_3:0.6.0
 //| - com.lihaoyi::mill-contrib-jmh:$MILL_VERSION
 
 /** --add-modules=jdk.incubator.vector -Xss100m -Xmx4G
@@ -48,7 +48,7 @@ trait VecxtPublishModule extends PublishModule, ScalaModule:
   //   V.narr
   // )
 
-  // override def scalacOptions = super.scalacOptions() ++ Seq("-explain-cyclic", "-Wunused:imports")
+  override def scalacOptions = super.scalacOptions() ++ Seq("-Wunused:imports")
 
   override def pomSettings = Task {
     PomSettings(

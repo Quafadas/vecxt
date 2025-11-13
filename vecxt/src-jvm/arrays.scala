@@ -30,7 +30,6 @@ import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorMask
 import scala.reflect.ClassTag
-import scala.util.control.Breaks.*
 import vecxt.BooleanArrays.trues
 
 object arrays:

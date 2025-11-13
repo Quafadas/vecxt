@@ -17,7 +17,6 @@
 package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.matrix.*
 import narr.*
 
 protected[vecxt] object dimCheckLen:

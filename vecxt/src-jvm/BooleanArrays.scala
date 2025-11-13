@@ -1,8 +1,8 @@
 package vecxt
 
-import scala.util.control.Breaks.*
+import scala.util.control.Breaks.break
+import scala.util.control.Breaks.breakable
 import jdk.incubator.vector.ByteVector
-import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.VectorMask
 
 object BooleanArrays:

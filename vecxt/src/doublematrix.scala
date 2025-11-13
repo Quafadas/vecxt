@@ -11,12 +11,11 @@ import vecxt.JsDoubleMatrix.*
 import vecxt.NativeDoubleMatrix.*
 
 import vecxt.matrixUtil.*
-import scala.annotation.targetName
 import vecxt.MatrixInstance.*
 
 import narr.*
 import dimensionExtender.DimensionExtender.*
-import arrayUtil.printArr
+
 
 object DoubleMatrix:
 

@@ -8,7 +8,6 @@ import scala.math.Ordering
 import narr.*
 import scala.reflect.ClassTag
 import MatrixInstance.*
-import vecxt.dimensionExtender.DimensionExtender.*
 
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
 object JsNativeDoubleArrays:

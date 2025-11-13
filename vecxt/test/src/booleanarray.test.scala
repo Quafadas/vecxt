@@ -20,7 +20,6 @@ import narr.*
 import vecxt.all.*
 
 class BooleanArrayExtensionSuite extends munit.FunSuite:
-  import BoundsCheck.DoBoundsCheck.yes
 
   test("all") {
     val v1 = NArray[Boolean](true, true, true)

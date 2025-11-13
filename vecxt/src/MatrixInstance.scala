@@ -11,7 +11,6 @@ import scala.reflect.ClassTag
 
 import matrix.*
 import MatrixHelper.zeros
-import all.printMat
 import vecxt.IntArrays.contiguous
 
 object MatrixInstance:

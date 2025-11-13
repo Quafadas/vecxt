@@ -1,7 +1,6 @@
 package vecxt
 import munit.FunSuite
 import narr.*
-import vecxt.BoundsCheck.BoundsCheck
 import all.*
 
 class SubmatrixTest extends FunSuite:
