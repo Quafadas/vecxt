@@ -15,6 +15,30 @@ object Svd:
 
   private val lapack = JavaLAPACK.getInstance()
 
+
+  /** Computes the Singular Value Decomposition (SVD) of a matrix using LAPACK's dgesdd routine.
+    *
+    * The SVD decomposes a matrix A into the product U * Σ * Vt, where:
+    * - U is an orthogonal matrix containing the left singular vectors
+    * - Σ is a diagonal matrix containing the singular values (returned as an array s)
+    * - Vt is an orthogonal matrix containing the right singular vectors (transposed)
+    *
+    * @param matrix
+    *   The input matrix to decompose. Must have positive dimensions.
+    * @param mode
+    *   The SVD computation mode. Defaults to CompleteSVD.
+    *   - CompleteSVD: computes full-sized U (m×m) and Vt (n×n) matrices
+    *   - ReducedSVD: computes reduced U (m×min(m,n)) and Vt (min(m,n)×n) matrices
+    * @return
+    *   A named tuple containing:
+    *   - U: The left singular vectors matrix
+    *   - s: Array of singular values in descending order
+    *   - Vt: The right singular vectors matrix (transposed)
+    * @throws IllegalArgumentException
+    *   if matrix dimensions are not positive or if an argument to LAPACK is invalid
+    * @throws IllegalStateException
+    *   if the SVD computation fails to converge
+    */
   def svd(
       matrix: Matrix[Double],
       mode: SVDMode = SVDMode.CompleteSVD
