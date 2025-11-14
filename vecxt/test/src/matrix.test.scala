@@ -486,6 +486,49 @@ class MatrixExtensionSuite extends FunSuite:
     )
   }
 
+  test("nonEmptyMatCheck throws on empty matrix") {
+    // 0x0 matrix should be considered empty
+    intercept[MatrixEmptyException] {
+      val empty = Matrix[Double](NArray.empty[Double], (0, 0))
+      nonEmptyMatCheck(empty)
+    }
+
+    // 0xN matrix should be considered empty
+    intercept[MatrixEmptyException] {
+      val emptyRows = Matrix[Double](NArray.empty[Double], (0, 3))
+      nonEmptyMatCheck(emptyRows)
+    }
+
+    // Nx0 matrix should be considered empty
+    intercept[MatrixEmptyException] {
+      val emptyCols = Matrix[Double](NArray.empty[Double], (3, 0))
+      nonEmptyMatCheck(emptyCols)
+    }
+  }
+
+  test("nonEmptyMatCheck passes on non-empty matrix") {
+    val mat = Matrix.eye[Double](2)
+    // Should not throw
+    nonEmptyMatCheck(mat)
+  }
+
+  test("squareMatCheck throws on non-square matrix") {
+    val mat = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0)
+    )
+
+    intercept[MatrixNotSquareException] {
+      squareMatCheck(mat)
+    }
+  }
+
+  test("squareMatCheck passes on square matrix") {
+    val mat = Matrix.eye[Double](3)
+    // Should not throw
+    squareMatCheck(mat)
+  }
+
   test("update") {
     val mat = Matrix.fromRows[Double](
       NArray[Double](1.0, 2.0, 3.0),
@@ -636,6 +679,44 @@ class MatrixExtensionSuite extends FunSuite:
     assertEqualsDouble(result(1, 1), 4.0 * 50.0, 0.0001) // 200
     assertEqualsDouble(result(0, 2), 5.0 * 30.0, 0.0001) // 150
     assertEqualsDouble(result(1, 2), 6.0 * 60.0, 0.0001) // 360
+  }
+
+  test("symmetricMatCheck passes on symmetric matrix") {
+    val mat = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](2.0, 4.0, 5.0),
+      NArray[Double](3.0, 5.0, 6.0)
+    )
+
+    // Should not throw for exactly symmetric matrix
+    symmetricMatCheck(mat)
+
+    // With a small tolerance, still should not throw
+    symmetricMatCheck(mat, tol = 1e-2)
+  }
+
+  test("symmetricMatCheck throws on non-symmetric matrix with correct indices and values") {
+    // Start with a symmetric matrix
+    val base = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](2.0, 4.0, 5.0),
+      NArray[Double](3.0, 5.0, 6.0)
+    )
+
+    // Introduce asymmetry at (1,0) vs (0,1)
+    val mat = base.deepCopy
+    mat(1, 0) = 10.0 // now mat(1,0) != mat(0,1)
+
+    val ex = intercept[MatrixNotSymmetricException] {
+      symmetricMatCheck(mat, tol = 1e-12)
+    }
+
+    assertEquals(ex.rows, mat.rows)
+    assertEquals(ex.cols, mat.cols)
+    assertEquals(ex.i, 1)
+    assertEquals(ex.j, 0)
+    assertEqualsDouble(ex.valueIJ, mat(1, 0), 0.0, "valueIJ should match mat(1,0)")
+    assertEqualsDouble(ex.valueJI, mat(0, 1), 0.0, "valueJI should match mat(0,1)")
   }
 
   test("map rows") {

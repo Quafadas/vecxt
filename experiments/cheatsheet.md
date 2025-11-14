@@ -54,12 +54,12 @@ This cheatsheet compares common linear algebra operations across vecxt (Scala 3)
 | Dot product | `vec.dot(vec2)` | `np.dot(a, b)` or `a @ b` | `dot(a,b)` |
 | Determinant | `m.det` | `np.linalg.det(a)` | `det(a)` |
 | Matrix inverse | `m.inv` | `np.linalg.inv(a)` | `inv(a)` |
-| SVD | ??? | `U, S, Vh = np.linalg.svd(a)` | `[U,S,V]=svd(a)` |
+| SVD | `val (U, S, Vt) = svd(m)` | `U, S, Vh = np.linalg.svd(a)` | `[U,S,V]=svd(a)` |
 | Pseudo-inverse | ??? | `np.linalg.pinv(a)` | `pinv(a)` |
-| Matrix rank | ??? | `np.linalg.matrix_rank(a)` | `rank(a)` |
+| Matrix rank | `m.rank` or `rank(m)` | `np.linalg.matrix_rank(a)` | `rank(a)` |
 | Solve linear system | ??? | `np.linalg.solve(a, b)` | `a\b` |
 | Eigenvalues/vectors | ??? | `D, V = np.linalg.eig(a)` | `[V,D]=eig(a)` |
-| Cholesky decomposition | ??? | `np.linalg.cholesky(a)` | `chol(a)` |
+| Cholesky decomposition | `cholesky(m)` | `np.linalg.cholesky(a)` | `chol(a)` |
 | QR decomposition | ??? | `Q, R = np.linalg.qr(a)` | `[Q,R]=qr(a,0)` |
 | LU decomposition | ??? | `P, L, U = scipy.linalg.lu(a)` | `[L,U,P]=lu(a)` |
 
@@ -162,13 +162,6 @@ Such operations can also be called via `tan(vec)`, `exp(matrix)`, etc.
 | Fill with value | `Matrix.fill(value, (rows, cols))` | `np.full((3,4), value)` | `value*ones(3,4)` |
 | Increments (diff) | `vec.increments` | `np.diff(a)` | `diff(a)` |
 | Log-sum-exp | `vec.logSumExp` | `scipy.special.logsumexp(a)` | N/A |
-
-## FFT Operations
-
-| Operation | vecxt | NumPy | MATLAB |
-|-----------|-------|-------|--------|
-| FFT | ??? | `np.fft.fft(a)` | `fft(a)` |
-| Inverse FFT | ??? | `np.fft.ifft(a)` | `ifft(a)` |
 
 ## Notes
 

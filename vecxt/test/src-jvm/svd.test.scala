@@ -18,8 +18,6 @@ package vecxt
 
 import munit.FunSuite
 import all.*
-import matrix.Matrix
-import Svd.*
 import BoundsCheck.DoBoundsCheck.yes
 import scala.util.Random
 

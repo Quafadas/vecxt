@@ -4,16 +4,54 @@ import dev.ludovic.netlib.lapack.JavaLAPACK
 import org.netlib.util.intW
 import vecxt.matrix.Matrix
 import vecxt.MatrixInstance.deepCopy
+import vecxt.arrays.maxSIMD
+import vecxt.arrays.>
+import vecxt.BooleanArrays.trues
+import scala.annotation.targetName
 
 // https://github.com/scalanlp/breeze/blob/fd73d09976a1a50d68b91a53e3896980502d335e/math/src/main/scala/breeze/linalg/functions/svd.scala#L13
-object Svd:
+lazy object Svd:
+  private lazy final val lapack = JavaLAPACK.getInstance()
   //  Options fot the singular value decomposition (SVD) of a real M-by-N matrix
   enum SVDMode:
     case CompleteSVD // all M columns of U and all N rows of V**T are returned in the arrays U and VT
     case ReducedSVD // the first min(M,N) columns of U and the first min(M,N) rows of V**T are returned in the arrays U and VT
   end SVDMode
 
-  private val lapack = JavaLAPACK.getInstance()
+
+
+  /** Computes the rank of a matrix using Singular Value Decomposition (SVD).
+    *
+    * The rank is determined by counting the number of singular values that exceed
+    * a computed tolerance threshold. The tolerance is calculated using the same
+    * formula as LAPACK and NumPy: `tol = maxSV * max(m, n) * eps * toleranceFactor`,
+    * where `maxSV` is the largest singular value, `m` and `n` are the matrix dimensions,
+    * and `eps` is the machine epsilon for Double precision.
+    *
+    * @param matrix the input matrix for which to compute the rank
+    * @param toleranceFactor a multiplier for the tolerance threshold (default: 1.0).
+    *                        Increasing this value makes the rank calculation more conservative
+    *                        by requiring singular values to be larger to be counted.
+    * @return the numerical rank of the matrix, i.e., the number of singular values
+    *         above the tolerance threshold
+    */
+  inline def rank(matrix: Matrix[Double],
+      toleranceFactor: Double = 1.0)
+    : Int =
+    val (_, singularValues, _) = svd(matrix)
+
+    // Machine epsilon for Double
+    val eps = 2.220446049250313e-16
+
+    // Largest singular value
+    val maxSv = if (singularValues.nonEmpty) singularValues.maxSIMD else 0.0
+
+    // SVD-based tolerance (same formula used by LAPACK / NumPy)
+    val tol = maxSv * math.max(matrix.rows, matrix.cols) * eps * toleranceFactor
+
+    // Count singular values above tolerance
+    (singularValues > tol).trues
+
 
 
   /** Computes the Singular Value Decomposition (SVD) of a matrix using LAPACK's dgesdd routine.
@@ -39,7 +77,7 @@ object Svd:
     * @throws IllegalStateException
     *   if the SVD computation fails to converge
     */
-  def svd(
+  inline def svd(
       matrix: Matrix[Double],
       mode: SVDMode = SVDMode.CompleteSVD
   ): (U: Matrix[Double], s: Array[Double], Vt: Matrix[Double]) =
@@ -135,4 +173,5 @@ object Svd:
     val vtMatrix = Matrix(vtArr, vtRows, n)(using false)
     (U = uMatrix, s = singularValues, Vt = vtMatrix)
   end svd
+
 end Svd

@@ -15,10 +15,13 @@ object CheatsheetTest:
     val vec = NArray(1.0, 2.0, 3.0)
     println(s"1D array: ${vec.mkString(", ")}")
 
-    println((vec ^ 2.0).printArr)
+    println((vec ** 2.0).printArr)
 
     val mat = Matrix(NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)
     println(s"2D matrix shape: ${mat.shape}")
+
+    println(svd(mat))
+    println(rank(mat))
 
     val zeros = Matrix.zeros[Double]((3, 4))(using summon[scala.reflect.ClassTag[Double]])
     println(s"Zeros matrix shape: ${zeros.shape}")
