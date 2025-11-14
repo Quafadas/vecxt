@@ -1,4 +1,6 @@
-# Linear Algebra Cheatsheet: vecxt vs NumPy vs MATLAB
+# Cheatsheet
+
+## vecxt vs NumPy vs MATLAB
 
 This cheatsheet compares common linear algebra operations across vecxt (Scala 3), NumPy (Python), and MATLAB. Scala 3.7.3+ is assumed for vecxt.
 
