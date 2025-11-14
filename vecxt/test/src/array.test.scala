@@ -25,6 +25,16 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   lazy val v_fill = NArray[Double](0, 1, 2, 3, 4)
 
+  test("linspace") {
+    val v1 = linspace(0.0, 1.0, 5)
+    assertEquals(v1.length, 5)
+    assertEqualsDouble(v1(0), 0.0, 0.0001)
+    assertEqualsDouble(v1(1), 0.25, 0.0001)
+    assertEqualsDouble(v1(2), 0.5, 0.0001)
+    assertEqualsDouble(v1(3), 0.75, 0.0001)
+    assertEqualsDouble(v1(4), 1.0, 0.0001)
+  }
+
   test("print") {
     val v1 = NArray[Double](1, 2, 3)
     val v2 = NArray[Double](4, 5, 6)

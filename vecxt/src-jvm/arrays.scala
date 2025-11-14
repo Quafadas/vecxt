@@ -42,6 +42,33 @@ object arrays:
   final val spbl = spb.length()
   final val spil = spi.length()
 
+
+
+  /** Generates a vector of linearly spaced values between a and b (inclusive).
+  * The returned vector will have length elements, defaulting to 100.
+  */
+  def linspace(a: Double, b: Double, length: Int = 100): Array[Double] =
+
+    val result = new Array[Double](length)
+    val increment = (b - a) / (length - 1)
+
+    var i = 0
+    val loopBound = spd.loopBound(length)
+
+    // SIMD loop
+    while i < loopBound do
+      val indices = DoubleVector.fromArray(spd, Array.tabulate(spd.length())(j => (i + j).toDouble), 0)
+      val values = indices.mul(increment).add(a)
+      values.intoArray(result, i)
+      i += spdl
+
+    // Scalar tail
+    while i < length do
+      result(i) = a + increment * i
+      i += 1
+
+    result
+
   extension (vec: Array[Int])
 
     inline def =:=(num: Array[Int]): Array[Boolean] =
