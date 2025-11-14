@@ -20,7 +20,6 @@ import munit.FunSuite
 import all.*
 import BoundsCheck.DoBoundsCheck.yes
 import scala.util.Random
-
 class SvdSuite extends FunSuite:
 
   val epsilon = 1e-10
@@ -457,5 +456,58 @@ class SvdSuite extends FunSuite:
       assertOrthonormalCols(result.Vt.T)
       t += 1
     end while
+
+  test("pinv - matches inverse for well-conditioned square matrix"):
+    val A = Matrix(
+      Array[Double](
+        4.0,
+        7.0,
+        2.0,
+        6.0
+      ),
+      2,
+      2
+    )
+
+    val pseudoInv = pinv(A)
+    val eye2 = Matrix.eye[Double](2)
+
+    assertMatrixEquals(A.matmul(pseudoInv), eye2, 1e-10)
+    assertMatrixEquals(pseudoInv.matmul(A), eye2, 1e-10)
+
+  test("pinv - yields left inverse for tall full-rank matrix"):
+    val A = Matrix(
+      Array[Double](
+        1.0, 4.0, 2.0, 5.0, 3.0, 6.0
+      ),
+      3,
+      2
+    )
+
+    val pseudoInv = pinv(A)
+    val eye2 = Matrix.eye[Double](2)
+
+    val leftIdentity = pseudoInv.matmul(A)
+    assertMatrixEquals(leftIdentity, eye2, 1e-10)
+
+    val projection = A.matmul(pseudoInv)
+    assertMatrixEquals(projection.matmul(A), A, 1e-10)
+
+  test("pinv - preserves A*A+*A for rank-deficient matrix"):
+    val A = Matrix(
+      Array[Double](
+        1.0,
+        2.0,
+        2.0,
+        4.0
+      ),
+      2,
+      2
+    )
+
+    val pseudoInv = pinv(A)
+    val reconstructed = A.matmul(pseudoInv).matmul(A)
+
+    assertMatrixEquals(reconstructed, A, 1e-10)
 
 end SvdSuite

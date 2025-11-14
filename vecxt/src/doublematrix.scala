@@ -82,6 +82,33 @@ object DoubleMatrix:
 
     end +
 
+    inline def maximum(other: Matrix[Double])(using inline boundsCheck: BoundsCheck) =
+      sameDimMatCheck(m, other)
+      val newArr = NArray.ofSize[Double](m.numel)
+
+      // TODO: SIMD optimization
+      if sameDenseElementWiseMemoryLayoutCheck(m, other) then
+        var i = 0
+        while i < m.numel do
+          newArr(i) = math.max(m.raw(i), other.raw(i))
+          i += 1
+        end while
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = i * m.rowStride + j * m.colStride + m.offset
+            val idxOther = i * other.rowStride + j * other.colStride + other.offset
+            newArr(i * m.cols + j) = math.max(m.raw(idx), other.raw(idxOther))
+            j += 1
+          end while
+          i += 1
+        end while
+      end if
+      Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+    end maximum
+
     inline def -(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.arrays.-(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
@@ -330,6 +357,10 @@ object DoubleMatrix:
     inline def sum: Double = sumSIMD
     inline def sumSIMD: Double =
       if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.sum(m.raw)
+      else ???
+
+    inline def norm: Double =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.all.norm(m.raw)
       else ???
 
     // Note: det method is provided by platform-specific implementations

@@ -1,6 +1,14 @@
 # Linear Algebra Cheatsheet: vecxt vs NumPy vs MATLAB
 
-This cheatsheet compares common linear algebra operations across vecxt (Scala 3), NumPy (Python), and MATLAB.
+This cheatsheet compares common linear algebra operations across vecxt (Scala 3), NumPy (Python), and MATLAB. Scala 3.7.3+ is assumed for vecxt.
+
+```scala
+//> using scala 3.7.3 // or greater
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.no
+import narr.*
+
+```
 
 ## Array/Vector Creation and Basic Operations
 
@@ -55,10 +63,10 @@ This cheatsheet compares common linear algebra operations across vecxt (Scala 3)
 | Determinant | `m.det` | `np.linalg.det(a)` | `det(a)` |
 | Matrix inverse | `m.inv` | `np.linalg.inv(a)` | `inv(a)` |
 | SVD | `val (U, S, Vt) = svd(m)` | `U, S, Vh = np.linalg.svd(a)` | `[U,S,V]=svd(a)` |
-| Pseudo-inverse | ??? | `np.linalg.pinv(a)` | `pinv(a)` |
+| Pseudo-inverse | `pinv(m)` | `np.linalg.pinv(a)` | `pinv(a)` |
 | Matrix rank | `m.rank` or `rank(m)` | `np.linalg.matrix_rank(a)` | `rank(a)` |
 | Solve linear system | ??? | `np.linalg.solve(a, b)` | `a\b` |
-| Eigenvalues/vectors | ??? | `D, V = np.linalg.eig(a)` | `[V,D]=eig(a)` |
+| Eigenvalues/vectors | `eig(m)` | `D, V = np.linalg.eig(a)` | `[V,D]=eig(a)` |
 | Cholesky decomposition | `cholesky(m)` | `np.linalg.cholesky(a)` | `chol(a)` |
 | QR decomposition | ??? | `Q, R = np.linalg.qr(a)` | `[Q,R]=qr(a,0)` |
 | LU decomposition | ??? | `P, L, U = scipy.linalg.lu(a)` | `[L,U,P]=lu(a)` |
@@ -70,27 +78,22 @@ This cheatsheet compares common linear algebra operations across vecxt (Scala 3)
 | Sum all elements | `m.sum` or `vec.sumSIMD` | `a.sum()` | `sum(a(:))` |
 | Sum along rows | `m.sum(0)` or `m.sum(Dimension.Rows)` | `a.sum(axis=0)` | `sum(a)` |
 | Sum along columns | `m.sum(1)` or `m.sum(Dimension.Cols)` | `a.sum(axis=1)` | `sum(a,2)` |
-| Mean | m.mean | `a.mean()` | `mean(a(:))` |
-| Mean along axis | ??? | `a.mean(axis=0)` | `mean(a)` |
+| Mean | `m.mean` | `a.mean()` | `mean(a(:))` |
 | Max | `m.raw.max` or `vec.max` | `a.max()` | `max(a(:))` |
 | Max along rows | `m.max(Dimension.Rows)` | `a.max(axis=0)` | `max(a)` |
 | Max along columns | `m.max(Dimension.Cols)` | `a.max(axis=1)` | `max(a,[],2)` |
-| Element-wise max | ??? | `np.maximum(a, b)` | `max(a,b)` |
+| Element-wise max | `m.maximum(b)` | `np.maximum(a, b)` | `max(a,b)` |
 | Min | `m.raw.min` or `vec.min` | `a.min()` | `min(a(:))` |
 | Min along axis | `m.min(Dimension.Rows)` or `m.min(Dimension.Cols)` | `a.min(axis=0)` | `min(a)` |
 | Argmax | `vec.argmax` | `a.argmax()` | `[~,idx]=max(a(:))` |
 | Argmin | `vec.argmin` | `a.argmin()` | `[~,idx]=min(a(:))` |
-| Variance | ??? | `a.var()` | `var(a(:))` |
-| Standard deviation | ??? | `a.std()` | `std(a(:))` |
 
 ## Norms and Distances
 
 | Operation | vecxt | NumPy | MATLAB |
 |-----------|-------|-------|--------|
-| L2 norm (vector) | ??? | `np.linalg.norm(v)` | `norm(v)` |
-| L1 norm | ??? | `np.linalg.norm(v, 1)` | `norm(v,1)` |
-| Frobenius norm | ??? | `np.linalg.norm(a)` | `norm(a,'fro')` |
-| Infinity norm | ??? | `np.linalg.norm(v, np.inf)` | `norm(v,inf)` |
+| L2 norm (vector) | `vec.norm` | `np.linalg.norm(v)` | `norm(v)` |
+| Frobenius norm | `mat.norm` | `np.linalg.norm(a)` | `norm(a,'fro')` |
 | Cosine similarity | `cosineSimilarity(v1, v2)` | `np.dot(a,b)/(np.linalg.norm(a)*np.linalg.norm(b))` | `dot(a,b)/(norm(a)*norm(b))` |
 
 ## Mathematical Functions (Element-wise)
@@ -110,6 +113,7 @@ This cheatsheet compares common linear algebra operations across vecxt (Scala 3)
 | Hyperbolic sine | `vec.sinh` | `np.sinh(a)` | `sinh(a)` |
 | Hyperbolic cosine | `vec.cosh` | `np.cosh(a)` | `cosh(a)` |
 | Hyperbolic tangent | `vec.tanh` | `np.tanh(a)` | `tanh(a)` |
+
 
 
 In vecxt, each of these function has an "in-place" counterpart that returns unit. e.g. `vec.sin!` which modifies the original vector in place. This may be helpful for performance reasons to avoid memory allocation.
@@ -137,15 +141,10 @@ Such operations can also be called via `tan(vec)`, `exp(matrix)`, etc.
 
 | Operation | vecxt | NumPy | MATLAB |
 |-----------|-------|-------|--------|
-| Concatenate horizontally | ??? | `np.hstack((a,b))` or `np.c_[a,b]` | `[a b]` |
-| Concatenate vertically | ??? | `np.vstack((a,b))` or `np.r_[a,b]` | `[a; b]` |
-| Tile/repeat | ??? | `np.tile(a, (m, n))` | `repmat(a, m, n)` |
 | Extract diagonal | `m.diag` | `np.diag(a)` | `diag(a)` |
 | Create diagonal matrix | `Matrix.diag(a)` | `np.diag(v)` | `diag(v,0)` |
 | Unique values | `vec.unique` | `np.unique(a)` | `unique(a)` |
 | Sort | `narr.sort(vec)()` | `np.sort(a)` | `sort(a)` |
-| Argsort | ??? | `np.argsort(a)` | `[~,idx]=sort(a)` |
-| Squeeze singleton dims | ??? | `a.squeeze()` | `squeeze(a)` |
 
 ## Special Operations
 
@@ -153,9 +152,10 @@ Such operations can also be called via `tan(vec)`, `exp(matrix)`, etc.
 |-----------|-------|-------|--------|
 | Copy array | `vec.clone()` or `narr.copy(vec)` | `a.copy()` | `b = a` (MATLAB copies by value) |
 | Copy assignment (view vs copy) | `val b = a` (reference) | `b = a` (reference) | `b = a` (copy) |
-| Linspace | ??? | `np.linspace(1, 3, 4)` | `linspace(1,3,4)` |
+| Linspace | `linspace(1,3,4)` | `np.linspace(1, 3, 4)` | `linspace(1,3,4)` |
 | Increments (diff) | `vec.increments` | `np.diff(a)` | `diff(a)` |
 | Log-sum-exp | `vec.logSumExp` | `scipy.special.logsumexp(a)` | N/A |
+| Product except self| `vec.productExceptSelf` | `np.prod(a) / a` | `prod(a) ./ a` |
 
 ## Notes
 

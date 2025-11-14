@@ -42,19 +42,14 @@ object dimMatInstantiateCheck:
       then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatInstantiateCheck
 
-
 object nonEmptyMatCheck:
   inline def apply[A](mat: Matrix[A])(using inline doCheck: BoundsCheck) =
-    inline if doCheck then
-      if mat.cols == 0 || mat.rows == 0 then
-        throw MatrixEmptyException()
+    inline if doCheck then if mat.cols == 0 || mat.rows == 0 then throw MatrixEmptyException()
 end nonEmptyMatCheck
 
 object squareMatCheck:
   inline def apply[A](mat: Matrix[A])(using inline doCheck: BoundsCheck) =
-    inline if doCheck then
-      if mat.rows != mat.cols then
-        throw MatrixNotSquareException(mat.rows, mat.cols)
+    inline if doCheck then if mat.rows != mat.cols then throw MatrixNotSquareException(mat.rows, mat.cols)
 end squareMatCheck
 
 object symmetricMatCheck:
@@ -67,19 +62,22 @@ object symmetricMatCheck:
         while j < i do
           if math.abs(mat(i, j) - mat(j, i)) > tol then
             throw MatrixNotSymmetricException(mat.rows, mat.cols, i, j, mat(i, j), mat(j, i))
+          end if
           j += 1
+        end while
         i += 1
+      end while
 end symmetricMatCheck
 
-case class MatrixEmptyException()
-    extends Exception("Matrix must be non-empty")
+case class MatrixEmptyException() extends Exception("Matrix must be non-empty")
 
 case class MatrixNotSquareException(rows: Int, cols: Int)
     extends Exception(s"Matrix must be square, but has dimensions ($rows, $cols)")
 
 case class MatrixNotSymmetricException(rows: Int, cols: Int, i: Int, j: Int, valueIJ: Double, valueJI: Double)
-    extends Exception(s"Matrix must be symmetric, but ($rows, $cols) matrix has mat($i, $j) = $valueIJ != mat($j, $i) = $valueJI")
-
+    extends Exception(
+      s"Matrix must be symmetric, but ($rows, $cols) matrix has mat($i, $j) = $valueIJ != mat($j, $i) = $valueJI"
+    )
 
 object dimMatDInstantiateCheck:
   inline def apply[A](raw: narr.native.DoubleArray, dim: RowCol)(using inline doCheck: BoundsCheck) =

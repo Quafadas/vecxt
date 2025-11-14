@@ -2,7 +2,6 @@ package vecxt
 
 import vecxt.matrix.Matrix
 
-
 // https://github.com/scalanlp/breeze/blob/fd73d09976a1a50d68b91a53e3896980502d335e/math/src/main/scala/breeze/linalg/functions/svd.scala#L13
 object Svd:
   //  Options fot the singular value decomposition (SVD) of a real M-by-N matrix
@@ -11,18 +10,16 @@ object Svd:
     case ReducedSVD // the first min(M,N) columns of U and the first min(M,N) rows of V**T are returned in the arrays U and VT
   end SVDMode
 
-  inline def rank(matrix: Matrix[Double],
-      toleranceFactor: Double = 1.0)
-    : Int =  ???
+  inline def pinv(matrix: Matrix[Double], toleranceFactor: Double = 1.0): Matrix[Double] = ???
 
-
+  inline def rank(matrix: Matrix[Double], toleranceFactor: Double = 1.0): Int = ???
 
   /** Computes the Singular Value Decomposition (SVD) of a matrix using LAPACK's dgesdd routine.
     *
     * The SVD decomposes a matrix A into the product U * Σ * Vt, where:
-    * - U is an orthogonal matrix containing the left singular vectors
-    * - Σ is a diagonal matrix containing the singular values (returned as an array s)
-    * - Vt is an orthogonal matrix containing the right singular vectors (transposed)
+    *   - U is an orthogonal matrix containing the left singular vectors
+    *   - Σ is a diagonal matrix containing the singular values (returned as an array s)
+    *   - Vt is an orthogonal matrix containing the right singular vectors (transposed)
     *
     * @param matrix
     *   The input matrix to decompose. Must have positive dimensions.

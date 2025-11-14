@@ -32,7 +32,7 @@ object Cholesky:
     A
   end lowerTriangular
 
-  inline def cholesky(m: Matrix[Double]) (using inline boundsCheck:BoundsCheck) =
+  inline def cholesky(m: Matrix[Double])(using inline boundsCheck: BoundsCheck) =
     nonEmptyMatCheck(m)
 
     symmetricMatCheck(m)
@@ -51,12 +51,17 @@ object Cholesky:
     )
     // A value of info.`val` < 0 would tell us that the i-th argument
     // of the call to dpotrf was erroneous (where i == |info.`val`|).
-    if (info.`val` < 0)
+    if info.`val` < 0 then
       throw new IllegalArgumentException(s"LAPACK dpotrf invalid parameter at position: ${info.`val`}")
+    end if
 
-    if (info.`val` > 0)
-      throw new ArithmeticException(s"did not converge: the leading minor of order ${info.`val`} is not positive definite")
+    if info.`val` > 0 then
+      throw new ArithmeticException(
+        s"did not converge: the leading minor of order ${info.`val`} is not positive definite"
+      )
+    end if
 
     result
+  end cholesky
 
 end Cholesky

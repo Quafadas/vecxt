@@ -38,3 +38,4 @@ class MatrixHelperSuite extends FunSuite:
     val diagonal = NArray.tabulate[Double](7)(i => (i + 1) * 0.5)
     val diagMatrix = Matrix.diag(diagonal)
     assertDiagonalMatrix(diagonal, diagMatrix)
+end MatrixHelperSuite

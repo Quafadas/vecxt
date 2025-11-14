@@ -105,6 +105,44 @@ class MatrixExtensionSuite extends FunSuite:
     assertMatrixEquals(prodC, Matrix[Double](NArray[Double](8.0, 90.0), (1, 2)))
   }
 
+  test("element-wise maximum - simple contiguous layout") {
+    val mat1 = Matrix.fromRows[Double](
+      NArray(1.0, 5.0, 3.0),
+      NArray(2.0, 1.0, 6.0)
+    )
+    val mat2 = Matrix.fromRows[Double](
+      NArray(4.0, 2.0, 7.0),
+      NArray(1.0, 3.0, 5.0)
+    )
+    val result = mat1.maximum(mat2)
+
+    val expected = Matrix.fromRows[Double](
+      NArray(4.0, 5.0, 7.0),
+      NArray(2.0, 3.0, 6.0)
+    )
+    assertMatrixEquals(result, expected)
+  }
+
+  test("element-wise maximum - non-contiguous layout") {
+    // Create matrices with non-standard strides
+    val mat1 = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3, 3, 1, 0)
+    val mat2 = Matrix[Double](NArray(6.0, 5.0, 4.0, 3.0, 2.0, 1.0), 2, 3, 3, 1, 0)
+    val result = mat1.maximum(mat2)
+
+    // Expected result: element-wise max
+    val expected = Matrix[Double](NArray(6.0, 5.0, 4.0, 4.0, 5.0, 6.0), 2, 3)
+    assertMatrixEquals(result, expected)
+  }
+
+  test("element-wise maximum - identical matrices") {
+    val mat1 = Matrix.fromRows[Double](
+      NArray(1.0, 2.0),
+      NArray(3.0, 4.0)
+    )
+    val result = mat1.maximum(mat1)
+    assertMatrixEquals(result, mat1)
+  }
+
   test("Some urnary ops") {
     val checkThis = mat1to9.exp
     mat1to9.log

@@ -23,8 +23,9 @@ object all:
   export vecxt.dimensionExtender.DimensionExtender.*
   export vecxt.IntArrays.*
   export vecxt.Determinant.* // Import determinant implementations
-  export vecxt.Svd.*         // JS and native are stubs
-  export vecxt.Cholesky.*  // JS and native are stubs
+  export vecxt.Svd.* // JS and native are stubs
+  export vecxt.Cholesky.* // JS and native are stubs
+  export vecxt.Eigenvalues.* // JS and native are stubs
   // Random
   export vecxt.cosineSimilarity
 end all

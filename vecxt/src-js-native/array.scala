@@ -16,7 +16,7 @@ object JsNativeDoubleArrays:
   def linspace(a: Double, b: Double, length: Int = 100): NArray[Double] =
     val increment = (b - a) / (length - 1)
     NArray.tabulate[Double](length)(i => a + increment * i)
-
+  end linspace
 
   extension (d: Double)
     inline def /(arr: NArray[Double]) =

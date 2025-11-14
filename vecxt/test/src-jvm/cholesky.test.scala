@@ -38,7 +38,7 @@ class CholeskySuite extends FunSuite:
     assertEqualsDouble(L(0, 0), 2.0, tolerance)
   }
 
-  test("random SPD"){
+  test("random SPD") {
 
     val M = Matrix.rand(10, 10)
     val A = M @@ M.T
@@ -50,7 +50,6 @@ class CholeskySuite extends FunSuite:
     // A is symmetric positive definite
     // | 4  2 |
     // | 2  3 |
-
 
     val a = Matrix.fromRows[Double](
       NArray(4.0, 2.0),
@@ -77,8 +76,7 @@ class CholeskySuite extends FunSuite:
   test("cholesky of 3x3 SPD matrix: L * L^T ≈ A") {
     // Construct A = B * B^T where B is random-ish but small integers
 
-
-  val B = Matrix.fromRows[Double](
+    val B = Matrix.fromRows[Double](
       NArray(1.0, 2.0, 3.0),
       NArray(0.0, 1.0, 4.0),
       NArray(5.0, 6.0, 0.0)
@@ -129,11 +127,10 @@ class CholeskySuite extends FunSuite:
   test("cholesky is lower-triangular: upper entries are zero") {
     // A simple 3x3 SPD matrix
 
-
     val a = Matrix.fromRows[Double](
       NArray(25.0, 15.0, -5.0),
-      NArray(15.0, 18.0,  0.0),
-      NArray(-5.0,  0.0, 11.0)
+      NArray(15.0, 18.0, 0.0),
+      NArray(-5.0, 0.0, 11.0)
     )
 
     val L = cholesky(a)
@@ -145,3 +142,4 @@ class CholeskySuite extends FunSuite:
     do assertEqualsDouble(L(i, j), 0.0, tolerance, clue = s"upper entry at ($i,$j) should be zero")
     end for
   }
+end CholeskySuite

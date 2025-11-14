@@ -28,10 +28,10 @@ object `package` extends SiteModule {
 
   def scalaVersion = build.V.scalaVersion
 
-  override def lcs = Task.Worker{
-    super.lcs().copy(
-      logLevel = "debug"
-    )
-  }
+  // override def lcs = Task.Worker{
+  //   super.lcs().copy(
+  //     logLevel = "debug"
+  //   )
+  // }
 
 }
