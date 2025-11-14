@@ -191,6 +191,24 @@ object MatrixHelper:
     inline def randInt(dim: RowCol)(using inline boundsCheck: BoundsCheck): Matrix[Int] =
       randInt(dim._1, dim._2, 0, 100)
     end randInt
+
+    inline def diag(v: NArray[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      val size = v.length
+      val newArr = NArray.ofSize[Double](size * size)
+      var j = 0
+      while j < newArr.length do
+        newArr(j) = 0.0
+        j += 1
+      end while
+
+      var i = 0
+      while i < size do
+        newArr(i * size + i) = v(i)
+        i += 1
+      end while
+      Matrix[Double](newArr, (size, size))
+    end diag
+
   end extension
 
 end MatrixHelper

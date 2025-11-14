@@ -137,13 +137,11 @@ Such operations can also be called via `tan(vec)`, `exp(matrix)`, etc.
 
 | Operation | vecxt | NumPy | MATLAB |
 |-----------|-------|-------|--------|
-| Flatten to 1D | ??? | `a.flatten()` | `a(:)` |
-| Reshape | ??? | `a.reshape((3, 4))` | `reshape(a,3,4)` |
 | Concatenate horizontally | ??? | `np.hstack((a,b))` or `np.c_[a,b]` | `[a b]` |
 | Concatenate vertically | ??? | `np.vstack((a,b))` or `np.r_[a,b]` | `[a; b]` |
 | Tile/repeat | ??? | `np.tile(a, (m, n))` | `repmat(a, m, n)` |
 | Extract diagonal | `m.diag` | `np.diag(a)` | `diag(a)` |
-| Create diagonal matrix | ??? | `np.diag(v)` | `diag(v,0)` |
+| Create diagonal matrix | `Matrix.diag(a)` | `np.diag(v)` | `diag(v,0)` |
 | Unique values | `vec.unique` | `np.unique(a)` | `unique(a)` |
 | Sort | `narr.sort(vec)()` | `np.sort(a)` | `sort(a)` |
 | Argsort | ??? | `np.argsort(a)` | `[~,idx]=sort(a)` |
@@ -156,10 +154,6 @@ Such operations can also be called via `tan(vec)`, `exp(matrix)`, etc.
 | Copy array | `vec.clone()` or `narr.copy(vec)` | `a.copy()` | `b = a` (MATLAB copies by value) |
 | Copy assignment (view vs copy) | `val b = a` (reference) | `b = a` (reference) | `b = a` (copy) |
 | Linspace | ??? | `np.linspace(1, 3, 4)` | `linspace(1,3,4)` |
-| Arange | ??? | `np.arange(1., 11.)` | `1:10` |
-| Meshgrid | ??? | `np.meshgrid(x, y)` | `[x,y]=meshgrid(0:8,0:5)` |
-| Random values | ??? | `rng.random((3, 4))` | `rand(3,4)` |
-| Fill with value | `Matrix.fill(value, (rows, cols))` | `np.full((3,4), value)` | `value*ones(3,4)` |
 | Increments (diff) | `vec.increments` | `np.diff(a)` | `diff(a)` |
 | Log-sum-exp | `vec.logSumExp` | `scipy.special.logsumexp(a)` | N/A |
 

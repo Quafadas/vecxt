@@ -31,7 +31,7 @@ class CholeskySuite extends FunSuite:
       NArray(4.0)
     )
 
-    val L = a.cholesky
+    val L = cholesky(a)
 
     assertEquals(L.rows, 1)
     assertEquals(L.cols, 1)
@@ -42,7 +42,7 @@ class CholeskySuite extends FunSuite:
 
     val M = Matrix.rand(10, 10)
     val A = M @@ M.T
-    val L = A.cholesky
+    val L = cholesky(A)
     assertMatrixEquals(L @@ L.T, A)
   }
 
@@ -57,7 +57,7 @@ class CholeskySuite extends FunSuite:
       NArray(2.0, 3.0)
     )
 
-    val L = a.cholesky
+    val L = cholesky(a)
 
     // L should be lower-triangular with positive diagonal
     assertEqualsDouble(L(0, 1), 0.0, tolerance)
@@ -86,7 +86,7 @@ class CholeskySuite extends FunSuite:
 
     val A = B @@ B.T
 
-    val L = A.cholesky
+    val L = cholesky(A)
 
     // A should be reconstructed (within tolerance) from L * L^T
     val reconstructed = L @@ L.T
@@ -107,7 +107,7 @@ class CholeskySuite extends FunSuite:
     )
 
     intercept[MatrixNotSymmetricException] {
-      a.cholesky
+      cholesky(a)
     }
   }
 
@@ -122,7 +122,7 @@ class CholeskySuite extends FunSuite:
     )
 
     intercept[ArithmeticException] {
-      a.cholesky
+      cholesky(a)
     }
   }
 
@@ -136,7 +136,7 @@ class CholeskySuite extends FunSuite:
       NArray(-5.0,  0.0, 11.0)
     )
 
-    val L = a.cholesky
+    val L = cholesky(a)
 
     for
       i <- 0 until L.rows
