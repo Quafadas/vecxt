@@ -355,8 +355,9 @@ object DoubleMatrix:
     end trace
 
     inline def sum: Double = sumSIMD
+
     inline def sumSIMD: Double =
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.sum(m.raw)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.sumSIMD(m.raw)
       else ???
 
     inline def norm: Double =
