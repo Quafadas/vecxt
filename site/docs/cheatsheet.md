@@ -89,6 +89,7 @@ import narr.*
 | Min along axis | `m.min(Dimension.Rows)` or `m.min(Dimension.Cols)` | `a.min(axis=0)` | `min(a)` |
 | Argmax | `vec.argmax` | `a.argmax()` | `[~,idx]=max(a(:))` |
 | Argmin | `vec.argmin` | `a.argmin()` | `[~,idx]=min(a(:))` |
+| Argsort | `vec.argsort` | `a.argsort()` | `[~,idx]=sort(a(:))` |
 
 ## Norms and Distances
 

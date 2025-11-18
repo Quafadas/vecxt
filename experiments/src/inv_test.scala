@@ -30,6 +30,7 @@
 
    val x = A_inv * b
 
+   println(x.argsort.printArr)
    println(x.printArr)
 
    println(A.det)

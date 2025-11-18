@@ -115,4 +115,86 @@ class DoubleArraysSuite extends munit.FunSuite:
       prev = value
       i += 1
 
+  test("argsort - all elements identical"):
+    val arr = NArray[Double](1.0, 1.0, 1.0, 1.0, 1.0)
+    val result = arr.argsort
+    assertVecEquals(result, NArray[Int](0, 1, 2, 3, 4)) // stable
+
+  test("argsort - two elements swapped"):
+    val arr = NArray[Double](1.0, 0.0)
+    val result = arr.argsort
+    assertVecEquals(result, NArray[Int](1, 0))
+
+  test("argsort - alternating high/low"):
+    val arr = NArray[Double](10, 1, 10, 1, 10, 1)
+    val result = arr.argsort
+    assertVecEquals(result, NArray[Int](1, 3, 5, 0, 2, 4))
+
+  test("argsort - many duplicates, stability check"):
+    val arr = NArray[Double](2, 3, 2, 3, 2, 3)
+    val result = arr.argsort
+    // equal 2s keep relative order: 0,2,4
+    // equal 3s keep relative order: 1,3,5
+    assertVecEquals(result, NArray[Int](0, 2, 4, 1, 3, 5))
+
+  test("argsort - array with NaN values (NaN should be last)"):
+    val arr = NArray[Double](3.0, Double.NaN, 1.0, 2.0)
+    val result = arr.argsort
+    // Standard rule: NaN compares false for ordering; vec(li) <= vec(ri) fails → NaN goes to end
+    assertVecEquals(result, NArray[Int](2, 3, 0, 1))
+
+  test("argsort - array with +∞ and -∞"):
+    val arr = NArray[Double](Double.PositiveInfinity, 5.0, -10.0, Double.NegativeInfinity)
+    val result = arr.argsort
+    assertVecEquals(result, NArray[Int](3, 2, 1, 0))
+
+  test("argsort - insertion cutoff boundary (size = 32)"):
+    val size = 32
+    val arr = NArray.tabulate[Double](size)(i => size - i)
+    val result = arr.argsort
+    assertVecEquals(result, NArray.tabulate[Int](size)(i => size - 1 - i))
+
+  test("argsort - insertion cutoff boundary + 1 (size = 33)"):
+    val size = 33
+    val arr = NArray.tabulate[Double](size)(i => size - i)
+    val result = arr.argsort
+    assertVecEquals(result, NArray.tabulate[Int](size)(i => size - 1 - i))
+
+  test("argsort - random large array (1000 elements)"):
+    val rng = scala.util.Random(12345)
+    val arr = NArray.tabulate[Double](1000)(_ => rng.nextDouble())
+    val result = arr.argsort
+
+    // Verify strictly sorted order through indexing
+    var i = 1
+    while i < result.length do
+      assert(arr(result(i-1)) <= arr(result(i)))
+      i += 1
+
+  test("argsort - pathological merge pattern (descending runs)"):
+    // This pattern stresses merge sort structure
+    val arr = NArray[Double](50.0, 40.0, 30.0, 20.0, 10.0, 0.0)
+    val result = arr.argsort
+    assertVecEquals(result, NArray[Int](5, 4, 3, 2, 1, 0))
+
+  test("argsort - already sorted with duplicates"):
+    val arr = NArray[Double](1, 1, 2, 2, 3, 3)
+    val result = arr.argsort
+    assertVecEquals(result, NArray[Int](0, 1, 2, 3, 4, 5))
+
+  test("argsort - large group of equal values and one outlier"):
+    val arr = NArray[Double](Array.fill(100)(5.0)*)
+    arr(50) = 0.0 // single minimum
+    val result = arr.argsort
+    assertEquals(result(0), 50)
+    // remaining should be stable 0..49, 51..99
+    var i = 1
+    var expected = 0
+    while i < result.length do
+      if expected == 50 then expected = 51
+      assertEquals(result(i), expected)
+      expected += 1
+      i += 1
+
+
 end DoubleArraysSuite
