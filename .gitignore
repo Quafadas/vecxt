@@ -19,7 +19,7 @@ tags
 .bsp/
 .bloop/
 metals.sbt
-.vscode
+.vscode/settings.json
 sbt-launch.jar
 .scala-build
 

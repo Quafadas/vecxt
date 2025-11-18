@@ -1,4 +1,4 @@
-//| mill-version: 1.1.0-RC1
+//| mill-version: 1.1.0-RC2
 //| mill-jvm-version: 24
 //| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
 //| mvnDeps:
@@ -26,24 +26,24 @@ import mill.api.Result
 import com.goyeau.mill.scalafix.ScalafixModule
 import mill.api.Task.Simple
 
-def format = mill.scalalib.scalafmt.ScalafmtModule
+// def format = mill.scalalib.scalafmt.ScalafmtModule
 
 // mill __.compiledClassesAndSemanticDbFiles
 object V:
-  val spire = mvn"org.typelevel::spire::0.18.0"
-  val laminar = mvn"com.raquo::laminar::17.2.0"
-  val scalaTags = mvn"com.lihaoyi::scalatags::0.13.1"
+  val spire: Dep = mvn"org.typelevel::spire::0.18.0"
+  val laminar: Dep = mvn"com.raquo::laminar::17.2.0"
+  val scalaTags: Dep = mvn"com.lihaoyi::scalatags::0.13.1"
   val scalaVersion = "3.7.2"
   val munitVersion = "1.1.1"
-  val narr = mvn"ai.dragonfly::narr::1.0"
-  val blas = mvn"dev.ludovic.netlib:blas:3.0.4"
-  val lapack = mvn"dev.ludovic.netlib:lapack:3.0.4"
+  val narr: Dep = mvn"ai.dragonfly::narr::1.0"
+  val blas: Dep = mvn"dev.ludovic.netlib:blas:3.0.4"
+  val lapack: Dep = mvn"dev.ludovic.netlib:lapack:3.0.4"
 end V
 
 trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule:
-  def scalaVersion = V.scalaVersion
+  def scalaVersion: Simple[String] = V.scalaVersion
 
-  def publishVersion = VcsVersion.vcsState().format()
+  def publishVersion: Simple[String] = VcsVersion.vcsState().format()
 
   // def mvnDeps = super.mvnDeps() ++ Seq(
   //   V.narr
@@ -65,92 +65,16 @@ trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule:
   }
 end VecxtPublishModule
 
-val vecIncubatorFlag = Seq("--add-modules", "jdk.incubator.vector")
+val vecIncubatorFlag: Seq[String] = Seq("--add-modules", "jdk.incubator.vector")
 
 trait CommonJS extends ScalaJSModule:
-  def scalaJSVersion = "1.20.1"
+  def scalaJSVersion: Simple[String] = "1.20.1"
   // def mvnDeps = super.mvnDeps() ++ Seq(mvn"com.raquo::ew::0.2.0")
 end CommonJS
 
 trait CommonNative extends ScalaNativeModule with VecxtPublishModule:
-  def mvnDeps = super.mvnDeps() ++ Seq(
+  def mvnDeps: Simple[Seq[Dep]] = super.mvnDeps() ++ Seq(
     mvn"org.ekrich::sblas::0.7.0"
   )
-  def scalaNativeVersion = "0.5.8"
+  def scalaNativeVersion: Simple[String] = "0.5.8"
 end CommonNative
-
-// object vecxt extends Module {
-//   trait Shared extends CrossPlatformScalaModule with Common {
-//     // common `core` settings here
-//     trait SharedTests extends CommonTests {
-//       // common `core` test settings here
-//     }
-//   }
-//   object jvm extends Shared {
-//     override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
-//     def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-//     def mvnDeps = super.mvnDeps() ++ Seq(
-//       mvn"dev.ludovic.netlib:blas:3.0.4"
-//     )
-
-//     object test extends ScalaTests with SharedTests {
-//       def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-//     }
-//   }
-//   object js extends Shared with CommonJS {
-//     // js specific settings here
-//     object test extends ScalaJSTests with SharedTests {
-//         def moduleKind = ModuleKind.CommonJSModule
-//     }
-//   }
-
-//   object native extends Shared with CommonNative {
-//     // native specific settings here
-//     object test extends ScalaNativeTests with SharedTests
-//   }
-// }
-
-// object vecxtensions extends CrossPlatform {
-//   override def moduleDeps: Seq[CrossPlatform] = Seq(vecxt)
-//   trait Shared extends CrossPlatformScalaModule with Common {
-
-//     // common `core` settings here
-//     trait SharedTests extends CommonTests {
-//       // common `core` test settings here
-//     }
-//   }
-//   object jvm extends Shared {
-//     override def javacOptions: T[Seq[String]] = super.javacOptions() ++ vecIncubatorFlag
-//     def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-//     def mvnDeps = Seq(
-//       mvn"org.typelevel::spire::${V.spire}"
-//     )
-
-//     object test extends ScalaTests with SharedTests {
-//       def forkArgs = super.forkArgs() ++ vecIncubatorFlag
-//     }
-//   }
-//   object js extends Shared with CommonJS {
-//     override def mvnDeps: Target[Agg[Dep]] = super.mvnDeps() ++ Seq(
-//       mvn"com.lihaoyi::scalatags::${V.scalatags}",
-//       mvn"com.raquo::laminar::${V.laminar}",
-//       mvn"org.typelevel::spire::${V.spire}"
-//     )
-//     // js specific settings here
-//     object test extends ScalaJSTests with SharedTests {
-//       def moduleKind = ModuleKind.CommonJSModule
-//     }
-//   }
-
-//   object native extends Shared with CommonNative {
-//     // native specific settings here
-//     object test extends ScalaNativeTests with SharedTests
-//   }
-// }
-
-// object integration extends ScalaModule with CommonTests {
-//   def scalaVersion: T[String] = vecxt.jvm.scalaVersion
-
-// }
-
-// note that scastic won't work, as I don't think we can start a JVM with the incubator flag.

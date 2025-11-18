@@ -39,6 +39,29 @@ object DoubleArrays:
         end while
 
         result
+
+    inline def argsort: NArray[Int] =
+      if vec.size == 0 then NArray.empty[Int]
+      else
+        val indices = NArray.tabulate(vec.length)(i => i)
+
+        // Insertion sort on indices based on vec values
+        var i = 1
+        while i < indices.length do
+          val key = indices(i)
+          val keyValue = vec(key)
+          var j = i - 1
+
+          while j >= 0 && vec(indices(j)) > keyValue do
+            indices(j + 1) = indices(j)
+            j -= 1
+          end while
+
+          indices(j + 1) = key
+          i += 1
+        end while
+
+        indices
   end extension
 
   // inline def lt(num: Double): NArray[Boolean] = vec < num

@@ -4,12 +4,7 @@ import dev.ludovic.netlib.lapack.JavaLAPACK
 import org.netlib.util.intW
 import vecxt.matrix.Matrix
 import vecxt.MatrixInstance.*
-import vecxt.arrays.maxSIMD
-import vecxt.arrays.>
-import vecxt.BooleanArrays.trues
-import vecxt.matrixUtil.transpose
 import vecxt.MatrixHelper.zeros
-import vecxt.DoubleMatrix.matmul
 import vecxt.BoundsCheck.BoundsCheck
 
 // https://github.com/scalanlp/breeze/blob/fd73d09976a1a50d68b91a53e3896980502d335e/math/src/main/scala/breeze/linalg/functions/eig.scala#L25
