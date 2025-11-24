@@ -39,9 +39,10 @@ object Solve:
     nonEmptyMatCheck(A)
     nonEmptyMatCheck(b)
     squareMatCheck(A)
+    inline if bc then if A.rows != b.rows then throw MatrixDimensionMismatch(A.rows, A.cols, b.rows, b.cols)
+    end if
 
     if bc == vecxt.BoundsCheck.DoBoundsCheck.yes then
-      require(A.rows == b.rows, s"Matrix dimensions incompatible: A has ${A.rows} rows, b has ${b.rows} rows")
       require(!A.raw.exists(_.isNaN), "Input matrix A contains NaN values")
       require(!b.raw.exists(_.isNaN), "Input matrix b contains NaN values")
     end if
@@ -96,10 +97,6 @@ object Solve:
     *   if the matrix A is singular (not invertible)
     */
   inline def solve(A: Matrix[Double], b: Array[Double])(using inline bc: BoundsCheck): Array[Double] =
-    if bc == vecxt.BoundsCheck.DoBoundsCheck.yes then
-      require(A.rows == b.length, s"Matrix dimensions incompatible: A has ${A.rows} rows, b has ${b.length} elements")
-    end if
-
     // Convert array to column matrix
     val bMatrix = Matrix(b, b.length, 1)(using false)
     val xMatrix = solve(A, bMatrix)

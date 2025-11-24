@@ -304,7 +304,7 @@ class SolveSuite extends FunSuite:
     val A = Matrix.zeros[Double](3, 3)
     val b = Array(1.0, 2.0) // Wrong size
 
-    intercept[IllegalArgumentException] {
+    intercept[MatrixDimensionMismatch] {
       solve(A, b)(using yes)
     }
   }
