@@ -96,6 +96,7 @@ class DoubleArraysSuite extends munit.FunSuite:
       assert(value >= prev)
       prev = value
       i += 1
+    end while
 
   test("argsort - with negative numbers"):
     val arr = NArray[Double](-3.0, 5.0, -1.0, 0.0, 2.0)
@@ -114,6 +115,7 @@ class DoubleArraysSuite extends munit.FunSuite:
       assert(value >= prev)
       prev = value
       i += 1
+    end while
 
   test("argsort - all elements identical"):
     val arr = NArray[Double](1.0, 1.0, 1.0, 1.0, 1.0)
@@ -168,8 +170,9 @@ class DoubleArraysSuite extends munit.FunSuite:
     // Verify strictly sorted order through indexing
     var i = 1
     while i < result.length do
-      assert(arr(result(i-1)) <= arr(result(i)))
+      assert(arr(result(i - 1)) <= arr(result(i)))
       i += 1
+    end while
 
   test("argsort - pathological merge pattern (descending runs)"):
     // This pattern stresses merge sort structure
@@ -192,9 +195,10 @@ class DoubleArraysSuite extends munit.FunSuite:
     var expected = 0
     while i < result.length do
       if expected == 50 then expected = 51
+      end if
       assertEquals(result(i), expected)
       expected += 1
       i += 1
-
+    end while
 
 end DoubleArraysSuite

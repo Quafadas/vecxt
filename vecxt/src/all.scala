@@ -26,6 +26,7 @@ object all:
   export vecxt.Svd.* // JS and native are stubs
   export vecxt.Cholesky.* // JS and native are stubs
   export vecxt.Eigenvalues.* // JS and native are stubs
+  export vecxt.Solve.* // JS and native are stubs
   // Random
   export vecxt.cosineSimilarity
 end all

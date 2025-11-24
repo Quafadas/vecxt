@@ -13,44 +13,44 @@
 //./millw experiments.runMain experiments.inv_test
 
 @main def inv_test =
-   import vecxt.all.*
-   import vecxt.BoundsCheck.DoBoundsCheck.yes
+  import vecxt.all.*
+  import vecxt.BoundsCheck.DoBoundsCheck.yes
 
-   val A = Matrix.fromRows(
-      Array(1.0, 9.0, 2.0, 1.0, 1.0),
-      Array(10.0, 1.0, 2.0, 1.0, 1.0),
-      Array(1.0, 0.0, 5.0, 1.0, 1.0),
-      Array(2.0, 1.0, 1.0, 2.0, 9.0),
-      Array(2.0, 1.0, 2.0, 13.0, 2.0)
-   )
+  val A = Matrix.fromRows(
+    Array(1.0, 9.0, 2.0, 1.0, 1.0),
+    Array(10.0, 1.0, 2.0, 1.0, 1.0),
+    Array(1.0, 0.0, 5.0, 1.0, 1.0),
+    Array(2.0, 1.0, 1.0, 2.0, 9.0),
+    Array(2.0, 1.0, 2.0, 13.0, 2.0)
+  )
 
-   val b = Array(170.0, 180.0, 140.0, 180.0, 350.0)
+  val b = Array(170.0, 180.0, 140.0, 180.0, 350.0)
 
-   val A_inv = inv(A)
+  val A_inv = inv(A)
 
-   val x = A_inv * b
+  val x = A_inv * b
 
-   println(x.argsort.printArr)
-   println(x.printArr)
+  println(x.argsort.printArr)
+  println(x.printArr)
 
-   println(A.det)
+  println(A.det)
 
-   println((pinv(A) * b).printArr)
+  println((pinv(A) * b).printArr)
 end inv_test
 
-
 @main def argmax =
-   import vecxt.all.*
-   import vecxt.BoundsCheck.DoBoundsCheck.yes
+  import vecxt.all.*
+  import vecxt.BoundsCheck.DoBoundsCheck.yes
 
-   val r1 = Matrix.fromRows(
-      Array(0.0, 1.0, 2.0, 3.0),
-      Array(4.0, 5.0, 6.0, 7.0),
-      Array(8.0, 9.0, 10.0, 11.0),
-      Array(12.0, 13.0, 14.0, 15.0),
-      Array(16.0, 17.0, 18.0, 19.0)
-   )
+  val r1 = Matrix.fromRows(
+    Array(0.0, 1.0, 2.0, 3.0),
+    Array(4.0, 5.0, 6.0, 7.0),
+    Array(8.0, 9.0, 10.0, 11.0),
+    Array(12.0, 13.0, 14.0, 15.0),
+    Array(16.0, 17.0, 18.0, 19.0)
+  )
 
-   println(r1.raw.argmax)
-   println(r1.mapRowsToScalar(r => r.argmax).printMat)
-   println(r1.mapColsToScalar(c => c.argmax).printMat)
+  println(r1.raw.argmax)
+  println(r1.mapRowsToScalar(r => r.argmax).printMat)
+  println(r1.mapColsToScalar(c => c.argmax).printMat)
+end argmax

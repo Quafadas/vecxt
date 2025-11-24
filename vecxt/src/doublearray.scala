@@ -43,33 +43,29 @@ object DoubleArrays:
     inline private def leq(a: Double, b: Double): Boolean =
       val na = java.lang.Double.isNaN(a)
       val nb = java.lang.Double.isNaN(b)
-      if na && nb then
-        true
-      else if na then false    // NaN is treated as larger → goes last
+      if na && nb then true
+      else if na then false // NaN is treated as larger → goes last
       else if nb then true
       else a <= b
+      end if
+    end leq
 
-
-    /**
-     * Sorts the given array in ascending order, with NaN values sorted to the end.
-     *
-     * This follows the IEEE total ordering implemented by `java.lang.Double.compare`,
-     * ensuring deterministic placement for `NaN`, infinities, and normal values.
-     */
+    /** Sorts the given array in ascending order, with NaN values sorted to the end.
+      *
+      * This follows the IEEE total ordering implemented by `java.lang.Double.compare`, ensuring deterministic placement
+      * for `NaN`, infinities, and normal values.
+      */
     inline def argsort: NArray[Int] =
       val n = vec.length
-      if n == 0 then
-        NArray.empty[Int]
+      if n == 0 then NArray.empty[Int]
       else
         val idx = NArray.tabulate(n)(identity)
         val scratch = new Array[Int](n)
 
         val InsertionCutoff = 32
 
-
-
         // ----- insertion sort for small slices -----
-        def insertion(lo: Int, hi: Int): Unit = {
+        def insertion(lo: Int, hi: Int): Unit =
           var i = lo + 1
           while i < hi do
             val key = idx(i)
@@ -82,16 +78,17 @@ object DoubleArrays:
             idx(j + 1) = key
             i += 1
           end while
-        }
+        end insertion
 
         // ----- merge two sorted halves -----
-        def merge(lo: Int, mid: Int, hi: Int): Unit = {
+        def merge(lo: Int, mid: Int, hi: Int): Unit =
           // copy left half to scratch buffer
           val leftLen = mid - lo
           var i = 0
           while i < leftLen do
             scratch(i) = idx(lo + i)
             i += 1
+          end while
 
           var left = 0
           var right = mid
@@ -107,6 +104,7 @@ object DoubleArrays:
             else
               idx(out) = rightIdx
               right += 1
+            end if
             out += 1
           end while
 
@@ -116,12 +114,11 @@ object DoubleArrays:
             left += 1
             out += 1
           end while
-        }
+        end merge
 
         // ----- recursive merge sort, with insertion cutoff -----
         def sort(lo: Int, hi: Int): Unit =
-          if hi - lo <= InsertionCutoff then
-            insertion(lo, hi)
+          if hi - lo <= InsertionCutoff then insertion(lo, hi)
           else
             val mid = (lo + hi) >>> 1
             sort(lo, mid)
@@ -131,6 +128,8 @@ object DoubleArrays:
         // start sorting
         sort(0, n)
         idx
+      end if
+    end argsort
   end extension
 
   // inline def lt(num: Double): NArray[Boolean] = vec < num
