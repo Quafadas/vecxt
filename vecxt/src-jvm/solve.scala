@@ -101,14 +101,8 @@ object Solve:
     val bMatrix = Matrix(b, b.length, 1)(using false)
     val xMatrix = solve(A, bMatrix)
 
-    // Extract solution as array
-    val result = Array.ofDim[Double](A.rows)
-    var i = 0
-    while i < A.rows do
-      result(i) = xMatrix(i, 0)
-      i += 1
-    end while
-    result
+    // Extract solution from matrix (no copy needed as solve already makes a copy)
+    xMatrix.raw
   end solve
 
 end Solve
