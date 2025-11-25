@@ -67,7 +67,7 @@ import narr.*
 | SVD | `val (U, S, Vt) = svd(m)` | `U, S, Vh = np.linalg.svd(a)` | `[U,S,V]=svd(a)` |
 | Pseudo-inverse | `pinv(m)` | `np.linalg.pinv(a)` | `pinv(a)` |
 | Matrix rank | `m.rank` or `rank(m)` | `np.linalg.matrix_rank(a)` | `rank(a)` |
-| Solve linear system | ??? | `np.linalg.solve(a, b)` | `a\b` |
+| Solve linear system | `solve(a,b)` | `np.linalg.solve(a, b)` | `a\b` |
 | Eigenvalues/vectors | `eig(m)` | `D, V = np.linalg.eig(a)` | `[V,D]=eig(a)` |
 | Cholesky decomposition | `cholesky(m)` | `np.linalg.cholesky(a)` | `chol(a)` |
 | QR decomposition | ??? | `Q, R = np.linalg.qr(a)` | `[Q,R]=qr(a,0)` |
