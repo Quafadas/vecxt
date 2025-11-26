@@ -74,7 +74,7 @@ import narr.*
 | Eigenvalues/vectors | `eig(m)` | `D, V = np.linalg.eig(a)` | `[V,D]=eig(a)` |
 | Cholesky decomposition | `cholesky(m)` | `np.linalg.cholesky(a)` | `chol(a)` |
 | QR decomposition | ??? | `Q, R = np.linalg.qr(a)` | `[Q,R]=qr(a,0)` |
-| LU decomposition | ??? | `P, L, U = scipy.linalg.lu(a)` | `[L,U,P]=lu(a)` |
+| LU decomposition | `val result = lu(m); result.L; result.U; result.P` | `P, L, U = scipy.linalg.lu(a)` | `[L,U,P]=lu(a)` |
 
 ## Reductions and Aggregations
 
