@@ -2,6 +2,10 @@
 
 Making cross plaform vector problem less... vexing
 
+```sh
+scala-cli repl --dep io.github.quafadas::vecxt::@VERSION@ --java-opt "--add-modules=jdk.incubator.vector" --repl-init-script 'import vecxt.all.{*, given}'
+```
+
 Scala cli
 ```scala
 //> using dep io.github.quafadas::vecxt::@VERSION@
@@ -16,8 +20,7 @@ ivy"io.github.quafadas::vecxt::@VERSION@"
 ```
 
 ```scala mdoc
-import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+import vecxt.all.{*, given}
 
 val v1 = Array[Double](1, 2, 3)
 val v2 = Array[Double](4, 5, 6)

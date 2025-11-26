@@ -17,7 +17,7 @@ If you are running on the JVM, The shim to a java SIMD [netlib](https://github.c
 
 The console warnings on startup will tell you the implementations you are missing.
 
-My understanding, is that for level 1 BLAS operations (i.e. this library), the performance of the SIMD implementation is comparable to native - i.e. C performance.
+My understanding, is that for level 1 BLAS operations (i.e. this library), the performance of the SIMD implementation is comparable to native - i.e. C performance. If you want native performance, you'll need to work through getting your natives libs setup with netlib - follow that readme.
 
 
 ## JS

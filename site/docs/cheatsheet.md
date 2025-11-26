@@ -6,8 +6,7 @@ This cheatsheet compares common linear algebra operations across vecxt (Scala 3)
 
 ```scala
 //> using scala 3.7.3 // or greater
-import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.no
+import vecxt.all.{*, given}
 import narr.*
 
 ```

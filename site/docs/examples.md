@@ -3,9 +3,7 @@
 Some basic examples with doubles.
 
 ```scala mdoc
-import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
-
+import vecxt.all.{*, given}
 val v1 = Array[Double](1, 2, 3)
 val v2 = Array[Double](4, 5, 6)
 
@@ -104,9 +102,8 @@ v1.cos.printArr
 And Ints. Note that the API here is more limited at the moment.
 
 ```scala mdoc:reset
-import vecxt.all.*
+import vecxt.all.{*, given}
 import narr.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 val v1 = NArray(1, 2, 3)
 val v2 = NArray(4, 5, 6)
@@ -133,10 +130,9 @@ v1.dot(v2)
 The library includes methods for calculating Tail Value at Risk (TVaR) and Value at Risk (VaR), which are commonly used in reinsurance and risk management.
 
 ```scala mdoc:reset
-import vecxt.all.*
+import vecxt.all.{*, given}
 import narr.*
 import vecxt.reinsurance.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 // Create a sample loss distribution
 val losses = NArray[Double](10.0, 25.0, 15.0, 50.0, 5.0, 30.0, 20.0, 8.0, 45.0, 12.0)

@@ -1,6 +1,10 @@
 package vecxt
 
 object all:
+  // Bounds checks this is a given so that it can be inlined and optimized away
+  export vecxt.BoundsCheck.DoBoundsCheck.yes
+
+
   // arrays
   export vecxt.arrayUtil.*
   export vecxt.arrays.*

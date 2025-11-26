@@ -5,9 +5,8 @@ Expressed in a cross platform `NArray`, and runs in scalaJS - check your browser
 
 ```scala mdoc:js
 
-import vecxt.all.*
+import vecxt.all.{*, given}
 import narr.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
 import org.scalajs.dom
 
 def algo(a: NArray[Double], b :NArray[Double], c: Double ) = (a + b)  / c
@@ -47,9 +46,8 @@ import com.raquo.laminar.DomApi
 
 import narr.*
 
-import vecxt.all.*
+import vecxt.all.{*, given}
 import vecxtensions.MathTagsLaminar.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 val base = NArray[Double](11, 12, 13, 14, 15)
 val mat1 = Matrix.fromRows[Double](
