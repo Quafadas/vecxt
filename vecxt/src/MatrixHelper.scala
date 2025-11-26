@@ -4,7 +4,7 @@ import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.*
-
+import vecxt.MatrixInstance.apply
 import narr.*
 
 object MatrixHelper:
@@ -191,6 +191,55 @@ object MatrixHelper:
     inline def randInt(dim: RowCol)(using inline boundsCheck: BoundsCheck): Matrix[Int] =
       randInt(dim._1, dim._2, 0, 100)
     end randInt
+
+    /** Tiles a matrix by repeating it in a grid pattern.
+      *
+      * Creates a new matrix by replicating the input matrix `rowsN` times vertically and `colsN` times horizontally.
+      * The resulting matrix will have dimensions `(inM.rows * rowsN, inM.cols * colsN)`.
+      *
+      * @tparam A
+      *   the type of elements in the matrix
+      * @param inM
+      *   the input matrix to be tiled
+      * @param rowsN
+      *   the number of times to repeat the matrix vertically
+      * @param colsN
+      *   the number of times to repeat the matrix horizontally
+      * @return
+      *   a new matrix containing the tiled pattern
+      * @example
+      *   {{{
+      * val m = Matrix(Array(1, 2, 3, 4), 2, 2)  // [[1, 3], [2, 4]]
+      * val tiled = tile(m, 2, 3)
+      * // Results in a 4x6 matrix with m repeated 2 times vertically and 3 times horizontally
+      *   }}}
+      */
+    inline def tile[A](inM: Matrix[A], rowsN: Int, colsN: Int)(using ClassTag[A]): Matrix[A] =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+
+      val newArr = NArray.ofSize[A](inM.numel * rowsN * colsN)
+      var r = 0
+      while r < rowsN do
+        var c = 0
+        while c < colsN do
+          var i = 0
+          while i < inM.rows do
+            var j = 0
+            while j < inM.cols do
+              val destRow = r * inM.rows + i
+              val destCol = c * inM.cols + j
+              newArr(destCol * (inM.rows * rowsN) + destRow) = inM(i, j)
+              j += 1
+            end while
+            i += 1
+          end while
+          c += 1
+        end while
+        r += 1
+      end while
+
+      Matrix(newArr, inM.rows * rowsN, inM.cols * colsN)
+    end tile
 
     inline def createDiagonal(v: NArray[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       val size = v.length
