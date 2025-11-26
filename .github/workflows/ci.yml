@@ -11,7 +11,7 @@ on:
   pull_request:
     branches: ['**', '!update/**', '!pr/**']
   push:
-    branches: ['**', '!update/**', '!pr/**', '!benchmark', '!copilot/**']
+    branches: ['**', '!update/**', '!pr/**', '!benchmark']
     tags: [v*]
 
 env:
