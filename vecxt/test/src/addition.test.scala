@@ -21,7 +21,7 @@ class MatrixAdditionTest extends FunSuite:
 
     assertMatrixEquals(
       mat1,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](11.0, 12.0, 13.0),
         NArray[Double](14.0, 15.0, 16.0),
         NArray[Double](17.0, 18.0, 19.0)
@@ -32,7 +32,7 @@ class MatrixAdditionTest extends FunSuite:
 
     assertMatrixEquals(
       mat1,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](12.0, 13.0, 13.0),
         NArray[Double](15.0, 16.0, 16.0),
         NArray[Double](17.0, 18.0, 19.0)
@@ -42,7 +42,7 @@ class MatrixAdditionTest extends FunSuite:
     mat1.submatrix(1 to 2, 1 to 2) += 1.0
     assertMatrixEquals(
       mat1,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](12.0, 13.0, 13.0),
         NArray[Double](15.0, 17.0, 17.0),
         NArray[Double](17.0, 19.0, 20.0)
@@ -62,7 +62,7 @@ class MatrixAdditionTest extends FunSuite:
 
     assertMatrixEquals(
       mat1,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](11.0, 12.0, 13.0),
         NArray[Double](14.0, 15.0, 16.0),
         NArray[Double](17.0, 18.0, 19.0)
@@ -73,7 +73,7 @@ class MatrixAdditionTest extends FunSuite:
 
     assertMatrixEquals(
       mat1,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](12.0, 13.0, 13.0),
         NArray[Double](15.0, 16.0, 16.0),
         NArray[Double](17.0, 18.0, 19.0)
@@ -83,7 +83,7 @@ class MatrixAdditionTest extends FunSuite:
     mat1.submatrix(1 to 2, 1 to 2) += 1.0
     assertMatrixEquals(
       mat1,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](12.0, 13.0, 13.0),
         NArray[Double](15.0, 17.0, 17.0),
         NArray[Double](17.0, 19.0, 20.0)
@@ -99,7 +99,7 @@ class MatrixAdditionTest extends FunSuite:
 
     assertMatrixEquals(
       submat,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](7.0, 8.0, 9.0, 10.0) + 10,
         NArray[Double](13.0, 14.0, 15.0, 16.0) + 10,
         NArray[Double](19.0, 20.0, 21.0, 22.0) + 10,
@@ -114,7 +114,7 @@ class MatrixAdditionTest extends FunSuite:
     // println(s"Submatrix2 after addition: ${submat2.printMat}")
     assertMatrixEquals(
       submat2,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](7.0, 8.0, 9.0, 10.0, 11.0, 12.0),
         NArray[Double](13.0, 14.0, 15.0, 16.0, 17.0, 18.0),
         NArray[Double](19.0, 20.0, 21.0, 22.0, 23.0, 24.0),
@@ -129,7 +129,7 @@ class MatrixAdditionTest extends FunSuite:
     // println(s"Submatrix2 after addition: ${submat2.printMat}")
     assertMatrixEquals(
       submat3,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0) + 1,
         NArray[Double](7.0, 8.0, 9.0, 10.0, 11.0) + 1,
         NArray[Double](13.0, 14.0, 15.0, 16.0, 17.0) + 1,
@@ -144,7 +144,7 @@ class MatrixAdditionTest extends FunSuite:
     // println(s"Submatrix2 after addition: ${submat2.printMat}")
     assertMatrixEquals(
       submat4,
-      Matrix.fromRows(
+      Matrix.fromRows[Double](
         NArray[Double](7.0, 8.0, 9.0, 10.0, 11.0) + 1,
         NArray[Double](13.0, 14.0, 15.0, 16.0, 17.0) + 1,
         NArray[Double](19.0, 20.0, 21.0, 22.0, 23.0) + 1,
