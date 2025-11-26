@@ -73,7 +73,7 @@ import narr.*
 | Solve linear system | `solve(a,b)` | `np.linalg.solve(a, b)` | `a\b` |
 | Eigenvalues/vectors | `eig(m)` | `D, V = np.linalg.eig(a)` | `[V,D]=eig(a)` |
 | Cholesky decomposition | `cholesky(m)` | `np.linalg.cholesky(a)` | `chol(a)` |
-| QR decomposition | ??? | `Q, R = np.linalg.qr(a)` | `[Q,R]=qr(a,0)` |
+| QR decomposition | `val (Q, R) = qr(m)` | `Q, R = np.linalg.qr(a)` | `[Q,R]=qr(a,0)` |
 | LU decomposition | ??? | `P, L, U = scipy.linalg.lu(a)` | `[L,U,P]=lu(a)` |
 
 ## Reductions and Aggregations
