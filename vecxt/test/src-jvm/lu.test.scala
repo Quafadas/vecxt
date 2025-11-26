@@ -19,7 +19,6 @@ package vecxt
 import munit.FunSuite
 import all.*
 import BoundsCheck.DoBoundsCheck.yes
-import vecxt.DoubleMatrix.matmul
 
 class LUSuite extends FunSuite:
 

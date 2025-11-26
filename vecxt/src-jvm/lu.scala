@@ -35,8 +35,8 @@ object LU:
     *   A named tuple containing:
     *   - L: Lower triangular matrix with unit diagonal (rows × min(rows,cols))
     *   - U: Upper triangular matrix (min(rows,cols) × cols)
-    *   - P: Permutation array where P(i) = j means row i was swapped with row j. The permutation matrix can be
-    *     reconstructed from this array.
+    *   - P: Permutation array representing successive row interchanges. At step i, row i was swapped with row P(i).
+    *     The permutation matrix can be reconstructed by applying these swaps in order.
     * @throws IllegalArgumentException
     *   if matrix is empty or if an argument to LAPACK is invalid
     */
