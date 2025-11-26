@@ -294,9 +294,10 @@ class QRSuite extends FunSuite:
 
   test("Random matrices") {
     val rand = scala.util.Random(42)
+    val size = 5
     for _ <- 0 until 10 do
-      val m = Matrix.zeros[Double](5, 5)
-      for i <- 0 until 5; j <- 0 until 5 do m(i, j) = rand.nextDouble() * 10 - 5
+      val m = Matrix.zeros[Double](size, size)
+      for i <- 0 until size; j <- 0 until size do m(i, j) = rand.nextDouble() * 10 - 5
       end for
 
       val (q, r) = qr(m)
@@ -309,9 +310,11 @@ class QRSuite extends FunSuite:
 
   test("Random tall matrices") {
     val rand = scala.util.Random(123)
+    val rows = 6
+    val cols = 4
     for _ <- 0 until 5 do
-      val m = Matrix.zeros[Double](6, 4)
-      for i <- 0 until 6; j <- 0 until 4 do m(i, j) = rand.nextDouble() * 10 - 5
+      val m = Matrix.zeros[Double](rows, cols)
+      for i <- 0 until rows; j <- 0 until cols do m(i, j) = rand.nextDouble() * 10 - 5
       end for
 
       val (q, r) = qr(m)
@@ -324,9 +327,11 @@ class QRSuite extends FunSuite:
 
   test("Random wide matrices") {
     val rand = scala.util.Random(456)
+    val rows = 3
+    val cols = 5
     for _ <- 0 until 5 do
-      val m = Matrix.zeros[Double](3, 5)
-      for i <- 0 until 3; j <- 0 until 5 do m(i, j) = rand.nextDouble() * 10 - 5
+      val m = Matrix.zeros[Double](rows, cols)
+      for i <- 0 until rows; j <- 0 until cols do m(i, j) = rand.nextDouble() * 10 - 5
       end for
 
       val (q, r) = qr(m)
