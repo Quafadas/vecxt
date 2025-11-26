@@ -155,6 +155,7 @@ Is not supported in an "implicit" fashion. Look at the methods;
 |-----------|-------|-------|--------|
 | Extract diagonal | `m.diag` | `np.diag(a)` | `diag(a)` |
 | Create diagonal matrix | `Matrix.createDiag(a)` | `np.diag(v)` | `diag(v,0)` |
+| Tile Matrix | `Matrix.tile(m, rows, cols)` | `np.tile(a, (m, n))` | `repmat(a, m, n)` |
 | Unique values | `vec.unique` | `np.unique(a)` | `unique(a)` |
 | Sort | `narr.sort(vec)()` | `np.sort(a)` | `sort(a)` |
 | Horizontal concatenation | `m.horzcat(n)` or `horzcat(m, n)` | `np.hstack([a, b])` or `np.concatenate([a,b], axis=1)` | `horzcat(a,b)` or `[a b]` |
