@@ -26,6 +26,9 @@ object LU:
     *
     * The decomposition allows efficient solving of linear systems and computation of determinants.
     *
+    * Note: The factorization is computed even for singular matrices. In such cases, at least one diagonal element of U
+    * will be zero (or near zero), indicating the matrix is rank-deficient.
+    *
     * @param m
     *   The input matrix to decompose. Can be square or rectangular (m x n).
     * @return
@@ -36,8 +39,6 @@ object LU:
     *     reconstructed from this array.
     * @throws IllegalArgumentException
     *   if matrix is empty or if an argument to LAPACK is invalid
-    * @throws ArithmeticException
-    *   if a diagonal element of U is exactly zero (matrix is singular)
     */
   inline def lu(m: Matrix[Double])(using
       inline bc: BoundsCheck

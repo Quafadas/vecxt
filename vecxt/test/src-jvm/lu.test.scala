@@ -92,9 +92,7 @@ class LUSuite extends FunSuite:
 
     for i <- 0 until a.rows do
       for j <- 0 until a.cols do
-        if math.abs(a(i, j) - b(i, j)) > tol then
-          println(s"Mismatch at ($i, $j): ${a(i, j)} vs ${b(i, j)}, diff = ${math.abs(a(i, j) - b(i, j))}")
-          return false
+        if math.abs(a(i, j) - b(i, j)) > tol then return false
         end if
       end for
     end for
