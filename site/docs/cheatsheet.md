@@ -67,14 +67,14 @@ import narr.*
 | Determinant | `m.det` | `np.linalg.det(a)` | `det(a)` |
 | Trace | `m.trace` | `np.trace(a)` | `trace(a)` |
 | Matrix inverse | `m.inv` | `np.linalg.inv(a)` | `inv(a)` |
-| SVD | `val (U, S, Vt) = svd(m)` | `U, S, Vh = np.linalg.svd(a)` | `[U,S,V]=svd(a)` |
+| SVD | `val (u, s, v_t) = svd(m)` | `U, S, Vh = np.linalg.svd(a)` | `[U,S,V]=svd(a)` |
 | Pseudo-inverse | `pinv(m)` | `np.linalg.pinv(a)` | `pinv(a)` |
 | Matrix rank | `m.rank` or `rank(m)` | `np.linalg.matrix_rank(a)` | `rank(a)` |
 | Solve linear system | `solve(a,b)` | `np.linalg.solve(a, b)` | `a\b` |
 | Eigenvalues/vectors | `eig(m)` | `D, V = np.linalg.eig(a)` | `[V,D]=eig(a)` |
 | Cholesky decomposition | `cholesky(m)` | `np.linalg.cholesky(a)` | `chol(a)` |
-| LU decomposition | `val (P, L, U) = lu(m)` | `P, L, U = scipy.linalg.lu(a)` | `[L,U,P]=lu(a)` |
-| QR decomposition | `val (Q, R) = qr(m)` | `Q, R = np.linalg.qr(a)` | `[Q,R]=qr(a,0)` |
+| LU decomposition | `val (l, u, p) = lu(m)` | `P, L, U = scipy.linalg.lu(a)` | `[L,U,P]=lu(a)` |
+| QR decomposition | `val (q, r) = qr(m)` | `Q, R = np.linalg.qr(a)` | `[Q,R]=qr(a,0)` |
 
 
 ## Reductions and Aggregations

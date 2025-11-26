@@ -32,7 +32,7 @@ object Cholesky:
     A
   end lowerTriangular
 
-  inline def cholesky(m: Matrix[Double])(using inline boundsCheck: BoundsCheck) =
+  inline def cholesky(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
     nonEmptyMatCheck(m)
 
     symmetricMatCheck(m)
