@@ -7,6 +7,7 @@ import vecxt.arrays.*
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.matrix.*
 import vecxt.matrixUtil.*
+import vecxt.MatrixHelper.createDiagonal
 
 import narr.*
 
@@ -158,6 +159,8 @@ object DoubleMatrix:
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m +:+ m2
 
     inline def *(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.hadamard(m2)
+
+    inline def kronecker(other: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = ???
 
     inline def hadamard(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)

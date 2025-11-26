@@ -192,7 +192,7 @@ object MatrixHelper:
       randInt(dim._1, dim._2, 0, 100)
     end randInt
 
-    inline def diag(v: NArray[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def createDiagonal(v: NArray[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       val size = v.length
       val newArr = NArray.ofSize[Double](size * size)
       var j = 0
@@ -207,7 +207,7 @@ object MatrixHelper:
         i += 1
       end while
       Matrix[Double](newArr, (size, size))
-    end diag
+    end createDiagonal
 
   end extension
 

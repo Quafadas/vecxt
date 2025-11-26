@@ -20,6 +20,7 @@ import narr.*
 | Create a 2D array/matrix | `Matrix(NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)` | `np.array([[1., 2., 3.], [4., 5., 6.]])` | `[1 2 3; 4 5 6]` |
 | Array of zeros | `Matrix.zeros((3, 4))` | `np.zeros((3, 4))` | `zeros(3,4)` |
 | Array of ones | `Matrix.ones((3, 4))` | `np.ones((3, 4))` | `ones(3,4)` |
+| Random array | `NArray.tabulate(12)(_ => scala.util.Random.nextDouble())`  | `np.random.rand(12, 1)` | `rand(12,)` |
 | Identity matrix | `Matrix.eye(3)` | `np.eye(3)` | `eye(3)` |
 | Get array dimensions | `m.rows, m.cols` or `m.shape` | `a.shape` | `size(a)` |
 | Number of elements | `m.numel` | `a.size` | `numel(a)` |
@@ -62,7 +63,9 @@ import narr.*
 | Matrix multiplication | `m @@ n` or `m.matmul(n)` | `a @ b` | `a * b` |
 | Matrix-vector multiply | `m @@ v` | `a @ v` | `a * v` |
 | Dot product | `vec.dot(vec2)` | `np.dot(a, b)` or `a @ b` | `dot(a,b)` |
+| Outer product | `vec.outer(vec2)` | `np.outer(a, b)` | `a * b.'` or `a(:) * b(:).'` |
 | Determinant | `m.det` | `np.linalg.det(a)` | `det(a)` |
+| Trace | `m.trace` | `np.trace(a)` | `trace(a)` |
 | Matrix inverse | `m.inv` | `np.linalg.inv(a)` | `inv(a)` |
 | SVD | `val (U, S, Vt) = svd(m)` | `U, S, Vh = np.linalg.svd(a)` | `[U,S,V]=svd(a)` |
 | Pseudo-inverse | `pinv(m)` | `np.linalg.pinv(a)` | `pinv(a)` |
@@ -123,6 +126,12 @@ In vecxt, each of these function has an "in-place" counterpart that returns unit
 
 Such operations can also be called via `tan(vec)`, `exp(matrix)`, etc.
 
+## Broadcasting
+
+Is not supported in an "implicit" fashion. Look at the methods;
+
+`mapRows`, `mapColumns`, `mapRowsToScalar`, `mapColumnsToScalar`, etc. for explict alternatives to broadcasting. Jury still out on this but I never liked implicit broadcasting so it isn't implemented.
+
 ## Logical Operations
 
 | Operation | vecxt | NumPy | MATLAB |
@@ -140,14 +149,18 @@ Such operations can also be called via `tan(vec)`, `exp(matrix)`, etc.
 | Boolean indexing | `a(a > 2.0)` | `a[a > 0.5]` | `a(a > 0.5)` |
 | Count true values | `(a > 2.0).trues` | `np.sum(a > 0.5)` | `sum(a > 0.5)` |
 
-## Array Manipulation
+## Array / Matrix Manipulation
 
 | Operation | vecxt | NumPy | MATLAB |
 |-----------|-------|-------|--------|
 | Extract diagonal | `m.diag` | `np.diag(a)` | `diag(a)` |
-| Create diagonal matrix | `Matrix.diag(a)` | `np.diag(v)` | `diag(v,0)` |
+| Create diagonal matrix | `Matrix.createDiag(a)` | `np.diag(v)` | `diag(v,0)` |
 | Unique values | `vec.unique` | `np.unique(a)` | `unique(a)` |
 | Sort | `narr.sort(vec)()` | `np.sort(a)` | `sort(a)` |
+| Horizontal concatenation | `m.horzcat(n)` or `horzcat(m, n)` | `np.hstack([a, b])` or `np.concatenate([a,b], axis=1)` | `horzcat(a,b)` or `[a b]` |
+| Vertical concatenation | `m.vertcat(n)` or `vertcat(m, n)` | `np.vstack([a, b])` or `np.concatenate([a,b], axis=0)` | `vertcat(a,b)` or `[a; b]` |
+| Repeat array | `NArray.tabulate(vec.length * n)(i => vec(i % vec.length))` | `np.tile(a, n)` or `np.repeat(a, n)` | `repmat(a, 1, n)` or `repelem(a, n)` |
+
 
 ## Special Operations
 

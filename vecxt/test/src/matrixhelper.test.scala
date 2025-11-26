@@ -26,16 +26,16 @@ class MatrixHelperSuite extends FunSuite:
 
   test("Matrix.diag size 1 populates 1x1 matrix"):
     val diagonal = NArray[Double](42.0)
-    val diagMatrix = Matrix.diag(diagonal)
+    val diagMatrix = Matrix.createDiagonal(diagonal)
     assertDiagonalMatrix(diagonal, diagMatrix)
 
   test("Matrix.diag size 3 builds zero off-diagonal entries"):
     val diagonal = NArray[Double](1.0, -2.5, 7.75)
-    val diagMatrix = Matrix.diag(diagonal)
+    val diagMatrix = Matrix.createDiagonal(diagonal)
     assertDiagonalMatrix(diagonal, diagMatrix)
 
   test("Matrix.diag size 7 handles longer vectors"):
     val diagonal = NArray.tabulate[Double](7)(i => (i + 1) * 0.5)
-    val diagMatrix = Matrix.diag(diagonal)
+    val diagMatrix = Matrix.createDiagonal(diagonal)
     assertDiagonalMatrix(diagonal, diagMatrix)
 end MatrixHelperSuite
