@@ -23,6 +23,12 @@ object CheatsheetTest:
     println(svd(mat))
     println(rank(mat))
 
+    // QR decomposition
+    val matSquare = Matrix(NArray(1.0, 2.0, 3.0, 4.0), 2, 2)
+    val (q, r) = qr(matSquare)
+    println(s"Q matrix shape: ${q.shape}")
+    println(s"R matrix shape: ${r.shape}")
+
     val zeros = Matrix.zeros[Double]((3, 4))(using summon[scala.reflect.ClassTag[Double]])
     println(s"Zeros matrix shape: ${zeros.shape}")
 
