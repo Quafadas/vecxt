@@ -20,9 +20,9 @@ public class cblas_h extends cblas_h$shared {
 
     static final Arena LIBRARY_ARENA = Arena.ofAuto();
 
-    static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.libraryLookup("/opt/homebrew/Cellar/openblas/0.3.30/lib/libopenblas.dylib", LIBRARY_ARENA)
-            .or(SymbolLookup.loaderLookup())
-            .or(Linker.nativeLinker().defaultLookup());
+    static final SymbolLookup SYMBOL_LOOKUP = Linker.nativeLinker()
+        .defaultLookup()
+        .or(SymbolLookup.libraryLookup("/System/Library/Frameworks/Accelerate.framework/Accelerate", LIBRARY_ARENA));
 
     private static final int CblasRowMajor = (int)101L;
     /**

@@ -97,3 +97,9 @@ jextractMLX2:
     --output generated/src/mlx2 \
     --include-dir /Users/simon/Code/mlx-c/ \
     /Users/simon/Code/mlx-c/mlx/c/ops.h
+
+jextractAccelerate:
+  /Users/simon/Code/jextract-1/build/jextract/bin/jextract \
+    -t accelerate.blas \
+    --output generated/src \
+    /Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/Headers/cblas.h
