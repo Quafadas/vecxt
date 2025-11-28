@@ -337,6 +337,40 @@ object arrays:
       end while
     end +=
 
+    inline def minSIMD =
+      var i = 0
+      var acc = IntVector.broadcast(spi, Int.MaxValue)
+
+      while i < spi.loopBound(vec.length) do
+        acc = acc.min(IntVector.fromArray(spi, vec, i))
+        i += spil
+      end while
+
+      var temp = acc.reduceLanes(VectorOperators.MIN)
+
+      while i < vec.length do
+        temp = Math.min(temp, vec(i))
+        i += 1
+      end while
+      temp
+
+    inline def maxSIMD =
+      var i = 0
+      var acc = IntVector.broadcast(spi, Int.MinValue)
+
+      while i < spi.loopBound(vec.length) do
+        acc = acc.max(IntVector.fromArray(spi, vec, i))
+        i += spil
+      end while
+
+      var temp = acc.reduceLanes(VectorOperators.MAX)
+
+      while i < vec.length do
+        temp = Math.max(temp, vec(i))
+        i += 1
+      end while
+      temp
+
   end extension
 
   extension [@specialized(Double, Int) A](vec: Array[A])(using ClassTag[A])
