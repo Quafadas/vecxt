@@ -29,7 +29,7 @@ object `package` extends ScalaModule {
         }
     }
 
-    def scalaVersion = "3.7.3"
+    def scalaVersion = build.vecxt.jvm.scalaVersion
     override def compileResources = Task {
         super.compileResources() ++ resources()
     }

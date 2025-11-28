@@ -15,15 +15,15 @@
  */
 package vecxt
 
+import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 
+import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 
 import narr.*
-import scala.reflect.ClassTag
-import vecxt.JsNativeBooleanArrays.trues
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
@@ -82,14 +82,6 @@ object arrays:
     end ||
   end extension
 
-  extension (vec: NArray[Double])
-    inline def update(idx: Int, d: Double)(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
-      indexCheck(vec, idx)
-      vec(idx) = d
-    end update
-
-  end extension
-
   extension (vec: NArray[Int])
 
     def apply(index: js.Array[Boolean]): NArray[Int] =
@@ -140,7 +132,7 @@ object arrays:
       Math.sqrt(diffs_2.sum / (vec.length - 1))
     end stdDev
 
-    inline def mean: Double = vec.sum / vec.length
+    inline def mean: Double = vec.sumSIMD / vec.length
 
     inline def sum: Double =
       var sum = 0.0

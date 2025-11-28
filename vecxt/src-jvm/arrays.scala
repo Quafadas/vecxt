@@ -18,19 +18,19 @@
  */
 package vecxt
 
+import scala.reflect.ClassTag
 import scala.util.chaining.*
 
+import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
-import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorMask
-import scala.reflect.ClassTag
-import scala.util.control.Breaks.*
+import jdk.incubator.vector.VectorOperators
 
 object arrays:
 
@@ -42,112 +42,33 @@ object arrays:
   final val spbl = spb.length()
   final val spil = spi.length()
 
-  extension (vec: Array[Boolean])
-    // TODO, benchmark
-    inline def allTrue: Boolean =
-      var out = true
-      var i = 0
-      breakable {
-        while i < spb.loopBound(vec.length) do
-          if !VectorMask.fromArray(spb, vec, i).allTrue then
-            out = false
-            break
-          end if
-          i += spbl
-        end while
-      }
+  /** Generates a vector of linearly spaced values between a and b (inclusive). The returned vector will have length
+    * elements, defaulting to 100.
+    */
+  def linspace(a: Double, b: Double, length: Int = 100): Array[Double] =
 
-      if out then
-        while i < vec.length do
-          if !vec(i) then out = false
-          end if
-          i += 1
-        end while
+    val result = new Array[Double](length)
+    val increment = (b - a) / (length - 1)
 
-      end if
-      out
-    end allTrue
+    var i = 0
+    val loopBound = spd.loopBound(length)
 
-    inline def any: Boolean =
-      var out = false
-      var i = 0
-      breakable {
-        while i < spb.loopBound(vec.length) do
-          if VectorMask.fromArray(spb, vec, i).anyTrue() then
-            out = true
-            break
-          end if
-          i += spbl
-        end while
-      }
+    // SIMD loop
+    while i < loopBound do
+      val indices = DoubleVector.fromArray(spd, Array.tabulate(spd.length())(j => (i + j).toDouble), 0)
+      val values = indices.mul(increment).add(a)
+      values.intoArray(result, i)
+      i += spdl
+    end while
 
-      if !out then
-        while i < vec.length do
-          if vec(i) then out = true
-          end if
-          i += 1
-        end while
+    // Scalar tail
+    while i < length do
+      result(i) = a + increment * i
+      i += 1
+    end while
 
-      end if
-      out
-    end any
-
-    inline def trues: Int =
-      var i = 0
-      var sum = 0
-
-      while i < spb.loopBound(vec.length) do
-        sum += VectorMask.fromArray(spb, vec, i).trueCount()
-        i += spbl
-      end while
-
-      while i < vec.length do
-        if vec(i) then sum += 1
-        end if
-        i += 1
-      end while
-      sum
-    end trues
-
-    inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
-      val result: Array[Boolean] = new Array[Boolean](vec.length)
-      var i = 0
-
-      while i < spb.loopBound(vec.length) do
-        ByteVector
-          .fromBooleanArray(spb, vec, i)
-          .and(ByteVector.fromBooleanArray(spb, thatIdx, i))
-          .intoBooleanArray(result, i)
-        i += spbl
-      end while
-
-      while i < vec.length do
-        result(i) = vec(i) && thatIdx(i)
-        i += 1
-      end while
-      result
-    end &&
-
-    inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
-
-      val result: Array[Boolean] = new Array[Boolean](vec.length)
-      var i = 0
-
-      while i < spb.loopBound(vec.length) do
-        ByteVector
-          .fromBooleanArray(spb, vec, i)
-          .or(ByteVector.fromBooleanArray(spb, thatIdx, i))
-          .intoBooleanArray(result, i)
-        i += spbl
-      end while
-
-      while i < vec.length do
-        result(i) = vec(i) || thatIdx(i)
-        i += 1
-      end while
-      result
-    end ||
-  end extension
+    result
+  end linspace
 
   extension (vec: Array[Int])
 
@@ -633,6 +554,38 @@ object arrays:
     inline def `sinh!`: Unit =
       unaryOp(VectorOperators.SINH)
 
+    inline def `tan!`: Unit =
+      unaryOp(VectorOperators.TAN)
+
+    inline def tan: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.TAN))
+
+    inline def `tanh!`: Unit =
+      unaryOp(VectorOperators.TANH)
+
+    inline def tanh: Array[Double] =
+      vec.clone().tap(_.unaryOp(VectorOperators.TANH))
+
+    inline def `**!`(power: Double): Unit =
+      var i = 0
+      val bp = DoubleVector.broadcast(spd, power)
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .lanewise(VectorOperators.POW, bp)
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) = Math.pow(vec(i), power)
+        i += 1
+      end while
+    end `**!`
+
+    inline def **(power: Double): Array[Double] =
+      vec.clone().tap(_.`**!`(power))
+
     inline def increments: Array[Double] =
       val out = new Array[Double](vec.length)
 
@@ -975,6 +928,14 @@ object arrays:
 
     end `clamp!`
 
+    /** Clamps the values in the array to a specified range.
+      * @param ceil
+      *   The maximum value to clamp to.
+      * @param floor
+      *   The minimum value to clamp to.
+      * @return
+      *   A new array with values clamped to the specified range.
+      */
     inline def clamp(floor: Double, ceil: Double): Array[Double] =
       vec.clone.tap(_.`clamp!`(floor, ceil))
 
@@ -1175,6 +1136,23 @@ object arrays:
       end while
       out
     end *
+
+    inline def *=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, d)
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .mul(DoubleVector.fromArray(spd, d, i))
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) = vec(i) * d(i)
+        i = i + 1
+      end while
+    end *=
 
     inline def /(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, d)

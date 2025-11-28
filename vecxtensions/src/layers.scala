@@ -17,7 +17,6 @@
 package vecxt.reinsurance
 
 import java.util.UUID
-import vecxt.arrays.*
 
 case class Layer(
     layerId: UUID = UUID.randomUUID(),

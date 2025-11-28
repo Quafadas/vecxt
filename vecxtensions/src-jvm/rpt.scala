@@ -2,13 +2,6 @@ package vecxt.reinsurance
 import vecxt.reinsurance.Limits.*
 import vecxt.reinsurance.Retentions.*
 
-/*
-  Retention and limit are known constants
-
-  f(X;retention, limit) = MIN(MAX(X - retention, 0), limit))
-
-  Note: mutates the input array
- */
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
 object rpt:

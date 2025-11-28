@@ -1,11 +1,10 @@
 package vecxt
 
-import scala.compiletime.*
 import scala.reflect.ClassTag
 
-import BoundsCheck.BoundsCheck
-import matrix.*
-
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.matrix.*
+import vecxt.MatrixInstance.apply
 import narr.*
 
 object MatrixHelper:
@@ -147,6 +146,117 @@ object MatrixHelper:
       end while
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end zerosOf
+
+    inline def rand(rows: Int, cols: Int)(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      val size = rows * cols
+      val newArr = NArray.ofSize[Double](size)
+      val rng = new scala.util.Random()
+      var i = 0
+      while i < size do
+        newArr(i) = rng.nextDouble()
+        i += 1
+      end while
+      Matrix[Double](newArr, (rows, cols))
+    end rand
+
+    inline def rand(dim: RowCol)(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      rand(dim._1, dim._2)
+    end rand
+
+    inline def randInt(rows: Int, cols: Int, minVal: Int, maxVal: Int)(using
+        inline boundsCheck: BoundsCheck
+    ): Matrix[Int] =
+      val size = rows * cols
+      val newArr = NArray.ofSize[Int](size)
+      val rng = new scala.util.Random()
+      val range = maxVal - minVal
+      var i = 0
+      while i < size do
+        newArr(i) = minVal + rng.nextInt(range)
+        i += 1
+      end while
+      Matrix[Int](newArr, (rows, cols))
+    end randInt
+
+    inline def randInt(rows: Int, cols: Int)(using inline boundsCheck: BoundsCheck): Matrix[Int] =
+      randInt(rows, cols, 0, 100)
+    end randInt
+
+    inline def randInt(dim: RowCol, minVal: Int, maxVal: Int)(using
+        inline boundsCheck: BoundsCheck
+    ): Matrix[Int] =
+      randInt(dim._1, dim._2, minVal, maxVal)
+    end randInt
+
+    inline def randInt(dim: RowCol)(using inline boundsCheck: BoundsCheck): Matrix[Int] =
+      randInt(dim._1, dim._2, 0, 100)
+    end randInt
+
+    /** Tiles a matrix by repeating it in a grid pattern.
+      *
+      * Creates a new matrix by replicating the input matrix `rowsN` times vertically and `colsN` times horizontally.
+      * The resulting matrix will have dimensions `(inM.rows * rowsN, inM.cols * colsN)`.
+      *
+      * @tparam A
+      *   the type of elements in the matrix
+      * @param inM
+      *   the input matrix to be tiled
+      * @param rowsN
+      *   the number of times to repeat the matrix vertically
+      * @param colsN
+      *   the number of times to repeat the matrix horizontally
+      * @return
+      *   a new matrix containing the tiled pattern
+      * @example
+      *   {{{
+      * val m = Matrix(Array(1, 2, 3, 4), 2, 2)  // [[1, 3], [2, 4]]
+      * val tiled = tile(m, 2, 3)
+      * // Results in a 4x6 matrix with m repeated 2 times vertically and 3 times horizontally
+      *   }}}
+      */
+    inline def tile[A](inM: Matrix[A], rowsN: Int, colsN: Int)(using ClassTag[A]): Matrix[A] =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+
+      val newArr = NArray.ofSize[A](inM.numel * rowsN * colsN)
+      var r = 0
+      while r < rowsN do
+        var c = 0
+        while c < colsN do
+          var i = 0
+          while i < inM.rows do
+            var j = 0
+            while j < inM.cols do
+              val destRow = r * inM.rows + i
+              val destCol = c * inM.cols + j
+              newArr(destCol * (inM.rows * rowsN) + destRow) = inM(i, j)
+              j += 1
+            end while
+            i += 1
+          end while
+          c += 1
+        end while
+        r += 1
+      end while
+
+      Matrix(newArr, inM.rows * rowsN, inM.cols * colsN)
+    end tile
+
+    inline def createDiagonal(v: NArray[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      val size = v.length
+      val newArr = NArray.ofSize[Double](size * size)
+      var j = 0
+      while j < newArr.length do
+        newArr(j) = 0.0
+        j += 1
+      end while
+
+      var i = 0
+      while i < size do
+        newArr(i * size + i) = v(i)
+        i += 1
+      end while
+      Matrix[Double](newArr, (size, size))
+    end createDiagonal
 
   end extension
 

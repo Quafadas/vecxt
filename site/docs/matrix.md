@@ -99,6 +99,8 @@ mat1.log.printMat
 mat1.horzcat(mat1).printMat
 mat2.vertcat(mat2).printMat
 
+mat1.hadamard(mat1).printMat
+
 ```
 
 ## Slicing

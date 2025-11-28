@@ -1,8 +1,9 @@
 package vecxt
+import scala.annotation.publicInBinary
+
 import vecxt.BoundsCheck.BoundsCheck
 
 import narr.*
-import scala.annotation.publicInBinary
 
 object matrix:
 

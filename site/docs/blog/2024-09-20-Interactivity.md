@@ -1,6 +1,5 @@
----
-title: Linear Algebra in Browser
----
+# Linear Algebra in Browser
+
 
 One of the more exciting opportunities in `vecxt` is that it can run in the browser - and that can make things more fun.
 
@@ -28,7 +27,7 @@ I wanted to be able to display linear algebra in a canoncail way. Fortunately, w
 </mfenced>
 </math>
 
-As it's just xml, it feels like we should be able to write an extension method for our [[vecxt.Matrix]] type, which  can render it nicely in browser. Even cooler, because it's just part of the DOM, we should be able to wheel in Laminar, and get beautiful reactive rendering, interactive calculations, plots... all that stuff.
+As it's just xml, it feels like we should be able to write an extension method for our `Matrix` type, which  can render it nicely in browser. Even cooler, because it's just part of the DOM, we should be able to wheel in Laminar, and get beautiful reactive rendering, interactive calculations, plots... all that stuff.
 
 Practically, it turns out to be more challenging. Like `SVG`, apparntly MathML is not part of the standard html set, and so requires a different set of tags. Or something. There is an [initial PR to scala-dom-types](https://github.com/raquo/scala-dom-types/pull/105), which I hope could turn into a way to do this propertly.
 

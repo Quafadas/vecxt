@@ -10,6 +10,7 @@ object `package` extends JmhModule with ScalaModule {
     def jmhCoreVersion = "1.37"
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)
+    def enableBsp = false
 
     // override def generateBenchmarkSources = T{
     //   val dest = T.ctx().dest

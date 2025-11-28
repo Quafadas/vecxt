@@ -20,6 +20,7 @@ import narr.*
 import matrix.Matrix
 import munit.Assertions.*
 import all.*
+import scala.annotation.targetName
 
 extension [A <: AnyRef](o: A) def some: Some[A] = Some(o)
 end extension
@@ -55,6 +56,17 @@ def assertMatrixEquals(m1: Matrix[Double], m2: Matrix[Double])(implicit loc: mun
   assertEquals(m1.cols, m2.cols)
   for i <- 0 until m1.rows do
     for j <- 0 until m1.cols do assertEqualsDouble(m1(i, j), m2(i, j), 1 / 1e6, clue = s"at row $i, col $j")
+    end for
+  end for
+end assertMatrixEquals
+
+@targetName("assertMatrixEqualsInt")
+def assertMatrixEquals(m1: Matrix[Int], m2: Matrix[Int])(implicit loc: munit.Location): Unit =
+  import BoundsCheck.DoBoundsCheck.yes
+  assertEquals(m1.rows, m2.rows)
+  assertEquals(m1.cols, m2.cols)
+  for i <- 0 until m1.rows do
+    for j <- 0 until m1.cols do assertEquals(m1(i, j), m2(i, j), clue = s"at row $i, col $j")
     end for
   end for
 end assertMatrixEquals

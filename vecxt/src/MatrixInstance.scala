@@ -1,18 +1,15 @@
 package vecxt
 
-import narr.*
-import BoundsCheck.BoundsCheck
-
-import rangeExtender.*
-
 import scala.annotation.targetName
-
 import scala.reflect.ClassTag
 
-import matrix.*
-import MatrixHelper.zeros
-import all.printMat
+import vecxt.BoundsCheck.BoundsCheck
 import vecxt.IntArrays.contiguous
+import vecxt.MatrixHelper.zeros
+import vecxt.matrix.*
+import vecxt.rangeExtender.*
+
+import narr.*
 
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
@@ -127,10 +124,23 @@ object MatrixInstance:
       * @return
       */
     def deepCopy(using ct: ClassTag[A]): Matrix[A] =
+      deepCopy(asRowMajor = false)
+    end deepCopy
+
+    /** Returns a deep copy of the matrix with specified layout. Copies elements one by one.
+      *
+      * @param asRowMajor
+      *   If true, returns row-major layout; if false, returns column-major layout
+      * @param ct
+      * @return
+      */
+    def deepCopy(asRowMajor: Boolean)(using ct: ClassTag[A]): Matrix[A] =
       // println(s"Deep copying matrix with shape ${m.shape} and offset ${m.offset}")
       import BoundsCheck.DoBoundsCheck.no
       val newRaw = NArray.ofSize[A](m.numel)
-      val newMat = Matrix(newRaw, m.rows, m.cols, 1, m.rows, 0)
+      val newMat =
+        if asRowMajor then Matrix(newRaw, m.rows, m.cols, m.cols, 1, 0) // row-major: rowStride = cols, colStride = 1
+        else Matrix(newRaw, m.rows, m.cols, 1, m.rows, 0) // column-major: rowStride = 1, colStride = rows
       var i = 0
       for row <- 0 until m.rows do
         for col <- 0 until m.cols do

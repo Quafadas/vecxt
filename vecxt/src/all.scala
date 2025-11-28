@@ -1,12 +1,16 @@
 package vecxt
 
 object all:
+  // Bounds checks this is a given so that it can be inlined and optimized away
+  export vecxt.BoundsCheck.DoBoundsCheck.yes
+
+
   // arrays
   export vecxt.arrayUtil.*
   export vecxt.arrays.*
   export vecxt.DoubleArrays.*
   // export vecxt.JsNativeDoubleArrays.*
-  export vecxt.JsNativeBooleanArrays.*
+  export vecxt.BooleanArrays.*
 
   // matricies
   export vecxt.OneAndZero.given_OneAndZero_Boolean
@@ -22,7 +26,13 @@ object all:
   export vecxt.JvmNativeDoubleMatrix.*
   export vecxt.dimensionExtender.DimensionExtender.*
   export vecxt.IntArrays.*
-
+  export vecxt.Determinant.* // Import determinant implementations
+  export vecxt.Svd.* // JS and native are stubs
+  export vecxt.Cholesky.* // JS and native are stubs
+  export vecxt.Eigenvalues.* // JS and native are stubs
+  export vecxt.LU.* // JS and native are stubs
+  export vecxt.Solve.* // JS and native are stubs
+  export vecxt.QR.* // JS and native are stubs
   // Random
   export vecxt.cosineSimilarity
 end all

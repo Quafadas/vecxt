@@ -1,22 +1,15 @@
 package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.JvmDoubleMatrix.*
-import vecxt.JsNativeDoubleArrays.*
-import vecxt.arrays.*
-import vecxt.matrix.*
-
-// These are used in cross compilation.
-import vecxt.JsDoubleMatrix.*
-import vecxt.NativeDoubleMatrix.*
-
-import vecxt.matrixUtil.*
-import scala.annotation.targetName
 import vecxt.MatrixInstance.*
+import vecxt.all.`matmulInPlace!`
+import vecxt.arrays.*
+import vecxt.dimensionExtender.DimensionExtender.*
+import vecxt.matrix.*
+import vecxt.matrixUtil.*
+import vecxt.MatrixHelper.createDiagonal
 
 import narr.*
-import dimensionExtender.DimensionExtender.*
-import arrayUtil.printArr
 
 object DoubleMatrix:
 
@@ -90,6 +83,33 @@ object DoubleMatrix:
 
     end +
 
+    inline def maximum(other: Matrix[Double])(using inline boundsCheck: BoundsCheck) =
+      sameDimMatCheck(m, other)
+      val newArr = NArray.ofSize[Double](m.numel)
+
+      // TODO: SIMD optimization
+      if sameDenseElementWiseMemoryLayoutCheck(m, other) then
+        var i = 0
+        while i < m.numel do
+          newArr(i) = math.max(m.raw(i), other.raw(i))
+          i += 1
+        end while
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = i * m.rowStride + j * m.colStride + m.offset
+            val idxOther = i * other.rowStride + j * other.colStride + other.offset
+            newArr(i * m.cols + j) = math.max(m.raw(idx), other.raw(idxOther))
+            j += 1
+          end while
+          i += 1
+        end while
+      end if
+      Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+    end maximum
+
     inline def -(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.arrays.-(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
@@ -138,13 +158,46 @@ object DoubleMatrix:
 
     inline def +(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m +:+ m2
 
+    inline def *(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.hadamard(m2)
+
+    inline def kronecker(other: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = ???
+
     inline def hadamard(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
 
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
+        // Fast path: use SIMD-optimized array multiplication
         val newArr = vecxt.arrays.*(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        // Different memory layouts: materialize one matrix to match the other's layout
+        if m.isDenseColMajor then
+          // m is dense column-major, materialize m2 to column-major and multiply in-place
+          val m2Dense = m2.deepCopy(asRowMajor = false)
+          vecxt.arrays.*=(m2Dense.raw)(m.raw)
+          m2Dense
+        else if m.isDenseRowMajor then
+          // m is dense row-major, materialize m2 to row-major and multiply in-place
+          val m2Dense = m2.deepCopy(asRowMajor = true)
+          vecxt.arrays.*=(m2Dense.raw)(m.raw)
+          m2Dense
+        else if m2.isDenseColMajor then
+          // m2 is dense column-major, materialize m to column-major and multiply in-place
+          val mDense = m.deepCopy(asRowMajor = false)
+          vecxt.arrays.*=(mDense.raw)(m2.raw)
+          mDense
+        else if m2.isDenseRowMajor then
+          // m2 is dense row-major, materialize m to row-major and multiply in-place
+          val mDense = m.deepCopy(asRowMajor = true)
+          vecxt.arrays.*=(mDense.raw)(m2.raw)
+          mDense
+        else
+          // Neither is dense, materialize both to column-major and use SIMD multiplication
+          val mDense = m.deepCopy(asRowMajor = false)
+          val m2Dense = m2.deepCopy(asRowMajor = false)
+          val newArr = vecxt.arrays.*(mDense.raw)(m2Dense.raw)
+          Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        end if
       end if
     end hadamard
 
@@ -230,6 +283,24 @@ object DoubleMatrix:
 
     inline def `cos!` = vecxt.arrays.`cos!`(m.raw)
 
+    inline def tan =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Double](vecxt.all.tan(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+
+    inline def `tan!` =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.`tan!`(m.raw)
+      else ???
+
+    inline def mean: Double =
+      if m.hasSimpleContiguousMemoryLayout then m.sumSIMD / (m.rows * m.cols)
+      else ???
+
+    inline def **(power: Double): Matrix[Double] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Double](vecxt.all.**(m.raw)(power), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+
     private inline def reduceAlongDimension(
         dim: DimensionExtender,
         inline op: (Double, Double) => Double,
@@ -287,9 +358,19 @@ object DoubleMatrix:
     end trace
 
     inline def sum: Double = sumSIMD
+
     inline def sumSIMD: Double =
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.sum(m.raw)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.sumSIMD(m.raw)
       else ???
+
+    inline def norm: Double =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.all.norm(m.raw)
+      else ???
+
+    // Note: det method is provided by platform-specific implementations
+    // See: vecxt.JvmDeterminant (JVM with SIMD) and vecxt.JsNativeDeterminant (JS/Native)
+
+    // inline def >=(d: Double): Matrix[Boolean] =
 
     // inline def >=(d: Double): Matrix[Boolean] =
     //   Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)

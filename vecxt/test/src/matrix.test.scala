@@ -38,6 +38,10 @@ class MatrixExtensionSuite extends FunSuite:
 
   def raw1to9 = mat1to9.raw
 
+  test("pow") {
+    mat1to9 ** 2.0
+  }
+
   test("from rows") {
     assert(mat1to9.isDenseColMajor)
 
@@ -99,6 +103,44 @@ class MatrixExtensionSuite extends FunSuite:
 
     val prodC = mat1.product(Cols)
     assertMatrixEquals(prodC, Matrix[Double](NArray[Double](8.0, 90.0), (1, 2)))
+  }
+
+  test("element-wise maximum - simple contiguous layout") {
+    val mat1 = Matrix.fromRows[Double](
+      NArray(1.0, 5.0, 3.0),
+      NArray(2.0, 1.0, 6.0)
+    )
+    val mat2 = Matrix.fromRows[Double](
+      NArray(4.0, 2.0, 7.0),
+      NArray(1.0, 3.0, 5.0)
+    )
+    val result = mat1.maximum(mat2)
+
+    val expected = Matrix.fromRows[Double](
+      NArray(4.0, 5.0, 7.0),
+      NArray(2.0, 3.0, 6.0)
+    )
+    assertMatrixEquals(result, expected)
+  }
+
+  test("element-wise maximum - non-contiguous layout") {
+    // Create matrices with non-standard strides
+    val mat1 = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3, 3, 1, 0)
+    val mat2 = Matrix[Double](NArray(6.0, 5.0, 4.0, 3.0, 2.0, 1.0), 2, 3, 3, 1, 0)
+    val result = mat1.maximum(mat2)
+
+    // Expected result: element-wise max
+    val expected = Matrix[Double](NArray(6.0, 5.0, 4.0, 4.0, 5.0, 6.0), 2, 3)
+    assertMatrixEquals(result, expected)
+  }
+
+  test("element-wise maximum - identical matrices") {
+    val mat1 = Matrix.fromRows[Double](
+      NArray(1.0, 2.0),
+      NArray(3.0, 4.0)
+    )
+    val result = mat1.maximum(mat1)
+    assertMatrixEquals(result, mat1)
   }
 
   test("Some urnary ops") {
@@ -482,6 +524,49 @@ class MatrixExtensionSuite extends FunSuite:
     )
   }
 
+  test("nonEmptyMatCheck throws on empty matrix") {
+    // 0x0 matrix should be considered empty
+    intercept[MatrixEmptyException] {
+      val empty = Matrix[Double](NArray.empty[Double], (0, 0))
+      nonEmptyMatCheck(empty)
+    }
+
+    // 0xN matrix should be considered empty
+    intercept[MatrixEmptyException] {
+      val emptyRows = Matrix[Double](NArray.empty[Double], (0, 3))
+      nonEmptyMatCheck(emptyRows)
+    }
+
+    // Nx0 matrix should be considered empty
+    intercept[MatrixEmptyException] {
+      val emptyCols = Matrix[Double](NArray.empty[Double], (3, 0))
+      nonEmptyMatCheck(emptyCols)
+    }
+  }
+
+  test("nonEmptyMatCheck passes on non-empty matrix") {
+    val mat = Matrix.eye[Double](2)
+    // Should not throw
+    nonEmptyMatCheck(mat)
+  }
+
+  test("squareMatCheck throws on non-square matrix") {
+    val mat = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](4.0, 5.0, 6.0)
+    )
+
+    intercept[MatrixNotSquareException] {
+      squareMatCheck(mat)
+    }
+  }
+
+  test("squareMatCheck passes on square matrix") {
+    val mat = Matrix.eye[Double](3)
+    // Should not throw
+    squareMatCheck(mat)
+  }
+
   test("update") {
     val mat = Matrix.fromRows[Double](
       NArray[Double](1.0, 2.0, 3.0),
@@ -563,6 +648,113 @@ class MatrixExtensionSuite extends FunSuite:
     val mat2 = Matrix.eye[Double](3) * 2
     val result = mat1.hadamard(mat2)
     assertVecEquals[Double](result.raw, NArray[Double](2.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 2.0))
+  }
+
+  test("hadamard product with non-simple layout") {
+    // Create base matrices
+    val base1 = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 1).toDouble), 3, 3)
+    val base2 = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 10).toDouble), 3, 3)
+
+    // Create views with non-simple layouts
+    val view1 = base1(::, NArray(1, 2)) // columns 1 and 2
+    val view2 = base2(::, NArray(1, 2)) // columns 1 and 2
+
+    // Compute hadamard product
+    val result = view1.hadamard(view2)
+
+    // Expected values (column-major):
+    // view1 columns 1,2 of base1 = [[4,7], [5,8], [6,9]]
+    // view2 columns 1,2 of base2 = [[13,16], [14,17], [15,18]]
+    // hadamard should give element-wise multiplication
+    assert(result.rows == 3)
+    assert(result.cols == 2)
+    assertEqualsDouble(result(0, 0), 4.0 * 13.0, 0.0001) // 52
+    assertEqualsDouble(result(1, 0), 5.0 * 14.0, 0.0001) // 70
+    assertEqualsDouble(result(2, 0), 6.0 * 15.0, 0.0001) // 90
+    assertEqualsDouble(result(0, 1), 7.0 * 16.0, 0.0001) // 112
+    assertEqualsDouble(result(1, 1), 8.0 * 17.0, 0.0001) // 136
+    assertEqualsDouble(result(2, 1), 9.0 * 18.0, 0.0001) // 162
+  }
+
+  test("hadamard product with mixed layouts") {
+    // One matrix with simple layout, one with non-simple
+    val simple = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 3, 2)
+    val base = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 10).toDouble), 3, 3)
+    val view = base(::, NArray(0, 2)) // columns 0 and 2
+
+    val result = simple.hadamard(view)
+
+    assert(result.rows == 3)
+    assert(result.cols == 2)
+    assertEqualsDouble(result(0, 0), 1.0 * 10.0, 0.0001)
+    assertEqualsDouble(result(1, 0), 2.0 * 11.0, 0.0001)
+    assertEqualsDouble(result(2, 0), 3.0 * 12.0, 0.0001)
+    assertEqualsDouble(result(0, 1), 4.0 * 16.0, 0.0001)
+    assertEqualsDouble(result(1, 1), 5.0 * 17.0, 0.0001)
+    assertEqualsDouble(result(2, 1), 6.0 * 18.0, 0.0001)
+  }
+
+  test("hadamard product with transposed matrix") {
+    val mat1 = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)
+    val mat2 = Matrix[Double](NArray(10.0, 20.0, 30.0, 40.0, 50.0, 60.0), 3, 2)
+
+    // Transpose mat2 to have the same shape as mat1
+    val mat2T = mat2.transpose
+
+    assert(mat1.rows == mat2T.rows)
+    assert(mat1.cols == mat2T.cols)
+
+    val result = mat1.hadamard(mat2T)
+
+    assert(result.rows == 2)
+    assert(result.cols == 3)
+    // mat1 (col-major 2x3): [[1,3,5], [2,4,6]]
+    // mat2 (col-major 3x2): [[10,40], [20,50], [30,60]]
+    // mat2T (row-major 2x3): [[10,20,30], [40,50,60]]
+    assertEqualsDouble(result(0, 0), 1.0 * 10.0, 0.0001) // 10
+    assertEqualsDouble(result(1, 0), 2.0 * 40.0, 0.0001) // 80
+    assertEqualsDouble(result(0, 1), 3.0 * 20.0, 0.0001) // 60
+    assertEqualsDouble(result(1, 1), 4.0 * 50.0, 0.0001) // 200
+    assertEqualsDouble(result(0, 2), 5.0 * 30.0, 0.0001) // 150
+    assertEqualsDouble(result(1, 2), 6.0 * 60.0, 0.0001) // 360
+  }
+
+  test("symmetricMatCheck passes on symmetric matrix") {
+    val mat = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](2.0, 4.0, 5.0),
+      NArray[Double](3.0, 5.0, 6.0)
+    )
+
+    // Should not throw for exactly symmetric matrix
+    symmetricMatCheck(mat)
+
+    // With a small tolerance, still should not throw
+    symmetricMatCheck(mat, tol = 1e-2)
+  }
+
+  test("symmetricMatCheck throws on non-symmetric matrix with correct indices and values") {
+    // Start with a symmetric matrix
+    val base = Matrix.fromRows[Double](
+      NArray[Double](1.0, 2.0, 3.0),
+      NArray[Double](2.0, 4.0, 5.0),
+      NArray[Double](3.0, 5.0, 6.0)
+    )
+
+    // Introduce asymmetry at (1,0) vs (0,1)
+    val mat = base.deepCopy
+    mat(1, 0) = 10.0 // now mat(1,0) != mat(0,1)
+
+    val ex = intercept[MatrixNotSymmetricException] {
+      symmetricMatCheck(mat, tol = 1e-12)
+    }
+
+    assertEquals(ex.rows, mat.rows)
+    assertEquals(ex.cols, mat.cols)
+    assertEquals(ex.i, 1)
+    assertEquals(ex.j, 0)
+    assertEqualsDouble(ex.valueIJ, mat(1, 0), 0.0, "valueIJ should match mat(1,0)")
+    assertEqualsDouble(ex.valueJI, mat(0, 1), 0.0, "valueJI should match mat(0,1)")
   }
 
   test("map rows") {

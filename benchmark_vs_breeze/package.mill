@@ -8,6 +8,7 @@ import contrib.jmh.JmhModule
 object `package` extends JmhModule with ScalaModule {
     def scalaVersion = build.vecxt.jvm.scalaVersion
     def jmhCoreVersion = "1.37"
+    def enableBsp = false
     override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm)
     override def mvnDeps = super.mvnDeps() ++ Seq(

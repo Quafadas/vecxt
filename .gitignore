@@ -19,7 +19,7 @@ tags
 .bsp/
 .bloop/
 metals.sbt
-.vscode
+.vscode/settings.json
 sbt-launch.jar
 .scala-build
 .DS_Store
@@ -38,3 +38,4 @@ weights1.csv
 weights2.csv
 biases1.csv
 biases2.csv
+.DS_Store

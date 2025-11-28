@@ -11,7 +11,7 @@ on:
   pull_request:
     branches: ['**', '!update/**', '!pr/**']
   push:
-    branches: ['**', '!update/**', '!pr/**', '!benchmark']
+    branches: [main]
     tags: [v*]
 
 env:
@@ -69,6 +69,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+
       - name: formatCheck
         run: ./millw mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 
@@ -136,7 +137,6 @@ jobs:
 
 
   site:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -155,11 +155,17 @@ jobs:
             chmod +x aggregate.sh
             ./aggregate.sh
 
-      - name: Switch to main branch
+      - name: Switch to target branch
         run: |
-          git fetch origin main
-          git checkout -f main
-          git reset --hard origin/main
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin ${{ github.head_ref }}
+            git checkout -f ${{ github.head_ref }}
+            git reset --hard origin/${{ github.head_ref }}
+          else
+            git fetch origin main
+            git checkout -f main
+            git reset --hard origin/main
+          fi
           ls
 
       - name: Copy benchmark results into docs generation
@@ -177,6 +183,7 @@ jobs:
           if-no-files-found: error
 
   deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: site
     permissions:
       pages: write
