@@ -23,7 +23,7 @@ import narr.*
   })
 
   val samplePlot = false
-  val trainSize = 60000
+  val trainSize = 5000
 
   val l1Size = 128
   val l2Size = 64
