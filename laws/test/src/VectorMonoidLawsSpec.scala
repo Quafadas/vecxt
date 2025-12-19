@@ -20,26 +20,26 @@ import cats.kernel.laws.discipline.{MonoidTests, CommutativeMonoidTests}
 import cats.kernel.Eq
 import munit.DisciplineSuite
 import org.scalacheck.{Arbitrary, Gen}
-import vecxt.laws.{Dimension as LawsDimension}
+import vecxt.laws.Dimension as LawsDimension
 import vecxt.laws.instances.double.*
 
 class VectorMonoidLawsSpec extends DisciplineSuite:
-  
+
   /** Test Monoid laws for a specific dimension */
   def testMonoidLaws(n: Int): Unit =
     // Create dimension witness
     given testDim: LawsDimension = LawsDimension(n)
-    
+
     // Create VectorCommutativeMonoid for this dimension
-    given VectorCommutativeMonoid[Double] = 
+    given VectorCommutativeMonoid[Double] =
       vectorAdditionMonoid(using testDim)
-    
+
     // Arbitrary generator for arrays of this dimension
     // Use smaller values to avoid floating point precision issues
     given Arbitrary[Array[Double]] = Arbitrary(
       Gen.listOfN(n, Gen.choose(-100.0, 100.0)).map(_.toArray)
     )
-    
+
     // Equality instance with tolerance for floating point comparisons
     given Eq[Array[Double]] = Eq.instance((a, b) =>
       if a.length != b.length then false
@@ -49,16 +49,17 @@ class VectorMonoidLawsSpec extends DisciplineSuite:
         while i < a.length && equal do
           equal = Math.abs(a(i) - b(i)) < 1e-10
           i += 1
+        end while
         equal
     )
-    
+
     // Test CommutativeMonoid laws (includes all Monoid laws plus commutativity)
     checkAll(
       s"VectorCommutativeMonoid[dim$n, Double].addition",
       CommutativeMonoidTests[Array[Double]].commutativeMonoid
     )
   end testMonoidLaws
-  
+
   // Test various dimensions
   testMonoidLaws(1)
   testMonoidLaws(3)

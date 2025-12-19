@@ -22,7 +22,7 @@ opaque type Dimension = Int
 
 object Dimension:
   def apply(n: Int): Dimension = n
-  
-  extension (d: Dimension)
-    def size: Int = d
+
+  extension (d: Dimension) def size: Int = d
+  end extension
 end Dimension

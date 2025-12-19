@@ -26,31 +26,33 @@ object double:
     given Semigroup[Double] = Semigroup.instance[Double](_ + _)
     VectorCommutativeMonoid.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(0.0),
-      combineFn = (x, y) => {
+      combineFn = (x, y) =>
         val result = new Array[Double](x.length)
         var i = 0
         while i < x.length do
           result(i) = x(i) + y(i)
           i += 1
+        end while
         result
-      }
     )(using Semigroup[Double], BoundsCheck.DoBoundsCheck.yes)
-  
+  end vectorAdditionMonoid
+
   /** VectorCommutativeMonoid for Array[Double] with element-wise multiplication
-    * 
+    *
     * Note: Element-wise multiplication is commutative
     */
   def vectorMultiplicationMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
     given Semigroup[Double] = Semigroup.instance[Double](_ * _)
     VectorCommutativeMonoid.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(1.0),
-      combineFn = (x, y) => {
+      combineFn = (x, y) =>
         val result = new Array[Double](x.length)
         var i = 0
         while i < x.length do
           result(i) = x(i) * y(i)
           i += 1
+        end while
         result
-      }
     )(using Semigroup[Double], BoundsCheck.DoBoundsCheck.yes)
+  end vectorMultiplicationMonoid
 end double

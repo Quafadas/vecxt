@@ -20,38 +20,44 @@ import cats.kernel.{CommutativeMonoid, Semigroup}
 import vecxt.BoundsCheck
 
 /** A CommutativeMonoid for Array[A] scoped to a specific dimension.
-  * 
-  * This trait extends both VectorMonoid and cats.kernel.CommutativeMonoid,
-  * making it compatible with cats commutative monoid laws testing.
-  * 
-  * @tparam A The element type (must form a Semigroup)
+  *
+  * This trait extends both VectorMonoid and cats.kernel.CommutativeMonoid, making it compatible with cats commutative
+  * monoid laws testing.
+  *
+  * @tparam A
+  *   The element type (must form a Semigroup)
   */
-trait VectorCommutativeMonoid[A] 
-  extends VectorMonoid[A] with CommutativeMonoid[Array[A]]
+trait VectorCommutativeMonoid[A] extends VectorMonoid[A] with CommutativeMonoid[Array[A]]
 
 object VectorCommutativeMonoid:
   /** Summon a VectorCommutativeMonoid instance for a specific dimension and type */
   def apply[A](using vcm: VectorCommutativeMonoid[A]): VectorCommutativeMonoid[A] = vcm
-  
+
   /** Create a VectorCommutativeMonoid instance for a specific dimension
-    * 
-    * @param dim The dimension for this monoid
-    * @param emptyFn Function to create the identity element
-    * @param combineFn Function to combine two arrays (must be commutative)
-    * @param bc BoundsCheck control for dimension validation
+    *
+    * @param dim
+    *   The dimension for this monoid
+    * @param emptyFn
+    *   Function to create the identity element
+    * @param combineFn
+    *   Function to combine two arrays (must be commutative)
+    * @param bc
+    *   BoundsCheck control for dimension validation
     */
   def forDimension[A: Semigroup](dim: Dimension)(
-    emptyFn: => Array[A],
-    combineFn: (Array[A], Array[A]) => Array[A]
-  )(using bc: BoundsCheck.BoundsCheck = BoundsCheck.DoBoundsCheck.yes): VectorCommutativeMonoid[A] = 
+      emptyFn: => Array[A],
+      combineFn: (Array[A], Array[A]) => Array[A]
+  )(using bc: BoundsCheck.BoundsCheck = BoundsCheck.DoBoundsCheck.yes): VectorCommutativeMonoid[A] =
     new VectorCommutativeMonoid[A]:
       val dimension: Dimension = dim
-      
+
       def empty = emptyFn
-      
+
       def combine(x: Array[A], y: Array[A]) =
         if bc == BoundsCheck.DoBoundsCheck.yes then
           validateDim(x)
           validateDim(y)
+        end if
         combineFn(x, y)
+      end combine
 end VectorCommutativeMonoid
