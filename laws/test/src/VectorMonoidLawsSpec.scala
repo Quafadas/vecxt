@@ -35,14 +35,21 @@ class VectorMonoidLawsSpec extends DisciplineSuite:
       vectorAdditionMonoid(using testDim)
     
     // Arbitrary generator for arrays of this dimension
+    // Use smaller values to avoid floating point precision issues
     given Arbitrary[Array[Double]] = Arbitrary(
-      Gen.listOfN(n, Arbitrary.arbitrary[Double]).map(_.toArray)
+      Gen.listOfN(n, Gen.choose(-100.0, 100.0)).map(_.toArray)
     )
     
     // Equality instance with tolerance for floating point comparisons
     given Eq[Array[Double]] = Eq.instance((a, b) =>
-      a.length == b.length && 
-      a.zip(b).forall { case (x, y) => Math.abs(x - y) < 1e-6 }
+      if a.length != b.length then false
+      else
+        var i = 0
+        var equal = true
+        while i < a.length && equal do
+          equal = Math.abs(a(i) - b(i)) < 1e-10
+          i += 1
+        equal
     )
     
     // Test CommutativeMonoid laws (includes all Monoid laws plus commutativity)
