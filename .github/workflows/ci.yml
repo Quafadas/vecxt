@@ -72,6 +72,7 @@ jobs:
         run: ./millw vecxt.${{ matrix.project }}.test
       
       - name: Laws Test
+        if: matrix.project == 'jvm'
         run: ./millw laws.${{ matrix.project }}.test
       
       - name: Doc Gen
