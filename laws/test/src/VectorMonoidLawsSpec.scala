@@ -25,6 +25,11 @@ import vecxt.laws.instances.double.*
 
 class VectorMonoidLawsSpec extends DisciplineSuite:
 
+  // Test constants for floating-point comparisons
+  private val MinTestValue = -100.0
+  private val MaxTestValue = 100.0
+  private val FloatingPointTolerance = 1e-10
+
   /** Test Monoid laws for a specific dimension */
   def testMonoidLaws(n: Int): Unit =
     // Create dimension witness
@@ -35,9 +40,9 @@ class VectorMonoidLawsSpec extends DisciplineSuite:
       vectorAdditionMonoid(using testDim)
 
     // Arbitrary generator for arrays of this dimension
-    // Use smaller values to avoid floating point precision issues
+    // Use bounded values to avoid floating point precision issues
     given Arbitrary[Array[Double]] = Arbitrary(
-      Gen.listOfN(n, Gen.choose(-100.0, 100.0)).map(_.toArray)
+      Gen.listOfN(n, Gen.choose(MinTestValue, MaxTestValue)).map(_.toArray)
     )
 
     // Equality instance with tolerance for floating point comparisons
@@ -47,7 +52,7 @@ class VectorMonoidLawsSpec extends DisciplineSuite:
         var i = 0
         var equal = true
         while i < a.length && equal do
-          equal = Math.abs(a(i) - b(i)) < 1e-10
+          equal = Math.abs(a(i) - b(i)) < FloatingPointTolerance
           i += 1
         end while
         equal

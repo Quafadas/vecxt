@@ -21,9 +21,12 @@ import vecxt.laws.{Dimension, VectorCommutativeMonoid}
 import vecxt.BoundsCheck
 
 object double:
+  // Semigroup instances for Double operations
+  given additionSemigroup: Semigroup[Double] = Semigroup.instance[Double](_ + _)
+  given multiplicationSemigroup: Semigroup[Double] = Semigroup.instance[Double](_ * _)
+
   /** VectorCommutativeMonoid for Array[Double] with element-wise addition */
   def vectorAdditionMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
-    given Semigroup[Double] = Semigroup.instance[Double](_ + _)
     VectorCommutativeMonoid.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(0.0),
       combineFn = (x, y) =>
@@ -34,7 +37,7 @@ object double:
           i += 1
         end while
         result
-    )(using Semigroup[Double], BoundsCheck.DoBoundsCheck.yes)
+    )(using additionSemigroup, BoundsCheck.DoBoundsCheck.yes)
   end vectorAdditionMonoid
 
   /** VectorCommutativeMonoid for Array[Double] with element-wise multiplication
@@ -42,7 +45,6 @@ object double:
     * Note: Element-wise multiplication is commutative
     */
   def vectorMultiplicationMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
-    given Semigroup[Double] = Semigroup.instance[Double](_ * _)
     VectorCommutativeMonoid.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(1.0),
       combineFn = (x, y) =>
@@ -53,6 +55,6 @@ object double:
           i += 1
         end while
         result
-    )(using Semigroup[Double], BoundsCheck.DoBoundsCheck.yes)
+    )(using multiplicationSemigroup, BoundsCheck.DoBoundsCheck.yes)
   end vectorMultiplicationMonoid
 end double
