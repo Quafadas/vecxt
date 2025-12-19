@@ -19,42 +19,37 @@ package vecxt.laws.instances
 import cats.kernel.Semigroup
 import vecxt.laws.{Dimension, VectorCommutativeMonoid}
 import vecxt.BoundsCheck
+import vecxt.all.{given, *}
 
 object double:
   // Semigroup instances for Double operations
   given additionSemigroup: Semigroup[Double] = Semigroup.instance[Double](_ + _)
   given multiplicationSemigroup: Semigroup[Double] = Semigroup.instance[Double](_ * _)
 
-  /** VectorCommutativeMonoid for Array[Double] with element-wise addition */
+  /** VectorCommutativeMonoid for Array[Double] with element-wise addition
+    *
+    * Uses vecxt's optimized array addition operator which leverages SIMD on JVM
+    */
   def vectorAdditionMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
     VectorCommutativeMonoid.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(0.0),
       combineFn = (x, y) =>
-        val result = new Array[Double](x.length)
-        var i = 0
-        while i < x.length do
-          result(i) = x(i) + y(i)
-          i += 1
-        end while
-        result
+        import vecxt.BoundsCheck.DoBoundsCheck.yes
+        x + y
     )(using additionSemigroup, BoundsCheck.DoBoundsCheck.yes)
   end vectorAdditionMonoid
 
   /** VectorCommutativeMonoid for Array[Double] with element-wise multiplication
     *
-    * Note: Element-wise multiplication is commutative
+    * Uses vecxt's optimized array multiplication operator which leverages SIMD on JVM Note: Element-wise multiplication
+    * is commutative
     */
   def vectorMultiplicationMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
     VectorCommutativeMonoid.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(1.0),
       combineFn = (x, y) =>
-        val result = new Array[Double](x.length)
-        var i = 0
-        while i < x.length do
-          result(i) = x(i) * y(i)
-          i += 1
-        end while
-        result
+        import vecxt.BoundsCheck.DoBoundsCheck.yes
+        x * y
     )(using multiplicationSemigroup, BoundsCheck.DoBoundsCheck.yes)
   end vectorMultiplicationMonoid
 end double

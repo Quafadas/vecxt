@@ -70,6 +70,10 @@ jobs:
 
       - name: Test
         run: ./millw vecxt.${{ matrix.project }}.test
+      
+      - name: Laws Test
+        run: ./millw laws.${{ matrix.project }}.test
+      
       - name: Doc Gen
         run: ./millw site.siteGen
 
