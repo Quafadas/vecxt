@@ -39,6 +39,7 @@ object `package` extends Module {
   object js extends LawsModule with build.CommonJS {
     def moduleDeps = Seq(build.vecxt.js)
     def moduleKind = ModuleKind.ESModule
+    override def enableBsp = false
     
     object test extends ScalaJSTests, TestModule.Munit {
       def moduleDeps = Seq(js)
@@ -56,7 +57,7 @@ object `package` extends Module {
 
   object native extends LawsModule with build.CommonNative {
     def moduleDeps = Seq(build.vecxt.native)
-    
+    override def enableBsp = false
     override def mvnDeps = super[LawsModule].mvnDeps() ++ super[CommonNative].mvnDeps()
     
     object test extends ScalaNativeTests, TestModule.Munit {

@@ -20,6 +20,7 @@ import cats.kernel.laws.discipline.{MonoidTests, CommutativeMonoidTests}
 import cats.kernel.Eq
 import munit.DisciplineSuite
 import org.scalacheck.{Arbitrary, Gen}
+import scala.util.Random
 import vecxt.laws.Dimension as LawsDimension
 import vecxt.laws.instances.double.*
 
@@ -66,10 +67,12 @@ class VectorMonoidLawsSpec extends DisciplineSuite:
   end testMonoidLaws
 
   // Test various dimensions
-  testMonoidLaws(1)
+  testMonoidLaws(0)
+  testMonoidLaws(1)  
   testMonoidLaws(3)
-  testMonoidLaws(10)
-  testMonoidLaws(100)
-  testMonoidLaws(1000)
+  
+  // Test three random dimensions between 5-1000
+  private val randomDims = Random.shuffle((5 to 1000).toList).take(3)
+  randomDims.foreach(testMonoidLaws)
 
 end VectorMonoidLawsSpec

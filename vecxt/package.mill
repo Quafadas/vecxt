@@ -45,6 +45,7 @@ object `package` extends Module {
       def moduleDeps = Seq(js)
       def moduleKind = ModuleKind.CommonJSModule
     }
+    override def enableBsp = false
   }
   object native extends VecxtModule with build.CommonNative {
     override def mvnDeps = super.mvnDeps()
@@ -54,5 +55,6 @@ object `package` extends Module {
     object test extends ScalaNativeTests, VecxtTest {
       override def moduleDeps = Seq(native)
     }
+    override def enableBsp = false
   }
 }

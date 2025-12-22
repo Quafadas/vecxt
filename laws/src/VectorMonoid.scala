@@ -62,14 +62,14 @@ object VectorMonoid:
   def forDimension[A: Semigroup](dim: Dimension)(
       emptyFn: => Array[A],
       combineFn: (Array[A], Array[A]) => Array[A]
-  )(using bc: BoundsCheck.BoundsCheck = BoundsCheck.DoBoundsCheck.yes): VectorMonoid[A] =
+  )(using bc: BoundsCheck.BoundsCheck): VectorMonoid[A] =
     new VectorMonoid[A]:
       val dimension: Dimension = dim
 
       def empty = emptyFn
 
       def combine(x: Array[A], y: Array[A]) =
-        if bc == BoundsCheck.DoBoundsCheck.yes then
+        if bc then          
           validateDim(x)
           validateDim(y)
         end if
