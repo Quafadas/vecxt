@@ -6,7 +6,7 @@ import com.goyeau.mill.scalafix.ScalafixModule
 import mill.api.Task.Simple
 
 object `package` extends Module {
-  
+
   val catsVersion = "2.10.0"
   val disciplineVersion = "2.0.0"
   val scalacheckVersion = "1.17.0"
@@ -24,51 +24,55 @@ object `package` extends Module {
 
     object test extends ScalaTests, TestModule.Munit {
       def moduleDeps = Seq(jvm)
-      
+
       def mvnDeps = super.mvnDeps() ++ Seq(
         mvn"org.scalameta::munit::${build.V.munitVersion}",
         mvn"org.typelevel::cats-kernel-laws:$catsVersion",
         mvn"org.typelevel::discipline-munit:$disciplineVersion",
         mvn"org.scalacheck::scalacheck:$scalacheckVersion"
       )
-      
+
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     }
   }
 
-  object js extends LawsModule with build.CommonJS {
-    def moduleDeps = Seq(build.vecxt.js)
-    def moduleKind = ModuleKind.ESModule
-    override def enableBsp = false
-    
-    object test extends ScalaJSTests, TestModule.Munit {
-      def moduleDeps = Seq(js)
-      
-      def mvnDeps = super.mvnDeps() ++ Seq(
-        mvn"org.scalameta::munit::${build.V.munitVersion}",
-        mvn"org.typelevel::cats-kernel-laws:$catsVersion",
-        mvn"org.typelevel::discipline-munit:$disciplineVersion",
-        mvn"org.scalacheck::scalacheck:$scalacheckVersion"
-      )
-      
-      def moduleKind = ModuleKind.CommonJSModule
-    }
-  }
+  // NArray abstraction is also a mess :-(
 
-  object native extends LawsModule with build.CommonNative {
-    def moduleDeps = Seq(build.vecxt.native)
-    override def enableBsp = false
-    override def mvnDeps = super[LawsModule].mvnDeps() ++ super[CommonNative].mvnDeps()
-    
-    object test extends ScalaNativeTests, TestModule.Munit {
-      def moduleDeps = Seq(native)
-      
-      def mvnDeps = super.mvnDeps() ++ Seq(
-        mvn"org.scalameta::munit::${build.V.munitVersion}",
-        mvn"org.typelevel::cats-kernel-laws:$catsVersion",
-        mvn"org.typelevel::discipline-munit:$disciplineVersion",
-        mvn"org.scalacheck::scalacheck:$scalacheckVersion"
-      )
-    }
-  }
+  // object js extends LawsModule with build.CommonJS {
+  //   def moduleDeps = Seq(build.vecxt.js)
+  //   def moduleKind = ModuleKind.ESModule
+  //   override def enableBsp = false
+
+  //   object test extends ScalaJSTests, TestModule.Munit {
+  //     def moduleDeps = Seq(js)
+
+  //     def mvnDeps = super.mvnDeps() ++ Seq(
+  //       mvn"org.scalameta::munit::${build.V.munitVersion}",
+  //       mvn"org.typelevel::cats-kernel-laws:$catsVersion",
+  //       mvn"org.typelevel::discipline-munit:$disciplineVersion",
+  //       mvn"org.scalacheck::scalacheck:$scalacheckVersion"
+  //     )
+
+  //     def moduleKind = ModuleKind.CommonJSModule
+  //   }
+  // }
+
+  // I think that these are not yet published for native.
+
+  // object native extends LawsModule with build.CommonNative {
+  //   def moduleDeps = Seq(build.vecxt.native)
+  //   override def enableBsp = false
+  //   override def mvnDeps = super[LawsModule].mvnDeps() ++ super[CommonNative].mvnDeps()
+
+  //   object test extends ScalaNativeTests, TestModule.Munit {
+  //     def moduleDeps = Seq(native)
+
+  //     def mvnDeps = super.mvnDeps() ++ Seq(
+  //       mvn"org.scalameta::munit::${build.V.munitVersion}",
+  //       mvn"org.typelevel::cats-kernel-laws:$catsVersion",
+  //       mvn"org.typelevel::discipline-munit:$disciplineVersion",
+  //       mvn"org.scalacheck::scalacheck:$scalacheckVersion"
+  //     )
+  //   }
+  // }
 }

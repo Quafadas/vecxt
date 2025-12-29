@@ -38,7 +38,7 @@ class VectorMultiplicativeMonoidLawsSpec extends DisciplineSuite:
     // Create dimension witness
     given testDim: LawsDimension = LawsDimension(n)
 
-  // Create VectorCommutativeMonoid for this dimension
+    // Create VectorCommutativeMonoid for this dimension
     given VectorCommutativeMonoid[Double] =
       vectorMultiplicationMonoid(using testDim)
 
@@ -70,11 +70,10 @@ class VectorMultiplicativeMonoidLawsSpec extends DisciplineSuite:
 
   // Test various dimensions
   testMonoidLaws(0)
-  testMonoidLaws(1)  
+  testMonoidLaws(1)
   testMonoidLaws(3)
-  
+
   // Test three random dimensions between 5-1000
   private val randomDims = Random.shuffle((5 to 1000).toList).take(3)
   randomDims.foreach(testMonoidLaws)
-
-
+end VectorMultiplicativeMonoidLawsSpec

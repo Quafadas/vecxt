@@ -69,7 +69,7 @@ object VectorMonoid:
       def empty = emptyFn
 
       def combine(x: Array[A], y: Array[A]) =
-        if bc then          
+        if bc then
           validateDim(x)
           validateDim(y)
         end if
