@@ -27,7 +27,7 @@ import com.goyeau.mill.scalafix.ScalafixModule
 import mill.api.Task.Simple
 
 // def format = mill.scalalib.scalafmt.ScalafmtModule
-
+// mill mill.scalalib.scalafmt/
 // mill __.compiledClassesAndSemanticDbFiles
 object V:
   val spire: Dep = mvn"org.typelevel::spire::0.18.0"
