@@ -105,7 +105,7 @@ import narr.*
 end mnist
 
 def dataToCoords(data: Array[Double]): IndexedSeq[(x: Int, y: Int, opacity: Double)] =
-  for (i <- 0.until(28); j <- 0.until(28)) yield
+  for i <- 0.until(28); j <- 0.until(28) yield
     val value = data(i * 28 + j)
     (x = j, y = 28 - i, opacity = value)
 
