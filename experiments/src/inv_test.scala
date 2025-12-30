@@ -10,7 +10,7 @@
   * In [5]: x = A_inv @ b ...: x Out[5]: array([[10.], [10.], [20.], [20.], [10.]])
   */
 
-//./millw experiments.runMain experiments.inv_test
+//./mill experiments.runMain experiments.inv_test
 
 @main def inv_test =
   import vecxt.all.*

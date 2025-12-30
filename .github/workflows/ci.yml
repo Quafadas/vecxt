@@ -52,7 +52,7 @@ jobs:
           cache: npm
 
       - name: formatCheck
-        run: ./millw mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
+        run: ./mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 
       - if: matrix.project == 'js'
         run: npm install
@@ -62,21 +62,21 @@ jobs:
 
       - name: scalaJSLink
         if: matrix.project == 'js'
-        run: ./millw vecxt.${{ matrix.project }}.fastLinkJS
+        run: ./mill vecxt.${{ matrix.project }}.fastLinkJS
 
       - name: nativeLink
         if: matrix.project == 'native'
-        run: ./millw vecxt.${{ matrix.project }}.test.nativeLink
+        run: ./mill vecxt.${{ matrix.project }}.test.nativeLink
 
       - name: Test
-        run: ./millw vecxt.${{ matrix.project }}.test
-      
+        run: ./mill vecxt.${{ matrix.project }}.test
+
       - name: Laws Test
         if: matrix.project == 'jvm'
-        run: ./millw laws.${{ matrix.project }}.test
-      
+        run: ./mill laws.${{ matrix.project }}.test
+
       - name: Doc Gen
-        run: ./millw site.siteGen
+        run: ./mill site.siteGen
 
   publish:
     if: github.repository == 'Quafadas/vecxt' && contains(github.ref, 'refs/tags/')
@@ -94,7 +94,7 @@ jobs:
           apps: scala-cli
 
       - name: Publish to Maven Central
-        run: ./millw mill.javalib.SonatypeCentralPublishModule/
+        run: ./mill mill.javalib.SonatypeCentralPublishModule/
         env:
           MILL_PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           MILL_PGP_SECRET_BASE64: ${{ secrets.PGP_SECRET }}
@@ -138,7 +138,7 @@ jobs:
         run: mkdir -p site/docs/_assets/benchmarks && cp benchmark_history.json site/docs/_assets/benchmarks/benchmark_history.json
 
       - name: Generate static site
-        run: ./millw site.siteGen
+        run: ./mill site.siteGen
 
       - name: Setup Pages
         uses: actions/configure-pages@main
