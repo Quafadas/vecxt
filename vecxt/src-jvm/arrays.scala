@@ -353,6 +353,7 @@ object arrays:
         i += 1
       end while
       temp
+    end minSIMD
 
     inline def maxSIMD =
       var i = 0
@@ -370,6 +371,7 @@ object arrays:
         i += 1
       end while
       temp
+    end maxSIMD
 
   end extension
 
@@ -767,7 +769,6 @@ object arrays:
       end while
 
       (μ, sumSqDiff * (1.0 / (vec.length - 1)))
-
 
     end meanAndVariance
 
