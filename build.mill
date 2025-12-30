@@ -1,4 +1,4 @@
-//| mill-version: 1.1.0-RC2
+//| mill-version: 1.1.0-RC3
 //| mill-jvm-version: 24
 //| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
 //| mvnDeps:
