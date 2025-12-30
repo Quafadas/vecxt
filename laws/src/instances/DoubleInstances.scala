@@ -17,37 +17,39 @@
 package vecxt.laws.instances
 
 import cats.kernel.Semigroup
-import vecxt.laws.{Dimension, VectorCommutativeMonoid}
+import vecxt.laws.{Dimension, VectorCommutativeGroup, VectorCommutativeMonoid}
 import vecxt.BoundsCheck
 import vecxt.all.{given, *}
 
 object double:
-  // Semigroup instances for Double operations
-  given additionSemigroup: Semigroup[Double] = Semigroup.instance[Double](_ + _)
-  given multiplicationSemigroup: Semigroup[Double] = Semigroup.instance[Double](_ * _)
 
-  /** VectorCommutativeMonoid for Array[Double] with element-wise addition
+  /** VectorCommutativeGroup for Array[Double] with element-wise addition
     *
-    * Uses vecxt's optimized array addition operator which leverages SIMD on JVM
+    * Uses vecxt's optimized array addition operator which leverages SIMD on JVM. Addition forms a group with negation
+    * as the inverse operation.
     */
-  def vectorAdditionMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
-    VectorCommutativeMonoid.forDimension(dim)(
+  def vectorAdditionGroup(using dim: Dimension): VectorCommutativeGroup[Double] =
+    VectorCommutativeGroup.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(0.0),
       combineFn = (x, y) =>
         import vecxt.BoundsCheck.DoBoundsCheck.yes
         x + y
-    )(using additionSemigroup, BoundsCheck.DoBoundsCheck.yes)
-  end vectorAdditionMonoid
+      ,
+      inverseFn = (a) =>
+        import vecxt.BoundsCheck.DoBoundsCheck.yes
+        -a
+    )
+  end vectorAdditionGroup
 
   /** VectorCommutativeMonoid for Array[Double] with element-wise multiplication
     *
-    * Note: Element-wise multiplication is commutative. Uses manual implementation for cross-platform compatibility.
+    * Note: Element-wise multiplication is commutative but does NOT form a group (no inverse for zero elements). Uses
+    * manual implementation for cross-platform compatibility.
     */
   def vectorMultiplicationMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
     VectorCommutativeMonoid.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(1.0),
-      combineFn = (x, y) =>
-        x * y
-    )(using multiplicationSemigroup, BoundsCheck.DoBoundsCheck.yes)
+      combineFn = (x, y) => x * y
+    )
   end vectorMultiplicationMonoid
 end double

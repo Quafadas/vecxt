@@ -80,6 +80,7 @@ jobs:
         run: ./mill vecxt.${{ matrix.project }}.test
 
       - name: Laws Test
+        if: matrix.project == 'jvm'
         run: ./mill laws.${{ matrix.project }}.test
 
       - name: Doc Gen

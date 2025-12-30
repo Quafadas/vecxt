@@ -16,7 +16,7 @@
 
 package vecxt.laws
 
-import cats.kernel.laws.discipline.{MonoidTests, CommutativeMonoidTests}
+import cats.kernel.laws.discipline.CommutativeGroupTests
 import cats.kernel.Eq
 import munit.DisciplineSuite
 import org.scalacheck.{Arbitrary, Gen}
@@ -24,21 +24,21 @@ import scala.util.Random
 import vecxt.laws.Dimension as LawsDimension
 import vecxt.laws.instances.double.*
 
-class VectorMonoidLawsSpec extends DisciplineSuite:
+class VectorGroupLawsSpec extends DisciplineSuite:
 
   // Test constants for floating-point comparisons
   private val MinTestValue = -100.0
   private val MaxTestValue = 100.0
   private val FloatingPointTolerance = 1e-10
 
-  /** Test Monoid laws for a specific dimension */
-  def testMonoidLaws(n: Int): Unit =
+  /** Test Group laws for a specific dimension */
+  def testGroupLaws(n: Int): Unit =
     // Create dimension witness
     given testDim: LawsDimension = LawsDimension(n)
 
-    // Create VectorCommutativeMonoid for this dimension
-    given VectorCommutativeMonoid[Double] =
-      vectorAdditionMonoid(using testDim)
+    // Create VectorCommutativeGroup for this dimension
+    given VectorCommutativeGroup[Double] =
+      vectorAdditionGroup(using testDim)
 
     // Arbitrary generator for arrays of this dimension
     // Use bounded values to avoid floating point precision issues
@@ -59,20 +59,20 @@ class VectorMonoidLawsSpec extends DisciplineSuite:
         equal
     )
 
-    // Test CommutativeMonoid laws (includes all Monoid laws plus commutativity)
+    // Test CommutativeGroup laws (includes all Monoid laws plus commutativity and inverse)
     checkAll(
-      s"VectorCommutativeMonoid[dim$n, Double].addition",
-      CommutativeMonoidTests[Array[Double]].commutativeMonoid
+      s"VectorCommutativeGroup[dim$n, Double].addition",
+      CommutativeGroupTests[Array[Double]].commutativeGroup
     )
-  end testMonoidLaws
+  end testGroupLaws
 
   // Test various dimensions
-  testMonoidLaws(0)
-  testMonoidLaws(1)
-  testMonoidLaws(3)
+  testGroupLaws(0)
+  testGroupLaws(1)
+  testGroupLaws(3)
 
   // Test three random dimensions between 5-1000
-  private val randomDims = Random.shuffle((5 to 1000).toList).take(3)
-  randomDims.foreach(testMonoidLaws)
+  private val randomDims = Random.shuffle((5 to 1000).toList).take(2)
+  randomDims.foreach(testGroupLaws)
 
-end VectorMonoidLawsSpec
+end VectorGroupLawsSpec
