@@ -47,13 +47,7 @@ object double:
     VectorCommutativeMonoid.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(1.0),
       combineFn = (x, y) =>
-        val result = new Array[Double](x.length)
-        var i = 0
-        while i < x.length do
-          result(i) = x(i) * y(i)
-          i += 1
-        end while
-        result
+        x * y
     )(using multiplicationSemigroup, BoundsCheck.DoBoundsCheck.yes)
   end vectorMultiplicationMonoid
 end double
