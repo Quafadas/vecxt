@@ -337,6 +337,40 @@ object arrays:
       end while
     end +=
 
+    inline def minSIMD =
+      var i = 0
+      var acc = IntVector.broadcast(spi, Int.MaxValue)
+
+      while i < spi.loopBound(vec.length) do
+        acc = acc.min(IntVector.fromArray(spi, vec, i))
+        i += spil
+      end while
+
+      var temp = acc.reduceLanes(VectorOperators.MIN)
+
+      while i < vec.length do
+        temp = Math.min(temp, vec(i))
+        i += 1
+      end while
+      temp
+
+    inline def maxSIMD =
+      var i = 0
+      var acc = IntVector.broadcast(spi, Int.MinValue)
+
+      while i < spi.loopBound(vec.length) do
+        acc = acc.max(IntVector.fromArray(spi, vec, i))
+        i += spil
+      end while
+
+      var temp = acc.reduceLanes(VectorOperators.MAX)
+
+      while i < vec.length do
+        temp = Math.max(temp, vec(i))
+        i += 1
+      end while
+      temp
+
   end extension
 
   extension [@specialized(Double, Int) A](vec: Array[A])(using ClassTag[A])
@@ -700,33 +734,7 @@ object arrays:
     end outer
 
     def variance: Double =
-      // https://www.cuemath.com/sample-variance-formula/
-      val μ = vec.mean
-      // vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
-
-      val l = spd.length()
-      var tmp = DoubleVector.zero(spd)
-
-      var i = 0
-      while i < spd.loopBound(vec.length) do
-        val v = DoubleVector.fromArray(spd, vec, i)
-        val diff = v.sub(μ)
-        // Use fma to combine multiply and add in a single operation: diff * diff + tmp
-        tmp = diff.fma(diff, tmp)
-        i += spdl
-      end while
-
-      var sumSqDiff = tmp.reduceLanes(VectorOperators.ADD)
-
-      while i < vec.length do
-        val diff = vec(i) - μ
-        // Use fma to optimize (diff * diff) + sumSqDiff
-        sumSqDiff = Math.fma(diff, diff, sumSqDiff)
-        i += 1
-      end while
-
-      sumSqDiff / (vec.length - 1)
-
+      meanAndVariance.variance
     end variance
 
     inline def stdDev: Double =
@@ -735,6 +743,33 @@ object arrays:
       val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
       Math.sqrt(diffs_2.sumSIMD / (vec.length - 1))
     end stdDev
+
+    inline def meanAndVariance: (mean: Double, variance: Double) =
+      val μ = vec.mean
+      val l = spd.length()
+      var tmp = DoubleVector.zero(spd)
+      val μVec = DoubleVector.broadcast(spd, μ)
+
+      var i = 0
+      while i < spd.loopBound(vec.length) do
+        val v = DoubleVector.fromArray(spd, vec, i)
+        val diff = v.sub(μVec) // Broadcast mean once, reuse
+        tmp = diff.fma(diff, tmp)
+        i += spdl
+      end while
+
+      var sumSqDiff = tmp.reduceLanes(VectorOperators.ADD)
+
+      while i < vec.length do
+        val diff = vec(i) - μ
+        sumSqDiff = Math.fma(diff, diff, sumSqDiff)
+        i += 1
+      end while
+
+      (μ, sumSqDiff * (1.0 / (vec.length - 1)))
+
+
+    end meanAndVariance
 
     inline def mean: Double = vec.sumSIMD / vec.length
 

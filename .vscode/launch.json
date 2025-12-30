@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "test Suite",
       "buildTarget": "vecxt.jvm.test",
-      "testClass": "vecxt.MatrixExtensionSuite",
+      "testClass": "vecxt.LongArraysSuite",
       "jvmOptions": [
         "--add-modules=jdk.incubator.vector"
       ],
