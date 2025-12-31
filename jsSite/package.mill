@@ -7,16 +7,15 @@ import mill.util.VcsVersion
 import build.V
 import mill.scalajslib.api.ESModuleImportMapping
 
-
-object `package` extends SiteJSModule {
+object `package` extends SiteJSModule:
 
   override def moduleDeps = Seq(build.vecxt.js, build.vecxtensions.js)
   override def scalaVersion = build.vecxt.js.scalaVersion
   override def scalaJSVersion = build.vecxt.js.scalaJSVersion
 
-  override def scalaJSImportMap = Task{
+  override def scalaJSImportMap = Task {
     Seq(
-      ESModuleImportMapping.Prefix("@stdlib/blas/base", "https://cdn.jsdelivr.net/npm/@stdlib/blas@0.2.0/base/+esm" )
+      ESModuleImportMapping.Prefix("@stdlib/blas/base", "https://cdn.jsdelivr.net/npm/@stdlib/blas@0.2.0/base/+esm")
     )
   }
 
@@ -35,4 +34,4 @@ object `package` extends SiteJSModule {
   // object test extends ScalaJSTests with CommonTests {
   //   def moduleKind = ModuleKind.CommonJSModule
   // }
-}
+end `package`
