@@ -52,15 +52,7 @@ jobs:
           cache: npm
 
       - name: formatCheck
-        run: |
-          echo "Before format:"
-          git status
-          ./mill mill.scalalib.scalafmt.ScalafmtModule/reformatAll __.sources
-          echo "After format:"
-          git diff --name-only
-          echo "Differences:"
-          git diff
-          ./mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
+        run: ./mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 
       - if: matrix.project == 'js'
         run: npm install
