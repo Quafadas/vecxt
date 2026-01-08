@@ -5,8 +5,7 @@ import mill.scalajslib.api.*
 import io.github.quafadas.millSite.*
 import mill.util.VcsVersion
 
-
-object `package` extends SiteModule {
+object `package` extends SiteModule:
 
   override lazy val jsSiteModule = Some(build.jsSite)
 //   override def pathToImportMap = Some(PathRef(T.workspace / "importmap.json"))
@@ -20,9 +19,9 @@ object `package` extends SiteModule {
 
   override def unidocDeps = Seq(build.vecxt.jvm)
 
-  override def scalaJSImportMap = Task{
+  override def scalaJSImportMap = Task {
     Seq(
-      ESModuleImportMapping.Prefix("@stdlib/blas/base", "https://cdn.jsdelivr.net/npm/@stdlib/blas@0.2.0/base/+esm" )
+      ESModuleImportMapping.Prefix("@stdlib/blas/base", "https://cdn.jsdelivr.net/npm/@stdlib/blas@0.2.0/base/+esm")
     )
   }
 
@@ -33,5 +32,4 @@ object `package` extends SiteModule {
   //     logLevel = "debug"
   //   )
   // }
-
-}
+end `package`

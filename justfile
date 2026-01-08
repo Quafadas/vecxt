@@ -1,5 +1,5 @@
 
-MILL := "./millw"
+MILL := "./mill"
 
 format:
   {{MILL}} mill.scalalib.scalafmt.ScalafmtModule/reformatAll __.sources
@@ -33,7 +33,7 @@ test:
 testOnly target:
   {{MILL}} vecxt.jvm.test.testOnly vecxt.{{target}}
 
-console: 
+console:
   {{MILL}} -i vecxt.jvm.console
 
 setJvm:

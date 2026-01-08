@@ -10,16 +10,16 @@ Answer all questions in the style of a friendly colleague that is an expert in l
 
 ## Working Effectively
 
-Mill may be found via it's wrapper script `./millw` in the root of the repository. For example `./millw vecxt.__.compile` will compile the JVM, JS and native targets.
+Mill may be found via it's wrapper script `./mill` in the root of the repository. For example `./mill vecxt.__.compile` will compile the JVM, JS and native targets.
 
 Each module contains it's own build definition in the package.mill file in it's module directory.
 
 - BUILDS: Mill cold compilation takes 2 minutes or so. Stay patient!
-- Compile specific platforms (e.g. jvm) with `./millw vecxt.jvm.compile` or `./millw vecxt.js.compile` etc.
-- Run all tests by following with the same pattern `./millw vecxt.__.test`
-- Format code with `./millw mill.scalalib.scalafmt.ScalafmtModule/`. CI will enforce formatting, and will fail if code is not formatted.
-- If you see an error like this is JS `[error] @scala.scalajs.js.annotation.internal.JSType is for compiler internal use only. Do not use it yourself.`, run `./millw clean vecxt.js._` to clear the build cache.
-- To run a specific main class, use the runMain command and specify the package. `./millw experiments.runMain testCheatsheet` for example.
+- Compile specific platforms (e.g. jvm) with `./mill vecxt.jvm.compile` or `./mill vecxt.js.compile` etc.
+- Run all tests by following with the same pattern `./mill vecxt.__.test`
+- Format code with `./mill mill.scalalib.scalafmt.ScalafmtModule/`. CI will enforce formatting, and will fail if code is not formatted.
+- If you see an error like this is JS `[error] @scala.scalajs.js.annotation.internal.JSType is for compiler internal use only. Do not use it yourself.`, run `./mill clean vecxt.js._` to clear the build cache.
+- To run a specific main class, use the runMain command and specify the package. `./mill experiments.runMain testCheatsheet` for example.
 
 ## Folder structure
 
@@ -29,7 +29,7 @@ vecxt/
 ├── .devcontainer/             # VS Code dev container configuration
 ├── .vscode/                   # VS Code workspace settings
 ├── build.mill                   # Mill build configuration (main build file)
-├── millw                      # Mill wrapper script for cross-platform builds
+├── mill                      # Mill wrapper script for cross-platform builds
 ├── styleguide.md             # Coding style guidelines
 ├── benchmarks/              # Benchmarking code - not published, may be run in CI on request
 ├── experiments/              # Not published, inlined experiments - use this as a sandbox

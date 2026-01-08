@@ -43,3 +43,4 @@ class MinMaxSIMDSuite extends munit.FunSuite:
     val arr = Array.tabulate(100)(i => if i == 73 then -5 else i * 2 + 10)
     val result = arr.minSIMD
     assertEquals(result, -5)
+end MinMaxSIMDSuite

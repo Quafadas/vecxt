@@ -4,7 +4,7 @@
     {
       "label": "compiledClassesAndSemanticDbFiles",
       "type": "shell",
-      "command": "./millw __.compiledClassesAndSemanticDbFiles",
+      "command": "./mill __.compiledClassesAndSemanticDbFiles",
       "runOptions": {
         "runOn": "folderOpen"
       },

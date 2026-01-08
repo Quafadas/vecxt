@@ -5,54 +5,54 @@ import mill.scalajslib.api.ModuleKind
 import com.goyeau.mill.scalafix.ScalafixModule
 import mill.api.Task.Simple
 
-
-object `package` extends Module {
-  trait VecxtModule extends PlatformScalaModule with build.VecxtPublishModule  {
+object `package` extends Module:
+  trait VecxtModule extends PlatformScalaModule with build.VecxtPublishModule:
     def mvnDeps = super.mvnDeps() ++ Seq(
       build.V.narr
     )
-    trait VecxtTest extends ScalaTests, TestModule.Munit   {
+    trait VecxtTest extends ScalaTests, TestModule.Munit:
       def mvnDeps = super.mvnDeps() ++ Seq(
-        mvn"org.scalameta::munit::${build.V.munitVersion}",
+        mvn"org.scalameta::munit::${build.V.munitVersion}"
       )
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
-    }
-  }
+    end VecxtTest
+  end VecxtModule
 
-  def jsNativeSharedSources = Task.Sources{
+  def jsNativeSharedSources = Task.Sources {
     (os.sub / "src-js-native")
   }
 
-
-  object jvm extends VecxtModule {
+  object jvm extends VecxtModule:
     override def scalaVersion = build.V.scalaVersion
     override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
     def mvnDeps = super.mvnDeps() ++ Seq(
       build.V.blas,
-      build.V.lapack,
+      build.V.lapack
     )
 
-    object test extends VecxtTest, ScalaTests {
+    object test extends VecxtTest, ScalaTests:
       def moduleDeps = Seq(jvm)
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
-    }
-  }
-  object js extends VecxtModule with build.CommonJS {
+    end test
+  end jvm
+  object js extends VecxtModule with build.CommonJS:
     override def mvnDeps = super.mvnDeps()
     def moduleKind = ModuleKind.ESModule
-    def sources = Task{super.sources() ++ jsNativeSharedSources()}
-    object test extends VecxtTest, ScalaJSTests {
+    def sources = Task(super.sources() ++ jsNativeSharedSources())
+    object test extends VecxtTest, ScalaJSTests:
       def moduleDeps = Seq(js)
       def moduleKind = ModuleKind.CommonJSModule
-    }
-  }
-  object native extends VecxtModule with build.CommonNative {
+    end test
+    override def enableBsp = false
+  end js
+  object native extends VecxtModule with build.CommonNative:
     override def mvnDeps = super.mvnDeps()
 
-    def sources = Task{super.sources() ++ jsNativeSharedSources()}
+    def sources = Task(super.sources() ++ jsNativeSharedSources())
 
-    object test extends ScalaNativeTests, VecxtTest {
+    object test extends ScalaNativeTests, VecxtTest:
       override def moduleDeps = Seq(native)
-    }
-  }
-}
+    end test
+    override def enableBsp = false
+  end native
+end `package`
