@@ -90,4 +90,63 @@ class TowerSuite extends munit.FunSuite:
     assertEquals(retained.length, 0)
   }
 
+  test("Tower splitAmntFast vs splitAmnt - performance equivalent") {
+    // Setup same data as testSimple
+    val years = Array(2024, 2024, 2024, 2025, 2025, 2026)
+    val days = Array(1, 100, 200, 50, 150, 75) 
+    val losses = Array(3.0, 8.0, 30.0, 15.5, 15.5, 30.0)
+    
+    val tower = Tower(
+      layers = Seq(
+        Layer(
+          occLimit = Some(25.0),
+          occRetention = Some(10.0), 
+          aggLimit = Some(50.0),
+          aggRetention = Some(5.0),
+          share = 0.5,
+          occType = DeductibleType.Retention,
+          aggType = DeductibleType.Retention
+        ),
+        Layer(
+          occLimit = Some(40.0),
+          occRetention = Some(25.0),
+          aggLimit = Some(100.0), 
+          aggRetention = Some(50.0),
+          share = 1.0,
+          occType = DeductibleType.Retention,
+          aggType = DeductibleType.Retention  
+        )
+      )
+    )
+    
+    // Run both implementations
+    val (cededOriginal, retainedOriginal) = tower.splitAmnt(years, days, losses)
+    val (cededFast, retainedFast) = tower.splitAmntFast(years, days, losses)
+    
+    // Check if raw matrices are identical (this should be true)
+    for i <- cededOriginal.raw.indices do
+      assertEqualsDouble(cededOriginal.raw(i), cededFast.raw(i), 1e-10, s"Raw data[$i] differs")
+    end for
+    
+    // The matrices should be identical
+    assertEquals(cededOriginal.rows, cededFast.rows)
+    assertEquals(cededOriginal.cols, cededFast.cols)
+    
+    for i <- 0 until cededOriginal.rows do
+      for j <- 0 until cededOriginal.cols do
+        assertEqualsDouble(cededOriginal(i, j), cededFast(i, j), 1e-10, s"Ceded[$i,$j] differs")
+      end for
+    end for
+    
+    assertEquals(retainedOriginal.length, retainedFast.length)
+    for i <- retainedOriginal.indices do
+      assertEqualsDouble(retainedOriginal(i), retainedFast(i), 1e-10, s"Retained[$i] differs")
+    end for
+    
+    println("Performance implementations match exactly!")
+    println(s"Fast Ceded layer 1: ${(0 until cededFast.rows).map(i => cededFast(i, 0)).mkString("[", ",", "]")}")
+    println(s"Fast Ceded layer 2: ${(0 until cededFast.rows).map(i => cededFast(i, 1)).mkString("[", ",", "]")}")
+    println(s"Fast Retained: ${retainedFast.mkString("[", ",", "]")}")
+  }
+
 end TowerSuite
