@@ -417,20 +417,25 @@ case class Tower( layers: Seq[Layer],  id: UUID = UUID.randomUUID(), name: Optio
     numLayers: Int,
     species: VectorSpecies[java.lang.Double]
   ): Unit =
-    // Process each layer column
+    // Process each layer column directly in the matrix storage
     for layerIdx <- 0 until numLayers do
       // Column-major: layer layerIdx starts at layerIdx * numLosses
       val columnOffset = layerIdx * numLosses
       
-      // Extract column to temp array for group operations
-      val tempColumn = new Array[Double](numLosses)
-      System.arraycopy(cededRaw, columnOffset, tempColumn, 0, numLosses)
-      
-      // Apply group cumulative sum
-      val cumSummed = groupCumSum(years, tempColumn)
-      
-      // Copy back to matrix
-      System.arraycopy(cumSummed, 0, cededRaw, columnOffset, numLosses)
+      // Apply group cumulative sum directly on matrix storage
+      var i = 0
+      while i < numLosses do
+        val g = years(i)
+        var cumSum = 0.0
+        
+        // Process block of same group, computing cumulative sum in-place
+        while i < numLosses && years(i) == g do
+          cumSum += cededRaw(columnOffset + i)
+          cededRaw(columnOffset + i) = cumSum
+          i += 1
+        end while
+      end while
+    end for
   end applyGroupCumSumFast
   
   /** Apply aggregate layers with shares directly to matrix storage */
@@ -504,20 +509,32 @@ case class Tower( layers: Seq[Layer],  id: UUID = UUID.randomUUID(), name: Optio
     numLayers: Int,
     species: VectorSpecies[java.lang.Double]
   ): Unit =
-    // Process each layer column
+    // Process each layer column directly in the matrix storage
     for layerIdx <- 0 until numLayers do
       // Column-major: layer layerIdx starts at layerIdx * numLosses
       val columnOffset = layerIdx * numLosses
       
-      // Extract column to temp array for group operations
-      val tempColumn = new Array[Double](numLosses)
-      System.arraycopy(cededRaw, columnOffset, tempColumn, 0, numLosses)
-      
-      // Apply group diff
-      val diffed = groupDiff(years, tempColumn)
-      
-      // Copy back to matrix
-      System.arraycopy(diffed, 0, cededRaw, columnOffset, numLosses)
+      // Apply group diff directly on matrix storage
+      var i = 0
+      while i < numLosses do
+        val g = years(i)
+        var prevValue = 0.0
+        var isFirstInGroup = true
+        
+        // Process block of same group, computing differences in-place
+        while i < numLosses && years(i) == g do
+          val currentValue = cededRaw(columnOffset + i)
+          if isFirstInGroup then
+            // First element in group gets its own value - no change needed
+            isFirstInGroup = false
+          else 
+            cededRaw(columnOffset + i) = currentValue - prevValue
+          end if
+          prevValue = currentValue
+          i += 1
+        end while
+      end while
+    end for
   end applyGroupDiffFast
   
   /** SIMD-optimized retained calculation */
