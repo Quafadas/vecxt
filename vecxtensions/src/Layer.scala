@@ -90,14 +90,3 @@ case class Layer(
 end Layer
 
 case class Sublayer(limit: Option[Double], retention: Option[Double], layerType: LossCalc, aggOrOcc: DeductibleType)
-
-case class Tower(id: UUID, name: Option[String], layers: Seq[Layer], subjPremium: Option[Double] = None):
-  def applyScale(scale: Double): Tower =
-    Tower(
-      id = UUID.randomUUID(),
-      name = name,
-      layers = layers.map(_.applyScale(scale)),
-      subjPremium = subjPremium.map(_ * scale)
-    )
-  end applyScale
-end Tower
