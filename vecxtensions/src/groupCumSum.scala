@@ -19,9 +19,7 @@ inline def groupCumSum(groups: Array[Int], values: Array[Double]): Array[Double]
       var cumSum = 0.0
 
       // Process block of same group, computing cumulative sum
-      // Optimize by caching group lookup
-      var groupValue = g
-      while i < n && {groupValue = groups(i); groupValue == g} do
+      while i < n && groups(i) == g do
         cumSum += values(i)
         result(i) = cumSum
         i += 1
@@ -44,8 +42,7 @@ inline def groupCumSumInPlace(groups: Array[Int], values: Array[Double]): Unit =
       var cumSum = 0.0
       
       // Process block of same group, computing cumulative sum in-place
-      var groupValue = g
-      while i < n && {groupValue = groups(i); groupValue == g} do
+      while i < n && groups(i) == g do
         cumSum += values(i)
         values(i) = cumSum
         i += 1

@@ -429,8 +429,7 @@ case class Tower( layers: Seq[Layer],  id: UUID = UUID.randomUUID(), name: Optio
         var cumSum = 0.0
         
         // Process block of same group, computing cumulative sum in-place
-        var groupValue = g
-        while i < numLosses && {groupValue = years(i); groupValue == g} do
+        while i < numLosses && years(i) == g do
           cumSum += cededRaw(columnOffset + i)
           cededRaw(columnOffset + i) = cumSum
           i += 1
@@ -523,8 +522,7 @@ case class Tower( layers: Seq[Layer],  id: UUID = UUID.randomUUID(), name: Optio
         var isFirstInGroup = true
         
         // Process block of same group, computing differences in-place
-        var groupValue = g
-        while i < numLosses && {groupValue = years(i); groupValue == g} do
+        while i < numLosses && years(i) == g do
           val currentValue = cededRaw(columnOffset + i)
           if isFirstInGroup then
             // First element in group gets its own value - no change needed

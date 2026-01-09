@@ -21,9 +21,7 @@ inline def groupDiff(groups: Array[Int], values: Array[Double]): Array[Double] =
       var isFirstInGroup = true
 
       // Process block of same group, computing differences
-      // Optimize by caching group lookup
-      var groupValue = g
-      while i < n && {groupValue = groups(i); groupValue == g} do
+      while i < n && groups(i) == g do
         if isFirstInGroup then
           result(i) = values(i) // First element in group gets its own value
           isFirstInGroup = false
@@ -51,8 +49,7 @@ inline def groupDiffInPlace(groups: Array[Int], values: Array[Double]): Unit =
       var isFirstInGroup = true
       
       // Process block of same group, computing differences in-place
-      var groupValue = g
-      while i < n && {groupValue = groups(i); groupValue == g} do
+      while i < n && groups(i) == g do
         val currentValue = values(i)
         if isFirstInGroup then
           // First element in group gets its own value - no change needed
