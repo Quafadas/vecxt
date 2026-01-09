@@ -23,6 +23,10 @@ object `package` extends Module {
     (os.sub / "src-js-native")
   }
 
+  def jvmNativeSharedSources = Task.Sources{
+    (os.sub / "src-jvm-native")
+  }
+
 
   object jvm extends VecxtModule {
     override def scalaVersion = build.V.scalaVersion
@@ -31,6 +35,7 @@ object `package` extends Module {
       build.V.blas,
       build.V.lapack,
     )
+    def sources = Task{super.sources() ++ jvmNativeSharedSources()}
 
     object test extends VecxtTest, ScalaTests {
       def moduleDeps = Seq(jvm)
@@ -49,7 +54,7 @@ object `package` extends Module {
   object native extends VecxtModule with build.CommonNative {
     override def mvnDeps = super.mvnDeps()
 
-    def sources = Task{super.sources() ++ jsNativeSharedSources()}
+    def sources = Task{super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources()}
 
     object test extends ScalaNativeTests, VecxtTest {
       override def moduleDeps = Seq(native)
