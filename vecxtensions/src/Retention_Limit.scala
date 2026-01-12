@@ -50,11 +50,3 @@ object Limits:
 
   end extension
 end Limits
-
-enum LossCalc:
-  case Agg, Occ
-end LossCalc
-
-enum DeductibleType:
-  case Retention, Franchise, ReverseFranchise
-end DeductibleType

@@ -10,7 +10,7 @@ import vecxt.all.given
 import narr.*
 import jdk.incubator.vector.*
 
-case class Tower( layers: Seq[Layer],  id: UUID = UUID.randomUUID(), name: Option[String] = None ,subjPremium: Option[Double] = None):
+case class Tower( layers: IndexedSeq[Layer],  id: UUID = UUID.randomUUID(), name: Option[String] = None ,subjPremium: Option[Double] = None):
   def applyScale(scale: Double): Tower =
     Tower(
       layers = layers.map(_.applyScale(scale)),
@@ -181,38 +181,122 @@ case class Tower( layers: Seq[Layer],  id: UUID = UUID.randomUUID(), name: Optio
    * High-performance implementation of splitAmnt optimized for SIMD and minimal allocations.
    * Uses pre-allocated matrices and in-place operations for maximum efficiency.
    */
-  def splitAmntFast(years: Array[Int], days: Array[Int], losses: Array[Double]): (ceded: Matrix[Double], retained: Array[Double]) =
+  def splitAmntFast(years: Array[Int], days: Array[Int], losses: Array[Double]): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
     if losses.isEmpty then
-      return (Matrix.zeros[Double]((0, layers.length)), Array.empty[Double])
+      (Array.empty[Double], Array.empty[Double], layers.map(_ -> Array.empty[Double]))
+    else
+      
+      val numLosses = losses.length
+      val numLayers = layers.length
+      
+      // Per-layer splits (column major) and totals
+      val cededSplits = IndexedSeq.fill(numLayers)(
+        losses.clone()
+      )
+      val retained = new Array[Double](numLosses)
+      val ceded = new Array[Double](numLosses)
+      
+      // SIMD species for vectorization
+      val species = DoubleVector.SPECIES_PREFERRED
+      val vectorSize = species.length()
+      
+      // Step 1-4: process each layer column in-place (occurrence -> cumsum -> aggregate -> diff)
+      var layerIdx = 0
+      while layerIdx < numLayers do
+        val layer = layers(layerIdx)
+        val col = cededSplits(layerIdx)
+
+        // Occurrence layer
+        
+        layer.occType match
+          case DeductibleType.Retention =>
+            applyRetentionSIMD(col, 0, numLosses, layer.occLimit, layer.occRetention, species)
+          case DeductibleType.Franchise =>
+            applyFranchiseSIMD(col, 0, numLosses, layer.occLimit, layer.occRetention, species)
+          case DeductibleType.ReverseFranchise =>
+            applyReverseFranchise(col, 0, numLosses, layer.occLimit, layer.occRetention)
+
+        // Group cumulative sum by year (scalar due to group boundaries)
+        var i = 0
+        while i < numLosses do
+          val g = years(i)
+          var cumSum = 0.0
+          while i < numLosses && years(i) == g do
+            cumSum += col(i)
+            col(i) = cumSum
+            i += 1
+          end while
+        end while
+
+        // Aggregate layer with share
+        layer.aggType match
+          case DeductibleType.Retention =>
+            applyRetentionSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
+            if layer.share != 1.0 then
+              applyShareSIMD(col, 0, numLosses, layer.share, species)
+          case DeductibleType.Franchise =>
+            applyFranchiseSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
+            if layer.share != 1.0 then
+              applyShareSIMD(col, 0, numLosses, layer.share, species)
+          case DeductibleType.ReverseFranchise =>
+            applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+            if layer.share != 1.0 then
+              applyShareSIMD(col, 0, numLosses, layer.share, species)
+
+        // Group diff by year (scalar due to dependency on previous row)
+        i = 0
+        while i < numLosses do
+          val g = years(i)
+          var prevValue = 0.0
+          var isFirst = true
+          while i < numLosses && years(i) == g do
+            val current = col(i)
+            if isFirst then
+              isFirst = false
+            else              
+              col(i) = current - prevValue
+            prevValue = current
+            i += 1
+          end while
+        end while
+
+        layerIdx += 1
+      end while
+
+      // Step 5: total ceded per loss and retained (vectorized)
+      val loopBound = species.loopBound(numLosses)
+      var i = 0
+      while i < loopBound do
+        var sumVector = DoubleVector.zero(species)
+        layerIdx = 0
+        while layerIdx < numLayers do
+          val col = cededSplits(layerIdx)
+          val v = DoubleVector.fromArray(species, col, i)
+          sumVector = sumVector.add(v)
+          layerIdx += 1
+        end while
+
+        sumVector.intoArray(ceded, i)
+        val originalVector = DoubleVector.fromArray(species, losses, i)
+        val retainedVector = originalVector.sub(sumVector)
+        retainedVector.intoArray(retained, i)
+        i += vectorSize
+      end while
+
+      while i < numLosses do
+        var sum = 0.0
+        layerIdx = 0
+        while layerIdx < numLayers do
+          sum += cededSplits(layerIdx)(i)
+          layerIdx += 1
+        end while
+        ceded(i) = sum
+        retained(i) = losses(i) - sum
+        i += 1
+      end while
     
-    val numLosses = losses.length
-    val numLayers = layers.length
-    
-    // Pre-allocate result matrix - single allocation for entire computation
-    val cededMatrix = Matrix.zeros[Double]((numLosses, numLayers))
-    val cededRaw = cededMatrix.raw // Direct access to underlying array
-    val retained = new Array[Double](numLosses)
-    
-    // SIMD species for vectorization
-    val species = DoubleVector.SPECIES_PREFERRED
-    val vectorSize = species.length()
-    
-    // Step 1: Apply occurrence layers directly to matrix storage with SIMD
-    applyOccurrenceLayersFast(losses, cededRaw, numLosses, numLayers, species)
-    
-    // Step 2: In-place group cumulative sum using SIMD where possible  
-    applyGroupCumSumFast(years, cededRaw, numLosses, numLayers, species)
-    
-    // Step 3: Apply aggregate layers with shares in-place
-    applyAggregateLayersFast(cededRaw, numLosses, numLayers, species)
-    
-    // Step 4: In-place group diff 
-    applyGroupDiffFast(years, cededRaw, numLosses, numLayers, species)
-    
-    // Step 5: Calculate retained with SIMD - vectorized sum and subtract
-    calculateRetainedFast(losses, cededRaw, retained, numLosses, numLayers, species)
-    
-    (cededMatrix, retained)
+      (ceded, retained, layers.zip(cededSplits))
+    end if
   end splitAmntFast
   
   /** Apply occurrence layers directly to pre-allocated matrix storage with SIMD optimization */

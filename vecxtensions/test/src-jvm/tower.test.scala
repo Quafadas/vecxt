@@ -17,6 +17,7 @@
 package vecxt.reinsurance
 
 import java.util.UUID
+import vecxt.all.*
 
 class TowerSuite extends munit.FunSuite:
 
@@ -37,7 +38,7 @@ class TowerSuite extends munit.FunSuite:
   val sampleTower = Tower(
     id = UUID.randomUUID(),
     name = Some("Test Tower"),
-    layers = Seq(sampleLayer),
+    layers = IndexedSeq(sampleLayer),
     subjPremium = Some(2000000.0)
   )
 
@@ -83,7 +84,7 @@ class TowerSuite extends munit.FunSuite:
     val towerWithNones = Tower(
       id = UUID.randomUUID(),
       name = None,
-      layers = Seq(Layer(currency = Some("EUR"))),
+      layers = IndexedSeq(Layer(currency = Some("EUR"))),
       subjPremium = None
     )
 
@@ -101,7 +102,7 @@ class TowerSuite extends munit.FunSuite:
       currency = Some("USD")
     )
 
-    val multiLayerTower = sampleTower.copy(layers = Seq(sampleLayer, layer2))
+    val multiLayerTower = sampleTower.copy(layers = IndexedSeq(sampleLayer, layer2))
     val scaledTower = multiLayerTower.applyScale(0.5)
 
     assertEquals(scaledTower.layers.size, 2)

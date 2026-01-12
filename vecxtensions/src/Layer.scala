@@ -17,6 +17,7 @@
 package vecxt.reinsurance
 
 import java.util.UUID
+import vecxt.reinsurance.rpt.reinsuranceFunction
 
 case class Layer(
     layerId: UUID = UUID.randomUUID(),
@@ -55,7 +56,7 @@ case class Layer(
   lazy val brokerageAmountString = brokerageAmount.map(_.toString)
   lazy val brokerageUnitString = brokerageUnit.map(_.toString)
   lazy val occLayer = Sublayer(occLimit, occRetention, LossCalc.Occ, occType)
-  lazy val aggLayer = Sublayer(aggLimit, aggRetention, LossCalc.Agg, aggType)
+  lazy val aggLayer = Sublayer(aggLimit, aggRetention, LossCalc.Agg, aggType)  
 
   inline def applyScale(scale: Double): Layer =
     Layer(

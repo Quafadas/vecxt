@@ -72,7 +72,8 @@ class SplitAmntBenchmark extends BLASBenchmark:
 
     try
       val (cededOrig: Matrix[Double], retainedOrig) = tower.splitAmnt(years, days, losses)
-      val (cededFast: Matrix[Double], retainedFast) = tower.splitAmntFast(years, days, losses)
+      val (cededTotalsFast, retainedFast, splitsFast) = tower.splitAmntFast(years, days, losses)
+      val cededFast: Matrix[Double] = Matrix.fromColumns(splitsFast.map(_._2)* )
       println(s"✅ Both implementations work for ${size} losses")
       val (x,y) = cededOrig.shape
       for (i <- 0 until x) do
@@ -99,9 +100,10 @@ class SplitAmntBenchmark extends BLASBenchmark:
 
   @Benchmark  
   def splitAmntFast(bh: Blackhole): Unit =
-    val (ceded, retained) = tower.splitAmntFast(years, days, losses)
-    bh.consume(ceded)
+    val (cededTotals, retained, splits) = tower.splitAmntFast(years, days, losses)
+    bh.consume(cededTotals)
     bh.consume(retained)
+    bh.consume(splits)
   end splitAmntFast
 
 end SplitAmntBenchmark
