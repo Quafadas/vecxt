@@ -24,6 +24,9 @@ class SplitAmntBenchmark extends BLASBenchmark:
   var years: Array[Int] = uninitialized
   var days: Array[Int] = uninitialized 
   var losses: Array[Double] = uninitialized
+  var yearsIArray: IArray[Int] = uninitialized
+  var daysIArray: IArray[Int] = uninitialized
+  var lossesIArray: IArray[Double] = uninitialized
   var tower: Tower = uninitialized
 
   @Setup(Level.Trial)
@@ -35,6 +38,11 @@ class SplitAmntBenchmark extends BLASBenchmark:
     years = Array.fill(size)(random.nextInt(size)).sorted
     days = Array.fill(size)(1 + random.nextInt(365))   // 1-365
     losses = Array.fill(size)(random.nextDouble() * 100.0) // 0-100 losses
+    
+    // Create IArray versions for splitAmnt2
+    yearsIArray = IArray.unsafeFromArray(years)
+    daysIArray = IArray.unsafeFromArray(days)
+    lossesIArray = IArray.unsafeFromArray(losses)
     
     // Create realistic tower with multiple layers
     tower = Tower(
@@ -73,20 +81,42 @@ class SplitAmntBenchmark extends BLASBenchmark:
     try
       val (cededOrig: Matrix[Double], retainedOrig) = tower.splitAmnt(years, days, losses)
       val (cededFast: Matrix[Double], retainedFast) = tower.splitAmntFast(years, days, losses)
-      println(s"✅ Both implementations work for ${size} losses")
+      val (ceded2Flat: Array[Double], retained2, splits2) = tower.splitAmnt2(yearsIArray, daysIArray, lossesIArray)
+      
+      println(s"✅ All three implementations work for ${size} losses")
       val (x,y) = cededOrig.shape
+      
+      // Verify original vs fast
       for (i <- 0 until x) do
         for (j <- 0 until y) do
           if (math.abs(cededOrig(i,j) - cededFast(i,j)) >= 1e-10) then
-            println("structures failed to agree loss with amount")
-            println(losses(i) )
+            println("Original vs Fast: structures failed to agree")
+            println(losses(i))
             println(cededOrig.row(i).printArr)
             println(cededFast.row(i).printArr)
             assert(math.abs(cededOrig(i,j) - cededFast(i,j)) < 1e-10, s"Mismatch at index ($i,$j): ${cededOrig(i,j)} != ${cededFast(i,j)}")      
       end for
+      
+      // Verify original vs splitAmnt2
+      for (i <- 0 until x) do
+        for (j <- 0 until y) do
+          val flatIdx = j * x + i  // column-major indexing
+          val splitValue = splits2(j)._2(i)
+          if (math.abs(cededOrig(i,j) - splitValue) >= 1e-10) then
+            println("Original vs splitAmnt2: structures failed to agree")
+            println(s"At ($i,$j): orig=${cededOrig(i,j)}, split2=${splitValue}")
+            assert(math.abs(cededOrig(i,j) - splitValue) < 1e-10, s"Mismatch at index ($i,$j)")
+      end for
+      
+      // Verify retained arrays match
+      for i <- 0 until x do
+        assert(math.abs(retainedOrig(i) - retained2(i)) < 1e-10, s"Retained mismatch at $i")
+      end for
+      
     catch
       case e: Exception =>
         println(s"❌ Error with ${size} losses: ${e.getMessage}")
+        e.printStackTrace()
         throw e
   end setup
 
@@ -103,5 +133,13 @@ class SplitAmntBenchmark extends BLASBenchmark:
     bh.consume(ceded)
     bh.consume(retained)
   end splitAmntFast
+
+  @Benchmark
+  def splitAmnt2(bh: Blackhole): Unit =
+    val (cededFlat, retained, splits) = tower.splitAmnt2(yearsIArray, daysIArray, lossesIArray)
+    bh.consume(cededFlat)
+    bh.consume(retained)
+    bh.consume(splits)
+  end splitAmnt2
 
 end SplitAmntBenchmark

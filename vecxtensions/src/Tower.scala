@@ -581,4 +581,222 @@ case class Tower( layers: Seq[Layer],  id: UUID = UUID.randomUUID(), name: Optio
       i += 1
     end while
   end calculateRetainedFast
+  
+  /**
+   * High-performance implementation with alternative API that returns flat arrays and per-layer splits.
+   * Uses IArray inputs for immutability and returns separate arrays for ceded, retained, and per-layer data.
+   * 
+   * @param years Immutable array of year identifiers (must be sorted)
+   * @param days Immutable array of day identifiers 
+   * @param losses Immutable array of loss amounts
+   * @return Tuple of (ceded: flat array, retained: array, splits: sequence of (layer, layer-ceded-array))
+   */
+  def splitAmnt2(years: IArray[Int], days: IArray[Int], losses: IArray[Double]): (ceded: Array[Double], retained: Array[Double], splits: Seq[(Layer, Array[Double])]) =
+    if losses.isEmpty then
+      return (Array.empty[Double], Array.empty[Double], layers.map((_, Array.empty[Double])))
+    
+    val numLosses = losses.length
+    val numLayers = layers.length
+    
+    // Pre-allocate all memory upfront for maximum performance
+    val cededFlat = new Array[Double](numLosses * numLayers)  // Column-major storage: layer0, layer1, ...
+    val retained = new Array[Double](numLosses)
+    val perLayerSplits = new Array[Array[Double]](numLayers)
+    
+    // Convert IArray to Array for internal processing (zero-copy view in Scala 3)
+    val yearsArr = years.asInstanceOf[Array[Int]]
+    val lossesArr = losses.asInstanceOf[Array[Double]]
+    
+    // SIMD species for vectorization
+    val species = DoubleVector.SPECIES_PREFERRED
+    val vectorSize = species.length()
+    
+    // Step 1: Apply occurrence layers directly to flat storage with SIMD
+    applyOccurrenceLayersSIMD2(lossesArr, cededFlat, numLosses, numLayers, species)
+    
+    // Step 2: In-place group cumulative sum with accumulator
+    applyGroupCumSumInPlace2(yearsArr, cededFlat, numLosses, numLayers)
+    
+    // Step 3: Apply aggregate layers with shares in-place using SIMD
+    applyAggregateLayersSIMD2(cededFlat, numLosses, numLayers, species)
+    
+    // Step 4: In-place group diff with accumulator
+    applyGroupDiffInPlace2(yearsArr, cededFlat, numLosses, numLayers)
+    
+    // Step 5: Calculate retained with SIMD and extract per-layer splits
+    calculateRetainedAndSplits2(lossesArr, cededFlat, retained, perLayerSplits, numLosses, numLayers, species)
+    
+    // Build result with per-layer data
+    val splits = layers.zip(perLayerSplits).toSeq
+    
+    (cededFlat, retained, splits)
+  end splitAmnt2
+  
+  /** Step 1: Apply occurrence layers with SIMD optimization */
+  private inline def applyOccurrenceLayersSIMD2(
+    losses: Array[Double],
+    cededFlat: Array[Double],
+    numLosses: Int,
+    numLayers: Int,
+    species: VectorSpecies[java.lang.Double]
+  ): Unit =
+    // Process each layer in column-major order
+    for layerIdx <- 0 until numLayers do
+      val layer = layers(layerIdx)
+      val offset = layerIdx * numLosses
+      
+      // Copy losses to this layer's column
+      System.arraycopy(losses, 0, cededFlat, offset, numLosses)
+      
+      // Apply occurrence terms based on type
+      layer.occType match
+        case DeductibleType.Retention =>
+          applyRetentionSIMD(cededFlat, offset, numLosses, layer.occLimit, layer.occRetention, species)
+        case DeductibleType.Franchise =>
+          applyFranchiseSIMD(cededFlat, offset, numLosses, layer.occLimit, layer.occRetention, species)
+        case DeductibleType.ReverseFranchise =>
+          applyReverseFranchise(cededFlat, offset, numLosses, layer.occLimit, layer.occRetention)
+    end for
+  end applyOccurrenceLayersSIMD2
+  
+  /** Step 2: In-place group cumulative sum - sequential with accumulator */
+  private inline def applyGroupCumSumInPlace2(
+    years: Array[Int],
+    cededFlat: Array[Double],
+    numLosses: Int,
+    numLayers: Int
+  ): Unit =
+    // Process each layer column
+    for layerIdx <- 0 until numLayers do
+      val offset = layerIdx * numLosses
+      var i = 0
+      
+      while i < numLosses do
+        val g = years(i)
+        var cumSum = 0.0  // Accumulator for current group
+        
+        // Process all elements in this group
+        while i < numLosses && years(i) == g do
+          cumSum += cededFlat(offset + i)
+          cededFlat(offset + i) = cumSum
+          i += 1
+        end while
+      end while
+    end for
+  end applyGroupCumSumInPlace2
+  
+  /** Step 3: Apply aggregate layers with SIMD optimization */
+  private inline def applyAggregateLayersSIMD2(
+    cededFlat: Array[Double],
+    numLosses: Int,
+    numLayers: Int,
+    species: VectorSpecies[java.lang.Double]
+  ): Unit =
+    for layerIdx <- 0 until numLayers do
+      val layer = layers(layerIdx)
+      val offset = layerIdx * numLosses
+      
+      // Apply aggregate terms
+      layer.aggType match
+        case DeductibleType.Retention =>
+          applyRetentionSIMD(cededFlat, offset, numLosses, layer.aggLimit, layer.aggRetention, species)
+          if layer.share != 1.0 then
+            applyShareSIMD(cededFlat, offset, numLosses, layer.share, species)
+        case DeductibleType.Franchise =>
+          applyFranchiseSIMD(cededFlat, offset, numLosses, layer.aggLimit, layer.aggRetention, species)
+          if layer.share != 1.0 then
+            applyShareSIMD(cededFlat, offset, numLosses, layer.share, species)
+        case DeductibleType.ReverseFranchise =>
+          applyReverseFranchise(cededFlat, offset, numLosses, layer.aggLimit, layer.aggRetention)
+          if layer.share != 1.0 then
+            applyShareSIMD(cededFlat, offset, numLosses, layer.share, species)
+    end for
+  end applyAggregateLayersSIMD2
+  
+  /** Step 4: In-place group diff - sequential with accumulator */
+  private inline def applyGroupDiffInPlace2(
+    years: Array[Int],
+    cededFlat: Array[Double],
+    numLosses: Int,
+    numLayers: Int
+  ): Unit =
+    // Process each layer column
+    for layerIdx <- 0 until numLayers do
+      val offset = layerIdx * numLosses
+      var i = 0
+      
+      while i < numLosses do
+        val g = years(i)
+        var prevValue = 0.0  // Accumulator for previous value in group
+        var isFirstInGroup = true
+        
+        // Process all elements in this group
+        while i < numLosses && years(i) == g do
+          val currentValue = cededFlat(offset + i)
+          if isFirstInGroup then
+            // First element keeps its value
+            isFirstInGroup = false
+          else
+            cededFlat(offset + i) = currentValue - prevValue
+          end if
+          prevValue = currentValue
+          i += 1
+        end while
+      end while
+    end for
+  end applyGroupDiffInPlace2
+  
+  /** Step 5: Calculate retained and extract per-layer splits with SIMD */
+  private inline def calculateRetainedAndSplits2(
+    originalLosses: Array[Double],
+    cededFlat: Array[Double],
+    retained: Array[Double],
+    perLayerSplits: Array[Array[Double]],
+    numLosses: Int,
+    numLayers: Int,
+    species: VectorSpecies[java.lang.Double]
+  ): Unit =
+    val vectorSize = species.length()
+    val loopBound = species.loopBound(numLosses)
+    
+    // First, copy per-layer data from flat array
+    for layerIdx <- 0 until numLayers do
+      val offset = layerIdx * numLosses
+      val layerData = new Array[Double](numLosses)
+      System.arraycopy(cededFlat, offset, layerData, 0, numLosses)
+      perLayerSplits(layerIdx) = layerData
+    end for
+    
+    // Calculate retained with SIMD: retained = original - sum(all layers)
+    var i = 0
+    while i < loopBound do
+      var sumVector = DoubleVector.zero(species)
+      
+      // Vectorized sum across all layers
+      for layerIdx <- 0 until numLayers do
+        val offset = layerIdx * numLosses
+        val layerVector = DoubleVector.fromArray(species, cededFlat, offset + i)
+        sumVector = sumVector.add(layerVector)
+      end for
+      
+      // Calculate retained = original - sum(ceded)
+      val originalVector = DoubleVector.fromArray(species, originalLosses, i)
+      val retainedVector = originalVector.sub(sumVector)
+      retainedVector.intoArray(retained, i)
+      
+      i += vectorSize
+    end while
+    
+    // Handle remaining elements (scalar tail)
+    while i < numLosses do
+      var sum = 0.0
+      for layerIdx <- 0 until numLayers do
+        val offset = layerIdx * numLosses
+        sum += cededFlat(offset + i)
+      end for
+      retained(i) = originalLosses(i) - sum
+      i += 1
+    end while
+  end calculateRetainedAndSplits2
+  
 end Tower

@@ -149,4 +149,81 @@ class TowerSuite extends munit.FunSuite:
     println(s"Fast Retained: ${retainedFast.mkString("[", ",", "]")}")
   }
 
+  test("Tower splitAmnt2 with IArray API") {
+    // Test data
+    val years = IArray(2024, 2024, 2024, 2025, 2025, 2026)
+    val days = IArray(1, 100, 200, 50, 150, 75) 
+    val losses = IArray(3.0, 8.0, 30.0, 15.5, 15.5, 30.0)
+    
+    val tower = Tower(
+      layers = Seq(
+        Layer(
+          occLimit = Some(25.0),
+          occRetention = Some(10.0), 
+          aggLimit = Some(50.0),
+          aggRetention = Some(5.0),
+          share = 0.5,
+          occType = DeductibleType.Retention,
+          aggType = DeductibleType.Retention
+        ),
+        Layer(
+          occLimit = Some(40.0),
+          occRetention = Some(25.0),
+          aggLimit = Some(100.0), 
+          aggRetention = Some(50.0),
+          share = 1.0,
+          occType = DeductibleType.Retention,
+          aggType = DeductibleType.Retention  
+        )
+      )
+    )
+    
+    // Run new implementation
+    val (cededFlat, retained2, splits) = tower.splitAmnt2(years, days, losses)
+    
+    // Run reference implementation for comparison
+    val (cededMatrix, retainedRef) = tower.splitAmnt(years.asInstanceOf[Array[Int]], days.asInstanceOf[Array[Int]], losses.asInstanceOf[Array[Double]])
+    
+    // Verify splits structure
+    assertEquals(splits.length, 2, "Should have 2 layer splits")
+    assertEquals(splits(0)._1, tower.layers(0), "First split should reference first layer")
+    assertEquals(splits(1)._1, tower.layers(1), "Second split should reference second layer")
+    
+    // Verify per-layer arrays
+    for layerIdx <- 0 until 2 do
+      val (layer, layerData) = splits(layerIdx)
+      assertEquals(layerData.length, losses.length, s"Layer $layerIdx data length")
+      
+      // Compare with reference implementation
+      for i <- 0 until losses.length do
+        assertEqualsDouble(layerData(i), cededMatrix(i, layerIdx), 1e-10, s"Layer $layerIdx, loss $i")
+      end for
+    end for
+    
+    // Verify flat ceded array (column-major order)
+    for layerIdx <- 0 until 2 do
+      for i <- 0 until losses.length do
+        val flatIdx = layerIdx * losses.length + i
+        assertEqualsDouble(cededFlat(flatIdx), cededMatrix(i, layerIdx), 1e-10, s"Flat ceded[$flatIdx]")
+      end for
+    end for
+    
+    // Verify retained matches reference
+    assertEquals(retained2.length, retainedRef.length)
+    for i <- retained2.indices do
+      assertEqualsDouble(retained2(i), retainedRef(i), 1e-10, s"Retained[$i]")
+    end for
+    
+    // Verify no leakage - total ceded + retained should equal total losses
+    val totalCeded = cededFlat.sum
+    val totalRetained = retained2.sum
+    val totalLosses = losses.asInstanceOf[Array[Double]].sum
+    assertEqualsDouble(totalCeded + totalRetained, totalLosses, 0.001, "No leakage check")
+    
+    println("splitAmnt2 implementation matches reference exactly!")
+    println(s"Splits layer 1: ${splits(0)._2.mkString("[", ",", "]")}")
+    println(s"Splits layer 2: ${splits(1)._2.mkString("[", ",", "]")}")
+    println(s"Retained: ${retained2.mkString("[", ",", "]")}")
+  }
+
 end TowerSuite
