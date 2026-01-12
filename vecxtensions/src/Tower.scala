@@ -583,6 +583,174 @@ case class Tower( layers: Seq[Layer],  id: UUID = UUID.randomUUID(), name: Optio
   end calculateRetainedFast
   
   /**
+   * High-performance implementation with single-loop optimization.
+   * Inlines all logic into a single outer loop that processes each loss event once,
+   * applying all transformations for all layers in a single pass.
+   * 
+   * @param years Immutable array of year identifiers (must be sorted)
+   * @param days Immutable array of day identifiers 
+   * @param losses Immutable array of loss amounts
+   * @return Tuple of (ceded: flat array, retained: array, splits: sequence of (layer, layer-ceded-array))
+   */
+  def splitAmnt3(years: IArray[Int], days: IArray[Int], losses: IArray[Double]): (ceded: Array[Double], retained: Array[Double], splits: Seq[(Layer, Array[Double])]) =
+    if losses.isEmpty then
+      return (Array.empty[Double], Array.empty[Double], layers.map((_, Array.empty[Double])))
+    
+    val numLosses = losses.length
+    val numLayers = layers.length
+    
+    // Pre-allocate all memory upfront
+    val cededFlat = new Array[Double](numLosses * numLayers)
+    val retained = new Array[Double](numLosses)
+    val perLayerSplits = new Array[Array[Double]](numLayers)
+    
+    // Initialize per-layer result arrays
+    for layerIdx <- 0 until numLayers do
+      perLayerSplits(layerIdx) = new Array[Double](numLosses)
+    
+    // Convert IArray to Array for internal processing
+    val yearsArr = years.asInstanceOf[Array[Int]]
+    val lossesArr = losses.asInstanceOf[Array[Double]]
+    
+    // Per-layer state tracking for group operations
+    val layerCumSum = new Array[Double](numLayers)  // Current cumulative sum per layer
+    val layerPrevCumSum = new Array[Double](numLayers)  // Previous cumsum in group for diff
+    val layerIsFirstInGroup = new Array[Boolean](numLayers)  // Track first element in group
+    
+    // Initialize state
+    for layerIdx <- 0 until numLayers do
+      layerCumSum(layerIdx) = 0.0
+      layerPrevCumSum(layerIdx) = 0.0
+      layerIsFirstInGroup(layerIdx) = true
+    
+    var prevYear = if numLosses > 0 then yearsArr(0) else 0
+    
+    // Single outer loop processing all losses once
+    var i = 0
+    while i < numLosses do
+      val loss = lossesArr(i)
+      val year = yearsArr(i)
+      
+      // Detect group boundary
+      val isNewGroup = (year != prevYear)
+      if isNewGroup then
+        // Reset state for new group
+        for layerIdx <- 0 until numLayers do
+          layerCumSum(layerIdx) = 0.0
+          layerPrevCumSum(layerIdx) = 0.0
+          layerIsFirstInGroup(layerIdx) = true
+        prevYear = year
+      
+      var totalCeded = 0.0
+      
+      // Process all layers for this loss
+      for layerIdx <- 0 until numLayers do
+        val layer = layers(layerIdx)
+        val flatIdx = layerIdx * numLosses + i
+        
+        // Step 1: Apply occurrence layer
+        var ceded = loss
+        
+        layer.occType match
+          case DeductibleType.Retention =>
+            ceded = layer.occRetention match
+              case Some(ret) => math.max(ceded - ret, 0.0)
+              case None => ceded
+            ceded = layer.occLimit match
+              case Some(lim) => math.min(ceded, lim)
+              case None => ceded
+              
+          case DeductibleType.Franchise =>
+            val passesThreshold = layer.occRetention match
+              case Some(ret) => loss > ret
+              case None => true
+            if passesThreshold then
+              ceded = layer.occLimit match
+                case Some(lim) => math.min(loss, lim)
+                case None => loss
+            else
+              ceded = 0.0
+              
+          case DeductibleType.ReverseFranchise =>
+            val belowThreshold = layer.occRetention match
+              case Some(ret) => loss <= ret
+              case None => true
+            if belowThreshold then
+              ceded = layer.occLimit match
+                case Some(lim) => math.min(loss, lim)
+                case None => loss
+            else
+              ceded = 0.0
+        
+        // Step 2: Group cumulative sum (accumulate within group)
+        layerCumSum(layerIdx) += ceded
+        val cumSumValue = layerCumSum(layerIdx)
+        
+        // Step 3: Apply aggregate layer
+        var aggCeded = cumSumValue
+        
+        layer.aggType match
+          case DeductibleType.Retention =>
+            aggCeded = layer.aggRetention match
+              case Some(ret) => math.max(aggCeded - ret, 0.0)
+              case None => aggCeded
+            aggCeded = layer.aggLimit match
+              case Some(lim) => math.min(aggCeded, lim)
+              case None => aggCeded
+              
+          case DeductibleType.Franchise =>
+            val passesAggThreshold = layer.aggRetention match
+              case Some(ret) => cumSumValue > ret
+              case None => true
+            if passesAggThreshold then
+              aggCeded = layer.aggLimit match
+                case Some(lim) => math.min(cumSumValue, lim)
+                case None => cumSumValue
+            else
+              aggCeded = 0.0
+              
+          case DeductibleType.ReverseFranchise =>
+            val belowAggThreshold = layer.aggRetention match
+              case Some(ret) => cumSumValue <= ret
+              case None => true
+            if belowAggThreshold then
+              aggCeded = layer.aggLimit match
+                case Some(lim) => math.min(cumSumValue, lim)
+                case None => cumSumValue
+            else
+              aggCeded = 0.0
+        
+        // Apply share
+        aggCeded = aggCeded * layer.share
+        
+        // Step 4: Group diff (compute difference from previous cumsum in group)
+        val finalCeded = if layerIsFirstInGroup(layerIdx) then
+          layerIsFirstInGroup(layerIdx) = false
+          aggCeded
+        else
+          aggCeded - layerPrevCumSum(layerIdx)
+        
+        layerPrevCumSum(layerIdx) = aggCeded
+        
+        // Store results
+        cededFlat(flatIdx) = finalCeded
+        perLayerSplits(layerIdx)(i) = finalCeded
+        totalCeded += finalCeded
+      end for
+      
+      // Step 5: Calculate retained
+      retained(i) = loss - totalCeded
+      
+      i += 1
+    end while
+    
+    // Build result with per-layer data
+    val splits = layers.zip(perLayerSplits).toSeq
+    
+    (cededFlat, retained, splits)
+  end splitAmnt3
+  
+  /**
    * High-performance implementation with alternative API that returns flat arrays and per-layer splits.
    * Uses IArray inputs for immutability and returns separate arrays for ceded, retained, and per-layer data.
    * 

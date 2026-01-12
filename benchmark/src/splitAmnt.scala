@@ -82,8 +82,9 @@ class SplitAmntBenchmark extends BLASBenchmark:
       val (cededOrig: Matrix[Double], retainedOrig) = tower.splitAmnt(years, days, losses)
       val (cededFast: Matrix[Double], retainedFast) = tower.splitAmntFast(years, days, losses)
       val (ceded2Flat: Array[Double], retained2, splits2) = tower.splitAmnt2(yearsIArray, daysIArray, lossesIArray)
+      val (ceded3Flat: Array[Double], retained3, splits3) = tower.splitAmnt3(yearsIArray, daysIArray, lossesIArray)
       
-      println(s"✅ All three implementations work for ${size} losses")
+      println(s"✅ All four implementations work for ${size} losses")
       val (x,y) = cededOrig.shape
       
       // Verify original vs fast
@@ -108,9 +109,20 @@ class SplitAmntBenchmark extends BLASBenchmark:
             assert(math.abs(cededOrig(i,j) - splitValue) < 1e-10, s"Mismatch at index ($i,$j)")
       end for
       
+      // Verify original vs splitAmnt3
+      for (i <- 0 until x) do
+        for (j <- 0 until y) do
+          val splitValue = splits3(j)._2(i)
+          if (math.abs(cededOrig(i,j) - splitValue) >= 1e-10) then
+            println("Original vs splitAmnt3: structures failed to agree")
+            println(s"At ($i,$j): orig=${cededOrig(i,j)}, split3=${splitValue}")
+            assert(math.abs(cededOrig(i,j) - splitValue) < 1e-10, s"Mismatch at index ($i,$j)")
+      end for
+      
       // Verify retained arrays match
       for i <- 0 until x do
-        assert(math.abs(retainedOrig(i) - retained2(i)) < 1e-10, s"Retained mismatch at $i")
+        assert(math.abs(retainedOrig(i) - retained2(i)) < 1e-10, s"Retained2 mismatch at $i")
+        assert(math.abs(retainedOrig(i) - retained3(i)) < 1e-10, s"Retained3 mismatch at $i")
       end for
       
     catch
@@ -141,5 +153,13 @@ class SplitAmntBenchmark extends BLASBenchmark:
     bh.consume(retained)
     bh.consume(splits)
   end splitAmnt2
+
+  @Benchmark
+  def splitAmnt3(bh: Blackhole): Unit =
+    val (cededFlat, retained, splits) = tower.splitAmnt3(yearsIArray, daysIArray, lossesIArray)
+    bh.consume(cededFlat)
+    bh.consume(retained)
+    bh.consume(splits)
+  end splitAmnt3
 
 end SplitAmntBenchmark
