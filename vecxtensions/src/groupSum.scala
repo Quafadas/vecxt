@@ -1,4 +1,3 @@
-
 package vecxtensions
 
 /**   - You have a sorted groups array.
@@ -9,8 +8,7 @@ package vecxtensions
 inline def groupSum(groups: Array[Int], values: Array[Double]): (uniqueGroups: Array[Int], groupSums: Array[Double]) =
 
   val n = groups.length
-  if n == 0 then
-    (Array.empty[Int], Array.empty[Double])
+  if n == 0 then (Array.empty[Int], Array.empty[Double])
   else
     // Single pass: collect groups and sums using growable arrays
     val uniqueGroupsBuilder = Array.newBuilder[Int]

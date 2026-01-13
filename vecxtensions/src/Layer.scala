@@ -1,19 +1,3 @@
-/*
- * Copyright 2023 quafadas
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package vecxt.reinsurance
 
 import java.util.UUID
@@ -26,9 +10,8 @@ object Layer:
       occRetention = Some(ret)
     )
 
-  /**
-   * reinstaements is the % to reinstate. e.g. Array(0) is one free
-   */
+  /** reinstaements is the % to reinstate. e.g. Array(0) is one free
+    */
   inline def apply(occLimit: Double, occRet: Double, aggLimit: Double, reinstatements: Array[Double]): Layer =
     Layer(
       occLimit = Some(occLimit),
@@ -36,6 +19,7 @@ object Layer:
       aggLimit = Some(aggLimit),
       reinstatement = Some(reinstatements)
     )
+end Layer
 
 case class Layer(
     layerId: UUID = UUID.randomUUID(),
@@ -74,20 +58,19 @@ case class Layer(
   lazy val brokerageAmountString = brokerageAmount.map(_.toString)
   lazy val brokerageUnitString = brokerageUnit.map(_.toString)
   lazy val occLayer = Sublayer(occLimit, occRetention, LossCalc.Occ, occType)
-  lazy val aggLayer = Sublayer(aggLimit, aggRetention, LossCalc.Agg, aggType)  
+  lazy val aggLayer = Sublayer(aggLimit, aggRetention, LossCalc.Agg, aggType)
 
   /** The smallest claim which exhausts the first limit of this layer */
   lazy val cap = occLimit match
-    case Some(occLimit) => 
+    case Some(occLimit) =>
       occType match
         case DeductibleType.Retention => occLimit + occRetention.getOrElse(0.0)
         case DeductibleType.Franchise => occLimit
-        // A cap is not a meaningful concept for a reverse franchise. The behaviour is non monotonic. 
-        // We prefer NaN to an exception here to indicate that the concept does not make sense. 
+        // A cap is not a meaningful concept for a reverse franchise. The behaviour is non monotonic.
+        // We prefer NaN to an exception here to indicate that the concept does not make sense.
         case DeductibleType.ReverseFranchise => Double.NaN //
-      
+
     case None => Double.PositiveInfinity
-  
 
   inline def applyScale(scale: Double): Layer =
     Layer(

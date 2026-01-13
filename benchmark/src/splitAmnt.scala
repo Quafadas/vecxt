@@ -22,7 +22,7 @@ class SplitAmntBenchmark extends BLASBenchmark:
   var len: String = uninitialized
 
   var years: Array[Int] = uninitialized
-  var days: Array[Int] = uninitialized 
+  var days: Array[Int] = uninitialized
   var losses: Array[Double] = uninitialized
   var tower: Tower = uninitialized
 
@@ -30,18 +30,18 @@ class SplitAmntBenchmark extends BLASBenchmark:
   def setup: Unit =
     val size = len.toInt
     val random = new Random(42) // Fixed seed for reproducibility
-    
+
     // Generate realistic test data
     years = Array.fill(size)(random.nextInt(size)).sorted
-    days = Array.fill(size)(1 + random.nextInt(365))   // 1-365
+    days = Array.fill(size)(1 + random.nextInt(365)) // 1-365
     losses = Array.fill(size)(random.nextDouble() * 100.0) // 0-100 losses
-    
+
     // Create realistic tower with multiple layers
     tower = Tower(
       layers = Seq(
         Layer(
           occLimit = Some(25.0),
-          occRetention = Some(10.0), 
+          occRetention = Some(10.0),
           aggLimit = Some(50),
           aggRetention = None,
           share = 0.5,
@@ -51,44 +51,47 @@ class SplitAmntBenchmark extends BLASBenchmark:
         Layer(
           occLimit = Some(40.0),
           occRetention = Some(35.0),
-          aggLimit = Some(80.0), 
+          aggLimit = Some(80.0),
           aggRetention = None,
           share = 1.0,
           occType = DeductibleType.Retention,
-          aggType = DeductibleType.Retention  
+          aggType = DeductibleType.Retention
         ),
         Layer(
           occLimit = Some(25.0),
           occRetention = Some(70.0),
-          aggLimit = Some(50.0), 
+          aggLimit = Some(50.0),
           aggRetention = Some(1.0),
           share = 0.75,
           occType = DeductibleType.Retention,
-          aggType = DeductibleType.Retention  
+          aggType = DeductibleType.Retention
         )
       )
     )
-    
 
     try
       val (cededOrig: Matrix[Double], retainedOrig) = tower.splitAmnt(years, days, losses)
       val (cededTotalsFast, retainedFast, splitsFast) = tower.splitAmntFast(years, days, losses)
-      val cededFast: Matrix[Double] = Matrix.fromColumns(splitsFast.map(_._2)* )
+      val cededFast: Matrix[Double] = Matrix.fromColumns(splitsFast.map(_._2)*)
       println(s"✅ Both implementations work for ${size} losses")
-      val (x,y) = cededOrig.shape
-      for (i <- 0 until x) do
-        for (j <- 0 until y) do
-          if (math.abs(cededOrig(i,j) - cededFast(i,j)) >= 1e-10) then
+      val (x, y) = cededOrig.shape
+      for i <- 0 until x do
+        for j <- 0 until y do
+          if math.abs(cededOrig(i, j) - cededFast(i, j)) >= 1e-10 then
             println("structures failed to agree loss with amount")
-            println(losses(i) )
+            println(losses(i))
             println(cededOrig.row(i).printArr)
             println(cededFast.row(i).printArr)
-            assert(math.abs(cededOrig(i,j) - cededFast(i,j)) < 1e-10, s"Mismatch at index ($i,$j): ${cededOrig(i,j)} != ${cededFast(i,j)}")      
+            assert(
+              math.abs(cededOrig(i, j) - cededFast(i, j)) < 1e-10,
+              s"Mismatch at index ($i,$j): ${cededOrig(i, j)} != ${cededFast(i, j)}"
+            )
       end for
     catch
       case e: Exception =>
         println(s"❌ Error with ${size} losses: ${e.getMessage}")
         throw e
+    end try
   end setup
 
   @Benchmark
@@ -98,7 +101,7 @@ class SplitAmntBenchmark extends BLASBenchmark:
     bh.consume(retained)
   end splitAmntOriginal
 
-  @Benchmark  
+  @Benchmark
   def splitAmntFast(bh: Blackhole): Unit =
     val (cededTotals, retained, splits) = tower.splitAmntFast(years, days, losses)
     bh.consume(cededTotals)

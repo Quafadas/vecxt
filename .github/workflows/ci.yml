@@ -45,6 +45,7 @@ jobs:
           cache: npm
 
       - name: formatCheck
+        if: matrix.project == 'jvm'
         run: ./mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 
       - if: matrix.project == 'js'

@@ -18,7 +18,7 @@ class TowerSuite extends munit.FunSuite:
   end noleakage
 
   test("from retention") {
-    val tower = Tower.fromRetention(5.0, Vector(6.0, 7.0, 8.0))    
+    val tower = Tower.fromRetention(5.0, Vector(6.0, 7.0, 8.0))
     assertEquals(tower.layers.length, 3)
 
     assertEquals(tower.layers.head.occLimit, Some(6.0))

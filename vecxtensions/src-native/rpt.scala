@@ -140,7 +140,7 @@ object rpt:
 
   // Matrix extensions that delegate to the underlying array
   extension (mat: Matrix[Double])
-    
+
     /** Apply reinsurance function to entire matrix via underlying array */
     inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
       mat.raw.reinsuranceFunction(limitOpt, retentionOpt)

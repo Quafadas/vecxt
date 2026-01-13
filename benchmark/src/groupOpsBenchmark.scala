@@ -22,7 +22,7 @@ class GroupOpsBenchmark:
 
   @Param(Array("100", "1000", "10000", "100000"))
   var size: String = uninitialized
-  
+
   @Param(Array("10", "100", "1000"))
   var groupSize: String = uninitialized
 
@@ -36,9 +36,9 @@ class GroupOpsBenchmark:
     val n = size.toInt
     val avgGroupSize = groupSize.toInt
     val numGroups = math.max(1, n / avgGroupSize)
-    
+
     val random = new Random(42) // Fixed seed for reproducibility
-    
+
     // Generate sorted groups array with realistic group sizes
     groups = new Array[Int](n)
     var currentGroup = 0
@@ -46,51 +46,56 @@ class GroupOpsBenchmark:
     while i < n do
       val remainingElements = n - i
       val remainingGroups = numGroups - currentGroup
-      val targetGroupSize = if remainingGroups > 0 then
-        remainingElements / remainingGroups
-      else
-        remainingElements
-      
+      val targetGroupSize =
+        if remainingGroups > 0 then remainingElements / remainingGroups
+        else remainingElements
+
       val actualGroupSize = math.max(1, targetGroupSize + random.nextInt(avgGroupSize / 2 + 1) - avgGroupSize / 4)
       val groupEnd = math.min(i + actualGroupSize, n)
-      
+
       while i < groupEnd do
         groups(i) = currentGroup
         i += 1
       end while
-      
+
       currentGroup += 1
     end while
-    
+
     // Generate random values
     values = Array.fill(n)(random.nextDouble() * 100.0)
     valuesCopy1 = values.clone()
     valuesCopy2 = values.clone()
+  end setup
 
   @Benchmark
   def benchGroupCumSum(bh: Blackhole): Unit =
     val result = groupCumSum(groups, values)
     bh.consume(result)
+  end benchGroupCumSum
 
   @Benchmark
   def benchGroupCumSumInPlace(bh: Blackhole): Unit =
     groupCumSumInPlace(groups, valuesCopy1)
     bh.consume(valuesCopy1)
+  end benchGroupCumSumInPlace
 
   @Benchmark
   def benchGroupDiff(bh: Blackhole): Unit =
     val result = groupDiff(groups, values)
     bh.consume(result)
+  end benchGroupDiff
 
   @Benchmark
   def benchGroupDiffInPlace(bh: Blackhole): Unit =
     groupDiffInPlace(groups, valuesCopy2)
     bh.consume(valuesCopy2)
+  end benchGroupDiffInPlace
 
   @Benchmark
   def benchGroupSum(bh: Blackhole): Unit =
     val (uniqueGroups, sums) = groupSum(groups, values)
     bh.consume(uniqueGroups)
     bh.consume(sums)
+  end benchGroupSum
 
 end GroupOpsBenchmark
