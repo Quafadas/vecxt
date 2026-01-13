@@ -1,4 +1,3 @@
-
 package vecxt.reinsurance
 
 import java.util.UUID

@@ -1,4 +1,3 @@
-
 package vecxt.benchmark
 
 import org.openjdk.jmh.annotations.*
