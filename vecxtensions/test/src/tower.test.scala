@@ -246,7 +246,7 @@ class TowerSuite extends munit.FunSuite:
 
     assertVecEquals(ceded, l1 + l2 + l3)
     noleakage(amounts, ceded, retained, splits)
-    assertVecEquals(l1, Array(5.0, 4, 1, 2)) // blows up agg limit
+    assertVecEquals(l1, Array(5.0, 4, 1, 2)) // blows up agg limit in year 1
     assertVecEquals(l2, Array(2.0, 0, 5, 0))
     assertVecEquals(l3, Array(0.0, 0.0, 1, 0))
 

@@ -17,6 +17,18 @@ object Tower:
     Tower(layers)
   end fromRetention
 
+  inline def singleShot(ret: Double, limits: IndexedSeq[Double]) =
+    val retentions = (ret +: limits.dropRight(1)).toArray.cumsum
+
+    val layers = retentions.zip(limits).map { (retention, limit) =>
+      Layer(
+        aggLimit = Some(limit),
+        occRetention = Some(retention)
+      )
+    }
+    Tower(layers)
+  end singleShot
+
   inline def oneAt100(ret: Double, limits: IndexedSeq[Double]): Tower =
 
     val retentions = (ret +: limits.dropRight(1)).toArray.cumsum
@@ -31,7 +43,8 @@ object Tower:
           reinstatement = Some(Array(1.0))
         )
       )
-    Tower(layers)  
+    Tower(layers)
+  end oneAt100
 
 end Tower
 
