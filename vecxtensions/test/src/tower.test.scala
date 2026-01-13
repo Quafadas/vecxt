@@ -42,14 +42,13 @@ class TowerSuite extends munit.FunSuite:
 
   test("One layer, one claim. Inf xs 10, loss 12.0") {
     val iterations = Array(1)
-    val days = Array(1)
     val amounts = Array(12.0)
 
     val layer1 = Layer(occRetention = Some(10.0))
 
     val tower = Tower(IndexedSeq(layer1))
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     assertEqualsDouble(ceded.head, 2.0, 0.001)
     assertEqualsDouble(retained.head, 10.0, 0.001)
@@ -59,14 +58,13 @@ class TowerSuite extends munit.FunSuite:
 
   test("One layer, one claim. 5 xs 10, loss 17.0") {
     val iterations = Array(1)
-    val days = Array(1)
     val amounts = Array(17.0)
 
     val layer1 = Layer(occRetention = Some(10.0), occLimit = Some(5.0))
 
     val tower = Tower(IndexedSeq(layer1))
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     assertEqualsDouble(ceded.head, 5.0, 0.001)
     assertEqualsDouble(retained.head, 12.0, 0.001)
@@ -76,14 +74,13 @@ class TowerSuite extends munit.FunSuite:
 
   test("One layer, one claim. 5 xs 10 occ, share 0.5, loss 17.0") {
     val iterations = Array(1)
-    val days = Array(1)
     val amounts = Array(17.0)
 
     val layer1 = Layer(occRetention = Some(10.0), occLimit = Some(5.0), share = 0.5)
 
     val tower = Tower(IndexedSeq(layer1))
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     assertEqualsDouble(ceded.head, 2.5, 0.001)
     assertEqualsDouble(retained.head, 14.5, 0.001)
@@ -93,14 +90,13 @@ class TowerSuite extends munit.FunSuite:
 
   test("One layer, two claims. 5 xs 10 occ, losses [14.0, 12.0] share 0.5") {
     val iterations = Array(1, 1)
-    val days = Array(1, 2)
     val amounts = Array(14.0, 12.0)
 
     val layer1 = Layer(occRetention = Some(10.0), occLimit = Some(5.0), share = 0.5)
 
     val tower = Tower(IndexedSeq(layer1))
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     val cededExpected = Array(2.0, 1.0) // (14 -10) * 0.5, (12 - 10) * 0.5
     assertVecEquals(ceded, cededExpected)
@@ -111,14 +107,13 @@ class TowerSuite extends munit.FunSuite:
 
   test("One layer, 5 claims across 3 iters. 5 xs 10 occ") {
     val iterations = Array(1, 2, 2, 3, 3)
-    val days = Array(1, 1, 2, 1, 2)
     val amounts = Array(9.0, 14.0, 12.0, 9.0, 15.0)
 
     val layer1 = Layer(occRetention = Some(10.0), occLimit = Some(5.0), share = 0.5)
 
     val tower = Tower(IndexedSeq(layer1))
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     val cededExpected = Array(0.0, 2.0, 1.0, 0.0, 2.5)
     assertVecEquals(ceded, cededExpected)
@@ -129,14 +124,13 @@ class TowerSuite extends munit.FunSuite:
 
   test("One layer, 5 claims across 3 iters. 5 xs 10 fra") {
     val iterations = Array(1, 2, 2, 3, 3)
-    val days = Array(1, 1, 2, 1, 2)
     val amounts = Array(9.0, 14.0, 12.0, 9.0, 15.0)
 
     val layer1 = Layer(occRetention = Some(10.0), occType = DeductibleType.Franchise, share = 0.5)
 
     val tower = Tower(IndexedSeq(layer1))
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     val cededExpected = Array(0.0, 7.0, 6.0, 0.0, 7.5)
     assertVecEquals(ceded, cededExpected)
@@ -147,14 +141,13 @@ class TowerSuite extends munit.FunSuite:
 
   test("Agg - One layer, 5 claims across 3 iters. 3 xs 10 occ, 3 xs 1.5 agg") {
     val iterations = Array(1, 2, 2, 3, 3)
-    val days = Array(1, 1, 2, 1, 2)
     val amounts = Array(12.0, 14.0, 12.0, 11.5, 10.5)
 
     val layer1 = Layer(occRetention = Some(10.0), occLimit = Some(3.0), aggLimit = Some(3.0), aggRetention = Some(1.5))
 
     val tower = Tower(IndexedSeq(layer1))
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     val cededExpected = Array(0.5, 1.5, 1.5, 0.0, 0.5)
     assertVecEquals(ceded, cededExpected)
@@ -169,7 +162,6 @@ class TowerSuite extends munit.FunSuite:
     intercept[AssertionError] {
       tower.splitAmntFast(
         Array[Int](1),
-        Array[Int](1),
         Array[Double](1.0, 2.0)
       )
     }
@@ -177,15 +169,6 @@ class TowerSuite extends munit.FunSuite:
     intercept[AssertionError] {
       tower.splitAmntFast(
         Array[Int](1, 2),
-        Array[Int](1),
-        Array[Double](1.0, 2.0)
-      )
-    }
-
-    intercept[AssertionError] {
-      tower.splitAmntFast(
-        Array[Int](1, 2),
-        Array[Int](1),
         Array[Double](1.0)
       )
     }
@@ -195,10 +178,9 @@ class TowerSuite extends munit.FunSuite:
   test("Multple layers") {
     val tower = Tower.fromRetention(5.0, Vector(5.0, 5.0, 5.0))
     val iterations = Array(1, 1, 2, 3)
-    val days = Array(1, 2, 1, 1)
     val amounts = Array(7.0, 14.0, 21.0, 4)
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     val l1 = splits.head._2
     val l2 = splits(1)._2
@@ -215,10 +197,9 @@ class TowerSuite extends munit.FunSuite:
   test("Multple layers, iterations") {
     val tower = Tower.fromRetention(5.0, Vector(5.0, 5.0, 5.0))
     val iterations = Array(1, 1, 2, 3)
-    val days = Array(1, 2, 1, 1)
     val amounts = Array(7.0, 14.0, 21.0, 4)
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     val l1 = splits.head._2
     val l2 = splits(1)._2
@@ -235,10 +216,9 @@ class TowerSuite extends munit.FunSuite:
   test("Multple layers, 1@100") {
     val tower = Tower.oneAt100(5.0, Vector(5.0, 5.0, 5.0))
     val iterations = Array(1, 1, 1, 2)
-    val days = Array(1, 2, 3, 1)
     val amounts = Array(12.0, 9.0, 16.0, 7)
 
-    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
     val l1 = splits.head._2
     val l2 = splits(1)._2

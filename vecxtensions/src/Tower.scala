@@ -307,12 +307,10 @@ case class Tower(
   /** High-performance implementation of splitAmnt optimized for SIMD and minimal allocations. Uses pre-allocated
     * matrices and in-place operations for maximum efficiency.
     */
-  inline def splitAmntFast(years: Array[Int], days: Array[Int], losses: Array[Double])(using
+  inline def splitAmntFast(years: Array[Int], losses: Array[Double])(using
       inline bc: vecxt.BoundsCheck.BoundsCheck
   ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
-    inline if bc then
-      assert(years.length == days.length)
-      assert(losses.length == days.length)
+    inline if bc then assert(years.length == losses.length)
     end if
     if losses.isEmpty then (Array.empty[Double], Array.empty[Double], layers.map(_ -> Array.empty[Double]))
     else
@@ -414,7 +412,7 @@ case class Tower(
         retainedVector.intoArray(retained, i)
         i += vectorSize
       end while
-
+      //tail loop for ceded loss.
       while i < numLosses do
         var sum = 0.0
         layerIdx = 0
