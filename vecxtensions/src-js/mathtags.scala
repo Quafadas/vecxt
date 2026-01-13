@@ -16,13 +16,13 @@ object MathTagsLaminar:
     def printMl =
       mfenced(
         mtable(
-          for (i <- 0 until m.rows)
-            yield mtr(
-              for (j <- 0 until m.cols)
-                yield mtd(
-                  mn(m((j, i)))
-                )
+          for i <- 0 until m.rows
+          yield mtr(
+            for j <- 0 until m.cols
+            yield mtd(
+              mn(m((j, i)))
             )
+          )
         )
       )
   end extension

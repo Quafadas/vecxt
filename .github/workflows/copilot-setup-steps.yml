@@ -5,6 +5,8 @@ name: "Copilot Setup Steps"
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - .github/workflows/copilot-setup-steps.yml
   pull_request:
@@ -28,7 +30,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup NodeJS v18 LTS              
+      - name: Setup NodeJS v18 LTS
         uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -44,8 +46,8 @@ jobs:
           java-version: '21'
 
       - name: Verify Java version
-        run: java --version        
+        run: java --version
 
       # This should resolve a JVM, download dependancies and leave mill ready for use.
       - name: setup mill
-        run: ./millw vecxt.__.compiledClassesAndSemanticDbFiles
+        run: ./mill vecxt.__.compiledClassesAndSemanticDbFiles
