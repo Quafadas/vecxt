@@ -5,7 +5,7 @@ import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
 
 extension (tower: Tower)
-  inline def splitLosses(years: IArray[Int], days: IArray[Int], losses: IArray[Double]): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
+  inline def splitLosses(years: IArray[Int], days: IArray[Int], losses: IArray[Double])(using inline bc: vecxt.BoundsCheck.BoundsCheck): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
     if losses.isEmpty then
       (Array.empty[Double], Array.empty[Double], tower.layers.map((_, Array.empty[Double])))
     else

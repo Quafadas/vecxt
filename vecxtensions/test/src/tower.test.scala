@@ -6,86 +6,38 @@ import vecxt.all.given
 
 class TowerSuite extends munit.FunSuite:
 
-  
-  
-  private def assertVecEquals(v1: Array[Double], v2: Array[Double])(implicit loc: munit.Location): Unit =
-    assert(v1.length == v2.length)
-    var i: Int = 0;
-    while i < v1.length do
-      assertEqualsDouble(v1(i), v2(i), 1 / 1e6, clue = s"at index $i")
-      i += 1
-    end while
-  end assertVecEquals
-
-  private def noleakage(losses:Array[Double], ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])] = IndexedSeq.empty) = 
+  private def noleakage(
+      losses: Array[Double],
+      ceded: Array[Double],
+      retained: Array[Double],
+      splits: IndexedSeq[(Layer, Array[Double])] = IndexedSeq.empty
+  ) =
     import vecxt.BoundsCheck.DoBoundsCheck.yes
     assertVecEquals(ceded + retained, losses)
     assertVecEquals(splits.map(_._2).reduce(_ + _), ceded)
+  end noleakage
 
-  // test("Tower splitAmnt - testSimple equivalent") {    
-  //   val iterations = Array(1, 1, 1, 2, 2, 3)
-  //   val days = Array(1, 2, 3, 1, 2, 1)
-  //   val amounts = Array(3.0, 8.0, 30.0, 15.5, 15.5, 30.0)
-    
-  //   // Create layers matching MATLAB test
-  //   // deductibleLayers = layers([3.5, 15], [5, 0.5])
-  //   // aggLayers = layers([7, 15], [3.5, 12])
-  //   val layer1 = Layer(
-  //     occLimit = Some(3.5),
-  //     occRetention = Some(5.0),
-  //     aggLimit = Some(7.0),
-  //     aggRetention = Some(3.5)      
-  //   )
-  //   val layer2 = Layer(
-  //     occLimit = Some(15.0),
-  //     occRetention = Some(0.5),
-  //     aggLimit = Some(15.0),
-  //     aggRetention = Some(12.0)
-  //   )
-    
-  //   val tower = Tower(layers = IndexedSeq(layer1, layer2))
-    
-  //   // Split amounts
-  //   val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
-    
-  //   // Verify ceded for first layer matches MATLAB expectation: [0,0,3,0,3.5,0]
-  //   val expectedCeded1 = Array(0.0, 0.0, 3.0, 0.0, 3.5, 0.0)
-  //   val cededL1 = splits(0)._2
-  //   for i <- expectedCeded1.indices do
-  //     assertEqualsDouble(expectedCeded1(i), cededL1(i), 0.001, s"Ceded layer 1, index $i: expected ${expectedCeded1(i)}, got ${cededL1(i)}")
-  //   end for
-    
-  //       // Verify ceded for first layer matches MATLAB expectation: [0,0,3,0,3.5,0]
-  //   val expectedCeded2 = Array(0.0, 0.0, 3.0, 0.0, 3.5, 0.0)
-  //   val cededL1 = splits(0)._2
-  //   for i <- expectedCeded1.indices do
-  //     assertEqualsDouble(expectedCeded1(i), cededL1(i), 0.001, s"Ceded layer 1, index $i: expected ${expectedCeded1(i)}, got ${cededL1(i)}")
-  //   end for
+  test("from retention") {
+    val tower = Tower.fromRetention(5.0, Vector(6.0, 7.0, 8.0))    
+    assertEquals(tower.layers.length, 3)
 
-  //   // Verify no leakage - total ceded + retained should equal total amounts
-  //   val totalCeded = (0 until ceded.length).map(i => ceded(i)).sum
-  //   val totalRetained = retained.sum
-  //   val totalAmounts = amounts.sum
-  //   assertEqualsDouble(totalCeded + totalRetained, totalAmounts, 0.001, "No leakage check")
-    
-  //   // Verify each claim sums correctly
-  //   for i <- amounts.indices do
-  //     val claimCeded = (0 until ceded.cols).map(j => ceded(i, j)).sum
-  //     assertEqualsDouble(claimCeded + retained(i), amounts(i), 0.001, s"Claim $i sum check")
-  //   end for
-    
-  //   println(s"Ceded layer 1: ${(0 until ceded.rows).map(i => ceded(i, 0)).mkString("[", ",", "]")}")
-  //   println(s"Ceded layer 2: ${(0 until ceded.rows).map(i => ceded(i, 1)).mkString("[", ",", "]")}")
-  //   println(s"Retained: ${retained.mkString("[", ",", "]")}")
-  // }
+    assertEquals(tower.layers.head.occLimit, Some(6.0))
+    assertEquals(tower.layers(1).occLimit, Some(7.0))
+    assertEquals(tower.layers(2).occLimit, Some(8.0))
+
+    assertEquals(tower.layers.head.occRetention, Some(5.0))
+    assertEquals(tower.layers(1).occRetention, Some(11.0))
+    assertEquals(tower.layers(2).occRetention, Some(18.0))
+
+  }
 
   test("Tower empty input handling") {
     val tower = Tower(layers = IndexedSeq(Layer()))
     val (ceded, retained) = tower.splitAmnt(Array.empty, Array.empty, Array.empty)
-    
+
     assertEquals(ceded.rows, 0)
     assertEquals(retained.length, 0)
-    
+
   }
 
   test("One layer, one claim. Inf xs 10, loss 12.0") {
@@ -137,7 +89,7 @@ class TowerSuite extends munit.FunSuite:
     assertEqualsDouble(retained.head, 14.5, 0.001)
     assertEqualsDouble(splits.head._2.head, 2.5, 0.001)
     noleakage(amounts, ceded, retained, splits)
-  }  
+  }
 
   test("One layer, two claims. 5 xs 10 occ, losses [14.0, 12.0] share 0.5") {
     val iterations = Array(1, 1)
@@ -150,12 +102,154 @@ class TowerSuite extends munit.FunSuite:
 
     val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
 
-    val cededExpected = Array(2.0, 1.0) // (14 -10) * 0.5
+    val cededExpected = Array(2.0, 1.0) // (14 -10) * 0.5, (12 - 10) * 0.5
     assertVecEquals(ceded, cededExpected)
     assertVecEquals(retained, amounts - cededExpected)
     assertVecEquals(splits.head._2, cededExpected)
-    noleakage(amounts, ceded, retained, splits)    
+    noleakage(amounts, ceded, retained, splits)
   }
 
+  test("One layer, 5 claims across 3 iters. 5 xs 10 occ") {
+    val iterations = Array(1, 2, 2, 3, 3)
+    val days = Array(1, 1, 2, 1, 2)
+    val amounts = Array(9.0, 14.0, 12.0, 9.0, 15.0)
+
+    val layer1 = Layer(occRetention = Some(10.0), occLimit = Some(5.0), share = 0.5)
+
+    val tower = Tower(IndexedSeq(layer1))
+
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+
+    val cededExpected = Array(0.0, 2.0, 1.0, 0.0, 2.5)
+    assertVecEquals(ceded, cededExpected)
+    assertVecEquals(retained, amounts - cededExpected)
+    assertVecEquals(splits.head._2, cededExpected)
+    noleakage(amounts, ceded, retained, splits)
+  }
+
+  test("One layer, 5 claims across 3 iters. 5 xs 10 fra") {
+    val iterations = Array(1, 2, 2, 3, 3)
+    val days = Array(1, 1, 2, 1, 2)
+    val amounts = Array(9.0, 14.0, 12.0, 9.0, 15.0)
+
+    val layer1 = Layer(occRetention = Some(10.0), occType = DeductibleType.Franchise, share = 0.5)
+
+    val tower = Tower(IndexedSeq(layer1))
+
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+
+    val cededExpected = Array(0.0, 7.0, 6.0, 0.0, 7.5)
+    assertVecEquals(ceded, cededExpected)
+    assertVecEquals(retained, amounts - cededExpected)
+    assertVecEquals(splits.head._2, cededExpected)
+    noleakage(amounts, ceded, retained, splits)
+  }
+
+  test("Agg - One layer, 5 claims across 3 iters. 3 xs 10 occ, 3 xs 1.5 agg") {
+    val iterations = Array(1, 2, 2, 3, 3)
+    val days = Array(1, 1, 2, 1, 2)
+    val amounts = Array(12.0, 14.0, 12.0, 11.5, 10.5)
+
+    val layer1 = Layer(occRetention = Some(10.0), occLimit = Some(3.0), aggLimit = Some(3.0), aggRetention = Some(1.5))
+
+    val tower = Tower(IndexedSeq(layer1))
+
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+
+    val cededExpected = Array(0.5, 1.5, 1.5, 0.0, 0.5)
+    assertVecEquals(ceded, cededExpected)
+    assertVecEquals(retained, amounts - cededExpected)
+    assertVecEquals(splits.head._2, cededExpected)
+    noleakage(amounts, ceded, retained, splits)
+  }
+
+  test("throws if inputs do not match dimensions") {
+    val tower = Tower.fromRetention(5.0, Vector(5.0, 5.0, 5.0))
+
+    intercept[AssertionError] {
+      tower.splitAmntFast(
+        Array[Int](1),
+        Array[Int](1),
+        Array[Double](1.0, 2.0)
+      )
+    }
+
+    intercept[AssertionError] {
+      tower.splitAmntFast(
+        Array[Int](1, 2),
+        Array[Int](1),
+        Array[Double](1.0, 2.0)
+      )
+    }
+
+    intercept[AssertionError] {
+      tower.splitAmntFast(
+        Array[Int](1, 2),
+        Array[Int](1),
+        Array[Double](1.0)
+      )
+    }
+
+  }
+
+  test("Multple layers") {
+    val tower = Tower.fromRetention(5.0, Vector(5.0, 5.0, 5.0))
+    val iterations = Array(1, 1, 2, 3)
+    val days = Array(1, 2, 1, 1)
+    val amounts = Array(7.0, 14.0, 21.0, 4)
+
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+
+    val l1 = splits.head._2
+    val l2 = splits(1)._2
+    val l3 = splits.last._2
+
+    assertVecEquals(ceded, l1 + l2 + l3)
+    noleakage(amounts, ceded, retained, splits)
+    assertVecEquals(l1, Array(2.0, 5, 5, 0))
+    assertVecEquals(l2, Array(0.0, 4, 5, 0))
+    assertVecEquals(l3, Array(0.0, 0.0, 5, 0))
+
+  }
+
+  test("Multple layers, iterations") {
+    val tower = Tower.fromRetention(5.0, Vector(5.0, 5.0, 5.0))
+    val iterations = Array(1, 1, 2, 3)
+    val days = Array(1, 2, 1, 1)
+    val amounts = Array(7.0, 14.0, 21.0, 4)
+
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+
+    val l1 = splits.head._2
+    val l2 = splits(1)._2
+    val l3 = splits.last._2
+
+    assertVecEquals(ceded, l1 + l2 + l3)
+    noleakage(amounts, ceded, retained, splits)
+    assertVecEquals(l1, Array(2.0, 5, 5, 0))
+    assertVecEquals(l2, Array(0.0, 4, 5, 0))
+    assertVecEquals(l3, Array(0.0, 0.0, 5, 0))
+
+  }
+
+  test("Multple layers, 1@100") {
+    val tower = Tower.oneAt100(5.0, Vector(5.0, 5.0, 5.0))
+    val iterations = Array(1, 1, 1, 2)
+    val days = Array(1, 2, 3, 1)
+    val amounts = Array(12.0, 9.0, 16.0, 7)
+
+    val (ceded, retained, splits) = tower.splitAmntFast(iterations, days, amounts)
+
+    val l1 = splits.head._2
+    val l2 = splits(1)._2
+    val l3 = splits.last._2
+
+    assertVecEquals(ceded, l1 + l2 + l3)
+    noleakage(amounts, ceded, retained, splits)
+    assertVecEquals(l1, Array(5.0, 4, 1, 2)) // blows up agg limit
+    assertVecEquals(l2, Array(2.0, 0, 5, 0))
+    assertVecEquals(l3, Array(0.0, 0.0, 1, 0))
+
+  }
 
 end TowerSuite

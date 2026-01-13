@@ -17,6 +17,7 @@
 package vecxt.reinsurance
 
 import java.util.UUID
+import vecxtensions.assertVecEquals
 
 class ScenarioRISuite extends munit.FunSuite:
 
@@ -49,7 +50,7 @@ class ScenarioRISuite extends munit.FunSuite:
       share = 0.75,
       basePremiumAmount = Some(10000.0),
       basePremiumUnit = Some(1.0),
-      reinstatement = Some(List(0.5, 0.75, 1.0))
+      reinstatement = Some(Array(0.5, 0.75, 1.0))
     )
 
     assertEquals(layer.layerId, layerId)
@@ -60,7 +61,10 @@ class ScenarioRISuite extends munit.FunSuite:
     assertEquals(layer.occRetention, Some(50000.0))
     assertEquals(layer.share, 0.75)
     assertEquals(layer.basePremiumAmount, Some(10000.0))
-    assertEquals(layer.reinstatement, Some(List(0.5, 0.75, 1.0)))
+    assert(layer.reinstatement.isDefined)
+    layer.reinstatement.map(
+      assertVecEquals(_, Array(0.5, 0.75, 1.0))
+    )
   }
 
   test("Layer string conversions") {
@@ -189,6 +193,51 @@ class ScenarioRISuite extends munit.FunSuite:
     assertEquals(scaledLayer.basePremiumDescription, Some("Base premium at Some(1000.0) * 2.0"))
     assertEquals(scaledLayer.commissionDescription, Some("Commission at Some(0.1) * 2.0"))
     assertEquals(scaledLayer.brokerageDescription, Some("Brokerage at Some(0.05) * 2.0"))
+  }
+
+  test("cap with retention deductible returns occLimit") {
+    val layer = Layer(
+      occLimit = Some(500000.0),
+      occRetention = Some(50000.0),
+      occType = DeductibleType.Retention
+    )
+
+    assertEquals(layer.cap, 550000.0)
+  }
+
+  test("cap with franchise adds retention") {
+    val layer = Layer(
+      occLimit = Some(500000.0),
+      occRetention = Some(50000.0),
+      occType = DeductibleType.Franchise
+    )
+
+    assertEquals(layer.cap, 500000.0)
+  }
+
+  test("cap with franchise and missing retention defaults to limit") {
+    val layer = Layer(
+      occLimit = Some(500000.0),
+      occType = DeductibleType.Franchise
+    )
+
+    assertEquals(layer.cap, 500000.0)
+  }
+
+  test("cap with reverse franchise returns NaN") {
+    val layer = Layer(
+      occLimit = Some(500000.0),
+      occRetention = Some(50000.0),
+      occType = DeductibleType.ReverseFranchise
+    )
+
+    assert(java.lang.Double.isNaN(layer.cap))
+  }
+
+  test("cap without occLimit returns positive infinity") {
+    val layer = Layer()
+
+    assertEquals(layer.cap, Double.PositiveInfinity)
   }
 
   test("occLayer sublayer creation") {

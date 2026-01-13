@@ -19,6 +19,24 @@ package vecxt.reinsurance
 import java.util.UUID
 import vecxt.reinsurance.rpt.reinsuranceFunction
 
+object Layer:
+  inline def apply(limit: Double, ret: Double): Layer =
+    Layer(
+      occLimit = Some(limit),
+      occRetention = Some(ret)
+    )
+
+  /**
+   * reinstaements is the % to reinstate. e.g. Array(0) is one free
+   */
+  inline def apply(occLimit: Double, occRet: Double, aggLimit: Double, reinstatements: Array[Double]): Layer =
+    Layer(
+      occLimit = Some(occLimit),
+      occRetention = Some(occRet),
+      aggLimit = Some(aggLimit),
+      reinstatement = Some(reinstatements)
+    )
+
 case class Layer(
     layerId: UUID = UUID.randomUUID(),
     layerName: Option[String] = None,
@@ -44,7 +62,7 @@ case class Layer(
     feeAmount: Option[Double] = None,
     feeUnit: Option[Double] = None,
     feeDescription: Option[String] = None,
-    reinstatement: Option[List[Double]] = None,
+    reinstatement: Option[Array[Double]] = None,
     currency: Option[String] = None
 ):
   lazy val aggLimitString = aggLimit.map(_.toString)
@@ -57,6 +75,19 @@ case class Layer(
   lazy val brokerageUnitString = brokerageUnit.map(_.toString)
   lazy val occLayer = Sublayer(occLimit, occRetention, LossCalc.Occ, occType)
   lazy val aggLayer = Sublayer(aggLimit, aggRetention, LossCalc.Agg, aggType)  
+
+  /** The smallest claim which exhausts the first limit of this layer */
+  lazy val cap = occLimit match
+    case Some(occLimit) => 
+      occType match
+        case DeductibleType.Retention => occLimit + occRetention.getOrElse(0.0)
+        case DeductibleType.Franchise => occLimit
+        // A cap is not a meaningful concept for a reverse franchise. The behaviour is non monotonic. 
+        // We prefer NaN to an exception here to indicate that the concept does not make sense. 
+        case DeductibleType.ReverseFranchise => Double.NaN //
+      
+    case None => Double.PositiveInfinity
+  
 
   inline def applyScale(scale: Double): Layer =
     Layer(
