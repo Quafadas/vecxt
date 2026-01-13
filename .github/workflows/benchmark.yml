@@ -17,7 +17,7 @@ jobs:
           jvm: temurin@17
       # Run benchmark with `go test -bench` and stores the output to a file
       - name: Run benchmark
-        run:  ./millw benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
+        run:  ./mill benchmark.runJmh -jvmArgs --add-modules=jdk.incubator.vector -rf json
 
       - name: Set variables
         run: |
