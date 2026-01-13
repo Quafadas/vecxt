@@ -1,9 +1,5 @@
 package vecxt.reinsurance
 
-import vecxt.reinsurance.rpt.*
-import jdk.incubator.vector.DoubleVector
-import jdk.incubator.vector.VectorSpecies
-
 extension (tower: Tower)
   inline def splitLosses(years: IArray[Int], losses: IArray[Double])(using
       inline bc: vecxt.BoundsCheck.BoundsCheck

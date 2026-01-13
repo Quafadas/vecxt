@@ -14,7 +14,7 @@ import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
 import java.util.Random
-
+// mill benchmark.runJmh vecxt.benchmark.SplitAmntBenchmark -jvmArgs --add-modules=jdk.incubator.vector -rf json
 @State(Scope.Thread)
 class SplitAmntBenchmark extends BLASBenchmark:
 
@@ -37,37 +37,7 @@ class SplitAmntBenchmark extends BLASBenchmark:
     losses = Array.fill(size)(random.nextDouble() * 100.0) // 0-100 losses
 
     // Create realistic tower with multiple layers
-    tower = Tower(
-      layers = Seq(
-        Layer(
-          occLimit = Some(25.0),
-          occRetention = Some(10.0),
-          aggLimit = Some(50),
-          aggRetention = None,
-          share = 0.5,
-          occType = DeductibleType.Retention,
-          aggType = DeductibleType.Retention
-        ),
-        Layer(
-          occLimit = Some(40.0),
-          occRetention = Some(35.0),
-          aggLimit = Some(80.0),
-          aggRetention = None,
-          share = 1.0,
-          occType = DeductibleType.Retention,
-          aggType = DeductibleType.Retention
-        ),
-        Layer(
-          occLimit = Some(25.0),
-          occRetention = Some(70.0),
-          aggLimit = Some(50.0),
-          aggRetention = Some(1.0),
-          share = 0.75,
-          occType = DeductibleType.Retention,
-          aggType = DeductibleType.Retention
-        )
-      )
-    )
+    tower = Tower.singleShot(10.0, IndexedSeq(25.0, 40.0, 25.0))
 
     try
       val (cededOrig: Matrix[Double], retainedOrig) = tower.splitAmnt(years, days, losses)
