@@ -1,7 +1,7 @@
 package vecxt
 
 import munit.FunSuite
-import narr.*
+
 import all.*
 import BoundsCheck.DoBoundsCheck.yes
 

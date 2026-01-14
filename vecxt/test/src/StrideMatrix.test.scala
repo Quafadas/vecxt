@@ -1,7 +1,7 @@
 package vecxt
 
 import munit.FunSuite
-import narr.*
+
 import all.*
 
 class StrideMatInstantiateCheckTest extends FunSuite:
@@ -10,7 +10,7 @@ class StrideMatInstantiateCheckTest extends FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
 
   test("strideMatInstantiateCheck - valid matrix configurations should pass"):
-    val data = NArray.tabulate(12)(_.toDouble)
+    val data = Array.tabulate(12)(_.toDouble)
 
     // Standard column-major 3x4 matrix
     strideMatInstantiateCheck[Double](data, 3, 4, 1, 3, 0)
@@ -26,7 +26,7 @@ class StrideMatInstantiateCheckTest extends FunSuite:
     strideMatInstantiateCheck[Double](data, 12, 1, 1, 12, 0)
 
   test("strideMatInstantiateCheck - invalid dimensions should fail"):
-    val data = NArray.tabulate(12)(_.toDouble)
+    val data = Array.tabulate(12)(_.toDouble)
 
     intercept[InvalidMatrix]:
       strideMatInstantiateCheck[Double](data, 0, 4, 1, 3, 0)
@@ -35,7 +35,7 @@ class StrideMatInstantiateCheckTest extends FunSuite:
       strideMatInstantiateCheck[Double](data, 3, -1, 1, 3, 0)
 
   test("strideMatInstantiateCheck - invalid offset should fail"):
-    val data = NArray.tabulate(12)(_.toDouble)
+    val data = Array.tabulate(12)(_.toDouble)
 
     // Negative offset
     intercept[IndexOutOfBoundsException]:
@@ -49,7 +49,7 @@ class StrideMatInstantiateCheckTest extends FunSuite:
       strideMatInstantiateCheck[Double](data, 3, 4, 1, 3, 15)
 
   test("strideMatInstantiateCheck - out of bounds access should fail"):
-    val data = NArray.tabulate(12)(_.toDouble)
+    val data = Array.tabulate(12)(_.toDouble)
 
     // Matrix would access beyond array bounds
     intercept[IndexOutOfBoundsException]:
@@ -64,14 +64,14 @@ class StrideMatInstantiateCheckTest extends FunSuite:
       strideMatInstantiateCheck[Double](data, 2, 2, 1, 2, 10) // max index would be 10 + 1 + 2 = 13
 
   test("strideMatInstantiateCheck - negative strides should work when valid"):
-    val data = NArray.tabulate(12)(_.toDouble) // indices 0-11
+    val data = Array.tabulate(12)(_.toDouble) // indices 0-11
 
     // Valid negative strides (useful for reversed views)
     strideMatInstantiateCheck[Double](data, 3, 4, -1, 3, 2) // start from offset 2, go backwards
     strideMatInstantiateCheck[Double](data, 3, 4, 1, -3, 9) // start from offset 9, columns go backwards
 
   test("strideMatInstantiateCheck - negative strides with invalid bounds should fail"):
-    val data = NArray.tabulate(12)(_.toDouble) // indices 0-11
+    val data = Array.tabulate(12)(_.toDouble) // indices 0-11
 
     // Negative stride would access negative indices
     intercept[IndexOutOfBoundsException]:
@@ -85,7 +85,7 @@ class StrideMatInstantiateCheckTest extends FunSuite:
       strideMatInstantiateCheck[Double](data, 3, 4, 1, -3, 11) // max index >= 12
 
   test("strideMatInstantiateCheck - edge cases"):
-    val data = NArray.tabulate(1)(_.toDouble)
+    val data = Array.tabulate(1)(_.toDouble)
 
     // Single element matrix with valid strides
     strideMatInstantiateCheck[Double](data, 1, 1, 1, 1, 0)
@@ -95,14 +95,14 @@ class StrideMatInstantiateCheckTest extends FunSuite:
     intercept[IllegalArgumentException]:
       strideMatInstantiateCheck[Double](data, 1, 1, 5, 1, 0)
 
-    val emptyData = NArray.ofSize[Double](0)
+    val emptyData = Array.ofDim[Double](0)
 
     // Empty data should fail
     intercept[IndexOutOfBoundsException]:
       strideMatInstantiateCheck[Double](emptyData, 1, 1, 1, 1, 0)
 
   test("strideMatInstantiateCheck - realistic linear algebra scenarios"):
-    val data = NArray.tabulate(20)(_.toDouble)
+    val data = Array.tabulate(20)(_.toDouble)
 
     // Submatrix view (2x3 starting at position 5 in a conceptual 4x5 matrix)
     strideMatInstantiateCheck[Double](data, 2, 3, 1, 4, 5)
@@ -120,7 +120,7 @@ class StrideMatInstantiateCheckTest extends FunSuite:
 
   test("strideMatInstantiateCheck - bounds checking disabled should skip validation"):
     import BoundsCheck.DoBoundsCheck.no
-    val data = NArray.tabulate(12)(_.toDouble)
+    val data = Array.tabulate(12)(_.toDouble)
 
     // These would normally fail, but should pass with bounds checking disabled
     strideMatInstantiateCheck[Double](data, 0, 4, 1, 3, 0) // invalid dimensions
@@ -129,7 +129,7 @@ class StrideMatInstantiateCheckTest extends FunSuite:
 
   test("dense and contiguous"):
     import BoundsCheck.DoBoundsCheck.no
-    val data = NArray.tabulate(12)(_.toDouble)
+    val data = Array.tabulate(12)(_.toDouble)
 
     // Dense and contiguous matrix
     val m1 = Matrix[Double](data, 3, 4, 1, 3, 0)

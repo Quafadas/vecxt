@@ -4,13 +4,13 @@ import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 import BoundsCheck.DoBoundsCheck
 import arrays.*
-import narr.*
+
 import BoundsCheck.DoBoundsCheck.yes
 
 class BoundsCheckSuite extends munit.FunSuite:
 
-  lazy val v_fill: NArray[Double] = NArray
-    .ofSize[Double](5)
+  lazy val v_fill: Array[Double] = Array
+    .ofDim[Double](5)
     .tap(a =>
       a(0) = 1.0
       a(1) = 2.0
@@ -21,7 +21,7 @@ class BoundsCheckSuite extends munit.FunSuite:
 
   test("Bounds check") {
     intercept[VectorDimensionMismatch] {
-      v_fill - NArray.fill[Double](2)(2.0)
+      v_fill - Array.fill[Double](2)(2.0)
     }
   }
 

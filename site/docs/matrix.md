@@ -6,17 +6,16 @@ Some examples. You shouldn't use `toString()` to find out about matricies. Mdoc 
 
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
-import narr.*
 
-val nestedArr = NArray(
-  NArray[Double](1.0, 2.0, 3.5),
-  NArray[Double](3.0, 4.0, 5.0),
-  NArray[Double](6.0, 7.0, 8.0)
+val nestedArr = Array(
+  Array[Double](1.0, 2.0, 3.5),
+  Array[Double](3.0, 4.0, 5.0),
+  Array[Double](6.0, 7.0, 8.0)
 )
 
 val matInt = Matrix.fromRows(
-  NArray[Int](1,2),
-  NArray[Int](3,4)
+  Array[Int](1,2),
+  Array[Int](3,4)
 )
 
 val matrix = Matrix.fromRowsArray(nestedArr)
@@ -42,19 +41,18 @@ More matrix operations...
 
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
-import narr.*
 
 val mat1 = Matrix.fromRows(
-  NArray(1.0, 4.0, 2.0),
-  NArray(5.0, 3.0, 6.0)
+  Array(1.0, 4.0, 2.0),
+  Array(5.0, 3.0, 6.0)
 )
 
 println(mat1.printMat)
 
 val mat2 = Matrix.fromRows(
-  NArray(7.0, 9.0),
-  NArray(8.0, 11.0),
-  NArray(10, 12.0)
+  Array(7.0, 9.0),
+  Array(8.0, 11.0),
+  Array(10, 12.0)
 )
 
 println(mat2.printMat)
@@ -105,24 +103,23 @@ mat1.hadamard(mat1).printMat
 
 ## Slicing
 
-Index via a `Int`, `NArray[Int]` or a `Range` to slice a matrix. The `::` operator is used to select all elements in a dimension.
+Index via a `Int`, `Array[Int]` or a `Range` to slice a matrix. The `::` operator is used to select all elements in a dimension.
 
 ```scala mdoc:to-string
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
-import narr.*
 
 val mat = Matrix.fromRows(
-    NArray[Double](1.0, 2.0, 3.0),
-    NArray[Double](4.0, 5.0, 6.0),
-    NArray[Double](7.0, 8.0, 9.0)
+  Array[Double](1.0, 2.0, 3.0),
+  Array[Double](4.0, 5.0, 6.0),
+  Array[Double](7.0, 8.0, 9.0)
 )
 mat(::, ::).printMat
 mat(Array(1), ::).printMat
 mat(::, Array(1)).printMat
 mat(Array(1), Array(1)).printMat
 mat(0 to 1, 0 to 1).printMat
-mat(NArray.from[Int](Array(0, 2)), 0 to 1).printMat
+mat(Array(0, 2), 0 to 1).printMat
 
 ```
 
@@ -131,12 +128,11 @@ mat(NArray.from[Int](Array(0, 2)), 0 to 1).printMat
 ```scala mdoc:to-string
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
-import narr.*
 
 val mat4 = Matrix.fromRows(
-    NArray[Double](1.0, 2.0, 3.0),
-    NArray[Double](4.0, 5.0, 6.0),
-    NArray[Double](7.0, 8.0, 9.0)
+  Array[Double](1.0, 2.0, 3.0),
+  Array[Double](4.0, 5.0, 6.0),
+  Array[Double](7.0, 8.0, 9.0)
 )
 
 mat4((1,1))

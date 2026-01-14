@@ -6,13 +6,13 @@ Expressed in a cross platform `NArray`, and runs in scalaJS - check your browser
 ```scala mdoc:js
 
 import vecxt.all.{*, given}
-import narr.*
+
 import org.scalajs.dom
 
-def algo(a: NArray[Double], b :NArray[Double], c: Double ) = (a + b)  / c
+def algo(a: Array[Double], b :Array[Double], c: Double ) = (a + b)  / c
 
-val a = NArray[Double](1.0, 2.0, 3.0, 2.0)
-val b = NArray[Double](4.0, 5.0, 6.0, 2.0)
+val a = Array[Double](1.0, 2.0, 3.0, 2.0)
+val b = Array[Double](4.0, 5.0, 6.0, 2.0)
 val c = 2.0
 
 // you'll have to look in the browser console to see this.
@@ -44,12 +44,12 @@ import org.scalajs.dom
 import com.raquo.laminar.api.L._
 import com.raquo.laminar.DomApi
 
-import narr.*
+
 
 import vecxt.all.{*, given}
 import vecxtensions.MathTagsLaminar.*
 
-val base = NArray[Double](11, 12, 13, 14, 15)
+val base = Array[Double](11, 12, 13, 14, 15)
 val mat1 = Matrix.fromRows[Double](
         base,
         base + 10.0,

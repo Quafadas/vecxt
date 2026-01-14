@@ -11,7 +11,7 @@ In general cross platform performance is a hard problem. We sidestep where possi
 
 ||JVM|JS|Native|Cross|
 ----|----|----|----|---|
-Data structure| `Array[Double]` | `Float64Array` | `Array[Double]` |`NArray[Double]` |
+Data structure| `Array[Double]` | `Float64Array` | `Array[Double]` |`Array[Double]` |
 Shims to | https://github.com/luhenry/netlib | https://github.com/stdlib-js/blas | [CBLAS](https://github.com/ekrich/sblas) | Best available |
 
 Consider browsing the [[vecxt]] api, and particulaly the extensions object. You'll see that most definitions are `@inline` anotated - i.e. there is zero runtime overhead calling this library, and checkout the [benchmarks](benchmarks/sum.md)

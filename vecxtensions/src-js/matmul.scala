@@ -6,7 +6,6 @@ import scala.reflect.ClassTag
 import vecxt.*
 import vecxt.all.*
 import vecxt.BoundsCheck.BoundsCheck
-import narr.*
 
 object SpireExt:
 
@@ -18,7 +17,7 @@ object SpireExt:
       val (r1, c1) = m1.shape
       val (r2, c2) = m2.shape
 
-      val nar = NArray.ofSize[A](r1 * c2)
+      val nar = Array.ofDim[A](r1 * c2)
       val res = Matrix(nar, (r1, c2))
 
       for i <- 0 until r1 do

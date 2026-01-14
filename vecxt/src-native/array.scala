@@ -9,7 +9,13 @@ import org.ekrich.blas.unsafe.*
 import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 
-import narr.*
+object arrayUtil:
+
+  extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
+  end extension
+  // end extension
+end arrayUtil
+
 object arrays:
 
   export vecxt.JsNativeDoubleArrays.*

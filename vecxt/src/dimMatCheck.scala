@@ -4,8 +4,6 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.*
 import vecxt.MatrixInstance.*
 
-import narr.*
-
 object dimMatCheck:
   inline def apply[A](a: Matrix[A], b: Matrix[A])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.cols != b.rows then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
@@ -36,7 +34,7 @@ object indexCheckMat:
 end indexCheckMat
 
 object dimMatInstantiateCheck:
-  inline def apply[A](raw: NArray[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](raw: Array[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if dim._1 * dim._2 != raw.size
       then throw InvalidMatrix(dim._1, dim._2, raw.size)
@@ -80,7 +78,7 @@ case class MatrixNotSymmetricException(rows: Int, cols: Int, i: Int, j: Int, val
     )
 
 object dimMatDInstantiateCheck:
-  inline def apply[A](raw: narr.native.DoubleArray, dim: RowCol)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](raw: Array[Double], dim: RowCol)(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if dim._1 * dim._2 != raw.size
       then throw InvalidMatrix(dim._1, dim._2, raw.size)

@@ -3,7 +3,6 @@
 
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.no
-import narr.*
 
 object CheatsheetTest:
 
@@ -12,19 +11,19 @@ object CheatsheetTest:
 
     // Array/Vector Creation and Basic Operations
     println("--- Array/Vector Creation ---")
-    val vec = NArray(1.0, 2.0, 3.0)
+    val vec = Array(1.0, 2.0, 3.0)
     println(s"1D array: ${vec.mkString(", ")}")
 
     println((vec ** 2.0).printArr)
 
-    val mat = Matrix(NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)
+    val mat = Matrix(Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)
     println(s"2D matrix shape: ${mat.shape}")
 
     println(svd(mat))
     println(rank(mat))
 
     // QR decomposition
-    val matSquare = Matrix(NArray(1.0, 2.0, 3.0, 4.0), 2, 2)
+    val matSquare = Matrix(Array(1.0, 2.0, 3.0, 4.0), 2, 2)
     val (q, r) = qr(matSquare)
     println(s"Q matrix shape: ${q.shape}")
     println(s"R matrix shape: ${r.shape}")
@@ -43,7 +42,7 @@ object CheatsheetTest:
 
     // Indexing and Slicing
     println("\n--- Indexing and Slicing ---")
-    val m = Matrix(NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), 3, 3)
+    val m = Matrix(Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), 3, 3)
     val mBig = Matrix.rand(10, 10)
     m.mean
     println("==== m =====")
@@ -65,8 +64,8 @@ object CheatsheetTest:
 
     // Element-wise Operations
     println("\n--- Element-wise Operations ---")
-    val a = NArray(1.0, 2.0, 3.0, 4.0)
-    val b = NArray(2.0, 3.0, 4.0, 5.0)
+    val a = Array(1.0, 2.0, 3.0, 4.0)
+    val b = Array(2.0, 3.0, 4.0, 5.0)
 
     val sum = a + b
     println(s"Element-wise addition: ${sum.mkString(", ")}")
@@ -75,8 +74,8 @@ object CheatsheetTest:
     println(s"Element-wise subtraction: ${diff.mkString(", ")}")
 
     // Element-wise multiply/divide for matrices
-    val mA = Matrix(NArray(1.0, 2.0, 3.0, 4.0), 2, 2)
-    val mB = Matrix(NArray(2.0, 3.0, 4.0, 5.0), 2, 2)
+    val mA = Matrix(Array(1.0, 2.0, 3.0, 4.0), 2, 2)
+    val mB = Matrix(Array(2.0, 3.0, 4.0, 5.0), 2, 2)
     val mProd = mA.hadamard(mB)
     println(s"Element-wise multiply (matrix): shape ${mProd.shape}")
 
@@ -100,8 +99,8 @@ object CheatsheetTest:
 
     // Matrix Operations
     println("\n--- Matrix Operations ---")
-    val m1 = Matrix(NArray(1.0, 2.0, 3.0, 4.0), 2, 2)
-    val m2 = Matrix(NArray(5.0, 6.0, 7.0, 8.0), 2, 2)
+    val m1 = Matrix(Array(1.0, 2.0, 3.0, 4.0), 2, 2)
+    val m2 = Matrix(Array(5.0, 6.0, 7.0, 8.0), 2, 2)
 
     val mneg = -m1
 
@@ -115,7 +114,7 @@ object CheatsheetTest:
     println(s"Determinant: $det")
 
     // Test matrix with scalar operations
-    val m3 = Matrix(NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)
+    val m3 = Matrix(Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)
     val m3Scaled = m3 * 2.0
     println(s"Matrix scaled by 2: shape ${m3Scaled.shape}")
 
@@ -167,8 +166,8 @@ object CheatsheetTest:
 
     // Norms and Distances
     println("\n--- Norms and Distances ---")
-    val v1 = NArray(1.0, 2.0, 3.0)
-    val v2 = NArray(4.0, 5.0, 6.0)
+    val v1 = Array(1.0, 2.0, 3.0)
+    val v2 = Array(4.0, 5.0, 6.0)
     val negv2 = -v2
     val cosSim = cosineSimilarity(v1, v2)
     println(s"Cosine similarity: $cosSim")
@@ -193,10 +192,10 @@ object CheatsheetTest:
     val cosResult = a.cos
     println(s"Cosine: ${cosResult.mkString(", ")}")
 
-    val asinResult = NArray(0.5, 0.7, 0.9).asin
+    val asinResult = Array(0.5, 0.7, 0.9).asin
     println(s"Arcsine: ${asinResult.mkString(", ")}")
 
-    val acosResult = NArray(0.5, 0.7, 0.9).acos
+    val acosResult = Array(0.5, 0.7, 0.9).acos
     println(s"Arccosine: ${acosResult.mkString(", ")}")
 
     val atanResult = a.atan
@@ -228,8 +227,8 @@ object CheatsheetTest:
 
     // Logical Operations
     println("\n--- Logical Operations ---")
-    val intArr1 = NArray(1, 2, 3, 4, 5)
-    val intArr2 = NArray(3, 2, 3, 1, 6)
+    val intArr1 = Array(1, 2, 3, 4, 5)
+    val intArr2 = Array(3, 2, 3, 1, 6)
 
     val gtResult = intArr1 > intArr2
     println(s"Greater than: ${gtResult.mkString(", ")}")
@@ -249,8 +248,8 @@ object CheatsheetTest:
     val neqResult = intArr1 !:= intArr2
     println(s"Inequality: ${neqResult.mkString(", ")}")
 
-    val boolArr = NArray(true, false, true, false, true)
-    val boolArr2 = NArray(false, false, true, true, false)
+    val boolArr = Array(true, false, true, false, true)
+    val boolArr2 = Array(false, false, true, true, false)
 
     not(boolArr2)
 
@@ -266,17 +265,17 @@ object CheatsheetTest:
     val diagVals = m.diag
     println(s"Diagonal: ${diagVals.mkString(", ")}")
 
-    val uniqueVals = NArray(1.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0).unique
+    val uniqueVals = Array(1.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0).unique
     println(s"Unique values: ${uniqueVals.mkString(", ")}")
 
-    val toSort = NArray(3.0, 1.0, 4.0, 1.0, 5.0)
-    val sorted = narr.copy(toSort)
-    narr.sort(sorted)()
+    val toSort = Array(3.0, 1.0, 4.0, 1.0, 5.0)
+    val sorted = toSort.clone()
+    scala.util.Sorting.quickSort(sorted)
     println(s"Sorted: ${sorted.mkString(", ")}")
 
     // Special Operations
     println("\n--- Special Operations ---")
-    val copied = narr.copy(a)
+    val copied = a.clone()
     println(s"Copied array: ${copied.mkString(", ")}")
 
     val increments = intArr1.increments

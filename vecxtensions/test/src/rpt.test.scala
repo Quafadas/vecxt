@@ -4,10 +4,9 @@ import vecxt.reinsurance.rpt.*
 import Retentions.Retention
 import Limits.Limit
 
-import narr.*
 class ReinsurancePricingSuite extends munit.FunSuite:
 
-  def long_v = NArray[Double](8, 11, 16, 8, 11, 16, 8, 11, 16)
+  def long_v = Array[Double](8, 11, 16, 8, 11, 16, 8, 11, 16)
 
   test("reinsurance function - ret and limit") {
     val v = long_v
@@ -41,7 +40,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
     assert(v(v.length - 1) == 15.0)
   }
   test("reinsurance function - no ret or limit") {
-    val v = NArray[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16)
     v.reinsuranceFunction(None, None)
     assert(v(0) == 8.0)
     assert(v(1) == 11.0)
@@ -49,7 +48,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - ret and limit") {
-    val v = NArray[Double](8, 11, 16, 10.0, 11.0)
+    val v = Array[Double](8, 11, 16, 10.0, 11.0)
     v.franchiseFunction(Some(Limit(5.0)), Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 11.0)
@@ -59,7 +58,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - ret only") {
-    val v = NArray[Double](8, 11, 16, 10.0, 11.0)
+    val v = Array[Double](8, 11, 16, 10.0, 11.0)
     v.franchiseFunction(None, Some(Retention(10.0)))
     assert(v(0) == 0.0)
     assert(v(1) == 11.0)
@@ -68,7 +67,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - Limit only") {
-    val v = NArray[Double](8, 11, 16, 10.0, 11.0)
+    val v = Array[Double](8, 11, 16, 10.0, 11.0)
     v.franchiseFunction(Some(Limit(10.0)), None)
     assert(v(0) == 8.0)
     assert(v(1) == 10.0)
@@ -77,7 +76,7 @@ class ReinsurancePricingSuite extends munit.FunSuite:
   }
 
   test("franchise function - No ret or limit") {
-    val v = NArray[Double](8, 11, 16)
+    val v = Array[Double](8, 11, 16)
     v.franchiseFunction(None, None)
     assert(v(0) == 8.0)
     assert(v(1) == 11.0)
@@ -151,10 +150,10 @@ end ReinsurancePricingSuite
 
 class ReinsuranceShareSuite extends munit.FunSuite:
 
-  def test_v = NArray[Double](8, 11, 16, 10.0)
+  def test_v = Array[Double](8, 11, 16, 10.0)
 
   test("reinsurance function with share - ret and limit") {
-    val v = NArray[Double](8, 11, 16, 10.0)
+    val v = Array[Double](8, 11, 16, 10.0)
     val share = 0.5
     v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)), share)
     assertEqualsDouble(v(0), 0.0, 0.0001, "First element") // (8-10).max(0).min(5) * 0.5 = 0
@@ -164,7 +163,7 @@ class ReinsuranceShareSuite extends munit.FunSuite:
   }
 
   test("reinsurance function with share - ret only") {
-    val v = NArray[Double](8, 11, 16, 10.0)
+    val v = Array[Double](8, 11, 16, 10.0)
     val share = 0.25
     v.reinsuranceFunction(None, Some(Retention(10.0)), share)
     assertEqualsDouble(v(0), 0.0, 0.0001, "First element") // (8-10).max(0) * 0.25 = 0
@@ -174,7 +173,7 @@ class ReinsuranceShareSuite extends munit.FunSuite:
   }
 
   test("reinsurance function with share - limit only") {
-    val v = NArray[Double](8, 11, 16, 10.0)
+    val v = Array[Double](8, 11, 16, 10.0)
     val share = 0.8
     v.reinsuranceFunction(Some(Limit(12.0)), None, share)
     assertEqualsDouble(v(0), 6.4, 0.0001, "First element") // min(8, 12) * 0.8 = 6.4
@@ -184,7 +183,7 @@ class ReinsuranceShareSuite extends munit.FunSuite:
   }
 
   test("reinsurance function with share - no ret or limit") {
-    val v = NArray[Double](8, 11, 16, 10.0)
+    val v = Array[Double](8, 11, 16, 10.0)
     val share = 0.3
     v.reinsuranceFunction(None, None, share)
     assertEqualsDouble(v(0), 2.4, 0.0001, "First element") // 8 * 0.3 = 2.4
@@ -194,8 +193,8 @@ class ReinsuranceShareSuite extends munit.FunSuite:
   }
 
   test("reinsurance function with share = 1.0 should match default") {
-    val v1 = NArray[Double](8, 11, 16, 10.0)
-    val v2 = NArray[Double](8, 11, 16, 10.0)
+    val v1 = Array[Double](8, 11, 16, 10.0)
+    val v2 = Array[Double](8, 11, 16, 10.0)
 
     v1.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
     v2.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)), 1.0)
@@ -205,7 +204,7 @@ class ReinsuranceShareSuite extends munit.FunSuite:
   }
 
   test("reinsurance function with share = 0.0 should give zeros") {
-    val v = NArray[Double](8, 11, 16, 10.0)
+    val v = Array[Double](8, 11, 16, 10.0)
     v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)), 0.0)
 
     for i <- 0 until v.length do assertEqualsDouble(v(i), 0.0, 0.0001, s"Element $i")

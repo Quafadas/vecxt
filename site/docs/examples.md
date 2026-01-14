@@ -103,10 +103,10 @@ And Ints. Note that the API here is more limited at the moment.
 
 ```scala mdoc:reset
 import vecxt.all.{*, given}
-import narr.*
 
-val v1 = NArray(1, 2, 3)
-val v2 = NArray(4, 5, 6)
+
+val v1 = Array(1, 2, 3)
+val v2 = Array(4, 5, 6)
 
 
 v1.dot(v2)
@@ -131,11 +131,11 @@ The library includes methods for calculating Tail Value at Risk (TVaR) and Value
 
 ```scala mdoc:reset
 import vecxt.all.{*, given}
-import narr.*
+
 import vecxt.reinsurance.*
 
 // Create a sample loss distribution
-val losses = NArray[Double](10.0, 25.0, 15.0, 50.0, 5.0, 30.0, 20.0, 8.0, 45.0, 12.0)
+val losses = Array[Double](10.0, 25.0, 15.0, 50.0, 5.0, 30.0, 20.0, 8.0, 45.0, 12.0)
 
 // Calculate Value at Risk (VaR) at 90% confidence level
 // VaR represents the threshold value - 90% of losses are above this value
@@ -152,7 +152,7 @@ val varValue = result.VaR
 val tvarValue = result.TVaR
 
 // Calculate multiple confidence levels at once (most efficient for batch analysis)
-val alphas = NArray[Double](0.85, 0.90, 0.95, 0.99)
+val alphas = Array[Double](0.85, 0.90, 0.95, 0.99)
 val results = losses.tVarWithVaRBatch(alphas)
 // Each result contains (cl, VaR, TVaR)
 results(0).cl   // Confidence level for first alpha
@@ -165,8 +165,8 @@ val tailMask = losses.tVarIdx(0.90)
 
 // Calculate tail dependence between two distributions
 // Measures how often extreme values occur together
-val losses1 = NArray[Double](5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0)
-val losses2 = NArray[Double](8.0, 12.0, 18.0, 22.0, 28.0, 32.0, 38.0, 42.0, 48.0, 52.0)
+val losses1 = Array[Double](5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0)
+val losses2 = Array[Double](8.0, 12.0, 18.0, 22.0, 28.0, 32.0, 38.0, 42.0, 48.0, 52.0)
 val tailDep = losses1.qdep(0.90, losses2)
 // Returns proportion of tail observations that are shared (0.0 to 1.0)
 

@@ -1,5 +1,4 @@
 package vecxt.reinsurance
-import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.reinsurance.Limits.Limit
 import vecxt.reinsurance.Retentions.Retention
@@ -14,7 +13,7 @@ import vecxt.reinsurance.Retentions.Retention
  */
 object rpt:
 
-  extension (vec: Float64Array)
+  extension (vec: Array[Double])
     inline def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
       (limitOpt, retentionOpt) match
         case (Some(limit), Some(retention)) =>
@@ -95,7 +94,7 @@ object rpt:
     end reinsuranceFunction
   end extension
 
-  extension (vec: Float64Array)
+  extension (vec: Array[Double])
     inline def franchiseFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention]): Unit =
       (limitOpt, retentionOpt) match
         case (None, None) => ()
