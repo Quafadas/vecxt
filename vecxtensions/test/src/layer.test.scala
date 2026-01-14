@@ -52,23 +52,23 @@ class ScenarioRISuite extends munit.FunSuite:
 
   test("Layer string conversions") {
     val layer = Layer(
-      aggLimit = Some(1000000.0),
-      aggRetention = Some(100000.0),
-      occLimit = Some(500000.0),
-      occRetention = Some(50000.0),
-      basePremiumAmount = Some(10000.0),
-      basePremiumUnit = Some(1.0),
-      brokerageAmount = Some(500.0),
+      aggLimit = Some(1000000.1),
+      aggRetention = Some(100000.1),
+      occLimit = Some(500000.1),
+      occRetention = Some(50000.1),
+      basePremiumAmount = Some(10000.1),
+      basePremiumUnit = Some(1.1),
+      brokerageAmount = Some(500.1),
       brokerageUnit = Some(0.05)
     )
 
-    assertEquals(layer.aggLimitString, Some("1000000.0"))
-    assertEquals(layer.aggDeductibleString, Some("100000.0"))
-    assertEquals(layer.occLimitString, Some("500000.0"))
-    assertEquals(layer.occDeductibleString, Some("50000.0"))
-    assertEquals(layer.premimuAmountString, Some("10000.0"))
-    assertEquals(layer.premiumUnitString, Some("1.0"))
-    assertEquals(layer.brokerageAmountString, Some("500.0"))
+    assertEquals(layer.aggLimitString, Some("1000000.1"))
+    assertEquals(layer.aggDeductibleString, Some("100000.1"))
+    assertEquals(layer.occLimitString, Some("500000.1"))
+    assertEquals(layer.occDeductibleString, Some("50000.1"))
+    assertEquals(layer.premimuAmountString, Some("10000.1"))
+    assertEquals(layer.premiumUnitString, Some("1.1"))
+    assertEquals(layer.brokerageAmountString, Some("500.1"))
     assertEquals(layer.brokerageUnitString, Some("0.05"))
   }
 
@@ -163,7 +163,7 @@ class ScenarioRISuite extends munit.FunSuite:
 
   test("applyScale description updates") {
     val originalLayer = Layer(
-      basePremiumUnit = Some(1000.0),
+      basePremiumUnit = Some(100.1),
       basePremiumDescription = Some("Base premium"),
       commissionUnit = Some(0.1),
       commissionDescription = Some("Commission"),
@@ -171,11 +171,11 @@ class ScenarioRISuite extends munit.FunSuite:
       brokerageDescription = Some("Brokerage")
     )
 
-    val scaledLayer = originalLayer.applyScale(2.0)
+    val scaledLayer = originalLayer.applyScale(2.1)
 
-    assertEquals(scaledLayer.basePremiumDescription, Some("Base premium at Some(1000.0) * 2.0"))
-    assertEquals(scaledLayer.commissionDescription, Some("Commission at Some(0.1) * 2.0"))
-    assertEquals(scaledLayer.brokerageDescription, Some("Brokerage at Some(0.05) * 2.0"))
+    assertEquals(scaledLayer.basePremiumDescription, Some("Base premium at Some(100.1) * 2.1"))
+    assertEquals(scaledLayer.commissionDescription, Some("Commission at Some(0.1) * 2.1"))
+    assertEquals(scaledLayer.brokerageDescription, Some("Brokerage at Some(0.05) * 2.1"))
   }
 
   test("cap with retention deductible returns occLimit") {
