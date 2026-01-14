@@ -59,8 +59,7 @@ object SplitLosses:
             if years(i) != prevYear then
               prevYear = years(i)
               cumSum = col(i)
-            else
-              cumSum += col(i)
+            else cumSum += col(i)
             end if
             col(i) = cumSum
             i += 1
@@ -139,8 +138,6 @@ object SplitLosses:
         (ceded, retained, layers.zip(cededSplits))
       end if
   end extension
-
-
 
   private inline def applyRetentionSIMD(
       data: Array[Double],
