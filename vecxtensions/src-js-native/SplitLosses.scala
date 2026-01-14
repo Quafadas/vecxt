@@ -4,6 +4,15 @@ import vecxt.BoundsCheck.BoundsCheck
 
 object SplitLosses:
   extension (tower: Tower)
+    /** Optimsie for small number of layers. Large numbers of claims.
+      *
+      * You may assume that year groups already sorted and are in order.
+      *
+      * @param years
+      * @param losses
+      * @param bc
+      * @return
+      */
     inline def splitAmntFast(years: Array[Int], losses: Array[Double])(using
         inline bc: BoundsCheck
     ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
@@ -16,6 +25,7 @@ object SplitLosses:
         val numLosses = losses.length
         val numLayers = layers.length
 
+        // Per-layer splits (column major) and totals
         val cededSplits = IndexedSeq.fill(numLayers)(losses.clone())
         val retained = new Array[Double](numLosses)
         val ceded = new Array[Double](numLosses)
@@ -34,6 +44,18 @@ object SplitLosses:
               applyReverseFranchise(col, 0, numLosses, layer.occLimit, layer.occRetention)
           end match
 
+          // Group cumulative sum on the fly by detecting year boundaries
+          var i = 0
+          while i < numLosses do
+            val year = years(i)
+            var cumSum = 0.0
+            while i < numLosses && years(i) == year do
+              cumSum += col(i)
+              col(i) = cumSum
+              i += 1
+            end while
+          end while
+
           layer.aggType match
             case DeductibleType.Retention =>
               applyRetention(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
@@ -48,6 +70,24 @@ object SplitLosses:
               if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
               end if
           end match
+
+          // Group diff on the fly by detecting year boundaries
+          i = 0
+          while i < numLosses do
+            val year = years(i)
+            var prevValue = 0.0
+            var isFirst = true
+            while i < numLosses && years(i) == year do
+              val current = col(i)
+              if isFirst then isFirst = false
+              else col(i) = current - prevValue
+              end if
+              prevValue = current
+              i += 1
+            end while
+          end while
+
+          layerIdx += 1
         end while
 
         var i = 0
