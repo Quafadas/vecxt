@@ -9,12 +9,6 @@ import org.ekrich.blas.unsafe.*
 import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 
-object arrayUtil:
-
-  extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
-  end extension
-  // end extension
-end arrayUtil
 
 object arrays:
 
