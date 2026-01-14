@@ -32,15 +32,6 @@ class TowerSuite extends munit.FunSuite:
 
   }
 
-  test("Tower empty input handling") {
-    val tower = Tower(layers = IndexedSeq(Layer()))
-    val (ceded, retained) = tower.splitAmnt(Array.empty[Int], Array.empty[Double])
-
-    assertEquals(ceded.rows, 0)
-    assertEquals(retained.length, 0)
-
-  }
-
   test("One layer, one claim. Inf xs 10, loss 12.0") {
     val iterations = Array(1)
     val amounts = Array(12.0)

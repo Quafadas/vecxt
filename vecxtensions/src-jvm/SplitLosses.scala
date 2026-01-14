@@ -5,6 +5,15 @@ import vecxt.BoundsCheck.BoundsCheck
 
 object SplitLosses:
   extension (tower: Tower)
+    /** High-performance SIMD optimized version for small number of layers (1 -5) and large number of claims.
+      *
+      * You may assume that year groups already sorted and are in order.
+      *
+      * @param years
+      * @param losses
+      * @param bc
+      * @return
+      */
     inline def splitAmntFast(years: Array[Int], losses: Array[Double])(using
         inline bc: BoundsCheck
     ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
@@ -19,15 +28,12 @@ object SplitLosses:
 
         // Per-layer splits (column major) and totals
         val cededSplits = IndexedSeq.fill(numLayers)(losses.clone())
-        val retained = new Array[Double](numLosses)
+        val retained = losses.clone()
         val ceded = new Array[Double](numLosses)
 
         // SIMD species for vectorization
         val species = DoubleVector.SPECIES_PREFERRED
         val vectorSize = species.length()
-
-        // Precompute year segment boundaries once (shared across layers)
-        val (segStarts, segEnds, segCount) = computeSegments(years, numLosses)
 
         // Step 1-4: process each layer column in-place (occurrence -> cumsum -> aggregate -> diff)
         var layerIdx = 0
@@ -45,19 +51,19 @@ object SplitLosses:
               applyReverseFranchise(col, 0, numLosses, layer.occLimit, layer.occRetention)
           end match
 
-          // Group cumulative sum by precomputed segments
-          var s = 0
-          while s < segCount do
-            val start = segStarts(s)
-            val end = segEnds(s)
-            var i = start
-            var cumSum = 0.0
-            while i < end do
+          // Cumulative sum within each year group using a single pass
+          var i = 0
+          var prevYear = -1
+          var cumSum = 0.0
+          while i < numLosses do
+            if years(i) != prevYear then
+              prevYear = years(i)
+              cumSum = col(i)
+            else
               cumSum += col(i)
-              col(i) = cumSum
-              i += 1
-            end while
-            s += 1
+            end if
+            col(i) = cumSum
+            i += 1
           end while
 
           // Aggregate layer with share
@@ -76,23 +82,22 @@ object SplitLosses:
               end if
           end match
 
-          // Group diff by precomputed segments (scalar within segment)
-          s = 0
-          while s < segCount do
-            val start = segStarts(s)
-            val end = segEnds(s)
-            var i = start
-            var prevValue = 0.0
-            var isFirst = true
-            while i < end do
+          // Convert cumulative back to per-loss (diff) within year groups in one pass
+          i = 0
+          var prevVal = 0.0
+          prevYear = -1
+          var firstInGroup = true
+          while i < numLosses do
+            if years(i) != prevYear then
+              prevYear = years(i)
+              prevVal = col(i)
+              firstInGroup = false
+            else
               val current = col(i)
-              if isFirst then isFirst = false
-              else col(i) = current - prevValue
-              end if
-              prevValue = current
-              i += 1
-            end while
-            s += 1
+              col(i) = current - prevVal
+              prevVal = current
+            end if
+            i += 1
           end while
 
           layerIdx += 1
@@ -135,22 +140,7 @@ object SplitLosses:
       end if
   end extension
 
-  private inline def computeSegments(years: Array[Int], length: Int): (Array[Int], Array[Int], Int) =
-    val starts = new Array[Int](length)
-    val ends = new Array[Int](length)
-    var count = 0
-    var i = 0
-    while i < length do
-      val start = i
-      val year = years(i)
-      while i < length && years(i) == year do i += 1
-      end while
-      starts(count) = start
-      ends(count) = i
-      count += 1
-    end while
-    (starts, ends, count)
-  end computeSegments
+
 
   private inline def applyRetentionSIMD(
       data: Array[Double],

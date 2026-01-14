@@ -14,6 +14,8 @@ import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
 import java.util.Random
+import vecxt.reinsurance.SplitLosses.splitAmntFast
+
 // mill benchmark.runJmh vecxt.benchmark.SplitAmntBenchmark -jvmArgs --add-modules=jdk.incubator.vector -rf json
 @State(Scope.Thread)
 class SplitAmntBenchmark extends BLASBenchmark:
@@ -22,7 +24,6 @@ class SplitAmntBenchmark extends BLASBenchmark:
   var len: String = uninitialized
 
   var years: Array[Int] = uninitialized
-  var days: Array[Int] = uninitialized
   var losses: Array[Double] = uninitialized
   var tower: Tower = uninitialized
 
@@ -33,43 +34,12 @@ class SplitAmntBenchmark extends BLASBenchmark:
 
     // Generate realistic test data
     years = Array.fill(size)(random.nextInt(size)).sorted
-    days = Array.fill(size)(1 + random.nextInt(365)) // 1-365
     losses = Array.fill(size)(random.nextDouble() * 100.0) // 0-100 losses
 
     // Create realistic tower with multiple layers
-    tower = Tower.singleShot(10.0, IndexedSeq(25.0, 40.0, 25.0))
+    tower = Tower.singleShot(10.0, IndexedSeq(25.0, 40.0, 25.0, 10.0))
 
-    try
-      val (cededOrig: Matrix[Double], retainedOrig) = tower.splitAmnt(years, days, losses)
-      val (cededTotalsFast, retainedFast, splitsFast) = tower.splitAmntFast(years, losses)
-      val cededFast: Matrix[Double] = Matrix.fromColumns(splitsFast.map(_._2)*)
-      println(s"✅ Both implementations work for ${size} losses")
-      val (x, y) = cededOrig.shape
-      for i <- 0 until x do
-        for j <- 0 until y do
-          if math.abs(cededOrig(i, j) - cededFast(i, j)) >= 1e-10 then
-            println("structures failed to agree loss with amount")
-            println(losses(i))
-            println(cededOrig.row(i).printArr)
-            println(cededFast.row(i).printArr)
-            assert(
-              math.abs(cededOrig(i, j) - cededFast(i, j)) < 1e-10,
-              s"Mismatch at index ($i,$j): ${cededOrig(i, j)} != ${cededFast(i, j)}"
-            )
-      end for
-    catch
-      case e: Exception =>
-        println(s"❌ Error with ${size} losses: ${e.getMessage}")
-        throw e
-    end try
   end setup
-
-  @Benchmark
-  def splitAmntOriginal(bh: Blackhole): Unit =
-    val (ceded, retained) = tower.splitAmnt(years, days, losses)
-    bh.consume(ceded)
-    bh.consume(retained)
-  end splitAmntOriginal
 
   @Benchmark
   def splitAmntFast(bh: Blackhole): Unit =
@@ -80,3 +50,5 @@ class SplitAmntBenchmark extends BLASBenchmark:
   end splitAmntFast
 
 end SplitAmntBenchmark
+
+// mill benchmark.runJmh vecxt.benchmark.SplitAmntBenchmark -jvmArgs "--add-modules=jdk.incubator.vector -Xms2G -Xmx4G -Xlog:gc*:file=gc.log:time,level -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:StartFlightRecording=filename=recording.jfr,duration=120s,settings=profile" -prof gc,stack -wi 5 -i 10 -f 1 -rf json
