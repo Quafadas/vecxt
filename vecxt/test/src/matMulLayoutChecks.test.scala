@@ -2,7 +2,7 @@ package vecxt
 
 import all.*
 import munit.FunSuite
-import narr.*
+
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 /** Here we test the matrix multiplication with different memory layouts. Col Major * Col Major Row Major * Row Major
@@ -15,7 +15,7 @@ class DifferentMemoryLayoutTests extends FunSuite:
   /** I don't think this can work
     */
   // test("offsets".only) {
-  //   def makeMat = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
+  //   def makeMat = Matrix[Double](Array.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
   //   val r = Array(1,2)
   //   val mat = makeMat(r, r)
   //   val mat2 = makeMat(r, r)
@@ -23,8 +23,8 @@ class DifferentMemoryLayoutTests extends FunSuite:
   //   println(s"mat.rowStride: ${mat.rowStride}, mat.colStride: ${mat.colStride}, mat.offset: ${mat.offset} rows: ${mat.rows}, cols: ${mat.cols}")
 
   //   val mat3 = Matrix.fromRows(
-  //     NArray(5.0, 6.0),
-  //     NArray(8.0, 9.0)
+  //     Array(5.0, 6.0),
+  //     Array(8.0, 9.0)
   //   )
 
   //   println(mat.printMat)
@@ -36,7 +36,7 @@ class DifferentMemoryLayoutTests extends FunSuite:
   // }
 
   test("scalars in matmul") {
-    def makeMat = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)
+    def makeMat = Matrix[Double](Array.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)
     val eye = Matrix.eye[Double](3)
     val eye2 = eye * 2.0
 
@@ -53,8 +53,8 @@ class DifferentMemoryLayoutTests extends FunSuite:
   }
 
   test("matmul col major * row major") {
-    val matRow = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)
-    val matCol = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
+    val matRow = Matrix[Double](Array.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)
+    val matCol = Matrix[Double](Array.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
 
     // def assertMatMulResult(mat: Matrix[Double]): Unit =
     //   assertEqualsDouble(mat(0,0), 1 * 1 + 2 * 2 + 3 * 3, 0.0001)
@@ -113,17 +113,17 @@ class DifferentMemoryLayoutTests extends FunSuite:
 
   test("Col major with offset") {
     val mat1 = Matrix.fromRows(
-      NArray(1.0, 2, 3, 4),
-      NArray(5.0, 6, 7, 8),
-      NArray(9.0, 10, 11, 12),
-      NArray(13.0, 14, 15, 16)
+      Array(1.0, 2, 3, 4),
+      Array(5.0, 6, 7, 8),
+      Array(9.0, 10, 11, 12),
+      Array(13.0, 14, 15, 16)
     )
     val mat2 = Matrix.fromRows(
-      NArray(1.0, 2, 3, 4),
-      NArray(5.0, 6, 7, 8),
-      NArray(9.0, 10, 11, 12),
-      NArray(13.0, 14, 15, 16),
-      NArray(1.0, 2, 3, 4)
+      Array(1.0, 2, 3, 4),
+      Array(5.0, 6, 7, 8),
+      Array(9.0, 10, 11, 12),
+      Array(13.0, 14, 15, 16),
+      Array(1.0, 2, 3, 4)
     )
 
     val subMat = Range.Inclusive(1, 2, 1)
@@ -175,8 +175,8 @@ class DifferentMemoryLayoutTests extends FunSuite:
   }
 
   // test("matmul different dimensions"){
-  //   val mat1 = Matrix[Double](NArray.tabulate[Double](6)(_.toDouble + 1), 3, 2, 1, 3, 0)
-  //   val mat2 = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
+  //   val mat1 = Matrix[Double](Array.tabulate[Double](6)(_.toDouble + 1), 3, 2, 1, 3, 0)
+  //   val mat2 = Matrix[Double](Array.tabulate[Double](9)(_.toDouble + 1), 3, 3, 1, 3, 0)
 
   //   val matMul = mat2 @@ mat1
 

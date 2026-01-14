@@ -1,6 +1,6 @@
 package vecxt
 import munit.FunSuite
-import narr.*
+
 import all.*
 
 class SubmatrixTest extends FunSuite:
@@ -8,9 +8,9 @@ class SubmatrixTest extends FunSuite:
 
   test("simple sub is zero copy"):
     val mat1 = Matrix.fromRows[Double](
-      NArray[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0),
-      NArray[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 6.0,
-      NArray[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 12.0
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0),
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 6.0,
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 12.0
     )
 
     val submat = mat1.submatrix(1 to 2, 1 to 2) // 2x2 submatrix
@@ -26,12 +26,12 @@ class SubmatrixTest extends FunSuite:
 
   test("Non-contiguous submatrix selects correct data"):
     val mat1 = Matrix.fromRows[Double](
-      NArray[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0),
-      NArray[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 6.0,
-      NArray[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 12.0
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0),
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 6.0,
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 12.0
     )
 
-    val submat = mat1.submatrix(NArray[Int](0, 2), NArray[Int](0, 1, 5)) // 2x2 submatrix
+    val submat = mat1.submatrix(Array[Int](0, 2), Array[Int](0, 1, 5)) // 2x2 submatrix
     // println(submat.printMat)
     assertEquals(submat.numel, 6)
     assertEqualsDouble(submat(0, 0), 1.0, 0.0000001)
@@ -43,16 +43,16 @@ class SubmatrixTest extends FunSuite:
 
   test("Offset"):
     val mat1 = Matrix.fromRows[Double](
-      NArray[Double](1.0, 2.0, 3.0),
-      NArray[Double](1.0, 2.0, 3.0) + 3.0,
-      NArray[Double](1.0, 2.0, 3.0) + 6.0
+      Array[Double](1.0, 2.0, 3.0),
+      Array[Double](1.0, 2.0, 3.0) + 3.0,
+      Array[Double](1.0, 2.0, 3.0) + 6.0
     )
 
-    val submat1 = Matrix.fromColumns[Double](NArray(1.0, 2, 3))
-    val submat2 = Matrix.fromColumns[Double](NArray(1.0, 2))
+    val submat1 = Matrix.fromColumns[Double](Array(1.0, 2, 3))
+    val submat2 = Matrix.fromColumns[Double](Array(1.0, 2))
 
     for i <- 0.until(2) do
-      val submat = mat1.submatrix(NArray(i, i + 1), ::)
+      val submat = mat1.submatrix(Array(i, i + 1), ::)
       val result = submat @@ submat1 // zero copy
       val expected = submat.deepCopy @@ submat1.deepCopy
       assertMatrixEquals(result, expected)

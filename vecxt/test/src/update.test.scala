@@ -1,6 +1,6 @@
 package vecxt
 
-import narr.*
+
 import scala.util.chaining.*
 import matrix.*
 import arrays.*
@@ -12,7 +12,7 @@ class UpdateSuite extends munit.FunSuite:
 
   val simpleMat = FunFixture[Matrix[Double]](
     setup = test =>
-      val row1 = NArray[Double](1.0, 2.0)
+      val row1 = Array[Double](1.0, 2.0)
       Matrix.fromRows(
         row1,
         row1 +:+ 10,
@@ -23,15 +23,15 @@ class UpdateSuite extends munit.FunSuite:
   )
 
   test("array update") {
-    val vec = NArray[Double](1.0, 2.0, 3.0, 4.0)
+    val vec = Array[Double](1.0, 2.0, 3.0, 4.0)
     vec(2) = 3.5
     assertEquals(vec(2), 3.5)
   }
 
   test("matrix update with function") {
     val mat = Matrix.fromRows(
-      NArray(1.0, 2.0),
-      NArray(3.0, 4.0)
+      Array(1.0, 2.0),
+      Array(3.0, 4.0)
     )
     mat(_ > 2.0) = 5.0
     assertEqualsDouble(mat(0, 0), 1.0, 0.0000001)
@@ -42,12 +42,12 @@ class UpdateSuite extends munit.FunSuite:
 
   test("matrix update from boolean matrix") {
     val mat = Matrix.fromRows[Double](
-      NArray(1.0, 2.0),
-      NArray(3.0, 4.0)
+      Array(1.0, 2.0),
+      Array(3.0, 4.0)
     )
     val boolMat: Matrix[Boolean] = Matrix.fromRows[Boolean](
-      NArray(true, false),
-      NArray(false, true)
+      Array(true, false),
+      Array(false, true)
     )
 
     mat(boolMat) = 5.0
@@ -62,7 +62,7 @@ class UpdateSuite extends munit.FunSuite:
   // This fails on JS. I don't think it should - but it's also a very painful difference in the way JS arrays react to i
   // index out of bounds problems. I don't know how to overload it meaninfully.
   test("array update should fail out of bounds".ignore) {
-    val vec = NArray[Double](1.0, 2.0, 3.0, 4.0)
+    val vec = Array[Double](1.0, 2.0, 3.0, 4.0)
     intercept[java.lang.IndexOutOfBoundsException] {
       vec(5) = 3.5
       // println(vec.mkString(","))

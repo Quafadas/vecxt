@@ -1,16 +1,14 @@
 package vecxt.rangeExtender
 
-import narr.*
-
 export MatrixRange.*
 
 object MatrixRange:
 
-  type RangeExtender = Range | NArray[Int] | ::.type | IntArray
+  type RangeExtender = Range | Array[Int] | ::.type
 
-  inline def range(r: RangeExtender, max: Int): NArray[Int] = r match
-    case _: ::.type     => NArray.from((0 until max).toArray)
-    case r: Range       => NArray.from(r.toArray)
-    case l: NArray[Int] => l
+  inline def range(r: RangeExtender, max: Int): Array[Int] = r match
+    case _: ::.type     => Array.from((0 until max).toArray)
+    case r: Range       => Array.from(r.toArray)
+    case l: Array[Int] => l
 
 end MatrixRange

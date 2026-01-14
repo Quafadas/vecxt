@@ -1,6 +1,6 @@
 package vecxt
 
-import narr.*
+
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import all.*
 
@@ -8,8 +8,8 @@ class MatrixHelperTileSuite extends munit.FunSuite:
 
   test("tile 2x2 matrix by 2x2"):
     val m = Matrix.fromRows[Int](
-      NArray[Int](1, 2),
-      NArray[Int](3, 4)
+      Array[Int](1, 2),
+      Array[Int](3, 4)
     )
 
     val tiled = Matrix.tile(m, 2, 2)
@@ -21,16 +21,16 @@ class MatrixHelperTileSuite extends munit.FunSuite:
     assertMatrixEquals(
       tiled,
       Matrix.fromRows(
-        NArray[Int](1, 2, 1, 2),
-        NArray[Int](3, 4, 3, 4),
-        NArray[Int](1, 2, 1, 2),
-        NArray[Int](3, 4, 3, 4)
+        Array[Int](1, 2, 1, 2),
+        Array[Int](3, 4, 3, 4),
+        Array[Int](1, 2, 1, 2),
+        Array[Int](3, 4, 3, 4)
       )
     )
 
   test("tile 1x3 row vector by 3x2"):
     val m = Matrix.fromRows[Double](
-      NArray[Double](1.0, 2.0, 3.0)
+      Array[Double](1.0, 2.0, 3.0)
     )
 
     val tiled = Matrix.tile(m, 3, 2)
@@ -41,17 +41,17 @@ class MatrixHelperTileSuite extends munit.FunSuite:
     assertMatrixEquals(
       tiled,
       Matrix.fromRows(
-        NArray[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0),
-        NArray[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0),
-        NArray[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0)
+        Array[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0),
+        Array[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0),
+        Array[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0)
       )
     )
 
   test("tile 3x1 column vector by 2x3"):
     val m = Matrix.fromRows[Int](
-      NArray[Int](1),
-      NArray[Int](2),
-      NArray[Int](3)
+      Array[Int](1),
+      Array[Int](2),
+      Array[Int](3)
     )
 
     val tiled = Matrix.tile(m, 2, 3)
@@ -62,20 +62,20 @@ class MatrixHelperTileSuite extends munit.FunSuite:
     assertMatrixEquals(
       tiled,
       Matrix.fromRows(
-        NArray[Int](1, 1, 1),
-        NArray[Int](2, 2, 2),
-        NArray[Int](3, 3, 3),
-        NArray[Int](1, 1, 1),
-        NArray[Int](2, 2, 2),
-        NArray[Int](3, 3, 3)
+        Array[Int](1, 1, 1),
+        Array[Int](2, 2, 2),
+        Array[Int](3, 3, 3),
+        Array[Int](1, 1, 1),
+        Array[Int](2, 2, 2),
+        Array[Int](3, 3, 3)
       )
     )
 
   test("tile by 1x1 returns copy"):
     val m = Matrix.fromRows[Double](
-      NArray[Double](1.0, 2.0),
-      NArray[Double](3.0, 4.0),
-      NArray[Double](5.0, 6.0)
+      Array[Double](1.0, 2.0),
+      Array[Double](3.0, 4.0),
+      Array[Double](5.0, 6.0)
     )
 
     val tiled = Matrix.tile(m, 1, 1)
@@ -86,7 +86,7 @@ class MatrixHelperTileSuite extends munit.FunSuite:
 
   test("tile 1x1 matrix by 3x3"):
     val m = Matrix.fromRows[Int](
-      NArray[Int](42)
+      Array[Int](42)
     )
 
     val tiled = Matrix.tile(m, 3, 3)
@@ -97,17 +97,17 @@ class MatrixHelperTileSuite extends munit.FunSuite:
     assertMatrixEquals(
       tiled,
       Matrix.fromRows(
-        NArray[Int](42, 42, 42),
-        NArray[Int](42, 42, 42),
-        NArray[Int](42, 42, 42)
+        Array[Int](42, 42, 42),
+        Array[Int](42, 42, 42),
+        Array[Int](42, 42, 42)
       )
     )
 
   test("tile non-square matrix 3x2 by 2x3"):
     val m = Matrix.fromRows[Double](
-      NArray[Double](1.0, 2.0),
-      NArray[Double](3.0, 4.0),
-      NArray[Double](5.0, 6.0)
+      Array[Double](1.0, 2.0),
+      Array[Double](3.0, 4.0),
+      Array[Double](5.0, 6.0)
     )
 
     val tiled = Matrix.tile(m, 2, 3)
@@ -118,19 +118,19 @@ class MatrixHelperTileSuite extends munit.FunSuite:
     assertMatrixEquals(
       tiled,
       Matrix.fromRows(
-        NArray[Double](1.0, 2.0, 1.0, 2.0, 1.0, 2.0),
-        NArray[Double](3.0, 4.0, 3.0, 4.0, 3.0, 4.0),
-        NArray[Double](5.0, 6.0, 5.0, 6.0, 5.0, 6.0),
-        NArray[Double](1.0, 2.0, 1.0, 2.0, 1.0, 2.0),
-        NArray[Double](3.0, 4.0, 3.0, 4.0, 3.0, 4.0),
-        NArray[Double](5.0, 6.0, 5.0, 6.0, 5.0, 6.0)
+        Array[Double](1.0, 2.0, 1.0, 2.0, 1.0, 2.0),
+        Array[Double](3.0, 4.0, 3.0, 4.0, 3.0, 4.0),
+        Array[Double](5.0, 6.0, 5.0, 6.0, 5.0, 6.0),
+        Array[Double](1.0, 2.0, 1.0, 2.0, 1.0, 2.0),
+        Array[Double](3.0, 4.0, 3.0, 4.0, 3.0, 4.0),
+        Array[Double](5.0, 6.0, 5.0, 6.0, 5.0, 6.0)
       )
     )
 
   test("tile with large repetition factor"):
     val m = Matrix.fromRows[Int](
-      NArray[Int](1, 2),
-      NArray[Int](3, 4)
+      Array[Int](1, 2),
+      Array[Int](3, 4)
     )
 
     val tiled = Matrix.tile(m, 5, 5)
@@ -156,8 +156,8 @@ class MatrixHelperTileSuite extends munit.FunSuite:
 
   test("tile preserves element values exactly"):
     val m = Matrix.fromRows[Double](
-      NArray[Double](1.1, 2.2, 3.3),
-      NArray[Double](4.4, 5.5, 6.6)
+      Array[Double](1.1, 2.2, 3.3),
+      Array[Double](4.4, 5.5, 6.6)
     )
 
     val tiled = Matrix.tile(m, 2, 2)

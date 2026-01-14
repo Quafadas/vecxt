@@ -101,34 +101,34 @@ end JvmDoubleMatrix
 //     * ._1 is the matrix values, stored as a single contiguous array ._2 is the dimensions ._2._1 is the number of rows
 //     * ._2._2 is the number of columns
 //     */
-//   opaque type Matrix[A] = (NArray[A], RowCol)
+//   opaque type Matrix[A] = (Array[A], RowCol)
 
-//   type RangeExtender = Range | Int | NArray[Int] | ::.type
+//   type RangeExtender = Range | Int | Array[Int] | ::.type
 
 //   // type Matrix = Matrix1 & Tensor
 
 //   object Matrix:
 
-//     inline def apply(raw: NArray[Double], dim: RowCol)(using
+//     inline def apply(raw: Array[Double], dim: RowCol)(using
 //         inline boundsCheck: BoundsCheck
 //     ): Matrix =
 //       dimMatInstantiateCheck(raw, dim)
 //       (raw, dim)
 //     end apply
-//     inline def apply(dim: RowCol, raw: NArray[Double])(using
+//     inline def apply(dim: RowCol, raw: Array[Double])(using
 //         inline boundsCheck: BoundsCheck
 //     ): Matrix =
 //       dimMatInstantiateCheck(raw, dim)
 //       (raw, dim)
 //     end apply
 
-//     inline def fromRows(a: NArray[NArray[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
+//     inline def fromRows(a: Array[Array[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
 //       val rows = a.size
 //       val cols = a(0).size
 
 //       assert(a.forall(_.size == cols))
 
-//       val newArr = NArray.ofSize[Double](rows * cols)
+//       val newArr = Array.ofDim[Double](rows * cols)
 //       var idx = 0
 //       var i = 0
 //       while i < cols do
@@ -146,18 +146,18 @@ end JvmDoubleMatrix
 
 //     inline def ones(dim: RowCol): Matrix =
 //       val (rows, cols) = dim
-//       val newArr = NArray.fill[Double](rows * cols)(1.0)
+//       val newArr = Array.fill[Double](rows * cols)(1.0)
 //       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
 //     end ones
 
 //     inline def zeros(dim: RowCol): Matrix =
 //       val (rows, cols) = dim
-//       val newArr = NArray.ofSize[Double](rows * cols)
+//       val newArr = Array.ofDim[Double](rows * cols)
 //       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
 //     end zeros
 
 //     inline def eye(dim: Int): Matrix =
-//       val newArr = NArray.ofSize[Double](dim * dim)
+//       val newArr = Array.ofDim[Double](dim * dim)
 //       var i = 0
 //       while i < dim do
 //         newArr(i * dim + i) = 1.0
@@ -166,11 +166,11 @@ end JvmDoubleMatrix
 //       Matrix(newArr, (dim, dim))(using BoundsCheck.DoBoundsCheck.no)
 //     end eye
 
-//     inline def fromColumns(a: NArray[NArray[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
+//     inline def fromColumns(a: Array[Array[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
 //       val cols = a.size
 //       val rows = a(0).size
 //       assert(a.forall(_.size == rows))
-//       val newArr = NArray.ofSize[Double](rows * cols)
+//       val newArr = Array.ofDim[Double](rows * cols)
 //       var idx = 0
 //       var i = 0
 //       while i < cols do
@@ -209,7 +209,7 @@ end JvmDoubleMatrix
 //     def apply(rowRange: RangeExtender, colRange: RangeExtender): Matrix =
 //       val newRows = range(rowRange, m.rows)
 //       val newCols = range(colRange, m.cols)
-//       val newArr = NArray.ofSize[Double](newCols.size * newRows.size)
+//       val newArr = Array.ofDim[Double](newCols.size * newRows.size)
 
 //       var idx = 0
 
@@ -239,7 +239,7 @@ end JvmDoubleMatrix
 //       m._1(idx)
 //     end apply
 
-//     inline def raw: NArray[Double] = m._1
+//     inline def raw: Array[Double] = m._1
 
 //     inline def +(m2: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
 //       sameDimMatCheck(m, m2)

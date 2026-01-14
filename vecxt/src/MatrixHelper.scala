@@ -5,26 +5,25 @@ import scala.reflect.ClassTag
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.*
 import vecxt.MatrixInstance.apply
-import narr.*
 
 object MatrixHelper:
   extension (m: Matrix.type)
 
     inline def fromRowsArray[@specialized(Double, Boolean, Int) A](
-        a: NArray[NArray[A]]
+        a: Array[Array[A]]
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       Matrix.fromRows(a.toSeq*)
     end fromRowsArray
 
     inline def fromRows[@specialized(Double, Boolean, Int) A](
-        a: NArray[A]*
+        a: Array[A]*
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val rows = a.size
       val cols = a.head.size
 
       assert(a.forall(_.size == cols))
 
-      val newArr = NArray.ofSize[A](rows * cols)
+      val newArr = Array.ofDim[A](rows * cols)
       var idx = 0
       var i = 0
       while i < cols do
@@ -41,12 +40,12 @@ object MatrixHelper:
     end fromRows
 
     inline def fromColumns[@specialized(Double, Boolean, Int) A](
-        a: NArray[A]*
+        a: Array[A]*
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val cols = a.size
       val rows = a.head.size
       assert(a.forall(_.size == rows))
-      val newArr = NArray.ofSize[A](rows * cols)
+      val newArr = Array.ofDim[A](rows * cols)
       var idx = 0
       var i = 0
       while i < cols do
@@ -63,12 +62,12 @@ object MatrixHelper:
     end fromColumns
 
     inline def fromColumnsArray[@specialized(Double, Boolean, Int) A](
-        a: NArray[NArray[A]]
+        a: Array[Array[A]]
     )(using inline boundsCheck: BoundsCheck, classTag: ClassTag[A]): Matrix[A] =
       val cols = a.size
       val rows = a.head.size
       assert(a.forall(_.size == rows))
-      val newArr = NArray.ofSize[A](rows * cols)
+      val newArr = Array.ofDim[A](rows * cols)
       var idx = 0
       var i = 0
       while i < cols do
@@ -95,13 +94,13 @@ object MatrixHelper:
 
     transparent inline def fill[A](singleton: A, dim: RowCol)(using ClassTag[A]): Matrix[A] =
       val (rows, cols) = dim
-      val newArr = NArray.fill[A](rows * cols)(singleton)
+      val newArr = Array.fill[A](rows * cols)(singleton)
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end fill
 
     transparent inline def eyeOf[A: ClassTag](singleton: A, dim: Int)(zero: A): Matrix[A] =
       val size = dim * dim
-      val newArr: NArray[A] = NArray.ofSize[A](size)
+      val newArr: Array[A] = Array.ofDim[A](size)
       var j = 0
       while j < size do
         newArr(j) = zero
@@ -118,7 +117,7 @@ object MatrixHelper:
 
     transparent inline def eyeOf[A: ClassTag: OneAndZero](singleton: A, row_col: RowCol)(zero: A): Matrix[A] =
       val size = row_col._1 * row_col._2
-      val newArr: NArray[A] = NArray.ofSize[A](size)
+      val newArr: Array[A] = Array.ofDim[A](size)
       var j = 0
       while j < size do
         newArr(j) = zero
@@ -138,7 +137,7 @@ object MatrixHelper:
     transparent inline def zerosOf[A: ClassTag: OneAndZero](zero: A, dim: RowCol): Matrix[A] =
       val (rows, cols) = dim
       val size = rows * cols
-      val newArr = NArray.ofSize[A](size)
+      val newArr = Array.ofDim[A](size)
       var j = 0
       while j < size do
         newArr(j) = zero
@@ -149,7 +148,7 @@ object MatrixHelper:
 
     inline def rand(rows: Int, cols: Int)(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       val size = rows * cols
-      val newArr = NArray.ofSize[Double](size)
+      val newArr = Array.ofDim[Double](size)
       val rng = new scala.util.Random()
       var i = 0
       while i < size do
@@ -167,7 +166,7 @@ object MatrixHelper:
         inline boundsCheck: BoundsCheck
     ): Matrix[Int] =
       val size = rows * cols
-      val newArr = NArray.ofSize[Int](size)
+      val newArr = Array.ofDim[Int](size)
       val rng = new scala.util.Random()
       val range = maxVal - minVal
       var i = 0
@@ -217,7 +216,7 @@ object MatrixHelper:
     inline def tile[A](inM: Matrix[A], rowsN: Int, colsN: Int)(using ClassTag[A]): Matrix[A] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
 
-      val newArr = NArray.ofSize[A](inM.numel * rowsN * colsN)
+      val newArr = Array.ofDim[A](inM.numel * rowsN * colsN)
       var r = 0
       while r < rowsN do
         var c = 0
@@ -241,9 +240,9 @@ object MatrixHelper:
       Matrix(newArr, inM.rows * rowsN, inM.cols * colsN)
     end tile
 
-    inline def createDiagonal(v: NArray[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def createDiagonal(v: Array[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       val size = v.length
-      val newArr = NArray.ofSize[Double](size * size)
+      val newArr = Array.ofDim[Double](size * size)
       var j = 0
       while j < newArr.length do
         newArr(j) = 0.0

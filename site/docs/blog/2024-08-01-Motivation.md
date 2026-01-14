@@ -22,10 +22,10 @@ For example if your data acquisition is serverside, but do parts of a calculatio
 ```scala mdoc
 
 import vecxt.all.*
-import narr.*
+
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 
-def algo(a: NArray[Double], b :NArray[Double], c: Double ) = (a + b)  / c
+def algo(a: Array[Double], b :Array[Double], c: Double ) = (a + b)  / c
 
 val a = Array[Double](1, 2, 3)
 val b = Array[Double](4, 5, 6)

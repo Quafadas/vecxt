@@ -72,7 +72,7 @@ So okay... I'm totally a sucker for punishment. We need zero copy transpose - ho
 
 ```scala sc:nocompile
   class Matrix[A] (
-      val raw: NArray[A],
+      val raw: Array[A],
       val rows: Row,
       val cols: Col,
       val rowStride: Int,

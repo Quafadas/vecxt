@@ -1,9 +1,10 @@
 package vecxt
-import narr.*
+
+
 
 object BooleanArrays:
 
-  extension (vec: NArray[Boolean])
+  extension (vec: Array[Boolean])
 
     inline def allTrue = vec.forall(identity)
 
@@ -29,8 +30,8 @@ object BooleanArrays:
       sum
     end trues
 
-    inline def not: NArray[Boolean] =
-      val result = new NArray[Boolean](vec.length)
+    inline def not: Array[Boolean] =
+      val result = new Array[Boolean](vec.length)
       var i = 0
       while i < vec.length do
         result(i) = !vec(i)

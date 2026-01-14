@@ -1,9 +1,7 @@
 package vecxt.reinsurance
 
-import narr.*
-// import narr.native.Extensions.sort
 
-extension [N <: Int](thisVector: NArray[Double])
+extension (thisVector: Array[Double])
 
   /** Calculate tail dependence between two distributions. Tail dependence measures the proportion of observations that
     * appear in both tails at a given confidence level. This is useful for understanding the co-movement of extreme
@@ -16,7 +14,7 @@ extension [N <: Int](thisVector: NArray[Double])
     * @return
     *   The proportion of shared tail observations (0.0 to 1.0)
     */
-  def qdep(alpha: Double, thatVector: NArray[Double]): Double =
+  def qdep(alpha: Double, thatVector: Array[Double]): Double =
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
 
@@ -25,9 +23,9 @@ extension [N <: Int](thisVector: NArray[Double])
     val order = Ordering.Double.TotalOrdering.reverse
 
     val (_, originalPositionThis) =
-      thisVector.asInstanceOf[NArray[Double]].toVector.zipWithIndex.sortBy(_._1)(using order).unzip
+      thisVector.toVector.zipWithIndex.sortBy(_._1)(using order).unzip
     val (_, originalPositionThat) =
-      thatVector.asInstanceOf[NArray[Double]].toVector.zipWithIndex.sortBy(_._1)(using order).unzip
+      thatVector.toVector.zipWithIndex.sortBy(_._1)(using order).unzip
 
     val tailIdxThis = originalPositionThis.slice(0, fte).toSet
     val tailIdxThat = originalPositionThat.slice(0, fte).toSet
@@ -49,7 +47,7 @@ extension [N <: Int](thisVector: NArray[Double])
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
     val fte = Math.floor(nte + 0.00000000001).toInt; // numberic precision is a pain.
-    val sorted = thisVector.sort()
+    val sorted = thisVector.sorted
     var i = 0
     var tailSum = 0.0;
     while i < fte do
@@ -71,7 +69,7 @@ extension [N <: Int](thisVector: NArray[Double])
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
     val fte = Math.floor(nte + 0.00000000001).toInt;
-    val sorted = thisVector.sort()
+    val sorted = thisVector.sorted
     if fte > 0 then sorted(fte - 1) else sorted(0)
     end if
   end VaR
@@ -87,7 +85,7 @@ extension [N <: Int](thisVector: NArray[Double])
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
     val fte = Math.floor(nte + 0.00000000001).toInt;
-    val sorted = thisVector.sort()
+    val sorted = thisVector.sorted
 
     var i = 0
     var tailSum = 0.0;
@@ -110,10 +108,10 @@ extension [N <: Int](thisVector: NArray[Double])
     * @return
     *   Array of named tuples containing (cl, VaR, TVaR) for each confidence level where cl = 1-alpha
     */
-  def tVarWithVaRBatch(alphas: NArray[Double]): NArray[(cl: Double, VaR: Double, TVaR: Double)] =
-    val sorted = thisVector.sort()
+  def tVarWithVaRBatch(alphas: Array[Double]): Array[(cl: Double, VaR: Double, TVaR: Double)] =
+    val sorted = thisVector.sorted
     val numYears = thisVector.length
-    val result = NArray.ofSize[(cl: Double, VaR: Double, TVaR: Double)](alphas.length)
+    val result = Array.ofDim[(cl: Double, VaR: Double, TVaR: Double)](alphas.length)
 
     var alphaIdx = 0
     while alphaIdx < alphas.length do
@@ -147,12 +145,12 @@ extension [N <: Int](thisVector: NArray[Double])
     * @return
     *   A boolean array where true indicates the element is in the tail
     */
-  def tVarIdx(alpha: Double): NArray[Boolean] =
+  def tVarIdx(alpha: Double): Array[Boolean] =
     val numYears = thisVector.length
     val nte = numYears * (1.0 - alpha);
     val fte = Math.floor(nte + 0.00000000001).toInt;
     val sorted = thisVector.toVector.zipWithIndex.sortBy(_._1).map(_._2)
-    val idx = NArray.fill[Boolean](numYears)(false)
+    val idx = Array.fill[Boolean](numYears)(false)
     var i = 0
     while i < fte do
       idx(sorted(i)) = true;

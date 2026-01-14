@@ -2,7 +2,7 @@ package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
 
-import narr.*
+
 
 /** strideMatInstantiateCheck performs a set of safety checks when constructing a matrix view with arbitrary strides and
   * offset into a backing array. The checks include:
@@ -40,8 +40,8 @@ import narr.*
   *   Starting position in the data array
   */
 object strideMatInstantiateCheck:
-  inline def apply[A](
-      raw: NArray[A],
+    inline def apply[A](
+      raw: Array[A],
       rows: Row,
       cols: Col,
       rowStride: Int,
@@ -50,13 +50,13 @@ object strideMatInstantiateCheck:
   )(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       // Check basic dimension validity
-      if rows <= 0 || cols <= 0 then throw InvalidMatrix(rows, cols, raw.size)
+      if rows <= 0 || cols <= 0 then throw InvalidMatrix(rows, cols, raw.length)
       end if
 
       // Check offset bounds
-      if offset < 0 || offset >= raw.size then
+      if offset < 0 || offset >= raw.length then
         throw java.lang.IndexOutOfBoundsException(
-          s"Offset $offset is out of bounds for array of size ${raw.size}"
+          s"Offset $offset is out of bounds for array of size ${raw.length}"
         )
       end if
 
@@ -95,10 +95,10 @@ object strideMatInstantiateCheck:
         )
       end if
 
-      if maxIndex >= raw.size then
+      if maxIndex >= raw.length then
         throw java.lang.IndexOutOfBoundsException(
           s"Matrix with dimensions ($rows, $cols), strides ($rowStride, $colStride), and offset $offset " +
-            s"would access index $maxIndex, but array size is only ${raw.size}"
+            s"would access index $maxIndex, but array size is only ${raw.length}"
         )
       end if
 end strideMatInstantiateCheck

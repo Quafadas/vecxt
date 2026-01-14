@@ -20,7 +20,7 @@ import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.BoundsCheck.BoundsCheck
 
-import narr.*
+
 
 case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
     extends Exception(
@@ -28,25 +28,31 @@ case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
     )
 
 protected[vecxt] object dimCheckLen:
-  inline def apply[A](a: NArray[A], b: Int)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](a: Array[A], b: Int)(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b then throw VectorDimensionMismatch(a.length, b)
 end dimCheckLen
 
 protected[vecxt] object indexCheck:
-  inline def apply[A](a: Float64Array, idx: Int)(using inline doCheck: BoundsCheck) =
+  inline def apply[A](a: Array[Double], idx: Int)(using inline doCheck: BoundsCheck) =
     inline if doCheck then
       if !(idx < a.length && idx >= 0) then
         throw java.lang.IndexOutOfBoundsException(s"Array of length : ${a.length} cannot be indexed at $idx")
 end indexCheck
 
 protected[vecxt] object dimCheck:
-  inline def apply[A](a: Float64Array, b: scala.scalajs.js.Array[A])(using inline doCheck: BoundsCheck) =
+  inline def apply[A](a: Array[Double], b: scala.scalajs.js.Array[A])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
-  inline def apply(a: NArray[Double], b: NArray[Double])(using inline doCheck: BoundsCheck) =
+  inline def apply(a: Array[Double], b: Array[Double])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
-  inline def apply(a: NArray[Int], b: NArray[Int])(using inline doCheck: BoundsCheck) =
+  inline def apply(a: Array[Int], b: Array[Int])(using inline doCheck: BoundsCheck) =
+    inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
+  inline def apply(a: Array[Double], b: Array[Boolean])(using inline doCheck: BoundsCheck) =
+    inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
+  inline def apply(a: Array[Int], b: Array[Boolean])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
 end dimCheck

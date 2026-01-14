@@ -9,7 +9,6 @@ import vecxt.MatrixHelper.zeros
 import vecxt.matrix.*
 import vecxt.rangeExtender.*
 
-import narr.*
 
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
@@ -55,9 +54,9 @@ object MatrixInstance:
     end update
 
     inline def updateInPlace(
-        row: RangeExtender,
-        col: RangeExtender,
-        to: NArray[A]
+      row: RangeExtender,
+      col: RangeExtender,
+      to: Array[A]
     )(using inline boundsCheck: BoundsCheck): Unit =
       // dimCheckLen(to, m.cols)
       // println("Updating matrix with row: " + row + ", col: " + col)
@@ -91,7 +90,7 @@ object MatrixInstance:
     def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)
       val newCols = range(colRange, m.cols)
-      val newArr = NArray.ofSize[A](newCols.size * newRows.size)
+      val newArr = Array.ofDim[A](newCols.size * newRows.size)
 
       if newRows.contiguous && newCols.contiguous then
 
@@ -137,7 +136,7 @@ object MatrixInstance:
     def deepCopy(asRowMajor: Boolean)(using ct: ClassTag[A]): Matrix[A] =
       // println(s"Deep copying matrix with shape ${m.shape} and offset ${m.offset}")
       import BoundsCheck.DoBoundsCheck.no
-      val newRaw = NArray.ofSize[A](m.numel)
+      val newRaw = Array.ofDim[A](m.numel)
       val newMat =
         if asRowMajor then Matrix(newRaw, m.rows, m.cols, m.cols, 1, 0) // row-major: rowStride = cols, colStride = 1
         else Matrix(newRaw, m.rows, m.cols, 1, m.rows, 0) // column-major: rowStride = 1, colStride = rows
@@ -192,7 +191,7 @@ object MatrixInstance:
       * @return
       */
     inline def apply(
-        indexes: NArray[RowCol]
+        indexes: Array[RowCol]
     )(using inline boundsCheck: BoundsCheck, ct: ClassTag[A], onz: OneAndZero[A]): Matrix[A] =
       val newMat = Matrix.zeros(m.shape)
       var i = 0
@@ -227,7 +226,7 @@ object MatrixInstance:
         )
       else
         // otherwise, all bets are off...
-        val raw = NArray.ofSize[A](newCols.length * newRows.length)
+        val raw = Array.ofDim[A](newCols.length * newRows.length)
         val newMat = Matrix(raw, newRows.length, newCols.length)
         val mRaw = m.raw
         var i = 0

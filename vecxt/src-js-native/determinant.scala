@@ -21,7 +21,7 @@ import vecxt.MatrixHelper.*
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
 
-import narr.* // For fromRows and zeros
+
 
 /** Shared determinant implementation for JS and Native platforms using scalar operations
   */
@@ -162,7 +162,7 @@ object Determinant:
       // Handle small cases directly
       if n == 1 then
         // Adjugate of 1x1 matrix [a] is [1]
-        Matrix.fromRows[Double](NArray(1.0))
+        Matrix.fromRows[Double](Array(1.0))
       else if n == 2 then
         // For 2x2 matrix | a  b |, adjugate is | d  -b |
         //                | c  d |              |-c   a |
@@ -171,8 +171,8 @@ object Determinant:
         val c = m(1, 0)
         val d = m(1, 1)
         Matrix.fromRows[Double](
-          NArray(d, -b),
-          NArray(-c, a)
+          Array(d, -b),
+          Array(-c, a)
         )
       else
         // For larger matrices, compute cofactor matrix and transpose
@@ -205,7 +205,7 @@ object Determinant:
         inline boundsCheck: BoundsCheck
     ): Matrix[Double] =
       val minorSize = n - 1
-      val minorData = NArray.ofSize[Double](minorSize * minorSize)
+      val minorData = Array.ofDim[Double](minorSize * minorSize)
 
       var srcRow = 0
       var dstRow = 0
@@ -253,7 +253,7 @@ object Determinant:
         val det = m(0, 0)
         if math.abs(det) < 1e-14 then throw new ArithmeticException("Matrix is singular (determinant is zero)")
         end if
-        Matrix.fromRows[Double](NArray(1.0 / det))
+        Matrix.fromRows[Double](Array(1.0 / det))
       else if n == 2 then
         val a = m(0, 0)
         val b = m(0, 1)
@@ -264,8 +264,8 @@ object Determinant:
         end if
         val invDet = 1.0 / det
         Matrix.fromRows[Double](
-          NArray(d * invDet, -b * invDet),
-          NArray(-c * invDet, a * invDet)
+          Array(d * invDet, -b * invDet),
+          Array(-c * invDet, a * invDet)
         )
       else
         // For larger matrices, use adj(A) / det(A)

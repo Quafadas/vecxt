@@ -17,7 +17,7 @@
 package vecxt
 
 import munit.FunSuite
-import narr.*
+
 import all.*
 import vecxt.BoundsCheck.BoundsCheck
 
@@ -28,7 +28,7 @@ class CholeskySuite extends FunSuite:
   test("cholesky of 1x1 positive scalar") {
 
     val a = Matrix.fromRows[Double](
-      NArray(4.0)
+      Array(4.0)
     )
 
     val L = cholesky(a)
@@ -52,8 +52,8 @@ class CholeskySuite extends FunSuite:
     // | 2  3 |
 
     val a = Matrix.fromRows[Double](
-      NArray(4.0, 2.0),
-      NArray(2.0, 3.0)
+      Array(4.0, 2.0),
+      Array(2.0, 3.0)
     )
 
     val L = cholesky(a)
@@ -77,9 +77,9 @@ class CholeskySuite extends FunSuite:
     // Construct A = B * B^T where B is random-ish but small integers
 
     val B = Matrix.fromRows[Double](
-      NArray(1.0, 2.0, 3.0),
-      NArray(0.0, 1.0, 4.0),
-      NArray(5.0, 6.0, 0.0)
+      Array(1.0, 2.0, 3.0),
+      Array(0.0, 1.0, 4.0),
+      Array(5.0, 6.0, 0.0)
     )
 
     val A = B @@ B.T
@@ -100,8 +100,8 @@ class CholeskySuite extends FunSuite:
     // Not symmetric: (0,1) != (1,0)
 
     val a = Matrix.fromRows[Double](
-      NArray(1.0, 2.0),
-      NArray(3.0, 4.0)
+      Array(1.0, 2.0),
+      Array(3.0, 4.0)
     )
 
     intercept[MatrixNotSymmetricException] {
@@ -115,8 +115,8 @@ class CholeskySuite extends FunSuite:
     // | 2  4 |
 
     val a = Matrix.fromRows[Double](
-      NArray(1.0, 2.0),
-      NArray(2.0, 4.0)
+      Array(1.0, 2.0),
+      Array(2.0, 4.0)
     )
 
     intercept[ArithmeticException] {
@@ -128,9 +128,9 @@ class CholeskySuite extends FunSuite:
     // A simple 3x3 SPD matrix
 
     val a = Matrix.fromRows[Double](
-      NArray(25.0, 15.0, -5.0),
-      NArray(15.0, 18.0, 0.0),
-      NArray(-5.0, 0.0, 11.0)
+      Array(25.0, 15.0, -5.0),
+      Array(15.0, 18.0, 0.0),
+      Array(-5.0, 0.0, 11.0)
     )
 
     val L = cholesky(a)

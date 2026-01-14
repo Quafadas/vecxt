@@ -6,7 +6,7 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
-import narr.*
+
 
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
@@ -30,35 +30,35 @@ object matrixUtil:
       * @param f
       */
     inline def mapRowsInPlace(
-        inline f: NArray[A] => NArray[A]
+        inline f: Array[A] => Array[A]
     )(using ClassTag[A]): Unit =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       var idx = 0
       while idx < m.rows do
-        m.updateInPlace(NArray[Int](idx), ::, f(m.row(idx)))
+        m.updateInPlace(Array[Int](idx), ::, f(m.row(idx)))
         idx += 1
       end while
     end mapRowsInPlace
 
     inline def mapRows[B](
-        inline f: NArray[A] => NArray[B]
+        inline f: Array[A] => Array[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
-      val newArr = NArray.ofSize[B](m.numel)
+      val newArr = Array.ofDim[B](m.numel)
       val m2 = Matrix(newArr, m.rows, m.cols)
       var idx = 0
       while idx < m.rows do
-        m2.updateInPlace(NArray[Int](idx), ::, f(m.row(idx)))
+        m2.updateInPlace(Array[Int](idx), ::, f(m.row(idx)))
         idx += 1
       end while
       m2
     end mapRows
 
     inline def mapRowsToScalar[B](
-        inline f: NArray[A] => B
+        inline f: Array[A] => B
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
-      val newArr = NArray.ofSize[B](m.rows)
+      val newArr = Array.ofDim[B](m.rows)
       var i = 0
       while i < m.rows do
         newArr(i) = f(m.row(i))
@@ -68,38 +68,38 @@ object matrixUtil:
     end mapRowsToScalar
 
     inline def mapColsInPlace(
-        inline f: NArray[A] => NArray[A]
+        inline f: Array[A] => Array[A]
     )(using ClassTag[A]): Unit =
       import vecxt.BoundsCheck.DoBoundsCheck.no
 
       var idx = 0
       while idx < m.cols do
-        m.updateInPlace(::, NArray[Int](idx), f(m.col(idx)))
+        m.updateInPlace(::, Array[Int](idx), f(m.col(idx)))
         idx += 1
       end while
     end mapColsInPlace
 
     inline def mapCols[B](
-        inline f: NArray[A] => NArray[B]
+        inline f: Array[A] => Array[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
-      val newArr = NArray.ofSize[B](m.numel)
+      val newArr = Array.ofDim[B](m.numel)
       // println(m.printMat)
       val m2 = Matrix(newArr, m.rows, m.cols)
       var idx = 0
       while idx < m.cols do
         // println(s"mapCols idx: $idx")
         // println(s"m.col(m): ${m.col(idx).mkString(" ")}, ${f(m.col(idx)).mkString(" ")}")
-        m2.updateInPlace(::, NArray[Int](idx), f(m.col(idx)))
+        m2.updateInPlace(::, Array[Int](idx), f(m.col(idx)))
         idx += 1
       end while
       m2
     end mapCols
 
     inline def mapColsToScalar[B](
-        inline f: NArray[A] => B
+        inline f: Array[A] => B
     )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
-      val newArr = NArray.ofSize[B](m.cols)
+      val newArr = Array.ofDim[B](m.cols)
       var i = 0
       while i < m.cols do
         newArr(i) = f(m.col(i))
@@ -141,9 +141,9 @@ object matrixUtil:
       offset = m.offset // same offset
     )(using BoundsCheck.DoBoundsCheck.no)
 
-    inline def diag(using ClassTag[A]): NArray[A] =
+    inline def diag(using ClassTag[A]): Array[A] =
       val minDim = Math.min(m.rows, m.cols)
-      val newArr = NArray.ofSize[A](minDim)
+      val newArr = Array.ofDim[A](minDim)
       var i = 0
       while i < minDim do
         newArr(i) = m((i, i))(using vecxt.BoundsCheck.DoBoundsCheck.no)
@@ -152,12 +152,12 @@ object matrixUtil:
       newArr
     end diag
 
-    inline def diag(col: Col, startFrom: Vertical, direction: Horizontal)(using ClassTag[A]): NArray[A] =
+    inline def diag(col: Col, startFrom: Vertical, direction: Horizontal)(using ClassTag[A]): Array[A] =
       val minDim = direction match
         case Horizontal.Right => Math.min(m.rows, m.cols - col)
         case Horizontal.Left  => Math.min(m.rows, col + 1)
 
-      val newArr = NArray.ofSize[A](minDim)
+      val newArr = Array.ofDim[A](minDim)
       var i = 0
       while i < minDim do
         val thisRow = if startFrom == Vertical.Top then i else m.rows - i - 1
@@ -169,11 +169,11 @@ object matrixUtil:
       newArr
     end diag
 
-    inline def diag(row: Row, startFrom: Horizontal, direction: Vertical)(using ClassTag[A]): NArray[A] =
+    inline def diag(row: Row, startFrom: Horizontal, direction: Vertical)(using ClassTag[A]): Array[A] =
       val minDim = direction match
         case Vertical.Top    => Math.min(m.cols, row + 1)
         case Vertical.Bottom => Math.min(m.rows - row, m.cols)
-      val newArr = NArray.ofSize[A](minDim)
+      val newArr = Array.ofDim[A](minDim)
       var i = 0
       while i < minDim do
         val thisCol = if startFrom == Horizontal.Right then m.cols - i - 1 else i
@@ -184,15 +184,15 @@ object matrixUtil:
       newArr
     end diag
 
-    /** Returns a row of the matrix as an NArray.
+    /** Returns a row of the matrix as an Array.
       *
       * Note that this copies the data. m.submatrix(i, ::) returns a zero copy view.
       *
       * @param i
       * @return
       */
-    inline def row(i: Int)(using ClassTag[A]): NArray[A] =
-      val newArr = NArray.ofSize[A](m.cols)
+    inline def row(i: Int)(using ClassTag[A]): Array[A] =
+      val newArr = Array.ofDim[A](m.cols)
       var j = 0
       while j < m.cols do
         newArr(j) = m((i, j))(using vecxt.BoundsCheck.DoBoundsCheck.no)
@@ -220,8 +220,8 @@ object matrixUtil:
       * @param i
       * @return
       */
-    inline def col(i: Int)(using ClassTag[A]): NArray[A] =
-      val newArr = NArray.ofSize[A](m.rows)
+    inline def col(i: Int)(using ClassTag[A]): Array[A] =
+      val newArr = Array.ofDim[A](m.rows)
       var j = 0
       while j < m.rows do
         newArr(j) = m((j, i))(using vecxt.BoundsCheck.DoBoundsCheck.no)
@@ -242,14 +242,14 @@ object matrixUtil:
     inline def vertcat(m2: Matrix[A])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]): Matrix[A] =
       if m.isDenseColMajor && m2.isDenseColMajor then
         val newShape = (m.rows + m2.rows, m.cols)
-        val newArr: NArray[A] = NArray.ofSize[A](newShape._1 * newShape._2)
+        val newArr: Array[A] = Array.ofDim[A](newShape._1 * newShape._2)
 
         var i = 0
         while i < m.cols do
           val column = m.col(i)
           val column2 = m2.col(i)
-          column.copyToNArray[A](newArr, i * newShape._1)
-          column2.copyToNArray[A](newArr, i * newShape._1 + m.rows)
+          column.copyToArray[A](newArr, i * newShape._1)
+          column2.copyToArray[A](newArr, i * newShape._1 + m.rows)
           i += 1
         end while
 

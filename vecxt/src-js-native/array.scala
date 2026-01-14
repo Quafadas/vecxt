@@ -1,5 +1,6 @@
 package vecxt
 
+
 import scala.math.Ordering
 import scala.reflect.ClassTag
 import scala.util.chaining.*
@@ -8,19 +9,19 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
 
-import narr.*
+
 
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
 object JsNativeDoubleArrays:
 
-  def linspace(a: Double, b: Double, length: Int = 100): NArray[Double] =
+  def linspace(a: Double, b: Double, length: Int = 100): Array[Double] =
     val increment = (b - a) / (length - 1)
-    NArray.tabulate[Double](length)(i => a + increment * i)
+    Array.tabulate[Double](length)(i => a + increment * i)
   end linspace
 
   extension (d: Double)
-    inline def /(arr: NArray[Double]) =
-      val out = new NArray[Double](arr.length)
+    inline def /(arr: Array[Double]) =
+      val out = new Array[Double](arr.length)
       var i = 0
 
       while i < arr.length do
@@ -30,8 +31,8 @@ object JsNativeDoubleArrays:
       out
     end /
 
-    inline def +(arr: NArray[Double]) =
-      val out = new NArray[Double](arr.length)
+    inline def +(arr: Array[Double]) =
+      val out = new Array[Double](arr.length)
       var i = 0
 
       while i < arr.length do
@@ -41,8 +42,8 @@ object JsNativeDoubleArrays:
       out
     end +
 
-    inline def -(arr: NArray[Double]) =
-      val out = new NArray[Double](arr.length)
+    inline def -(arr: Array[Double]) =
+      val out = new Array[Double](arr.length)
       var i = 0
 
       while i < arr.length do
@@ -52,8 +53,8 @@ object JsNativeDoubleArrays:
       out
     end -
 
-    inline def *(arr: NArray[Double]) =
-      val out = new NArray[Double](arr.length)
+    inline def *(arr: Array[Double]) =
+      val out = new Array[Double](arr.length)
       var i = 0
 
       while i < arr.length do
@@ -70,7 +71,7 @@ object JsNativeDoubleArrays:
     inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
-        val newArr = NArray.ofSize[Double](m.rows * m.cols)
+        val newArr = Array.ofDim[Double](m.rows * m.cols)
         var i = 0
         while i < newArr.length do
           newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
@@ -81,7 +82,7 @@ object JsNativeDoubleArrays:
       end if
     end *:*
 
-    inline def +=(arr: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(arr: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
 
       if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
       end if
@@ -165,11 +166,11 @@ object JsNativeDoubleArrays:
   //     Matrix[Boolean](m.raw < d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
   // end extension
 
-  extension (vec: NArray[Double])
+  extension (vec: Array[Double])
 
-    inline def clampMin(min: Double): NArray[Double] =
+    inline def clampMin(min: Double): Array[Double] =
       val n = vec.length
-      val res = NArray.ofSize[Double](n)
+      val res = Array.ofDim[Double](n)
 
       var i = 0
       while i < n do
@@ -187,13 +188,13 @@ object JsNativeDoubleArrays:
       end while
     end `clampMin!`
 
-    inline def maxClamp(max: Double): NArray[Double] = clampMax(max)
+    inline def maxClamp(max: Double): Array[Double] = clampMax(max)
 
-    inline def minClamp(min: Double): NArray[Double] = clampMin(min)
+    inline def minClamp(min: Double): Array[Double] = clampMin(min)
 
-    inline def clampMax(max: Double): NArray[Double] =
+    inline def clampMax(max: Double): Array[Double] =
       val n = vec.length
-      val res = NArray.ofSize[Double](n)
+      val res = Array.ofDim[Double](n)
 
       var i = 0
       while i < n do
@@ -211,9 +212,9 @@ object JsNativeDoubleArrays:
       end while
     end `clampMax!`
 
-    inline def clamp(min: Double, max: Double): NArray[Double] =
+    inline def clamp(min: Double, max: Double): Array[Double] =
       val n = vec.length
-      val res = NArray.ofSize[Double](n)
+      val res = Array.ofDim[Double](n)
 
       var i = 0
       while i < n do
@@ -279,8 +280,8 @@ object JsNativeDoubleArrays:
       end while
     end `**!`
 
-    inline def **(power: Double): NArray[Double] =
-      val newVec = NArray.ofSize[Double](vec.length)
+    inline def **(power: Double): Array[Double] =
+      val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
         newVec(i) = Math.pow(vec(i), power)
@@ -297,8 +298,8 @@ object JsNativeDoubleArrays:
       end while
     end `fma!`
 
-    inline def `fma`(multiply: Double, add: Double): NArray[Double] =
-      val newVec = NArray.ofSize[Double](vec.length)
+    inline def `fma`(multiply: Double, add: Double): Array[Double] =
+      val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
         newVec(i) = vec(i) * multiply + add
@@ -307,62 +308,62 @@ object JsNativeDoubleArrays:
       newVec
     end `fma`
 
-    inline def exp: NArray[Double] =
+    inline def exp: Array[Double] =
       applyUnaryOp(Math.exp)
 
     inline def `exp!`: Unit =
       applyUnaryOpInPlace(Math.exp)
 
-    inline def log: NArray[Double] =
+    inline def log: Array[Double] =
       applyUnaryOp(Math.log)
 
     inline def `log!`: Unit =
       applyUnaryOpInPlace(Math.log)
 
-    inline def sqrt: NArray[Double] =
+    inline def sqrt: Array[Double] =
       applyUnaryOp(Math.sqrt)
 
     inline def `sqrt!`: Unit =
       applyUnaryOpInPlace(Math.sqrt)
 
-    inline def cbrt: NArray[Double] =
+    inline def cbrt: Array[Double] =
       applyUnaryOp(Math.cbrt)
 
     inline def `cbrt!`: Unit =
       applyUnaryOpInPlace(Math.cbrt)
 
-    inline def sin: NArray[Double] =
+    inline def sin: Array[Double] =
       applyUnaryOp(Math.sin)
 
     inline def `sin!`: Unit =
       applyUnaryOpInPlace(Math.sin)
 
-    inline def cos: NArray[Double] =
+    inline def cos: Array[Double] =
       applyUnaryOp(Math.cos)
 
     inline def `cos!`: Unit =
       applyUnaryOpInPlace(Math.cos)
 
-    inline def tan: NArray[Double] =
+    inline def tan: Array[Double] =
       applyUnaryOp(Math.tan)
 
     inline def `tan!`: Unit =
       applyUnaryOpInPlace(Math.tan)
 
-    inline def asin: NArray[Double] =
+    inline def asin: Array[Double] =
       applyUnaryOp(Math.asin)
 
     inline def `asin!`: Unit =
       applyUnaryOpInPlace(Math.asin)
 
-    inline def - : NArray[Double] =
+    inline def - : Array[Double] =
       applyUnaryOp(-_)
 
     inline def `-!`: Unit =
       applyUnaryOpInPlace(-_)
 
-    private inline def applyUnaryOp(inline op: Double => Double): NArray[Double] =
-      val newVec = NArray.ofSize[Double](vec.length)
+    private inline def applyUnaryOp(inline op: Double => Double): Array[Double] =
+      val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
         newVec(i) = op(vec(i))
@@ -379,10 +380,10 @@ object JsNativeDoubleArrays:
       end while
     end applyUnaryOpInPlace
 
-    inline def /(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
+    inline def /(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
-      val res = NArray.ofSize[Double](n)
+      val res = Array.ofDim[Double](n)
       var i = 0
       while i < n do
         res(i) = vec(i) / d(i)
@@ -391,11 +392,11 @@ object JsNativeDoubleArrays:
       res
     end /
 
-    inline def productExceptSelf: NArray[Double] =
+    inline def productExceptSelf: Array[Double] =
       val n = vec.length
-      val left = NArray.ofSize[Double](n)
-      val right = NArray.ofSize[Double](n)
-      val result = NArray.ofSize[Double](n)
+      val left = Array.ofDim[Double](n)
+      val right = Array.ofDim[Double](n)
+      val result = Array.ofDim[Double](n)
 
       left(0) = 1.0
       right(n - 1) = 1.0
@@ -436,10 +437,10 @@ object JsNativeDoubleArrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-    inline def *(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] =
+    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
-      val res = NArray.ofSize[Double](n)
+      val res = Array.ofDim[Double](n)
 
       var i = 0
       while i < n do
@@ -449,7 +450,7 @@ object JsNativeDoubleArrays:
       res
     end *
 
-    inline def *=(d: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def *=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, d)
       val n = vec.length
 
@@ -460,10 +461,10 @@ object JsNativeDoubleArrays:
       end while
     end *=
 
-    inline def outer(other: NArray[Double])(using ClassTag[Double]): Matrix[Double] =
+    inline def outer(other: Array[Double])(using ClassTag[Double]): Matrix[Double] =
       val n = vec.length
       val m = other.length
-      val out: NArray[Double] = NArray.ofSize[Double](n * m)
+      val out: Array[Double] = Array.ofDim[Double](n * m)
 
       var i = 0
       while i < n do
@@ -477,24 +478,24 @@ object JsNativeDoubleArrays:
       Matrix[Double](out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
     end outer
 
-    inline def <(num: Double): NArray[Boolean] =
+    inline def <(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
-    inline def <=(num: Double): NArray[Boolean] =
+    inline def <=(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a <= b, num)
 
-    inline def >(num: Double): NArray[Boolean] =
+    inline def >(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a > b, num)
 
-    inline def >=(num: Double): NArray[Boolean] =
+    inline def >=(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a >= b, num)
 
     inline def logicalIdx(
         inline op: (Double, Double) => Boolean,
         inline num: Double
-    ): NArray[Boolean] =
+    ): Array[Boolean] =
       val n = vec.length
-      val idx = NArray.fill(n)(false)
+      val idx = Array.fill(n)(false)
 
       var i = 0
       while i < n do
@@ -506,11 +507,11 @@ object JsNativeDoubleArrays:
     end logicalIdx
   end extension
 
-  extension (vec: NArray[Int])
+  extension (vec: Array[Int])
 
-    inline def increments: NArray[Int] =
+    inline def increments: Array[Int] =
       val n = vec.length
-      val idx = NArray.ofSize[Int](vec.length)
+      val idx = Array.ofDim[Int](vec.length)
 
       var i = 1
       while i < n do
@@ -523,10 +524,10 @@ object JsNativeDoubleArrays:
       idx
     end increments
 
-    inline def -(other: NArray[Int])(using inline boundsCheck: BoundsCheck): NArray[Int] =
+    inline def -(other: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
       dimCheck(vec, other)
       val n = vec.length
-      val res = NArray.fill(n)(0)
+      val res = Array.fill(n)(0)
 
       var i = 0
       while i < n do
@@ -536,11 +537,11 @@ object JsNativeDoubleArrays:
       res
     end -
 
-    inline def +(other: NArray[Int])(using inline boundsCheck: BoundsCheck): NArray[Int] =
+    inline def +(other: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
       dimCheck(vec, other)
 
       val n = vec.length
-      val res = NArray.fill(n)(0)
+      val res = Array.fill(n)(0)
 
       var i = 0
       while i < n do
@@ -550,7 +551,7 @@ object JsNativeDoubleArrays:
       res
     end +
 
-    inline def dot(other: NArray[Int])(using inline boundsCheck: BoundsCheck): Int =
+    inline def dot(other: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
       dimCheck(vec, other)
       val n = vec.length
       var sum = 0
@@ -563,24 +564,24 @@ object JsNativeDoubleArrays:
       sum
     end dot
 
-    inline def <(num: Int): NArray[Boolean] =
+    inline def <(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
-    inline def <=(num: Int): NArray[Boolean] =
+    inline def <=(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a <= b, num)
 
-    inline def >(num: Int): NArray[Boolean] =
+    inline def >(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a > b, num)
 
-    inline def >=(num: Int): NArray[Boolean] =
+    inline def >=(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a >= b, num)
 
     inline def logicalIdx(
         inline op: (Int, Int) => Boolean,
         inline num: Int
-    ): NArray[Boolean] =
+    ): Array[Boolean] =
       val n = vec.length
-      val idx = NArray.fill(n)(false)
+      val idx = Array.fill(n)(false)
 
       var i = 0
       while i < n do
@@ -592,26 +593,26 @@ object JsNativeDoubleArrays:
     end logicalIdx
   end extension
 
-  //   extension [@specialized(Double, Int) A: Numeric](vec: NArray[A])
+  //   extension [@specialized(Double, Int) A: Numeric](vec: Array[A])
 
-  //   inline def <(num: A)(using inline o: Ordering[A]): NArray[Boolean] =
+  //   inline def <(num: A)(using inline o: Ordering[A]): Array[Boolean] =
   //     logicalIdx((a: A, b: A) => o.lt(a, b), num)
 
-  //   inline def <=(num: A)(using inline o: Ordering[A]): NArray[Boolean] =
+  //   inline def <=(num: A)(using inline o: Ordering[A]): Array[Boolean] =
   //     logicalIdx((a: A, b: A) => o.lteq(a, b), num)
 
-  //   inline def >(num: A)(using inline o: Ordering[A]): NArray[Boolean] =
+  //   inline def >(num: A)(using inline o: Ordering[A]): Array[Boolean] =
   //     logicalIdx((a: A, b: A) => o.gt(a, b), num)
 
-  //   inline def >=(num: A)(using inline o: Ordering[A]): NArray[Boolean] =
+  //   inline def >=(num: A)(using inline o: Ordering[A]): Array[Boolean] =
   //     logicalIdx((a: A, b: A) => o.gteq(a, b), num)
 
   //   inline def logicalIdx(
   //       inline op: (A, A) => Boolean,
   //       inline num: A
-  //   ): NArray[Boolean] =
+  //   ): Array[Boolean] =
   //     val n = vec.length
-  //     val idx = NArray.fill(n)(false)
+  //     val idx = Array.fill(n)(false)
 
   //     var i = 0
   //     while i < n do

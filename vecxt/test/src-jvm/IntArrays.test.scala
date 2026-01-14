@@ -17,18 +17,18 @@
 package vecxt
 
 import all.*
-import narr.*
+
 
 class MinMaxSIMDSuite extends munit.FunSuite:
 
   test("maxSIMD finds maximum in small array"):
-    val arr = NArray[Double](1.0, 5.0, 3.0, 9.0, 2.0)
+    val arr = Array[Double](1.0, 5.0, 3.0, 9.0, 2.0)
     val result = arr.maxSIMD
     assertEquals(result, 9.0)
 
   test("maxSIMD finds maximum in large array with SIMD lanes"):
     // Create array larger than SIMD vector length to test SIMD path
-    val arr = NArray.tabulate[Double](100)(i => (i * 2.5) % 37.0)
+    val arr = Array.tabulate[Double](100)(i => (i * 2.5) % 37.0)
     arr(75) = 1000.0 // Insert known maximum
     val result = arr.maxSIMD
     assertEquals(result, 1000.0)
