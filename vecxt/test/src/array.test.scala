@@ -16,14 +16,13 @@
 
 package vecxt
 
-import narr.*
 import scala.util.chaining.*
 import all.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
 
-  lazy val v_fill = NArray[Double](0, 1, 2, 3, 4)
+  lazy val v_fill = Array[Double](0, 1, 2, 3, 4)
 
   test("linspace") {
     val v1 = linspace(0.0, 1.0, 5)
@@ -36,14 +35,14 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("print") {
-    val v1 = NArray[Double](1, 2, 3)
-    val v2 = NArray[Double](4, 5, 6)
+    val v1 = Array[Double](1, 2, 3)
+    val v2 = Array[Double](4, 5, 6)
     val out = (v1 + v2).printArr
     assert(out.contains("5"))
   }
 
   test("unique") {
-    val v1 = NArray[Double](1, 2, 3, 2, 1, 4)
+    val v1 = Array[Double](1, 2, 3, 2, 1, 4)
     val unique = v1.unique
     assertEquals(unique.length, 4)
     assertEquals(unique(0), 1.0)
@@ -51,22 +50,22 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEquals(unique(2), 3.0)
     assertEquals(unique(3), 4.0)
 
-    val v2 = NArray[Double](1, 1, 1, 1, 1)
+    val v2 = Array[Double](1, 1, 1, 1, 1)
     val unique2 = v2.unique
     assertEquals(unique2.length, 1)
 
-    val v3 = NArray[Double]()
+    val v3 = Array[Double]()
     val unique3 = v3.unique
     assertEquals(unique3.length, 0)
 
-    val v4 = NArray[Double](1, 2, 3, 4, 5)
+    val v4 = Array[Double](1, 2, 3, 4, 5)
     val unique4 = v4.unique
     assertEquals(unique4.length, 5)
 
   }
 
   test("fma") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
     val result = v1.fma(2.0, 1.0)
     assertEqualsDouble(result(0), 3.0, 0.0001)
     assertEqualsDouble(result(1), 5.0, 0.0001)
@@ -83,7 +82,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array horizontal sum") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
     val v2 = v1 * 2.0
     val v3 = v1 * 3.0
 
@@ -97,39 +96,39 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("urnary ops") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
 
-    assertVecEquals(v1.exp, NArray(v1.map(Math.exp).toArray*))
-    assertVecEquals(v1.log, NArray(v1.map(Math.log).toArray*))
+    assertVecEquals(v1.exp, Array(v1.map(Math.exp).toArray*))
+    assertVecEquals(v1.log, Array(v1.map(Math.log).toArray*))
 
   }
 
   test("Double - array") {
-    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
-    val v2: NArray[Double] = 2.0 - v1
-    assertVecEquals(v2, NArray(v1.map(2.0 - _).toArray*))
+    val v1: Array[Double] = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: Array[Double] = 2.0 - v1
+    assertVecEquals(v2, Array(v1.map(2.0 - _).toArray*))
   }
 
   test("Double * array") {
-    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
-    val v2: NArray[Double] = 2.0 * v1
-    assertVecEquals(v2, NArray(v1.map(2.0 * _).toArray*))
+    val v1: Array[Double] = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: Array[Double] = 2.0 * v1
+    assertVecEquals(v2, Array(v1.map(2.0 * _).toArray*))
   }
 
   test("Double + array") {
-    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
-    val v2: NArray[Double] = 2.0 + v1
-    assertVecEquals(v2, NArray(v1.map(2.0 + _).toArray*))
+    val v1: Array[Double] = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: Array[Double] = 2.0 + v1
+    assertVecEquals(v2, Array(v1.map(2.0 + _).toArray*))
   }
 
   test("Double / array") {
-    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
-    val v2: NArray[Double] = 2.0 / v1
-    assertVecEquals(v2, NArray(v1.map(2.0 / _).toArray*))
+    val v1: Array[Double] = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: Array[Double] = 2.0 / v1
+    assertVecEquals(v2, Array(v1.map(2.0 / _).toArray*))
   }
 
   test("Array / elementwise") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
 
     val v2 = v1 / 2
 
@@ -139,7 +138,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array *= elementwise") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
     v1 *= 2
 
     assertEqualsDouble(v1(0), 2, 0.00001)
@@ -149,7 +148,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array * elementwise") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
 
     val v2 = v1 * 2
 
@@ -159,27 +158,27 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("array indexing") {
-    // val v1 = NArray[Double](1.0, 2.0, 3.0)
-    // val vIdx = NArray[Boolean](true, false, true)
+    // val v1 = Array[Double](1.0, 2.0, 3.0)
+    // val vIdx = Array[Boolean](true, false, true)
     // val afterIndex = v1(vIdx)
     // assertEqualsDouble(afterIndex(0), 1.0, 0.0001)
     // assertEqualsDouble(afterIndex(1), 3.0, 0.0001)
 
-    val v2 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
-    val vIdx2 = NArray[Boolean](true, false, true, true, false, true, false, true, false)
+    val v2 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
+    val vIdx2 = Array[Boolean](true, false, true, true, false, true, false, true, false)
     val afterIndex2 = v2(vIdx2)
     assertEqualsDouble(afterIndex2(4), 8.0, 0.0001)
 
-    val v3 = NArray[Int](1, 2, 3, 4, 5, 6, 7, 8, 9)
-    val vIdx3 = NArray[Boolean](true, false, true, true, false, true, false, true, false)
+    val v3 = Array[Int](1, 2, 3, 4, 5, 6, 7, 8, 9)
+    val vIdx3 = Array[Boolean](true, false, true, true, false, true, false, true, false)
     val afterIndex3 = v3(vIdx3)
     assertEquals(afterIndex3(4), 8)
 
   }
 
   test("check vector operator precendance") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    val v2 = NArray[Double](3.0, 2.0, 1.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v2 = Array[Double](3.0, 2.0, 1.0)
 
     val v3 = v1 + v2 * 2.0
     val v4 = v2 * 2.0 + v1
@@ -190,23 +189,23 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("sum") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
     assertEqualsDouble(v1.sum, 6.0, 0.0001)
 
-    val v2 = NArray[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 1.0, 2.0, 3.0)
+    val v2 = Array[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 1.0, 2.0, 3.0)
     assertEqualsDouble(v2.sum, 18.0, 0.0001)
   }
 
   test("product") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
     assertEqualsDouble(v1.productSIMD, 6.0, 0.0001)
 
-    val v2 = NArray[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 1.0, 2.0, 3.0)
+    val v2 = Array[Double](1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 1.0, 2.0, 3.0)
     assertEqualsDouble(v2.productSIMD, 216.0, 0.0001)
   }
 
   test("product except self") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0, 4.0)
     val v2 = v1.productExceptSelf
     assertEqualsDouble(v2(0), 24.0, 0.0001)
     assertEqualsDouble(v2(1), 12.0, 0.0001)
@@ -215,7 +214,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("logSumExp") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
     assertEqualsDouble(
       v1.logSumExp,
       Math.log(Math.exp(1) + Math.exp(2) + Math.exp(3) + Math.exp(4) + Math.exp(5)),
@@ -224,21 +223,21 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("cumsum") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0).cumsum
+    val v1 = Array[Double](1.0, 2.0, 3.0).cumsum
     assert(v1(0) == 1)
     assert(v1(1) == 3)
     assert(v1(2) == 6)
   }
 
   test("increments") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
     v1.increments.foreach(d => assertEqualsDouble(d, 1.0, 0.0001))
-    val v2 = NArray[Double](0.0, 2.0)
+    val v2 = Array[Double](0.0, 2.0)
     assertVecEquals(v2.increments, v2)
   }
 
   test("Array scalar +:+ ") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0) +:+ 2.0
+    val v1 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0) +:+ 2.0
 
     assertEqualsDouble(v1(0), 3, 0.00001)
     assertEqualsDouble(v1(1), 4, 0.00001)
@@ -249,8 +248,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array += ") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    v1 += NArray[Double](3.0, 2.0, 1.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
+    v1 += Array[Double](3.0, 2.0, 1.0)
 
     assertEqualsDouble(v1(0), 4, 0.00001)
     assertEqualsDouble(v1(1), 4, 0.00001)
@@ -259,8 +258,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array + ") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    val v2 = NArray[Double](3.0, 2.0, 1.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v2 = Array[Double](3.0, 2.0, 1.0)
 
     val v3 = v1 + v2
 
@@ -271,8 +270,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array -= ") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
-    v1 -= NArray[Double](3.0, 2.0, 1.0, 0.0, 0.0, 0.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+    v1 -= Array[Double](3.0, 2.0, 1.0, 0.0, 0.0, 0.0)
 
     assertEqualsDouble(v1(0), -2, 0.00001)
     assertEqualsDouble(v1(1), 0, 0.00001)
@@ -282,8 +281,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array - ") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    val v2 = NArray[Double](3.0, 2.0, 1.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v2 = Array[Double](3.0, 2.0, 1.0)
 
     val v3 = v1 - v2
 
@@ -293,10 +292,10 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array * Array elementwise") {
-    val v1: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
-    val v2: NArray[Double] = NArray[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v1: Array[Double] = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
+    val v2: Array[Double] = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0)
 
-    val v3: NArray[Double] = v1 * v2
+    val v3: Array[Double] = v1 * v2
 
     assertEqualsDouble(v3(0), 1.0, 0.00001)
     assertEqualsDouble(v3(1), 4.0, 0.00001)
@@ -304,21 +303,21 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(v3(3), 16.0, 0.00001)
     assertEqualsDouble(v3(4), 25.0, 0.00001)
 
-    val vAdd: NArray[Double] = v1 + v2
+    val vAdd: Array[Double] = v1 + v2
     assertEqualsDouble(vAdd(0), 2.0, 0.00001)
     assertEqualsDouble(vAdd(1), 4.0, 0.00001)
     assertEqualsDouble(vAdd(2), 6.0, 0.00001)
     assertEqualsDouble(vAdd(3), 8.0, 0.00001)
     assertEqualsDouble(vAdd(4), 10.0, 0.00001)
 
-    val vdiv: NArray[Double] = v1 / v2
+    val vdiv: Array[Double] = v1 / v2
     assertEqualsDouble(vdiv(0), 1.0, 0.00001)
     assertEqualsDouble(vdiv(1), 1.0, 0.00001)
     assertEqualsDouble(vdiv(2), 1.0, 0.00001)
     assertEqualsDouble(vdiv(3), 1.0, 0.00001)
     assertEqualsDouble(vdiv(4), 1.0, 0.00001)
 
-    val vSub: NArray[Double] = v1 - v2
+    val vSub: Array[Double] = v1 - v2
     assertEqualsDouble(vSub(0), 0.0, 0.00001)
     assertEqualsDouble(vSub(1), 0.0, 0.00001)
     assertEqualsDouble(vSub(2), 0.0, 0.00001)
@@ -328,7 +327,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("exp") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
     val v2 = v1.exp
     assertEqualsDouble(v2(0), Math.exp(1.0), 0.00001)
     assertEqualsDouble(v2(1), Math.exp(2.0), 0.00001)
@@ -336,7 +335,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("log") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
     val v2 = v1.log
     assertEqualsDouble(v2(0), Math.log(1.0), 0.00001)
     assertEqualsDouble(v2(1), Math.log(2.0), 0.00001)
@@ -345,7 +344,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   // Check the vector loop
   test("countTrue") {
-    val arrLong = NArray.fill(100)(true)
+    val arrLong = Array.fill(100)(true)
     assertEquals(arrLong.trues, 100)
 
     arrLong(50) = false
@@ -355,7 +354,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   test("<= big") {
     val n = 50000
     val rand = scala.util.Random
-    val vec = NArray.tabulate(n)(_ => rand.nextDouble())
+    val vec = Array.tabulate(n)(_ => rand.nextDouble())
     assertEqualsDouble((vec <= 0.2).trues / n.toDouble, 0.2, 0.01)
   }
 
@@ -393,13 +392,13 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("outer product") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    val v2 = NArray[Double](4.0, 5.0)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val v2 = Array[Double](4.0, 5.0)
     val outer = v1.outer(v2)
     val shouldBe = Matrix.fromRows[Double](
-      NArray(4.0, 5.0),
-      NArray(8.0, 10.0),
-      NArray(12.0, 15.0)
+      Array(4.0, 5.0),
+      Array(8.0, 10.0),
+      Array(12.0, 15.0)
     )
     assertEquals(outer.rows, 3)
     assertEquals(outer.cols, 2)
@@ -413,8 +412,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
   }
 
   test("Array indexing") {
-    val v1 = NArray[Double](1.0, 2.0, 3.0)
-    val vIdx = NArray[Boolean](true, false, true)
+    val v1 = Array[Double](1.0, 2.0, 3.0)
+    val vIdx = Array[Boolean](true, false, true)
     val afterIndex = v1(vIdx)
 
     assertEquals(afterIndex.length, 2)
@@ -424,7 +423,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("variance") {
     // https://www.storyofmathematics.com/sample-variance/#:~:text=7.%20Divide%20the%20number%20you%20get%20in%20step%206%20by example 3
-    val ages = NArray[Double](26.0, 48.0, 67.0, 39.0, 25.0, 25.0, 36.0, 44.0, 44.0, 47.0, 53.0, 52.0, 52.0, 51.0, 52.0,
+    val ages = Array[Double](26.0, 48.0, 67.0, 39.0, 25.0, 25.0, 36.0, 44.0, 44.0, 47.0, 53.0, 52.0, 52.0, 51.0, 52.0,
       40.0, 77.0, 44.0, 40.0, 45.0, 48.0, 49.0, 19.0, 54.0, 82.0)
     val variance = ages.variance
     assertEqualsDouble(variance, 216.82, 0.01)
@@ -432,14 +431,14 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("tvar") {
     import vecxt.reinsurance.tVar
-    val v1 = NArray.tabulate(100)(_.toDouble)
+    val v1 = Array.tabulate(100)(_.toDouble)
     val tvar = v1.tVar(0.95)
     assertEqualsDouble(tvar, 2, 0.0001)
   }
 
   test("qdep") {
     import vecxt.reinsurance.qdep
-    val v1: NArray[Double] = NArray.tabulate[Double](100)(_.toDouble)
+    val v1: Array[Double] = Array.tabulate[Double](100)(_.toDouble)
     val v2 = v1 * 2
     val qdep = v1.qdep(0.95, v2)
     assertEqualsDouble(qdep, 1, 0.0001)
@@ -451,7 +450,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("tvar index") {
     import vecxt.reinsurance.tVarIdx
-    val v1 = NArray.tabulate[Double](100)(_.toDouble)
+    val v1 = Array.tabulate[Double](100)(_.toDouble)
     val tvar = v1.tVarIdx(0.95)
     assertEquals(tvar.trues, 5)
     for i <- 0 until 5 do assert(tvar(i))
@@ -462,7 +461,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("VaR") {
     import vecxt.reinsurance.VaR
-    val v1 = NArray.tabulate(100)(_.toDouble)
+    val v1 = Array.tabulate(100)(_.toDouble)
     val var95 = v1.VaR(0.95)
     // At 95% confidence, we expect the 5th value (0-indexed: 4) in sorted array
     assertEqualsDouble(var95, 4.0, 0.0001)
@@ -477,7 +476,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("tVarWithVaR") {
     import vecxt.reinsurance.tVarWithVaR
-    val v1 = NArray.tabulate(100)(_.toDouble)
+    val v1 = Array.tabulate(100)(_.toDouble)
     val result = v1.tVarWithVaR(0.95)
 
     // TVaR should be the average of the tail (first 5 values: 0,1,2,3,4)
@@ -490,8 +489,8 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("tVarWithVaRBatch") {
     import vecxt.reinsurance.tVarWithVaRBatch
-    val v1 = NArray.tabulate(100)(_.toDouble)
-    val alphas = NArray[Double](0.90, 0.95, 0.99)
+    val v1 = Array.tabulate(100)(_.toDouble)
+    val alphas = Array[Double](0.90, 0.95, 0.99)
     val results = v1.tVarWithVaRBatch(alphas)
 
     assertEquals(results.length, 3)
@@ -518,7 +517,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   test("VaR with unsorted data") {
     import vecxt.reinsurance.{VaR, tVarWithVaR}
     // Test with shuffled data to ensure sorting works correctly
-    val v1 = NArray[Double](45.0, 12.0, 89.0, 3.0, 67.0, 23.0, 56.0, 8.0, 34.0, 91.0)
+    val v1 = Array[Double](45.0, 12.0, 89.0, 3.0, 67.0, 23.0, 56.0, 8.0, 34.0, 91.0)
     val var90 = v1.VaR(0.90)
     // Sorted: 3, 8, 12, 23, 34, 45, 56, 67, 89, 91
     // 90% confidence means tail size = 10 * (1-0.9) = 1
@@ -533,7 +532,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("tvar index 2") {
     import vecxt.reinsurance.tVarIdx
-    val v1 = NArray.from(Array(6.0, 2.0, 5.0, 5.0, 10.0, 1.0, 2.0, 3.0, 5.0, 8.0))
+    val v1 = Array.from(Array(6.0, 2.0, 5.0, 5.0, 10.0, 1.0, 2.0, 3.0, 5.0, 8.0))
     val tvar = v1.tVarIdx(0.9)
 
     assertEquals(tvar.trues, 1)
@@ -542,7 +541,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
 
   test("tvar index 3") {
     import vecxt.reinsurance.tVarIdx
-    val v1 = NArray.from(Array(6.0, 8.0, 5.0, 5.0, 10.0, 10.0, 2.0, 3.0, 5.0, 1.0))
+    val v1 = Array.from(Array(6.0, 8.0, 5.0, 5.0, 10.0, 10.0, 2.0, 3.0, 5.0, 1.0))
     val tvar = v1.tVarIdx(0.8)
     assertEquals(tvar.trues, 2)
     assert(tvar(9))

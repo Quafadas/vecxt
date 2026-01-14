@@ -35,7 +35,6 @@ object V:
   val scalaTags: Dep = mvn"com.lihaoyi::scalatags::0.13.1"
   val scalaVersion = "3.7.2"
   val munitVersion = "1.1.1"
-  val narr: Dep = mvn"ai.dragonfly::narr::1.0"
   val blas: Dep = mvn"dev.ludovic.netlib:blas:3.0.4"
   val lapack: Dep = mvn"dev.ludovic.netlib:lapack:3.0.4"
 end V

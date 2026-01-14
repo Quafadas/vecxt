@@ -7,7 +7,6 @@ import vecxt.all.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.*
-import narr.*
 
 object JvmDoubleMatrix:
 
@@ -167,7 +166,7 @@ object JvmDoubleMatrix:
       * @param boundsCheck
       *   Whether to perform bounds checking on the vector length.
       */
-    inline def +=(arr: NArray[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(arr: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
 
       if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
       end if

@@ -20,10 +20,8 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 
-import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
-
-import narr.*
+import vecxt.BooleanArrays.*
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
@@ -40,7 +38,7 @@ object arrays:
   extension (v: Float64Array)
     inline def nativeSort(): Unit = v.asInstanceOf[TypedArrayFacade].sort()
     inline def nativeReverse(): Unit = v.asInstanceOf[TypedArrayFacade].reverse()
-    inline def nativeSlice(): Float64Array = v.asInstanceOf[TypedArrayFacade].slice()
+    inline def clone(): Float64Array = v.asInstanceOf[TypedArrayFacade].slice()
   end extension
 
   @js.native
@@ -59,7 +57,7 @@ object arrays:
 
   extension [A](v: js.Array[A]) inline def fill(a: A): Unit = v.asInstanceOf[JsArrayFacade].fill(a)
   end extension
-  extension (vec: js.Array[Boolean])
+  extension (vec: Array[Boolean])
     // inline def trues: Int =
     //   var sum = 0
     //   for i <- 0 until vec.length do if vec(i) then sum = sum + 1
@@ -67,26 +65,26 @@ object arrays:
     //   sum
     // end trues
 
-    inline def &&(thatIdx: js.Array[Boolean]): js.Array[Boolean] =
-      val result = new js.Array[Boolean](vec.length)
+    inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
+      val result = Array.ofDim[Boolean](vec.length)
       for i <- 0 until vec.length do result(i) = vec(i) && thatIdx(i)
       end for
       result
     end &&
 
-    inline def ||(thatIdx: js.Array[Boolean]): js.Array[Boolean] =
-      val result = new js.Array[Boolean](vec.length)
+    inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
+      val result = Array.ofDim[Boolean](vec.length)
       for i <- 0 until vec.length do result(i) = vec(i) || thatIdx(i)
       end for
       result
     end ||
   end extension
 
-  extension (vec: NArray[Int])
+  extension (vec: Array[Int])
 
-    def apply(index: js.Array[Boolean]): NArray[Int] =
+    def apply(index: Array[Boolean]): Array[Int] =
       val truely = index.trues
-      val newVec = NArray.ofSize[Int](truely)
+      val newVec = Array.ofDim[Int](truely)
       var j = 0
       for i <- 0 until index.length do
         // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
@@ -98,12 +96,12 @@ object arrays:
     end apply
   end extension
 
-  extension (vec: NArray[Double])
+  extension (vec: Array[Double])
 
-    inline def apply(index: js.Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck) =
+    inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
       dimCheck(vec, index)
       val trues = index.trues
-      val newVec = Float64Array(trues)
+      val newVec = Array.ofDim[Double](trues)
       var j = 0
       for i <- 0 until index.length do
         // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
@@ -114,8 +112,8 @@ object arrays:
       newVec
     end apply
 
-    def increments: NArray[Double] =
-      val out = Float64Array(vec.length)
+    def increments: Array[Double] =
+      val out = Array.ofDim[Double](vec.length)
       out(0) = vec(0)
       var i = 1
       while i < vec.length do
@@ -160,8 +158,8 @@ object arrays:
       vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
     end variance
 
-    inline def unary_- : NArray[Double] =
-      val newVec = NArray.ofSize[Double](vec.length)
+    inline def unary_- : Array[Double] =
+      val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
         newVec(i) = -vec(i)
@@ -170,7 +168,7 @@ object arrays:
       newVec
     end unary_-
 
-    inline def pearsonCorrelationCoefficient(thatVector: Float64Array)(using
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using
         inline boundsCheck: BoundsCheck.BoundsCheck
     ): Double =
       dimCheck(vec, thatVector)
@@ -196,7 +194,7 @@ object arrays:
       )
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Float64Array)(using
+    inline def spearmansRankCorrelation(thatVector: Array[Double])(using
         inline boundsCheck: BoundsCheck.BoundsCheck
     ): Double =
       dimCheck(vec, thatVector)
@@ -206,10 +204,10 @@ object arrays:
     end spearmansRankCorrelation
 
     // An alias - pearson is the most commonly requested type of correlation
-    inline def corr(thatVector: Float64Array)(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
+    inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
       pearsonCorrelationCoefficient(thatVector)
 
-    def elementRanks: NArray[Double] =
+    def elementRanks: Array[Double] =
       val indexed1 = vec.zipWithIndex
       val indexed = indexed1.toArray.sorted(using Ordering.by(_._1))
 
@@ -236,7 +234,7 @@ object arrays:
         end if
         rank += 1
       end while
-      Float64Array.of(ranks*)
+      ranks
     end elementRanks
 
     inline def `cumsum!` =
@@ -247,13 +245,13 @@ object arrays:
       end while
     end `cumsum!`
 
-    inline def cumsum: NArray[Double] =
-      val out = vec.nativeSlice()
+    inline def cumsum: Array[Double] =
+      val out = vec.clone()
       out.`cumsum!`
       out
     end cumsum
 
-    inline def dot(v1: NArray[Double])(using inline boundsCheck: BoundsCheck): Double =
+    inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
       dimCheck(vec, v1)
 
       var product = 0.0
@@ -265,10 +263,12 @@ object arrays:
       product
     end dot
 
-    inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
+    inline def norm: Double =
+      Math.sqrt(vec.dot(vec)(using vecxt.BoundsCheck.DoBoundsCheck.no))
+    end norm
 
-    inline def +(d: Double): NArray[Double] =
-      vec.nativeSlice().tap(_ += d)
+    inline def +(d: Double): Array[Double] =
+      vec.clone().tap(_ += d)
 
     inline def +=(d: Double): Unit =
       var i = 0
@@ -278,8 +278,8 @@ object arrays:
       end while
     end +=
 
-    inline def -(d: Double): NArray[Double] =
-      vec.nativeSlice().tap(_ -= d)
+    inline def -(d: Double): Array[Double] =
+      vec.clone().tap(_ -= d)
     end -
 
     inline def -=(d: Double): Unit =
@@ -290,23 +290,27 @@ object arrays:
       end while
     end -=
 
-    inline def -(vec2: NArray[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): NArray[Double] =
+    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
       dimCheck(vec, vec2)
-      vec.nativeSlice().tap(_ -= vec2)
+      vec.clone().tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: NArray[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+    inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
-      blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - vec2(i)
+        i = i + 1
+      end while
     end -=
 
-    inline def +(vec2: NArray[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): NArray[Double] =
+    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
       dimCheck(vec, vec2)
-      vec.nativeSlice().tap(_ += vec2)
+      vec.clone().tap(_ += vec2)
     end +
 
     inline def +:+(d: Double) =
-      vec.nativeSlice().tap(_ +:+= d)
+      vec.clone().tap(_ +:+= d)
     end +:+
 
     inline def +:+=(d: Double): Unit =
@@ -317,31 +321,44 @@ object arrays:
       end while
     end +:+=
 
-    inline def +=(vec2: NArray[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+    inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
-      blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + vec2(i)
+        i = i + 1
+      end while
     end +=
 
-    inline def add(d: NArray[Double])(using inline boundsCheck: BoundsCheck): NArray[Double] = vec + d
+    inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec + d
     inline def multInPlace(d: Double): Unit = vec *= d
 
     inline def *=(d: Double): Unit =
-      blas.dscal(vec.length, d, vec, 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) * d
+        i = i + 1
+      end while
     end *=
 
-    inline def *(d: Double): NArray[Double] =
-      vec.nativeSlice().tap(_ *= d)
+    inline def *(d: Double): Array[Double] =
+      vec.clone().tap(_ *= d)
     end *
 
-    inline def /=(d: Double): NArray[Double] =
-      vec.tap(v => blas.dscal(v.length, 1.0 / d, v, 1))
+    inline def /=(d: Double): Array[Double] =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) / d
+        i = i + 1
+      end while
+      vec
     end /=
 
-    inline def /(d: Double): NArray[Double] =
-      vec.nativeSlice().tap(_ /= d)
+    inline def /(d: Double): Array[Double] =
+      vec.clone().tap(_ /= d)
     end /
 
-    def covariance(thatVector: NArray[Double]): Double =
+    def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean
       val μThat = thatVector.mean
       var cv: Double = 0
@@ -357,9 +374,9 @@ object arrays:
     // val t = js.Math.max( vec.toArray: _* )
   end extension
 
-  extension (vec: Array[NArray[Double]])
-    inline def horizontalSum: NArray[Double] =
-      val out = new Float64Array(vec.head.length)
+  extension (vec: Array[Array[Double]])
+    inline def horizontalSum: Array[Double] =
+      val out = Array.ofDim[Double](vec.head.length)
       var i = 0
       while i < vec.head.length do
         var sum = 0.0

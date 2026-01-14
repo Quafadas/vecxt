@@ -17,7 +17,7 @@ import scala.reflect.ClassTag
 import vecxt.*
 import vecxt.all.*
 import vecxt.BoundsCheck.BoundsCheck
-import narr.*
+
 import BoundsCheck.DoBoundsCheck.yes
 
 // A very naive matrix multiplication implementation...
@@ -31,7 +31,7 @@ object SpireExt:
       val (r1, c1) = m1.shape
       val (r2, c2) = m2.shape
 
-      val nar = NArray.ofSize[A](r1 * c2)
+      val nar = Array.ofDim[A](r1 * c2)
       val res = Matrix(nar, (r1, c2))
 
       for i <- 0 until r1 do
@@ -66,14 +66,14 @@ import SpireExt.*
 
 // That would work with complex numbers
 val mat1 = Matrix.fromRows[Complex[Double]](
-  NArray[Complex[Double]](Complex(1.0, -1.0), Complex(0.0, 2.0), Complex(-2.0, 1.0)),
-  NArray[Complex[Double]](Complex(0.0, -3.0), Complex(3.0, -2.0), Complex(-1.0, -1.0))
+  Array[Complex[Double]](Complex(1.0, -1.0), Complex(0.0, 2.0), Complex(-2.0, 1.0)),
+  Array[Complex[Double]](Complex(0.0, -3.0), Complex(3.0, -2.0), Complex(-1.0, -1.0))
 )
 
 val mat2 = Matrix.fromRows[Complex[Double]](
-  NArray[Complex[Double]](Complex(0.0, -2.0), Complex(1.0, -4.0)),
-  NArray[Complex[Double]](Complex(-1.0, 3.0), Complex(2.0, -3.0)),
-  NArray[Complex[Double]](Complex(-2.0, 1.0), Complex(-4.0, 1.0))
+  Array[Complex[Double]](Complex(0.0, -2.0), Complex(1.0, -4.0)),
+  Array[Complex[Double]](Complex(-1.0, 3.0), Complex(2.0, -3.0)),
+  Array[Complex[Double]](Complex(-2.0, 1.0), Complex(-4.0, 1.0))
 )
 
 println(mat1.showMat)

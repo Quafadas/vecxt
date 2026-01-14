@@ -3,8 +3,6 @@ import scala.annotation.publicInBinary
 
 import vecxt.BoundsCheck.BoundsCheck
 
-import narr.*
-
 object matrix:
 
   /** This is a matrix. The constructor is private to ensure that you deliberately opt in or out of the bounds check.
@@ -26,7 +24,7 @@ object matrix:
     */
 
   class Matrix[@specialized(Double, Boolean, Int) A] @publicInBinary() private[matrix] (
-      val raw: NArray[A],
+      val raw: Array[A],
       val rows: Row,
       val cols: Col,
       val rowStride: Int,
@@ -63,7 +61,7 @@ object matrix:
   object Matrix:
 
     inline def apply[@specialized(Double, Boolean, Int) A](
-        raw: NArray[A],
+        raw: Array[A],
         rows: Row,
         cols: Col,
         rowStride: Int,
@@ -81,7 +79,7 @@ object matrix:
       )
     end apply
 
-    inline def apply[@specialized(Double, Boolean, Int) A](raw: NArray[A], dim: RowCol)(using
+    inline def apply[@specialized(Double, Boolean, Int) A](raw: Array[A], dim: RowCol)(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
@@ -104,7 +102,7 @@ object matrix:
       * @param boundsCheck
       * @return
       */
-    inline def apply[@specialized(Double, Boolean, Int) A](raw: NArray[A], rows: Row, cols: Col)(using
+    inline def apply[@specialized(Double, Boolean, Int) A](raw: Array[A], rows: Row, cols: Col)(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       dimMatInstantiateCheck(raw, (rows, cols))
@@ -118,7 +116,7 @@ object matrix:
       )
     end apply
 
-    inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: NArray[A])(using
+    inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: Array[A])(using
         inline boundsCheck: BoundsCheck
     ): Matrix[A] =
       Matrix(raw, dim._1, dim._2)(using boundsCheck)

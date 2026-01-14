@@ -2,20 +2,19 @@ package vecxt
 
 import munit.FunSuite
 import all.*
-import narr.*
 
 class NotImplTest extends FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
 
   // Helper: create a non-simple memory layout matrix (e.g., a view/slice)
   private def m: Matrix[Double] =
-    val base = Matrix[Double](NArray.tabulate[Double](9)(_.toDouble), 3, 3)
-    base(::, NArray(1, 2)) // This should create a view, not a simple contiguous layout
+    val base = Matrix[Double](Array.tabulate[Double](9)(_.toDouble), 3, 3)
+    base(::, Array(1, 2)) // This should create a view, not a simple contiguous layout
   end m
 
   private def bmat: Matrix[Boolean] =
-    val base = Matrix[Boolean](NArray.tabulate[Boolean](9)(i => i % 2 == 0), 3, 3)
-    base(::, NArray(1, 2))
+    val base = Matrix[Boolean](Array.tabulate[Boolean](9)(i => i % 2 == 0), 3, 3)
+    base(::, Array(1, 2))
   end bmat
 
   test("DoubleMatrix./ with non-simple layout throws") {

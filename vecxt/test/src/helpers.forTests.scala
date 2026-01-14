@@ -16,7 +16,6 @@
 
 package vecxt
 
-import narr.*
 import matrix.Matrix
 import munit.Assertions.*
 import all.*
@@ -25,7 +24,7 @@ import scala.annotation.targetName
 extension [A <: AnyRef](o: A) def some: Some[A] = Some(o)
 end extension
 
-def assertVecEquals(v1: NArray[Double], v2: NArray[Double])(implicit loc: munit.Location): Unit =
+def assertVecEquals(v1: Array[Double], v2: Array[Double])(implicit loc: munit.Location): Unit =
   assert(v1.length == v2.length)
   var i: Int = 0;
   while i < v1.length do
@@ -34,7 +33,7 @@ def assertVecEquals(v1: NArray[Double], v2: NArray[Double])(implicit loc: munit.
   end while
 end assertVecEquals
 
-def assertVecEquals(v1: NArray[Int], v2: NArray[Int])(implicit loc: munit.Location): Unit =
+def assertVecEquals(v1: Array[Int], v2: Array[Int])(implicit loc: munit.Location): Unit =
   var i: Int = 0;
   while i < v1.length do
     munit.Assertions.assertEquals(v1(i), v2(i), clue = s"at index $i")
@@ -42,7 +41,7 @@ def assertVecEquals(v1: NArray[Int], v2: NArray[Int])(implicit loc: munit.Locati
   end while
 end assertVecEquals
 
-def assertVecEquals(v1: NArray[Boolean], v2: NArray[Boolean])(implicit loc: munit.Location): Unit =
+def assertVecEquals(v1: Array[Boolean], v2: Array[Boolean])(implicit loc: munit.Location): Unit =
   var i: Int = 0;
   while i < v1.length do
     munit.Assertions.assertEquals(v1(i), v2(i), clue = s"at index $i")
@@ -71,7 +70,7 @@ def assertMatrixEquals(m1: Matrix[Int], m2: Matrix[Int])(implicit loc: munit.Loc
   end for
 end assertMatrixEquals
 
-def assertVecEquals[A](v1: NArray[A], v2: NArray[A])(implicit loc: munit.Location): Unit =
+def assertVecEquals[A](v1: Array[A], v2: Array[A])(implicit loc: munit.Location): Unit =
   var i: Int = 0;
   while i < v1.length do
     munit.Assertions.assertEquals(v1(i), v2(i), clue = s"at index $i")

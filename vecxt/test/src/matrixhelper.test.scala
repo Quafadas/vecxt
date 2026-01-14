@@ -1,13 +1,13 @@
 package vecxt
 
 import munit.FunSuite
-import narr.*
+
 import all.*
 import BoundsCheck.DoBoundsCheck.yes
 
 class MatrixHelperSuite extends FunSuite:
 
-  private def assertDiagonalMatrix(diagonal: NArray[Double], matrix: Matrix[Double])(using loc: munit.Location): Unit =
+  private def assertDiagonalMatrix(diagonal: Array[Double], matrix: Matrix[Double])(using loc: munit.Location): Unit =
     val size = diagonal.length
     assertEquals(matrix.rows, size)
     assertEquals(matrix.cols, size)
@@ -25,17 +25,17 @@ class MatrixHelperSuite extends FunSuite:
   end assertDiagonalMatrix
 
   test("Matrix.diag size 1 populates 1x1 matrix"):
-    val diagonal = NArray[Double](42.0)
+    val diagonal = Array[Double](42.0)
     val diagMatrix = Matrix.createDiagonal(diagonal)
     assertDiagonalMatrix(diagonal, diagMatrix)
 
   test("Matrix.diag size 3 builds zero off-diagonal entries"):
-    val diagonal = NArray[Double](1.0, -2.5, 7.75)
+    val diagonal = Array[Double](1.0, -2.5, 7.75)
     val diagMatrix = Matrix.createDiagonal(diagonal)
     assertDiagonalMatrix(diagonal, diagMatrix)
 
   test("Matrix.diag size 7 handles longer vectors"):
-    val diagonal = NArray.tabulate[Double](7)(i => (i + 1) * 0.5)
+    val diagonal = Array.tabulate[Double](7)(i => (i + 1) * 0.5)
     val diagMatrix = Matrix.createDiagonal(diagonal)
     assertDiagonalMatrix(diagonal, diagMatrix)
 end MatrixHelperSuite

@@ -9,7 +9,6 @@ import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import vecxt.BoundsCheck
 import scala.reflect.ClassTag
-import narr.*
 
 // File can be dowloaded from Kaggle at:
 // https://www.kaggle.com/datasets/quangphota/mnist-csv/data?select=train.csv
@@ -187,7 +186,7 @@ def back_prop(
 end back_prop
 
 inline def oneHot[T](int: Int, numClasses: Int)(using ct: ClassTag[T], f: Numeric[T]): Array[T] =
-  val arr = NArray.fill[T](numClasses)(f.zero)
+  val arr = Array.fill[T](numClasses)(f.zero)
   if int >= 0 && int < numClasses then arr(int) = f.one
   end if
   arr

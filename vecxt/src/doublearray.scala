@@ -1,15 +1,13 @@
 package vecxt
 
-import narr.*
-
 object DoubleArrays:
-  extension (vec: NArray[Double])
-    inline def unique: NArray[Double] =
-      if vec.size == 0 then NArray.empty[Double]
+  extension (vec: Array[Double])
+    inline def unique: Array[Double] =
+      if vec.size == 0 then Array.empty[Double]
       else
 
-        val data = narr.copy[Double](vec)
-        narr.sort(data)()
+        val data = vec.clone()
+        data.sortInPlace()
         var elementCount = 1
         var lastElement = data(0)
 
@@ -23,7 +21,7 @@ object DoubleArrays:
           i += 1
         end while
 
-        val result = NArray.ofSize[Double](elementCount)
+        val result = Array.ofDim[Double](elementCount)
         result(0) = data(0)
         lastElement = data(0)
         var idx = 1
@@ -55,11 +53,11 @@ object DoubleArrays:
       * This follows the IEEE total ordering implemented by `java.lang.Double.compare`, ensuring deterministic placement
       * for `NaN`, infinities, and normal values.
       */
-    inline def argsort: NArray[Int] =
+    inline def argsort: Array[Int] =
       val n = vec.length
-      if n == 0 then NArray.empty[Int]
+      if n == 0 then Array.empty[Int]
       else
-        val idx = NArray.tabulate(n)(identity)
+        val idx = Array.tabulate(n)(identity)
         val scratch = new Array[Int](n)
 
         val InsertionCutoff = 32
@@ -132,13 +130,13 @@ object DoubleArrays:
     end argsort
   end extension
 
-  // inline def lt(num: Double): NArray[Boolean] = vec < num
+  // inline def lt(num: Double): Array[Boolean] = vec < num
 
-  // inline def gt(num: Double): NArray[Boolean] = vec > num
+  // inline def gt(num: Double): Array[Boolean] = vec > num
 
-  // inline def lte(num: Double): NArray[Boolean] = vec <= num
+  // inline def lte(num: Double): Array[Boolean] = vec <= num
 
-  // inline def gte(num: Double): NArray[Boolean] = vec >= num
+  // inline def gte(num: Double): Array[Boolean] = vec >= num
   // end extension
 
 end DoubleArrays
