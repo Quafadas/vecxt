@@ -1,9 +1,341 @@
 package vecxt.reinsurance
 
-extension (tower: Tower)
-  inline def splitLosses(years: IArray[Int], losses: IArray[Double])(using
-      inline bc: vecxt.BoundsCheck.BoundsCheck
-  ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
-    if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map((_, Array.empty[Double])))
-    else tower.splitAmntFast(years.toArray, losses.toArray)
-end extension
+
+import jdk.incubator.vector.{DoubleVector, VectorOperators, VectorSpecies}
+import vecxt.BoundsCheck.BoundsCheck
+
+object SplitLosses:
+  extension (tower: Tower)
+    inline def splitAmntFast(years: Array[Int], losses: Array[Double])(using
+        inline bc: BoundsCheck
+    ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
+      inline if bc then assert(years.length == losses.length)
+      end if
+      if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))
+      else
+
+        val layers = tower.layers
+        val numLosses = losses.length
+        val numLayers = layers.length
+
+        // Per-layer splits (column major) and totals
+        val cededSplits = IndexedSeq.fill(numLayers)(losses.clone())
+        val retained = new Array[Double](numLosses)
+        val ceded = new Array[Double](numLosses)
+
+        // SIMD species for vectorization
+        val species = DoubleVector.SPECIES_PREFERRED
+        val vectorSize = species.length()
+
+        // Precompute year segment boundaries once (shared across layers)
+        val (segStarts, segEnds, segCount) = computeSegments(years, numLosses)
+
+        // Step 1-4: process each layer column in-place (occurrence -> cumsum -> aggregate -> diff)
+        var layerIdx = 0
+        while layerIdx < numLayers do
+          val layer = layers(layerIdx)
+          val col = cededSplits(layerIdx)
+
+          // Occurrence layer
+          layer.occType match
+            case DeductibleType.Retention =>
+              applyRetentionSIMD(col, 0, numLosses, layer.occLimit, layer.occRetention, species)
+            case DeductibleType.Franchise =>
+              applyFranchiseSIMD(col, 0, numLosses, layer.occLimit, layer.occRetention, species)
+            case DeductibleType.ReverseFranchise =>
+              applyReverseFranchise(col, 0, numLosses, layer.occLimit, layer.occRetention)
+          end match
+
+          // Group cumulative sum by precomputed segments
+          var s = 0
+          while s < segCount do
+            val start = segStarts(s)
+            val end = segEnds(s)
+            var i = start
+            var cumSum = 0.0
+            while i < end do
+              cumSum += col(i)
+              col(i) = cumSum
+              i += 1
+            end while
+            s += 1
+          end while
+
+          // Aggregate layer with share
+          layer.aggType match
+            case DeductibleType.Retention =>
+              applyRetentionSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
+              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
+              end if
+            case DeductibleType.Franchise =>
+              applyFranchiseSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
+              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
+              end if
+            case DeductibleType.ReverseFranchise =>
+              applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
+              end if
+          end match
+
+          // Group diff by precomputed segments (scalar within segment)
+          s = 0
+          while s < segCount do
+            val start = segStarts(s)
+            val end = segEnds(s)
+            var i = start
+            var prevValue = 0.0
+            var isFirst = true
+            while i < end do
+              val current = col(i)
+              if isFirst then isFirst = false
+              else col(i) = current - prevValue
+              end if
+              prevValue = current
+              i += 1
+            end while
+            s += 1
+          end while
+
+          layerIdx += 1
+        end while
+
+        // Step 5: total ceded per loss and retained (vectorized)
+        val loopBound = species.loopBound(numLosses)
+        var i = 0
+        while i < loopBound do
+          var sumVector = DoubleVector.zero(species)
+          layerIdx = 0
+          while layerIdx < numLayers do
+            val col = cededSplits(layerIdx)
+            val v = DoubleVector.fromArray(species, col, i)
+            sumVector = sumVector.add(v)
+            layerIdx += 1
+          end while
+
+          sumVector.intoArray(ceded, i)
+          val originalVector = DoubleVector.fromArray(species, losses, i)
+          val retainedVector = originalVector.sub(sumVector)
+          retainedVector.intoArray(retained, i)
+          i += vectorSize
+        end while
+
+        // Tail loop
+        while i < numLosses do
+          var sum = 0.0
+          layerIdx = 0
+          while layerIdx < numLayers do
+            sum += cededSplits(layerIdx)(i)
+            layerIdx += 1
+          end while
+          ceded(i) = sum
+          retained(i) = losses(i) - sum
+          i += 1
+        end while
+
+        (ceded, retained, layers.zip(cededSplits))
+      end if
+
+  private inline def computeSegments(years: Array[Int], length: Int): (Array[Int], Array[Int], Int) =
+    val starts = new Array[Int](length)
+    val ends = new Array[Int](length)
+    var count = 0
+    var i = 0
+    while i < length do
+      val start = i
+      val year = years(i)
+      while i < length && years(i) == year do i += 1
+      starts(count) = start
+      ends(count) = i
+      count += 1
+    end while
+    (starts, ends, count)
+  end computeSegments
+
+  private inline def applyRetentionSIMD(
+      data: Array[Double],
+      offset: Int,
+      length: Int,
+      limit: Option[Double],
+      retention: Option[Double],
+      species: VectorSpecies[java.lang.Double]
+  ): Unit =
+    val vectorSize = species.length()
+    val loopBound = species.loopBound(length)
+
+    (retention, limit) match
+      case (Some(ret), Some(lim)) =>
+        val retVector = DoubleVector.broadcast(species, ret)
+        val limVector = DoubleVector.broadcast(species, lim)
+
+        var i = 0
+        while i < loopBound do
+          val vector = DoubleVector.fromArray(species, data, offset + i)
+          val afterRet = vector.sub(retVector).max(0.0)
+          val result = afterRet.min(limVector)
+          result.intoArray(data, offset + i)
+          i += vectorSize
+        end while
+
+        // Handle remaining elements
+        while i < length do
+          val value = data(offset + i)
+          data(offset + i) = math.min(math.max(value - ret, 0.0), lim)
+          i += 1
+        end while
+
+      case (Some(ret), None) =>
+        val retVector = DoubleVector.broadcast(species, ret)
+
+        var i = 0
+        while i < loopBound do
+          val vector = DoubleVector.fromArray(species, data, offset + i)
+          val result = vector.sub(retVector).max(0.0)
+          result.intoArray(data, offset + i)
+          i += vectorSize
+        end while
+
+        while i < length do
+          val value = data(offset + i)
+          data(offset + i) = math.max(value - ret, 0.0)
+          i += 1
+        end while
+
+      case (None, Some(lim)) =>
+        val limVector = DoubleVector.broadcast(species, lim)
+
+        var i = 0
+        while i < loopBound do
+          val vector = DoubleVector.fromArray(species, data, offset + i)
+          val result = vector.min(limVector)
+          result.intoArray(data, offset + i)
+          i += vectorSize
+        end while
+
+        while i < length do
+          data(offset + i) = math.min(data(offset + i), lim)
+          i += 1
+        end while
+
+      case (None, None) =>
+      // No changes needed
+    end match
+  end applyRetentionSIMD
+
+  private inline def applyFranchiseSIMD(
+      data: Array[Double],
+      offset: Int,
+      length: Int,
+      limit: Option[Double],
+      retention: Option[Double],
+      species: VectorSpecies[java.lang.Double]
+  ): Unit =
+    val vectorSize = species.length()
+    val loopBound = species.loopBound(length)
+
+    (retention, limit) match
+      case (Some(ret), Some(lim)) =>
+        val retVector = DoubleVector.broadcast(species, ret)
+        val limVector = DoubleVector.broadcast(species, lim)
+        val zeroVector = DoubleVector.zero(species)
+
+        var i = 0
+        while i < loopBound do
+          val vector = DoubleVector.fromArray(species, data, offset + i)
+          val mask = vector.compare(VectorOperators.GT, retVector)
+          val result = vector.min(limVector).blend(zeroVector, mask.not())
+          result.intoArray(data, offset + i)
+          i += vectorSize
+        end while
+
+        while i < length do
+          val value = data(offset + i)
+          data(offset + i) = if value > ret then math.min(value, lim) else 0.0
+          i += 1
+        end while
+
+      case (Some(ret), None) =>
+        val retVector = DoubleVector.broadcast(species, ret)
+        val zeroVector = DoubleVector.zero(species)
+
+        var i = 0
+        while i < loopBound do
+          val vector = DoubleVector.fromArray(species, data, offset + i)
+          val mask = vector.compare(VectorOperators.GT, retVector)
+          val result = vector.blend(zeroVector, mask.not())
+          result.intoArray(data, offset + i)
+          i += vectorSize
+        end while
+
+        while i < length do
+          val value = data(offset + i)
+          data(offset + i) = if value > ret then value else 0.0
+          i += 1
+        end while
+
+      case (None, Some(lim)) =>
+        val limVector = DoubleVector.broadcast(species, lim)
+
+        var i = 0
+        while i < loopBound do
+          val vector = DoubleVector.fromArray(species, data, offset + i)
+          val result = vector.min(limVector)
+          result.intoArray(data, offset + i)
+          i += vectorSize
+        end while
+
+        while i < length do
+          data(offset + i) = math.min(data(offset + i), lim)
+          i += 1
+        end while
+
+      case (None, None) =>
+      // No changes needed
+    end match
+  end applyFranchiseSIMD
+
+  private inline def applyReverseFranchise(
+      data: Array[Double],
+      offset: Int,
+      length: Int,
+      limit: Option[Double],
+      retention: Option[Double]
+  ): Unit =
+    var i = 0
+    while i < length do
+      val value = data(offset + i)
+      val afterRetention = retention match
+        case None      => value
+        case Some(ret) => if value <= ret then value else 0.0
+
+      data(offset + i) = limit match
+        case None      => afterRetention
+        case Some(lim) => math.min(afterRetention, lim)
+
+      i += 1
+    end while
+  end applyReverseFranchise
+
+  private inline def applyShareSIMD(
+      data: Array[Double],
+      offset: Int,
+      length: Int,
+      share: Double,
+      species: VectorSpecies[java.lang.Double]
+  ): Unit =
+    val vectorSize = species.length()
+    val loopBound = species.loopBound(length)
+    val shareVector = DoubleVector.broadcast(species, share)
+
+    var i = 0
+    while i < loopBound do
+      val vector = DoubleVector.fromArray(species, data, offset + i)
+      val result = vector.mul(shareVector)
+      result.intoArray(data, offset + i)
+      i += vectorSize
+    end while
+
+    while i < length do
+      data(offset + i) *= share
+      i += 1
+    end while
+  end applyShareSIMD

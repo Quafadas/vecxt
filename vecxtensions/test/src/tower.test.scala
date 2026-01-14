@@ -3,14 +3,16 @@ package vecxtensions
 import vecxt.reinsurance.*
 import vecxt.all.*
 import vecxt.all.given
+import vecxt.reinsurance.SplitLosses.*
+import narr.*
 
 class TowerSuite extends munit.FunSuite:
 
   private def noleakage(
-      losses: Array[Double],
-      ceded: Array[Double],
-      retained: Array[Double],
-      splits: IndexedSeq[(Layer, Array[Double])] = IndexedSeq.empty
+      losses: NArray[Double],
+      ceded: NArray[Double],
+      retained: NArray[Double],
+      splits: IndexedSeq[(Layer, NArray[Double])] = IndexedSeq.empty
   ) =
     import vecxt.BoundsCheck.DoBoundsCheck.yes
     assertVecEquals(ceded + retained, losses)
@@ -33,7 +35,7 @@ class TowerSuite extends munit.FunSuite:
 
   test("Tower empty input handling") {
     val tower = Tower(layers = IndexedSeq(Layer()))
-    val (ceded, retained) = tower.splitAmnt(Array.empty, Array.empty, Array.empty)
+    val (ceded, retained) = tower.splitAmnt(NArray.empty[Int], NArray.empty[Double])
 
     assertEquals(ceded.rows, 0)
     assertEquals(retained.length, 0)
@@ -162,14 +164,14 @@ class TowerSuite extends munit.FunSuite:
     intercept[AssertionError] {
       tower.splitAmntFast(
         Array[Int](1),
-        Array[Double](1.0, 2.0)
+        NArray[Double](1.0, 2.0)
       )
     }
 
     intercept[AssertionError] {
       tower.splitAmntFast(
         Array[Int](1, 2),
-        Array[Double](1.0)
+        NArray[Double](1.0)
       )
     }
 
@@ -177,8 +179,8 @@ class TowerSuite extends munit.FunSuite:
 
   test("Multple layers") {
     val tower = Tower.fromRetention(5.0, Vector(5.0, 5.0, 5.0))
-    val iterations = Array(1, 1, 2, 3)
-    val amounts = Array(7.0, 14.0, 21.0, 4)
+    val iterations = NArray(1, 1, 2, 3)
+    val amounts = NArray(7.0, 14.0, 21.0, 4)
 
     val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
@@ -188,16 +190,16 @@ class TowerSuite extends munit.FunSuite:
 
     assertVecEquals(ceded, l1 + l2 + l3)
     noleakage(amounts, ceded, retained, splits)
-    assertVecEquals(l1, Array(2.0, 5, 5, 0))
-    assertVecEquals(l2, Array(0.0, 4, 5, 0))
-    assertVecEquals(l3, Array(0.0, 0.0, 5, 0))
+    assertVecEquals(l1, NArray(2.0, 5, 5, 0))
+    assertVecEquals(l2, NArray(0.0, 4, 5, 0))
+    assertVecEquals(l3, NArray(0.0, 0.0, 5, 0))
 
   }
 
   test("Multple layers, iterations") {
     val tower = Tower.fromRetention(5.0, Vector(5.0, 5.0, 5.0))
-    val iterations = Array(1, 1, 2, 3)
-    val amounts = Array(7.0, 14.0, 21.0, 4)
+    val iterations = NArray(1, 1, 2, 3)
+    val amounts = NArray(7.0, 14.0, 21.0, 4)
 
     val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
@@ -207,16 +209,16 @@ class TowerSuite extends munit.FunSuite:
 
     assertVecEquals(ceded, l1 + l2 + l3)
     noleakage(amounts, ceded, retained, splits)
-    assertVecEquals(l1, Array(2.0, 5, 5, 0))
-    assertVecEquals(l2, Array(0.0, 4, 5, 0))
-    assertVecEquals(l3, Array(0.0, 0.0, 5, 0))
+    assertVecEquals(l1, NArray(2.0, 5, 5, 0))
+    assertVecEquals(l2, NArray(0.0, 4, 5, 0))
+    assertVecEquals(l3, NArray(0.0, 0.0, 5, 0))
 
   }
 
   test("Multple layers, 1@100") {
     val tower = Tower.oneAt100(5.0, Vector(5.0, 5.0, 5.0))
-    val iterations = Array(1, 1, 1, 2)
-    val amounts = Array(12.0, 9.0, 16.0, 7)
+    val iterations = NArray(1, 1, 1, 2)
+    val amounts = NArray(12.0, 9.0, 16.0, 7)
 
     val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
@@ -226,9 +228,9 @@ class TowerSuite extends munit.FunSuite:
 
     assertVecEquals(ceded, l1 + l2 + l3)
     noleakage(amounts, ceded, retained, splits)
-    assertVecEquals(l1, Array(5.0, 4, 1, 2)) // blows up agg limit in year 1
-    assertVecEquals(l2, Array(2.0, 0, 5, 0))
-    assertVecEquals(l3, Array(0.0, 0.0, 1, 0))
+    assertVecEquals(l1, NArray(5.0, 4, 1, 2)) // blows up agg limit in year 1
+    assertVecEquals(l2, NArray(2.0, 0, 5, 0))
+    assertVecEquals(l3, NArray(0.0, 0.0, 1, 0))
 
   }
 

@@ -20,7 +20,7 @@ object `package` extends Module:
   end VecxtensionModule
 
 
-  private def jsNativeSharedSources = Task.Sources{
+  def jsNativeSharedSources = Task.Sources{
     (os.sub / "src-js-native")
   }
 
@@ -52,6 +52,7 @@ object `package` extends Module:
       build.V.laminar,
       build.V.spire
     )
+    def sources = Task{super.sources() ++ jsNativeSharedSources()}
     def enableBsp = false
     def moduleKind = ModuleKind.ESModule
     object test extends VecxtTest, ScalaJSTests:
