@@ -1,6 +1,5 @@
 package vecxt.reinsurance
 
-
 extension (thisVector: Array[Double])
 
   /** Calculate tail dependence between two distributions. Tail dependence measures the proportion of observations that

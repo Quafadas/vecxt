@@ -1,7 +1,5 @@
 package vecxt
 
-
-
 object BooleanArrays:
 
   extension (vec: Array[Boolean])

@@ -1,6 +1,5 @@
 package vecxt
 
-
 import scala.util.chaining.*
 import matrix.*
 import arrays.*

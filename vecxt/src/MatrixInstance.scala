@@ -9,7 +9,6 @@ import vecxt.MatrixHelper.zeros
 import vecxt.matrix.*
 import vecxt.rangeExtender.*
 
-
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
     inline def update(rc: RowCol, value: A)(using inline boundsCheck: BoundsCheck): Unit =
@@ -54,9 +53,9 @@ object MatrixInstance:
     end update
 
     inline def updateInPlace(
-      row: RangeExtender,
-      col: RangeExtender,
-      to: Array[A]
+        row: RangeExtender,
+        col: RangeExtender,
+        to: Array[A]
     )(using inline boundsCheck: BoundsCheck): Unit =
       // dimCheckLen(to, m.cols)
       // println("Updating matrix with row: " + row + ", col: " + col)

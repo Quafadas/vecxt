@@ -6,7 +6,6 @@ import munit.FunSuite
 import vecxt.BoundsCheck
 import spire.implicits.*
 
-
 import vecxtensions.SpireExt.*
 
 class MatrixExtensionSuite extends FunSuite:

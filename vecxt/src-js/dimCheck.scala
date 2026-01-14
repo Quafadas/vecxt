@@ -20,8 +20,6 @@ import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.BoundsCheck.BoundsCheck
 
-
-
 case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
     extends Exception(
       s"Expected Vector dimensions to match. First dimension was : $requiredDimension, second was : $givenDimension ."

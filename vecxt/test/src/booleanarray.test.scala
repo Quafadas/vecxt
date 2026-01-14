@@ -16,7 +16,6 @@
 
 package vecxt
 
-
 import vecxt.all.*
 
 class BooleaArrayExtensionSuite extends munit.FunSuite:

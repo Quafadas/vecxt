@@ -6,7 +6,6 @@ import vecxt.*
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.all.*
 
-
 import spire.algebra.Ring
 import spire.implicits.*
 

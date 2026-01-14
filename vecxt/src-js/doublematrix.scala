@@ -4,8 +4,7 @@ import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.*
-import scala.scalajs.js.JSConverters._
-
+import scala.scalajs.js.JSConverters.*
 
 object JsDoubleMatrix:
 
@@ -52,7 +51,6 @@ object JsDoubleMatrix:
           c.raw(ci) = outArr(ci)
           ci += 1
         end while
-
       else if m.rowStride == 1 || m.colStride == 1 && b.rowStride == 1 || b.colStride == 1 then
         val transB = if b.rowStride == 1 then "no-transpose" else "transpose"
         val transA = if m.rowStride == 1 then "no-transpose" else "transpose"

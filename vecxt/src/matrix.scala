@@ -3,8 +3,6 @@ import scala.annotation.publicInBinary
 
 import vecxt.BoundsCheck.BoundsCheck
 
-
-
 object matrix:
 
   /** This is a matrix. The constructor is private to ensure that you deliberately opt in or out of the bounds check.
@@ -63,7 +61,7 @@ object matrix:
   object Matrix:
 
     inline def apply[@specialized(Double, Boolean, Int) A](
-      raw: Array[A],
+        raw: Array[A],
         rows: Row,
         cols: Col,
         rowStride: Int,

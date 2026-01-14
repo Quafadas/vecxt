@@ -23,7 +23,6 @@ import vecxt.matrix.Matrix
 
 import jdk.incubator.vector.*
 
-
 /** JVM-specific determinant implementation with SIMD optimizations
   *
   * This implementation uses partial pivoting but no scaling, so it’s not suitable for ill-conditioned matrices.

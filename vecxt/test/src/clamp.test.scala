@@ -16,7 +16,6 @@
 
 package vecxt
 
-
 import all.*
 
 class ClampSuite extends munit.FunSuite:

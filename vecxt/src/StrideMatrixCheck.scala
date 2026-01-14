@@ -2,8 +2,6 @@ package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
 
-
-
 /** strideMatInstantiateCheck performs a set of safety checks when constructing a matrix view with arbitrary strides and
   * offset into a backing array. The checks include:
   *   - Ensuring the number of rows and columns are positive.
@@ -40,7 +38,7 @@ import vecxt.BoundsCheck.BoundsCheck
   *   Starting position in the data array
   */
 object strideMatInstantiateCheck:
-    inline def apply[A](
+  inline def apply[A](
       raw: Array[A],
       rows: Row,
       cols: Col,

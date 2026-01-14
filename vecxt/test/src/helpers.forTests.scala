@@ -16,7 +16,6 @@
 
 package vecxt
 
-
 import matrix.Matrix
 import munit.Assertions.*
 import all.*

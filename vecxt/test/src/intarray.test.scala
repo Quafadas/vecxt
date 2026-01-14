@@ -1,6 +1,5 @@
 package vecxt
 
-
 import all.*
 
 class IntArrayExtensionSuite extends munit.FunSuite:

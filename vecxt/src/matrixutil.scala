@@ -6,8 +6,6 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
-
-
 // import vecxt.arrayUtil.printArr
 object matrixUtil:
   enum Vertical:

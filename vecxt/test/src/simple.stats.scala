@@ -16,7 +16,6 @@
 
 package vecxt
 
-
 import all.*
 import BoundsCheck.DoBoundsCheck
 

@@ -21,8 +21,6 @@ import vecxt.MatrixHelper.*
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
 
-
-
 /** Shared determinant implementation for JS and Native platforms using scalar operations
   */
 object Determinant:

@@ -25,7 +25,8 @@ import BoundsCheck.DoBoundsCheck.yes
 
 class BoundsCheckSuite extends munit.FunSuite:
 
-  lazy val v_fill: Array[Double] = Array.ofDim[Double](5)
+  lazy val v_fill: Array[Double] = Array
+    .ofDim[Double](5)
     .tap(a =>
       a(0) = 1.0
       a(1) = 2.0

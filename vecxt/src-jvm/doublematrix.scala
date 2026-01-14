@@ -8,7 +8,6 @@ import vecxt.all.*
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.*
 
-
 object JvmDoubleMatrix:
 
   final val sp_int_doubleLanes =

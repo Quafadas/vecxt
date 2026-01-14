@@ -4,7 +4,6 @@ import scalatags.Text.all.* // Imports commonly used ScalaTags elements like `Ta
 import scalatags.Text.tags
 import vecxt.all.*
 
-
 import com.raquo.laminar.api.L.{*, given}
 import com.raquo.laminar.tags.*
 import com.raquo.laminar.codecs.StringAsIsCodec

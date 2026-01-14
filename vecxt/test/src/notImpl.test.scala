@@ -3,7 +3,6 @@ package vecxt
 import munit.FunSuite
 import all.*
 
-
 class NotImplTest extends FunSuite:
   import BoundsCheck.DoBoundsCheck.yes
 

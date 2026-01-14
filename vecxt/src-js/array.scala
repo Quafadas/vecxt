@@ -15,7 +15,6 @@
  */
 package vecxt
 
-
 import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
@@ -23,8 +22,6 @@ import scala.util.chaining.*
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.BooleanArrays.*
-
-
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")
@@ -82,8 +79,6 @@ object arrays:
       result
     end ||
   end extension
-
-
 
   extension (vec: Array[Int])
 
@@ -269,7 +264,7 @@ object arrays:
     end dot
 
     inline def norm: Double =
-      Math.sqrt( vec.dot(vec)(using vecxt.BoundsCheck.DoBoundsCheck.no ))
+      Math.sqrt(vec.dot(vec)(using vecxt.BoundsCheck.DoBoundsCheck.no))
     end norm
 
     inline def +(d: Double): Array[Double] =

@@ -1,6 +1,5 @@
 package vecxt
 
-
 import scala.math.Ordering
 import scala.reflect.ClassTag
 import scala.util.chaining.*
@@ -8,8 +7,6 @@ import scala.util.chaining.*
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
-
-
 
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
 object JsNativeDoubleArrays:

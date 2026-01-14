@@ -1,6 +1,5 @@
 package vecxt
 
-
 object DoubleArrays:
   extension (vec: Array[Double])
     inline def unique: Array[Double] =

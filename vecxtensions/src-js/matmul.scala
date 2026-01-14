@@ -7,7 +7,6 @@ import vecxt.*
 import vecxt.all.*
 import vecxt.BoundsCheck.BoundsCheck
 
-
 object SpireExt:
 
   extension [A: ClassTag: Ring](m1: Matrix[A])

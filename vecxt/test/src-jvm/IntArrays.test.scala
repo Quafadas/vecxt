@@ -18,7 +18,6 @@ package vecxt
 
 import all.*
 
-
 class MinMaxSIMDSuite extends munit.FunSuite:
 
   test("maxSIMD finds maximum in small array"):
