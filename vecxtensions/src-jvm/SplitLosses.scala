@@ -1,6 +1,5 @@
 package vecxt.reinsurance
 
-
 import jdk.incubator.vector.{DoubleVector, VectorOperators, VectorSpecies}
 import vecxt.BoundsCheck.BoundsCheck
 
@@ -134,6 +133,7 @@ object SplitLosses:
 
         (ceded, retained, layers.zip(cededSplits))
       end if
+  end extension
 
   private inline def computeSegments(years: Array[Int], length: Int): (Array[Int], Array[Int], Int) =
     val starts = new Array[Int](length)
@@ -144,6 +144,7 @@ object SplitLosses:
       val start = i
       val year = years(i)
       while i < length && years(i) == year do i += 1
+      end while
       starts(count) = start
       ends(count) = i
       count += 1
@@ -339,3 +340,4 @@ object SplitLosses:
       i += 1
     end while
   end applyShareSIMD
+end SplitLosses

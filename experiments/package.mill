@@ -23,10 +23,8 @@ object `package` extends ScalaModule:
   )
 end `package`
 
-/**
-import io.github.quafadas.table.{*, given} 
-import io.github.quafadas.plots.SetupVegaBrowser.{*, given} 
-import vecxt.reinsurance.*
-
-lazy val yelt = CSV.absolutePath("""C:\\temp\\???""", CsvOpts(readAs = ReadAs.Columns))
-*/
+/** import io.github.quafadas.table.{*, given} import io.github.quafadas.plots.SetupVegaBrowser.{*, given} import
+  * vecxt.reinsurance.*
+  *
+  * lazy val yelt = CSV.absolutePath("""C:\\temp\\???""", CsvOpts(readAs = ReadAs.Columns))
+  */

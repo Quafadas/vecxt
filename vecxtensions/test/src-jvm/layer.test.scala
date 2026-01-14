@@ -9,7 +9,6 @@ class ScenarioRISuite extends munit.FunSuite:
     val layer = Layer()
 
     // Check defaults
-    assert(layer.layerId != null)
     assertEquals(layer.layerName, None)
     assertEquals(layer.aggLimit, None)
     assertEquals(layer.aggRetention, None)
@@ -23,7 +22,7 @@ class ScenarioRISuite extends munit.FunSuite:
   }
 
   test("Layer with specific values") {
-    val layerId = UUID.randomUUID()
+    val layerId = scala.util.Random.nextLong()
     val layer = Layer(
       layerId = layerId,
       layerName = Some("Test Layer"),

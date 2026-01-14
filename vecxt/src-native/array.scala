@@ -9,7 +9,6 @@ import org.ekrich.blas.unsafe.*
 import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 
-
 object arrays:
 
   export vecxt.JsNativeDoubleArrays.*

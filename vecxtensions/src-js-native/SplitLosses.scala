@@ -1,25 +1,24 @@
 package vecxt.reinsurance
 
 import vecxt.BoundsCheck.BoundsCheck
-import narr.*
 
 object SplitLosses:
   extension (tower: Tower)
-    inline def splitAmntFast(years: NArray[Int], losses: NArray[Double])(using
+    inline def splitAmntFast(years: Array[Int], losses: Array[Double])(using
         inline bc: BoundsCheck
-    ): (ceded: NArray[Double], retained: NArray[Double], splits: IndexedSeq[(Layer, NArray[Double])]) =
+    ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
       inline if bc then assert(years.length == losses.length)
       end if
-      if losses.isEmpty then (NArray.empty[Double], NArray.empty[Double], tower.layers.map(_ -> NArray.empty[Double]))
+      if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))
       else
 
         val layers = tower.layers
         val numLosses = losses.length
         val numLayers = layers.length
 
-        val cededSplits = IndexedSeq.fill(numLayers)(narr.copy[Double](losses))
-        val retained = new NArray[Double](numLosses)
-        val ceded = new NArray[Double](numLosses)        
+        val cededSplits = IndexedSeq.fill(numLayers)(losses.clone())
+        val retained = new Array[Double](numLosses)
+        val ceded = new Array[Double](numLosses)
 
         var layerIdx = 0
         while layerIdx < numLayers do
@@ -49,6 +48,7 @@ object SplitLosses:
               if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
               end if
           end match
+        end while
 
         var i = 0
         while i < numLosses do
@@ -65,9 +65,10 @@ object SplitLosses:
 
         (ceded, retained, layers.zip(cededSplits))
       end if
+  end extension
 
   private inline def applyRetention(
-      data: NArray[Double],
+      data: Array[Double],
       offset: Int,
       length: Int,
       limit: Option[Double],
@@ -100,7 +101,7 @@ object SplitLosses:
   end applyRetention
 
   private inline def applyFranchise(
-      data: NArray[Double],
+      data: Array[Double],
       offset: Int,
       length: Int,
       limit: Option[Double],
@@ -133,7 +134,7 @@ object SplitLosses:
   end applyFranchise
 
   private inline def applyReverseFranchise(
-      data: NArray[Double],
+      data: Array[Double],
       offset: Int,
       length: Int,
       limit: Option[Double],
@@ -155,7 +156,7 @@ object SplitLosses:
   end applyReverseFranchise
 
   private inline def applyShare(
-      data: NArray[Double],
+      data: Array[Double],
       offset: Int,
       length: Int,
       share: Double
@@ -166,3 +167,4 @@ object SplitLosses:
       i += 1
     end while
   end applyShare
+end SplitLosses

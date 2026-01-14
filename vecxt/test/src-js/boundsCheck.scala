@@ -1,6 +1,5 @@
 package vecxt
 
-import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 import BoundsCheck.DoBoundsCheck
 import arrays.*

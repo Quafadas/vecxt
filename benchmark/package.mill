@@ -6,37 +6,37 @@ import contrib.jmh.JmhModule
 // mill benchmark.runJmh vecxt.benchmark.AndBooleanBenchmark -jvmArgs --add-modules=jdk.incubator.vector -rf json
 
 object `package` extends JmhModule with ScalaModule:
-    def scalaVersion = build.vecxt.jvm.scalaVersion
-    def jmhCoreVersion = "1.37"
-    override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
-    override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm, build.vecxtensions.jvm)
-    def enableBsp = false
+  def scalaVersion = build.vecxt.jvm.scalaVersion
+  def jmhCoreVersion = "1.37"
+  override def forkArgs: T[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+  override def moduleDeps: Seq[JavaModule] = Seq(build.vecxt.jvm, build.vecxtensions.jvm)
+  def enableBsp = false
 
-  // override def generateBenchmarkSources = T{
-  //   val dest = T.ctx().dest
+// override def generateBenchmarkSources = T{
+//   val dest = T.ctx().dest
 
-  //   val forkedArgs = forkArgs().toSeq
+//   val forkedArgs = forkArgs().toSeq
 
-  //   val sourcesDir = dest / "jmh_sources"
-  //   val resourcesDir = dest / "jmh_resources"
+//   val sourcesDir = dest / "jmh_sources"
+//   val resourcesDir = dest / "jmh_resources"
 
-  //   os.remove.all(sourcesDir)
-  //   os.makeDir.all(sourcesDir)
-  //   os.remove.all(resourcesDir)
-  //   os.makeDir.all(resourcesDir)
+//   os.remove.all(sourcesDir)
+//   os.makeDir.all(sourcesDir)
+//   os.remove.all(resourcesDir)
+//   os.makeDir.all(resourcesDir)
 
-  //   Jvm.runSubprocess(
-  //     "org.openjdk.jmh.generators.bytecode.JmhBytecodeGenerator",
-  //     (runClasspath() ++ generatorDeps()).map(_.path),
-  //     mainArgs = Seq(
-  //       compile().classes.path.toString,
-  //       sourcesDir.toString,
-  //       resourcesDir.toString,
-  //       "default"
-  //     ),
-  //     jvmArgs = forkedArgs
-  //   )
+//   Jvm.runSubprocess(
+//     "org.openjdk.jmh.generators.bytecode.JmhBytecodeGenerator",
+//     (runClasspath() ++ generatorDeps()).map(_.path),
+//     mainArgs = Seq(
+//       compile().classes.path.toString,
+//       sourcesDir.toString,
+//       resourcesDir.toString,
+//       "default"
+//     ),
+//     jvmArgs = forkedArgs
+//   )
 
-  //   (sourcesDir, resourcesDir)
-  // }
+//   (sourcesDir, resourcesDir)
+// }
 end `package`

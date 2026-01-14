@@ -1,8 +1,5 @@
 package vecxt.reinsurance
 
-import java.util.UUID
-import vecxt.reinsurance.rpt.reinsuranceFunction
-
 object Layer:
   inline def apply(limit: Double, ret: Double): Layer =
     Layer(
@@ -22,7 +19,7 @@ object Layer:
 end Layer
 
 case class Layer(
-    layerId: UUID = UUID.randomUUID(),
+    layerId: Long = scala.util.Random.nextLong(),
     layerName: Option[String] = None,
     aggLimit: Option[Double] = None,
     aggRetention: Option[Double] = None,

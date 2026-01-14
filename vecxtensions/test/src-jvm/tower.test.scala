@@ -6,7 +6,6 @@ import vecxt.all.*
 class TowerSuite extends munit.FunSuite:
 
   val sampleLayer = Layer(
-    layerId = UUID.randomUUID(),
     layerName = Some("Primary Layer"),
     aggLimit = Some(1000000.0),
     aggRetention = Some(100000.0),
@@ -20,7 +19,6 @@ class TowerSuite extends munit.FunSuite:
   )
 
   val sampleTower = Tower(
-    id = UUID.randomUUID(),
     name = Some("Test Tower"),
     layers = IndexedSeq(sampleLayer),
     subjPremium = Some(2000000.0)
@@ -66,7 +64,6 @@ class TowerSuite extends munit.FunSuite:
 
   test("applyScale should handle None values gracefully"):
     val towerWithNones = Tower(
-      id = UUID.randomUUID(),
       name = None,
       layers = IndexedSeq(Layer(currency = Some("EUR"))),
       subjPremium = None

@@ -75,5 +75,5 @@ trait CommonNative extends ScalaNativeModule with VecxtPublishModule:
   def mvnDeps: Simple[Seq[Dep]] = super.mvnDeps() ++ Seq(
     mvn"org.ekrich::sblas::0.7.0"
   )
-  def scalaNativeVersion: Simple[String] = "0.5.8"
+  def scalaNativeVersion: Simple[String] = "0.5.9"
 end CommonNative

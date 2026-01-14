@@ -7,18 +7,17 @@ import vecxt.reinsurance.Retentions.Retention
 import vecxt.reinsurance.rpt.*
 import vecxt.all.*
 import vecxt.all.given
-import narr.*
 
 object Tower:
   inline def fromRetention(ret: Double, limits: IndexedSeq[Double]): Tower =
-    val retentions = NArray((ret +: limits.dropRight(1))*).cumsum.toArray
+    val retentions = Array((ret +: limits.dropRight(1))*).cumsum.toArray
 
     val layers = retentions.zip(limits).map((retention, limit) => Layer(limit, retention))
     Tower(layers)
   end fromRetention
 
   inline def singleShot(ret: Double, limits: IndexedSeq[Double]) =
-    val retentions = NArray((ret +: limits.dropRight(1))*).cumsum.toArray
+    val retentions = Array((ret +: limits.dropRight(1))*).cumsum.toArray
 
     val layers = retentions.zip(limits).map { (retention, limit) =>
       Layer(
@@ -31,7 +30,7 @@ object Tower:
 
   inline def oneAt100(ret: Double, limits: IndexedSeq[Double]): Tower =
 
-    val retentions = NArray((ret +: limits.dropRight(1))*).cumsum.toArray
+    val retentions = Array((ret +: limits.dropRight(1))*).cumsum.toArray
 
     val layers = retentions
       .zip(limits)
@@ -50,14 +49,14 @@ end Tower
 
 case class Tower(
     layers: IndexedSeq[Layer],
-    id: UUID = UUID.randomUUID(),
+    id: Long = scala.util.Random.nextLong(),
     name: Option[String] = None,
     subjPremium: Option[Double] = None
 ):
   def applyScale(scale: Double): Tower =
     Tower(
       layers = layers.map(_.applyScale(scale)),
-      id = UUID.randomUUID(),
+      id = scala.util.Random.nextLong(),
       name = name,
       subjPremium = subjPremium.map(_ * scale)
     )
@@ -143,8 +142,8 @@ case class Tower(
   // Optimized helper method to apply all occurrence layers directly using matrix rpt functions
   private def applyOccurrenceLayers(losses: Array[Double]): Matrix[Double] =
     // Create result matrix with losses repeated for each layer
-    val layerResults: IndexedSeq[NArray[Double]] = layers.map { layer =>
-      val layerLosses = NArray(losses*)
+    val layerResults: IndexedSeq[Array[Double]] = layers.map { layer =>
+      val layerLosses = Array(losses*)
 
       // Convert to opaque types for rpt functions
       val limit = layer.occLimit.map(Limit.apply)
@@ -183,7 +182,7 @@ case class Tower(
   // Optimized helper method to apply aggregate layers with shares using matrix rpt functions
   private def applyAggregateLayers(values: Matrix[Double]): Matrix[Double] =
     inline given bc: vecxt.BoundsCheck.BoundsCheck = vecxt.BoundsCheck.DoBoundsCheck.no
-    val layerResults: IndexedSeq[NArray[Double]] = layers.zipWithIndex.map { case (layer, j) =>
+    val layerResults: IndexedSeq[Array[Double]] = layers.zipWithIndex.map { case (layer, j) =>
       // Extract column j values
       val layerValuesArray = new Array[Double](values.rows)
       var i = 0
@@ -192,7 +191,7 @@ case class Tower(
         i += 1
       end while
 
-      val layerValues = NArray(layerValuesArray*)
+      val layerValues = Array(layerValuesArray*)
 
       // Convert to opaque types for rpt functions
       val limit = layer.aggLimit.map(Limit.apply)
