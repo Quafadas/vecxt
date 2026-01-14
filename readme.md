@@ -6,16 +6,10 @@ Freeing you from the tyranny of having to choose which platform you write your c
 
 ## What is it?
 
-Aims to provide convienent and intuitive syntax for vector computations with best-in-class inline-shim-to-BLAS performance.
+Aims to provide convienent and intuitive syntax for vector computations with best-in-class inline-shim-to-BLAS performance on native and JVM. JS... is waiting for WebAssembly BLAS.
 
 ||JVM|JS|Native|
 ----|----|----|----|
-Data structure| `Array[Double]` | `Float64Array` | `Array[Double]` |
+Data structure| `Array[Double]` | `Array[Double]` | `Array[Double]` |
 Shims to | https://github.com/luhenry/netlib | https://github.com/stdlib-js/blas | [CBLAS](https://github.com/ekrich/sblas) |
-
-## Didn't you say "cross platform"?
-
-This is a very neat piece of work.
-https://github.com/dragonfly-ai/narr
-
 
