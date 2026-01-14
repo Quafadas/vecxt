@@ -23,19 +23,19 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("Higher kinded matmul") {
     val mat1 = Matrix.fromRows(
-      NArray(1L, 2L, 3L),
-      NArray(4L, 5L, 6L)
+      Array(1L, 2L, 3L),
+      Array(4L, 5L, 6L)
     )
 
     val mat2 = Matrix.fromRows(
-      NArray(7L, 8L),
-      NArray(9L, 10L),
-      NArray(11L, 12L)
+      Array(7L, 8L),
+      Array(9L, 10L),
+      Array(11L, 12L)
     )
 
     val result = Matrix.fromRows(
-      NArray(58L, 64L),
-      NArray(139L, 154L)
+      Array(58L, 64L),
+      Array(139L, 154L)
     )
 
     val mult = mat1 @@@ mat2
