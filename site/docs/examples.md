@@ -105,8 +105,8 @@ And Ints. Note that the API here is more limited at the moment.
 import vecxt.all.{*, given}
 
 
-val v1 = NArray(1, 2, 3)
-val v2 = NArray(4, 5, 6)
+val v1 = Array(1, 2, 3)
+val v2 = Array(4, 5, 6)
 
 
 v1.dot(v2)
