@@ -20,7 +20,7 @@ import vecxt.reinsurance.SplitLosses.splitAmntFast
 @State(Scope.Thread)
 class SplitAmntBenchmark extends BLASBenchmark:
 
-  @Param(Array("10000", "1000000"))
+  @Param(Array("25000", "50000", "100000", "250000", "1000000"))
   var len: String = uninitialized
 
   var years: Array[Int] = uninitialized
