@@ -6,7 +6,6 @@ import vecxt.reinsurance.Limits.Limit
 import vecxt.reinsurance.Retentions.Retention
 import vecxt.reinsurance.rpt.*
 import vecxt.all.*
-import vecxt.all.given
 
 object Tower:
   inline def fromRetention(ret: Double, limits: IndexedSeq[Double]): Tower =
