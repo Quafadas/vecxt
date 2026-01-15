@@ -20,8 +20,11 @@ import vecxt.reinsurance.SplitLosses.splitAmntFast
 @State(Scope.Thread)
 class SplitAmntBenchmark extends BLASBenchmark:
 
-  @Param(Array("25000", "50000", "100000", "250000", "1000000"))
+  @Param(Array("25000", "100000", "250000"))
   var len: String = uninitialized
+
+  @Param(Array("1", "2", "4"))
+  var numLayers: String = uninitialized
 
   var years: Array[Int] = uninitialized
   var losses: Array[Double] = uninitialized
@@ -34,10 +37,10 @@ class SplitAmntBenchmark extends BLASBenchmark:
 
     // Generate realistic test data
     years = Array.fill(size)(random.nextInt(size)).sorted
-    losses = Array.fill(size)(random.nextDouble() * 100.0) // 0-100 losses
+    losses = Array.fill(size)(random.nextDouble() * 200.0) // 0-200 losses
 
     // Create realistic tower with multiple layers
-    tower = Tower.singleShot(10.0, IndexedSeq(25.0, 40.0, 25.0, 10.0))
+    tower = Tower.singleShot(10.0, IndexedSeq.fill(numLayers.toInt)(25.0))
 
   end setup
 
