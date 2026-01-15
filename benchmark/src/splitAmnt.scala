@@ -56,9 +56,7 @@ end SplitAmntBenchmark
 
 // mill benchmark.runJmh vecxt.benchmark.SplitAmntBenchmark -jvmArgs "--add-modules=jdk.incubator.vector -Xms2G -Xmx4G -Xlog:gc*:file=gc.log:time,level -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:StartFlightRecording=filename=recording.jfr,duration=120s,settings=profile" -prof gc,stack -wi 5 -i 10 -f 1 -rf json
 
-/**
- * Benchmarking notes. 
- * 
- * If there are only a small number of claims, then it appears the cost of parralism outweighs the benefits. 
- * 
- */
+/** Benchmarking notes.
+  *
+  * If there are only a small number of claims, then it appears the cost of parralism outweighs the benefits.
+  */
