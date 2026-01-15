@@ -1,5 +1,7 @@
 package vecxt.reinsurance
 
+import java.util.concurrent.Executors
+
 import jdk.incubator.vector.{DoubleVector, VectorOperators, VectorSpecies}
 import vecxt.BoundsCheck.BoundsCheck
 
@@ -35,9 +37,7 @@ object SplitLosses:
         val species = DoubleVector.SPECIES_PREFERRED
         val vectorSize = species.length()
 
-        // Step 1-4: process each layer column in-place (occurrence -> cumsum -> aggregate -> diff)
-        var layerIdx = 0
-        while layerIdx < numLayers do
+        def processLayer(layerIdx: Int): Unit =
           val layer = layers(layerIdx)
           val col = cededSplits(layerIdx)
 
@@ -98,13 +98,43 @@ object SplitLosses:
             end if
             i += 1
           end while
+        end processLayer
 
-          layerIdx += 1
-        end while
+        /**
+         * Benchmarking 15.01.2026
+         * 
+         * If there is only one layer, no point paying the setup cost of parralism.
+         * 
+         * if there is only a small number of losses to process, then 
+          benchmarking suggests that the L1 cache keeps everything in memory and crushes the setup and teardown costs of parrallism
+         * 
+         * So parrallism only helps, in the case where we have a reasonably large number of losses and more than one layer... 
+         * 
+         */
+        (numLosses, numLayers) match
+          case (_, 1) => processLayer(0)
+          case (nl, _) if nl < 50000 =>
+            var i = 0
+            while i < numLayers do
+              processLayer(i)
+              i += 1
+            end while
+          case _ =>
+            val threads = math.min(numLayers, Runtime.getRuntime.availableProcessors())
+            val executor = Executors.newFixedThreadPool(threads)
+            try
+              val futures: IndexedSeq[java.util.concurrent.Future[_]] = (0 until numLayers).map { idx =>
+                executor.submit(new Runnable:
+                  override def run(): Unit = processLayer(idx)
+                )
+              }
+              futures.foreach(_.get())
+            finally executor.shutdown()
 
         // Step 5: total ceded per loss and retained (vectorized)
         val loopBound = species.loopBound(numLosses)
         var i = 0
+        var layerIdx = 0
         while i < loopBound do
           var sumVector = DoubleVector.zero(species)
           layerIdx = 0
