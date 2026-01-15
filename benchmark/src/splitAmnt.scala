@@ -20,7 +20,7 @@ import vecxt.reinsurance.SplitLosses.splitAmntFast
 @State(Scope.Thread)
 class SplitAmntBenchmark extends BLASBenchmark:
 
-  @Param(Array("25000", "100000", "250000"))
+  @Param(Array("49999", "50001", "1000000"))
   var len: String = uninitialized
 
   @Param(Array("1", "2", "4"))
@@ -40,7 +40,7 @@ class SplitAmntBenchmark extends BLASBenchmark:
     losses = Array.fill(size)(random.nextDouble() * 200.0) // 0-200 losses
 
     // Create realistic tower with multiple layers
-    tower = Tower.singleShot(10.0, IndexedSeq.fill(numLayers.toInt)(25.0))
+    tower = Tower.singleShot(10.0, IndexedSeq.fill(numLayers.toInt)(10.0))
 
   end setup
 
@@ -55,3 +55,10 @@ class SplitAmntBenchmark extends BLASBenchmark:
 end SplitAmntBenchmark
 
 // mill benchmark.runJmh vecxt.benchmark.SplitAmntBenchmark -jvmArgs "--add-modules=jdk.incubator.vector -Xms2G -Xmx4G -Xlog:gc*:file=gc.log:time,level -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints -XX:StartFlightRecording=filename=recording.jfr,duration=120s,settings=profile" -prof gc,stack -wi 5 -i 10 -f 1 -rf json
+
+/**
+ * Benchmarking notes. 
+ * 
+ * If there are only a small number of claims, then it appears the cost of parralism outweighs the benefits. 
+ * 
+ */
