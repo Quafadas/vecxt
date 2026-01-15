@@ -4,6 +4,7 @@ import java.util.concurrent.Executors
 
 import jdk.incubator.vector.{DoubleVector, VectorOperators, VectorSpecies}
 import vecxt.BoundsCheck.BoundsCheck
+import scala.annotation.nowarn
 
 object SplitLosses:
   extension (tower: Tower)
@@ -100,19 +101,18 @@ object SplitLosses:
           end while
         end processLayer
 
-        /**
-         * Benchmarking 15.01.2026
-         * 
-         * If there is only one layer, no point paying the setup cost of parralism.
-         * 
-         * if there is only a small number of losses to process, then 
-          benchmarking suggests that the L1 cache keeps everything in memory and crushes the setup and teardown costs of parrallism
-         * 
-         * So parrallism only helps, in the case where we have a reasonably large number of losses and more than one layer... 
-         * 
-         */
+        /** Benchmarking 15.01.2026
+          *
+          * If there is only one layer, no point paying the setup cost of parralism.
+          *
+          * if there is only a small number of losses to process, then benchmarking suggests that the L1 cache keeps
+          * everything in memory and crushes the setup and teardown costs of parrallism
+          *
+          * So parrallism only helps, in the case where we have a reasonably large number of losses and more than one
+          * layer...
+          */
         (numLosses, numLayers) match
-          case (_, 1) => processLayer(0)
+          case (_, 1)                => processLayer(0)
           case (nl, _) if nl < 50000 =>
             var i = 0
             while i < numLayers do
@@ -123,13 +123,16 @@ object SplitLosses:
             val threads = math.min(numLayers, Runtime.getRuntime.availableProcessors())
             val executor = Executors.newFixedThreadPool(threads)
             try
-              val futures: IndexedSeq[java.util.concurrent.Future[_]] = (0 until numLayers).map { idx =>
-                executor.submit(new Runnable:
-                  override def run(): Unit = processLayer(idx)
+              val futures: IndexedSeq[java.util.concurrent.Future[?]] = (0 until numLayers).map { idx =>
+                executor.submit(                  
+                  new Runnable:
+                    override def run(): Unit = processLayer(idx)
                 )
               }
               futures.foreach(_.get())
             finally executor.shutdown()
+            end try
+        end match
 
         // Step 5: total ceded per loss and retained (vectorized)
         val loopBound = species.loopBound(numLosses)
