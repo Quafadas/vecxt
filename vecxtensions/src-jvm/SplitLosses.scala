@@ -124,7 +124,7 @@ object SplitLosses:
             val executor = Executors.newFixedThreadPool(threads)
             try
               val futures: IndexedSeq[java.util.concurrent.Future[?]] = (0 until numLayers).map { idx =>
-                executor.submit(                  
+                executor.submit(
                   new Runnable:
                     override def run(): Unit = processLayer(idx)
                 )
