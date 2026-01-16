@@ -1,6 +1,6 @@
 # Cross Platform
 
-Vecxt wants to be cross platform and runs in scalaJS - check your browser console to observer the output. It is expected that JS performance might not be that good. You should prefer WASM application side.
+Vecxt wants to be cross platform. It compiles to both scalaJS and native - check your browser console to observer the output. On scala JS, target WASM for better performance.
 
 
 ```scala mdoc:js
@@ -21,7 +21,7 @@ val p2 = dom.document.createElement("p")
 
 println("boo")
 
-p1.textContent = "BLAS in browser!"
+p1.textContent = "In browser!"
 p2.textContent = algo(a, b, c).mkString("[",", ", "]")
 
 node.appendChild(p1)

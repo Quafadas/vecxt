@@ -2,7 +2,7 @@
 
 # Rationale
 
-In performance sensitive vector applications, bounds checking may be an unwelcome overhead.
+In performance sensitive vector applications, bounds checking may be an unwelcome overhead. By inlining a bounds checking mechanism, we give the developer the choice of whether to pay the cost of bounds checking, or to skip it for performance.
 
 # Mechanism
 

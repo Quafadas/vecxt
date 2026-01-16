@@ -6,7 +6,8 @@ Making cross plaform vector problem less... vexing
 scala-cli repl --dep io.github.quafadas::vecxt::@VERSION@ --java-opt "--add-modules=jdk.incubator.vector" --repl-init-script 'import vecxt.all.{*, given}'
 ```
 
-Scala cli
+Getting started with scala cli
+
 ```scala
 //> using dep io.github.quafadas::vecxt::@VERSION@
 

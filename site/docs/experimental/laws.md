@@ -60,11 +60,11 @@ given dim: Dimension = Dimension(3)
 
 ```scala
 // Create a commutative monoid for vector addition
-given VectorCommutativeMonoid[Double] = 
+given VectorCommutativeMonoid[Double] =
   vectorAdditionMonoid(using dim)
 
 // Or for multiplication
-given VectorCommutativeMonoid[Double] = 
+given VectorCommutativeMonoid[Double] =
   vectorMultiplicationMonoid(using dim)
 ```
 
@@ -120,13 +120,13 @@ import org.scalacheck.{Arbitrary, Gen}
 
 class CustomMonoidLawsSpec extends DisciplineSuite:
   given dim: Dimension = Dimension(10)
-  
+
   given VectorCommutativeMonoid[Double] = customVectorMonoid
-  
+
   given Arbitrary[Array[Double]] = Arbitrary(
     Gen.listOfN(10, Gen.choose(-100.0, 100.0)).map(_.toArray)
   )
-  
+
   given Eq[Array[Double]] = Eq.instance((a, b) =>
     if a.length != b.length then false
     else
@@ -137,7 +137,7 @@ class CustomMonoidLawsSpec extends DisciplineSuite:
         i += 1
       equal
   )
-  
+
   checkAll(
     "CustomVectorMonoid",
     CommutativeMonoidTests[Array[Double]].commutativeMonoid
@@ -159,7 +159,9 @@ The framework automatically tests:
 - `isEmpty` detects identity element
 
 ### Commutative Monoid Laws
+
 All Monoid laws plus:
+
 - `combine(x, y) === combine(y, x)` (commutativity)
 - Intercalate operations preserve commutativity
 - Reverse operations preserve commutativity
@@ -167,10 +169,15 @@ All Monoid laws plus:
 ## Benefits
 
 ✅ **Correctness**: Automatically verify that operations satisfy mathematical laws
+
 ✅ **Property-Based Testing**: Tests with hundreds of generated inputs
+
 ✅ **Regression Prevention**: Catch bugs when refactoring implementations
+
 ✅ **Documentation**: Laws serve as executable specification
+
 ✅ **Integration**: Works with cats ecosystem and discipline
+
 ✅ **Zero Overhead**: Dimension validation can be disabled via BoundsCheck
 
 ## Dependencies
@@ -201,4 +208,4 @@ def testMvnDeps = Seq(
 
 - [cats kernel](https://typelevel.org/cats/typeclasses.html)
 - [discipline](https://github.com/typelevel/discipline) - Law checking for type classes
-- [vecxt BoundsCheck system](bounds.md)
+- [vecxt BoundsCheck system](../bounds.md)

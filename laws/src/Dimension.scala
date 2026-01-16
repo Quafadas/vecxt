@@ -1,4 +1,3 @@
-
 package vecxt.laws
 
 /** Dimension as an opaque type for type safety
