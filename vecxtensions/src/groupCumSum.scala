@@ -2,7 +2,6 @@ package vecxtensions
 
 import vecxt.reinsurance.Layer
 
-
 def aggregateByItr(
     years: Array[Int],
     splits: IndexedSeq[(Layer, Array[Double])],

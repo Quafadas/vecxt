@@ -1,6 +1,6 @@
 # Cross Platform
 
-Expressed in a cross platform `NArray`, and runs in scalaJS - check your browser console to observer the output.
+Vecxt wants to be cross platform and runs in scalaJS - check your browser console to observer the output. It is expected that JS performance might not be that good. You should prefer WASM application side.
 
 
 ```scala mdoc:js
@@ -29,7 +29,9 @@ node.appendChild(p2)
 
 
 ```
-This simple `algo` method is expressed in terms of `NArray`. It can be shared across JS, native and the JVM.
+This simple `algo` method can be shared across JS, native and the JVM.
+
+On JVM and Native, BLAS shims out to external libraries for zoer copy performance. On JS, we data copy as right now can't share between WASM and JS heap memory. Expect poor performance on JS.
 
 # Math ML
 
