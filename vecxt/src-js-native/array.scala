@@ -2,7 +2,6 @@ package vecxt
 
 import scala.math.Ordering
 import scala.reflect.ClassTag
-import scala.util.chaining.*
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*

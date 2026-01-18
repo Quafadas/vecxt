@@ -1,6 +1,8 @@
 package vecxt.reinsurance
 import vecxt.reinsurance.Limits.Limit
 import vecxt.reinsurance.Retentions.Retention
+import vecxt.all.*
+import vecxt.all.given
 
 /*
 
@@ -132,6 +134,26 @@ object rpt:
             i = i + 1
           end while
     end franchiseFunction
+
+  end extension
+
+  // Matrix extensions that delegate to the underlying array
+  extension (mat: Matrix[Double])
+
+    /** Apply reinsurance function to entire matrix via underlying array */
+    inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      mat.raw.reinsuranceFunction(limitOpt, retentionOpt)
+    end applyReinsurance
+
+    /** Apply reinsurance function with share to entire matrix via underlying array */
+    inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
+      mat.raw.reinsuranceFunction(limitOpt, retentionOpt, share)
+    end applyReinsurance
+
+    /** Apply franchise function to entire matrix via underlying array */
+    inline def applyFranchise(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      mat.raw.franchiseFunction(limitOpt, retentionOpt)
+    end applyFranchise
 
   end extension
 end rpt

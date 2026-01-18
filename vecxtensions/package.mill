@@ -18,6 +18,14 @@ object `package` extends Module:
     end VecxtTest
   end VecxtensionModule
 
+  private def jsNativeSharedSources = Task.Sources {
+    (os.sub / "src-js-native")
+  }
+
+  private def jvmNativeSharedSources = Task.Sources {
+    (os.sub / "src-jvm-native")
+  }
+
   object jvm extends VecxtensionModule:
     def moduleDeps = Seq(build.vecxt.jvm)
     override def scalaVersion = build.V.scalaVersion
@@ -27,31 +35,39 @@ object `package` extends Module:
       build.V.spire
     )
 
+    def sources = Task(super.sources() ++ jvmNativeSharedSources())
+
     object test extends VecxtTest, ScalaTests:
       def moduleDeps = Seq(jvm)
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
     end test
   end jvm
+
   object js extends VecxtensionModule with build.CommonJS:
     def moduleDeps = Seq(build.vecxt.js)
     override def mvnDeps = super.mvnDeps() ++ Seq(
       build.V.laminar,
       build.V.spire
     )
+    def sources = Task(super.sources() ++ jsNativeSharedSources())
     def enableBsp = false
     def moduleKind = ModuleKind.ESModule
     object test extends VecxtTest, ScalaJSTests:
       def moduleDeps = Seq(js)
       def moduleKind = ModuleKind.CommonJSModule
+      override def enableBsp = false
     end test
   end js
+
   object native extends VecxtensionModule with build.CommonNative:
     def moduleDeps = Seq(build.vecxt.native)
     override def mvnDeps = super.mvnDeps()
+    def sources = Task(super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources())
     def enableBsp = false
 
     object test extends ScalaNativeTests, VecxtTest:
       override def moduleDeps = Seq(native)
+      override def enableBsp = false
     end test
   end native
 end `package`

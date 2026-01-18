@@ -7,7 +7,6 @@ import vecxt.arrays.*
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.matrix.*
 import vecxt.matrixUtil.*
-import vecxt.MatrixHelper.createDiagonal
 
 object DoubleMatrix:
 

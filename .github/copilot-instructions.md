@@ -12,6 +12,8 @@ Answer all questions in the style of a friendly colleague that is an expert in l
 
 Mill may be found via it's wrapper script `./mill` in the root of the repository. For example `./mill vecxt.__.compile` will compile the JVM, JS and native targets.
 
+If you are on windows, use `mill`, not `./mill`.
+
 Each module contains it's own build definition in the package.mill file in it's module directory.
 
 - BUILDS: Mill cold compilation takes 2 minutes or so. Stay patient!
@@ -33,7 +35,7 @@ vecxt/
 ├── styleguide.md             # Coding style guidelines
 ├── benchmarks/              # Benchmarking code - not published, may be run in CI on request
 ├── experiments/              # Not published, inlined experiments - use this as a sandbox
-├── vecxtensions/             # Published module with experiments / concepts which may not be suitable for main module
+├── vecxtensions/             # Published experimental / concepts which may not be suitable for main module
 │   ├── src/                  # Cross-platform shared source code
 │   ├── src-jvm/              # JVM-specific implementations (SIMD Vector API)
 │   ├── src-js/               # JavaScript-specific implementations

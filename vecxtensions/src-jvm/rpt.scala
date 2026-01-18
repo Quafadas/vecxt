@@ -1,6 +1,8 @@
 package vecxt.reinsurance
 import vecxt.reinsurance.Limits.*
 import vecxt.reinsurance.Retentions.*
+import vecxt.all.*
+import vecxt.all.given
 
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies
@@ -202,6 +204,26 @@ object rpt:
         case (None, Some(retention))        => franchiseRetentionOnly(vec, retention.retention)
         case (Some(limit), None)            => franchiseLimitOnly(vec, limit.limit)
         case (None, None)                   => ()
+
+  end extension
+
+  // Matrix extensions that delegate to the underlying array
+  extension (mat: Matrix[Double])
+
+    /** Apply reinsurance function to entire matrix via underlying array */
+    inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      mat.raw.reinsuranceFunction(limitOpt, retentionOpt)
+    end applyReinsurance
+
+    /** Apply reinsurance function with share to entire matrix via underlying array */
+    inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
+      mat.raw.reinsuranceFunction(limitOpt, retentionOpt, share)
+    end applyReinsurance
+
+    /** Apply franchise function to entire matrix via underlying array */
+    inline def applyFranchise(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      mat.raw.franchiseFunction(limitOpt, retentionOpt)
+    end applyFranchise
 
   end extension
 end rpt

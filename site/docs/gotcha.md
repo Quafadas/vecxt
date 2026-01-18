@@ -27,3 +27,6 @@ This is materially different to the behaviour on the JVM and native arrays, whic
 
 It is an explicit goal of `vecxt` to be performant, and to introduce as few abstractions as possible. We make no effort to solve this problem in JS land.
 
+# Native
+
+Is a path less travelled...YMMV

@@ -45,6 +45,7 @@ jobs:
           cache: npm
 
       - name: formatCheck
+        if: matrix.project == 'jvm'
         run: ./mill mill.scalalib.scalafmt.ScalafmtModule/checkFormatAll __.sources
 
       - if: matrix.project == 'js'
@@ -63,6 +64,9 @@ jobs:
 
       - name: Test
         run: ./mill vecxt.${{ matrix.project }}.test
+
+      - name: Test
+        run: ./mill vecxtensions.${{ matrix.project }}.test
 
       - name: Laws Test
         if: matrix.project == 'jvm'

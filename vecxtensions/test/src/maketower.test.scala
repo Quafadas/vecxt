@@ -1,27 +1,11 @@
-/*
- * Copyright 2023 quafadas
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package vecxt.reinsurance
 
 import java.util.UUID
+import vecxt.all.*
 
 class TowerSuite extends munit.FunSuite:
 
   val sampleLayer = Layer(
-    layerId = UUID.randomUUID(),
     layerName = Some("Primary Layer"),
     aggLimit = Some(1000000.0),
     aggRetention = Some(100000.0),
@@ -35,9 +19,8 @@ class TowerSuite extends munit.FunSuite:
   )
 
   val sampleTower = Tower(
-    id = UUID.randomUUID(),
     name = Some("Test Tower"),
-    layers = Seq(sampleLayer),
+    layers = IndexedSeq(sampleLayer),
     subjPremium = Some(2000000.0)
   )
 
@@ -81,9 +64,8 @@ class TowerSuite extends munit.FunSuite:
 
   test("applyScale should handle None values gracefully"):
     val towerWithNones = Tower(
-      id = UUID.randomUUID(),
       name = None,
-      layers = Seq(Layer(currency = Some("EUR"))),
+      layers = IndexedSeq(Layer(currency = Some("EUR"))),
       subjPremium = None
     )
 
@@ -101,7 +83,7 @@ class TowerSuite extends munit.FunSuite:
       currency = Some("USD")
     )
 
-    val multiLayerTower = sampleTower.copy(layers = Seq(sampleLayer, layer2))
+    val multiLayerTower = sampleTower.copy(layers = IndexedSeq(sampleLayer, layer2))
     val scaledTower = multiLayerTower.applyScale(0.5)
 
     assertEquals(scaledTower.layers.size, 2)

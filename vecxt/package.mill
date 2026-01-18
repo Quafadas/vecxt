@@ -17,8 +17,12 @@ object `package` extends Module:
     end VecxtTest
   end VecxtModule
 
-  def jsNativeSharedSources = Task.Sources {
+  private def jsNativeSharedSources = Task.Sources {
     (os.sub / "src-js-native")
+  }
+
+  private def jvmNativeSharedSources = Task.Sources {
+    (os.sub / "src-jvm-native")
   }
 
   object jvm extends VecxtModule:
@@ -28,6 +32,7 @@ object `package` extends Module:
       build.V.blas,
       build.V.lapack
     )
+    def sources = Task(super.sources() ++ jvmNativeSharedSources())
 
     object test extends VecxtTest, ScalaTests:
       def moduleDeps = Seq(jvm)
@@ -41,17 +46,20 @@ object `package` extends Module:
     object test extends VecxtTest, ScalaJSTests:
       def moduleDeps = Seq(js)
       def moduleKind = ModuleKind.CommonJSModule
+      override def enableBsp = false
     end test
     override def enableBsp = false
   end js
   object native extends VecxtModule with build.CommonNative:
     override def mvnDeps = super.mvnDeps()
 
-    def sources = Task(super.sources() ++ jsNativeSharedSources())
+    def sources = Task(super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources())
+    override def enableBsp = false
 
     object test extends ScalaNativeTests, VecxtTest:
       override def moduleDeps = Seq(native)
+      override def enableBsp = false
     end test
-    override def enableBsp = false
+
   end native
 end `package`

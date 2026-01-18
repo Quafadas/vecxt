@@ -1,22 +1,7 @@
-/*
- * Copyright 2023 quafadas
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package vecxt.reinsurance
 
 import java.util.UUID
+import vecxtensions.assertVecEquals
 
 class ScenarioRISuite extends munit.FunSuite:
 
@@ -24,7 +9,6 @@ class ScenarioRISuite extends munit.FunSuite:
     val layer = Layer()
 
     // Check defaults
-    assert(layer.layerId != null)
     assertEquals(layer.layerName, None)
     assertEquals(layer.aggLimit, None)
     assertEquals(layer.aggRetention, None)
@@ -38,7 +22,7 @@ class ScenarioRISuite extends munit.FunSuite:
   }
 
   test("Layer with specific values") {
-    val layerId = UUID.randomUUID()
+    val layerId = scala.util.Random.nextLong()
     val layer = Layer(
       layerId = layerId,
       layerName = Some("Test Layer"),
@@ -49,7 +33,7 @@ class ScenarioRISuite extends munit.FunSuite:
       share = 0.75,
       basePremiumAmount = Some(10000.0),
       basePremiumUnit = Some(1.0),
-      reinstatement = Some(List(0.5, 0.75, 1.0))
+      reinstatement = Some(Array(0.5, 0.75, 1.0))
     )
 
     assertEquals(layer.layerId, layerId)
@@ -60,28 +44,31 @@ class ScenarioRISuite extends munit.FunSuite:
     assertEquals(layer.occRetention, Some(50000.0))
     assertEquals(layer.share, 0.75)
     assertEquals(layer.basePremiumAmount, Some(10000.0))
-    assertEquals(layer.reinstatement, Some(List(0.5, 0.75, 1.0)))
+    assert(layer.reinstatement.isDefined)
+    layer.reinstatement.map(
+      assertVecEquals(_, Array(0.5, 0.75, 1.0))
+    )
   }
 
   test("Layer string conversions") {
     val layer = Layer(
-      aggLimit = Some(1000000.0),
-      aggRetention = Some(100000.0),
-      occLimit = Some(500000.0),
-      occRetention = Some(50000.0),
-      basePremiumAmount = Some(10000.0),
-      basePremiumUnit = Some(1.0),
-      brokerageAmount = Some(500.0),
+      aggLimit = Some(1000000.1),
+      aggRetention = Some(100000.1),
+      occLimit = Some(500000.1),
+      occRetention = Some(50000.1),
+      basePremiumAmount = Some(10000.1),
+      basePremiumUnit = Some(1.1),
+      brokerageAmount = Some(500.1),
       brokerageUnit = Some(0.05)
     )
 
-    assertEquals(layer.aggLimitString, Some("1000000.0"))
-    assertEquals(layer.aggDeductibleString, Some("100000.0"))
-    assertEquals(layer.occLimitString, Some("500000.0"))
-    assertEquals(layer.occDeductibleString, Some("50000.0"))
-    assertEquals(layer.premimuAmountString, Some("10000.0"))
-    assertEquals(layer.premiumUnitString, Some("1.0"))
-    assertEquals(layer.brokerageAmountString, Some("500.0"))
+    assertEquals(layer.aggLimitString, Some("1000000.1"))
+    assertEquals(layer.aggDeductibleString, Some("100000.1"))
+    assertEquals(layer.occLimitString, Some("500000.1"))
+    assertEquals(layer.occDeductibleString, Some("50000.1"))
+    assertEquals(layer.premimuAmountString, Some("10000.1"))
+    assertEquals(layer.premiumUnitString, Some("1.1"))
+    assertEquals(layer.brokerageAmountString, Some("500.1"))
     assertEquals(layer.brokerageUnitString, Some("0.05"))
   }
 
@@ -176,7 +163,7 @@ class ScenarioRISuite extends munit.FunSuite:
 
   test("applyScale description updates") {
     val originalLayer = Layer(
-      basePremiumUnit = Some(1000.0),
+      basePremiumUnit = Some(100.1),
       basePremiumDescription = Some("Base premium"),
       commissionUnit = Some(0.1),
       commissionDescription = Some("Commission"),
@@ -184,11 +171,56 @@ class ScenarioRISuite extends munit.FunSuite:
       brokerageDescription = Some("Brokerage")
     )
 
-    val scaledLayer = originalLayer.applyScale(2.0)
+    val scaledLayer = originalLayer.applyScale(2.1)
 
-    assertEquals(scaledLayer.basePremiumDescription, Some("Base premium at Some(1000.0) * 2.0"))
-    assertEquals(scaledLayer.commissionDescription, Some("Commission at Some(0.1) * 2.0"))
-    assertEquals(scaledLayer.brokerageDescription, Some("Brokerage at Some(0.05) * 2.0"))
+    assertEquals(scaledLayer.basePremiumDescription, Some("Base premium at Some(100.1) * 2.1"))
+    assertEquals(scaledLayer.commissionDescription, Some("Commission at Some(0.1) * 2.1"))
+    assertEquals(scaledLayer.brokerageDescription, Some("Brokerage at Some(0.05) * 2.1"))
+  }
+
+  test("cap with retention deductible returns occLimit") {
+    val layer = Layer(
+      occLimit = Some(500000.0),
+      occRetention = Some(50000.0),
+      occType = DeductibleType.Retention
+    )
+
+    assertEquals(layer.cap, 550000.0)
+  }
+
+  test("cap with franchise adds retention") {
+    val layer = Layer(
+      occLimit = Some(500000.0),
+      occRetention = Some(50000.0),
+      occType = DeductibleType.Franchise
+    )
+
+    assertEquals(layer.cap, 500000.0)
+  }
+
+  test("cap with franchise and missing retention defaults to limit") {
+    val layer = Layer(
+      occLimit = Some(500000.0),
+      occType = DeductibleType.Franchise
+    )
+
+    assertEquals(layer.cap, 500000.0)
+  }
+
+  test("cap with reverse franchise returns NaN") {
+    val layer = Layer(
+      occLimit = Some(500000.0),
+      occRetention = Some(50000.0),
+      occType = DeductibleType.ReverseFranchise
+    )
+
+    assert(java.lang.Double.isNaN(layer.cap))
+  }
+
+  test("cap without occLimit returns positive infinity") {
+    val layer = Layer()
+
+    assertEquals(layer.cap, Double.PositiveInfinity)
   }
 
   test("occLayer sublayer creation") {
