@@ -1,4 +1,4 @@
-package vecxt.reinsurance
+package vecxt_re
 
 import vecxt.BoundsCheck.BoundsCheck
 
