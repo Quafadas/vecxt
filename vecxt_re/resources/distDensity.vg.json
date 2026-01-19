@@ -1,0 +1,256 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "description": "Based on https://vega.github.io/vega/examples/probability-density.vg.json",
+    "data": [
+        {
+            "name": "points",
+            "values": [
+                {
+                    "tret": 1.1,
+                    "probability": 0.1,
+                    "c": "first",
+                    "offset": 0.5
+                },
+                {
+                    "tret": 1.01,
+                    "probability": 0.2,
+                    "c": "first",
+                    "offset": 0.5
+                },
+                {
+                    "tret": 0.99,
+                    "probability": 0.3,
+                    "c": "first",
+                    "offset": 0.5
+                },
+                {
+                    "tret": 0.5,
+                    "probability": 0.5,
+                    "c": "first",
+                    "offset": 0.5
+                },
+                {
+                    "tret": 0.1,
+                    "probability": 0.99,
+                    "c": "first",
+                    "offset": 0.5
+                }
+            ]
+        },
+        {
+            "name": "summary",
+            "source": "points",
+            "transform": [
+                {
+                    "type": "aggregate",
+                    "fields": [
+                        "tret",
+                        "offset"
+                    ],
+                    "groupby": [
+                        "c"
+                    ],
+                    "ops": [
+                        "mean",
+                        "mean"
+                    ],
+                    "as": [
+                        "mean",
+                        "meanOffset"
+                    ]
+                }
+            ]
+        }
+    ],
+    "scales": [
+        {
+            "name": "color",
+            "type": "ordinal",
+            "domain": {
+                "data": "points",
+                "field": "c"
+            },
+            "range": {
+                "scheme": "category20"
+            }
+        },
+        {
+            "name": "xscale",
+            "range": "width",
+            "domain": {
+                "data": "points",
+                "field": "probability"
+            },
+            "type": "log"
+        },
+        {
+            "name": "yscale",
+            "type": "linear",
+            "range": "height",
+            "domain": {
+                "fields": [
+                    {
+                        "data": "points",
+                        "field": "tret"
+                    }
+                ]
+            }
+        }
+    ],
+    "legends": [
+        {
+            "orient": "top-right",
+            "fill": "color",
+            "offset": 0,
+            "zindex": 1
+        }
+    ],
+    "marks": [
+        {
+            "type": "group",
+            "from": {
+                "facet": {
+                    "name": "series",
+                    "data": "points",
+                    "groupby": "c"
+                }
+            },
+            "marks": [
+                {
+                    "type": "line",
+                    "from": {
+                        "data": "series"
+                    },
+                    "encode": {
+                        "enter": {
+                            "x": {
+                                "scale": "xscale",
+                                "field": "probability"
+                            },
+                            "y": {
+                                "scale": "yscale",
+                                "field": "tret"
+                            },
+                            "stroke": {
+                                "scale": "color",
+                                "field": "c"
+                            },
+                            "tooltip": {
+                                "signal": "{tret : format(datum.tret*100, \".3f\")+\"%\" , probTretSmaller: format(datum.probability*100,\".3f\")+\"%\" }"
+                            }
+                        },
+                        "update": {
+                            "interpolate": "monotone",
+                            "strokeOpacity": {
+                                "value": 1
+                            }
+                        },
+                        "hover": {
+                            "strokeOpacity": {
+                                "value": 0.5
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "type": "rect",
+            "from": {
+                "data": "points"
+            },
+            "interactive": true,
+            "encode": {
+                "enter": {
+                    "y": {
+                        "scale": "yscale",
+                        "field": "tret"
+                    },
+                    "height": {
+                        "value": 2
+                    },
+                    "x": {
+                        "value": 25,
+                        "offset": {
+                            "signal": "width"
+                        },
+                        "mult": {
+                            "field": "offset"
+                        }
+                    },
+                    "tooltip": {
+                        "signal": "{tret : format(datum.tret*100, \".3f\")+\"%\" , probTretSmaller: format(datum.probability*100,\".3f\")+\"%\" }"
+                    },
+                    "width": {
+                        "value": 5
+                    },
+                    "fill": {
+                        "scale": "color",
+                        "field": "c"
+                    },
+                    "fillOpacity": {
+                        "value": 0.4
+                    }
+                }
+            }
+        },
+        {
+            "type": "rect",
+            "from": {
+                "data": "summary"
+            },
+            "interactive": true,
+            "zindex": 1,
+            "encode": {
+                "enter": {
+                    "y": {
+                        "scale": "yscale",
+                        "field": "mean"
+                    },
+                    "height": {
+                        "value": 2
+                    },
+                    "x": {
+                        "value": 25,
+                        "offset": {
+                            "signal": "width"
+                        },
+                        "mult": {
+                            "field": "meanOffset"
+                        }
+                    },
+                    "fill": {
+                        "value": "black"
+                    },
+                    "width": {
+                        "value": 5
+                    },
+                    "fillOpacity": {
+                        "value": 1
+                    }
+                }
+            }
+        }
+    ],
+    "axes": [
+        {
+            "orient": "bottom",
+            "scale": "xscale",
+            "zindex": 0,
+            "grid": true,
+            "title": "CDF",
+            "titleAnchor": "middle",
+            "gridOpacity": 0.5
+        },
+        {
+            "orient": "left",
+            "scale": "yscale",
+            "zindex": 0,
+            "grid": true,
+            "title": "TRET",
+            "titleAnchor": "middle",
+            "gridOpacity": 0.5,
+            "domain": "false"
+        }
+    ]
+}
