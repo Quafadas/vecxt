@@ -123,6 +123,125 @@ mat(Array(0, 2), 0 to 1).printMat
 
 ```
 
+## Hadamard Product (Element-wise Multiplication)
+
+The Hadamard product (also known as element-wise multiplication) multiplies corresponding elements of two matrices. In vecxt, the `hadamard` method supports matrices with different memory layouts, including non-contiguous views and transposed matrices.
+
+### Basic Usage
+
+```scala mdoc:to-string
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+import narr.*
+
+val hadMat1 = Matrix.fromRows(
+  NArray[Double](1.0, 2.0, 3.0),
+  NArray[Double](4.0, 5.0, 6.0)
+)
+
+val hadMat2 = Matrix.fromRows(
+  NArray[Double](2.0, 3.0, 4.0),
+  NArray[Double](5.0, 6.0, 7.0)
+)
+
+// Element-wise multiplication
+val hadResult = hadMat1.hadamard(hadMat2)
+hadResult.printMat
+
+```
+
+### Working with Matrix Views
+
+The Hadamard product works seamlessly with non-contiguous matrix views (slices), automatically handling the different memory layouts:
+
+```scala mdoc:to-string
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+import narr.*
+
+// Create base matrices
+val hadBase1 = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 1).toDouble), 3, 3)
+val hadBase2 = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 10).toDouble), 3, 3)
+
+hadBase1.printMat
+hadBase2.printMat
+
+// Create views by selecting specific columns
+val hadView1 = hadBase1(::, NArray(1, 2))  // columns 1 and 2
+val hadView2 = hadBase2(::, NArray(1, 2))  // columns 1 and 2
+
+hadView1.printMat
+hadView2.printMat
+
+// Hadamard product works on views
+val hadViewResult = hadView1.hadamard(hadView2)
+hadViewResult.printMat
+
+```
+
+### Mixed Layouts
+
+You can use the Hadamard product with matrices that have different layouts (e.g., one simple, one sliced):
+
+```scala mdoc:to-string
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+import narr.*
+
+val hadSimple = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 3, 2)
+val hadBaseMixed = Matrix[Double](NArray.tabulate[Double](9)(i => (i + 10).toDouble), 3, 3)
+
+hadSimple.printMat
+
+hadBaseMixed.printMat
+
+// Select specific columns from base
+val hadViewMixed = hadBaseMixed(::, NArray(0, 2))
+
+hadViewMixed.printMat
+
+// Hadamard product with mixed layouts
+val hadMixedResult = hadSimple.hadamard(hadViewMixed)
+hadMixedResult.printMat
+
+```
+
+### Transposed Matrices
+
+The Hadamard product also handles transposed matrices (which have row-major layout):
+
+```scala mdoc:to-string
+import vecxt.all.*
+import vecxt.BoundsCheck.DoBoundsCheck.yes
+import narr.*
+
+val hadTransMat1 = Matrix[Double](NArray(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3)
+val hadTransMat2 = Matrix[Double](NArray(10.0, 20.0, 30.0, 40.0, 50.0, 60.0), 3, 2)
+
+hadTransMat1.printMat
+hadTransMat2.printMat
+
+// Transpose mat2 to match mat1's shape
+val hadTransMat2T = hadTransMat2.transpose
+
+hadTransMat2T.printMat
+
+// Hadamard product with transposed matrix
+val hadTransResult = hadTransMat1.hadamard(hadTransMat2T)
+hadTransResult.printMat
+
+```
+
+### Performance Notes
+
+The Hadamard product implementation is optimized for different scenarios:
+
+- **Fast path**: When both matrices have the same dense memory layout (both column-major or both row-major), the operation uses SIMD-optimized array multiplication for maximum performance
+- **Different layouts**: When matrices have different layouts, vecxt intelligently materializes only one matrix to match the other's layout, then performs in-place multiplication
+- **Cross-platform**: The SIMD optimizations work on JVM (using Java's Vector API), while JS and Native use efficient while loops
+
+This means you can freely work with sliced views and transposed matrices without worrying about performance penalties - vecxt handles the complexity for you while maintaining correctness as the #1 priority.
+
 ## Indexing
 
 ```scala mdoc:to-string
