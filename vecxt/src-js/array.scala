@@ -207,6 +207,7 @@ object arrays:
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
       (μ, acc / denom)
+    end meanAndVariance
 
     inline def unary_- : Array[Double] =
       val newVec = Array.ofDim[Double](vec.length)
