@@ -77,3 +77,7 @@ trait CommonNative extends ScalaNativeModule with VecxtPublishModule:
   )
   def scalaNativeVersion: Simple[String] = "0.5.9"
 end CommonNative
+
+trait ShareCompileResources extends ScalaModule {
+  override def compileResources = super.compileResources() ++ resources()
+}
