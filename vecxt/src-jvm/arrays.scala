@@ -250,29 +250,8 @@ object arrays:
       temp
     end sumSIMD
 
-    inline def mean: Double =
-      var i = 0
-      var acc = DoubleVector.zero(spd)
-      val tmp = new Array[Double](spdl)
-
-      while i < spd.loopBound(vec.length) do
-        var lane = 0
-        while lane < spdl do
-          tmp(lane) = vec(i + lane).toDouble
-          lane += 1
-        end while
-
-        acc = acc.add(DoubleVector.fromArray(spd, tmp, 0))
-        i += spdl
-      end while
-
-      var sum = acc.reduceLanes(VectorOperators.ADD)
-      while i < vec.length do
-        sum += vec(i)
-        i += 1
-      end while
-
-      sum / vec.length
+    inline def mean: Double =      
+      sumSIMD / vec.length
     end mean
 
     inline def variance: Double = variance(VarianceMode.Population)
