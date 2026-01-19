@@ -18,11 +18,18 @@ case class Scenarr(
 ):
   assert(iterations.length == days.length && days.length == amounts.length)
 
-  lazy val freq: Array[Int] = groupCount(iterations, numberIterations)
+  lazy val freq: Array[Int] =
+    assert(isSorted)
+    groupCount(iterations, numberIterations)
+  end freq
 
-  lazy val meanFreq: Double = freq.mean
+  lazy val meanFreq: Double =
+    freq.mean
 
-  lazy val agg: Array[Double] = groupSum(iterations, amounts, numberIterations)
+  lazy val agg: Array[Double] =
+    assert(isSorted)
+    groupSum(iterations, amounts, numberIterations)
+  end agg
 
   lazy val claimDates: Array[LocalDate] = days.map(d => ChronoUnit.DAYS.addTo(this.day1, d))
 

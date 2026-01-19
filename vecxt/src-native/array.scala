@@ -91,6 +91,54 @@ object arrays:
     inline def stdDev: Double = stdDev(VarianceMode.Population)
 
     inline def stdDev(mode: VarianceMode): Double = std(mode)
+
+    inline def minSIMD: Double =
+      var i = 0
+      var acc = Double.PositiveInfinity
+      while i < vec.length do
+        val v = vec(i)
+        if v < acc then acc = v
+        end if
+        i += 1
+      end while
+      acc
+    end minSIMD
+
+    inline def maxSIMD: Double =
+      var i = 0
+      var acc = Double.NegativeInfinity
+      while i < vec.length do
+        val v = vec(i)
+        if v > acc then acc = v
+        end if
+        i += 1
+      end while
+      acc
+    end maxSIMD
+
+    inline def minSIMD: Int =
+      var i = 0
+      var acc = Int.MaxValue
+      while i < vec.length do
+        val v = vec(i)
+        if v < acc then acc = v
+        end if
+        i += 1
+      end while
+      acc
+    end minSIMD
+
+    inline def maxSIMD: Int =
+      var i = 0
+      var acc = Int.MinValue
+      while i < vec.length do
+        val v = vec(i)
+        if v > acc then acc = v
+        end if
+        i += 1
+      end while
+      acc
+    end maxSIMD
   end extension
 
   extension [A: ClassTag](vec: Array[A])
