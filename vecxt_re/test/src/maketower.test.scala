@@ -1,6 +1,5 @@
 package vecxt_re
 
-
 class MakeTowerSuite extends munit.FunSuite:
 
   val sampleLayer = Layer(

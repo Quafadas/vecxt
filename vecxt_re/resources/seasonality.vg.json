@@ -1,0 +1,111 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "A basic bar chart example, with value labels shown upon pointer hover.",
+  "padding": 5,
+  "data": [
+    {
+      "name": "table",
+      "values": [
+        {"category": "2022-12-31", "amount": 0, "color": true}
+      ]
+    }
+  ],
+  "signals": [
+    {
+      "name": "tooltip",
+      "value": {},
+      "on": [
+        {"events": "rect:pointerover", "update": "datum"},
+        {"events": "rect:pointerout", "update": "{}"}
+      ]
+    },
+    {
+      "name": "height",
+      "init": "isFinite(containerSize()[1]) ? containerSize()[1] : 200",
+      "on": [
+        {
+          "update": "isFinite(containerSize()[1]) ? containerSize()[1] : 200",
+          "events": "window:resize"
+        }
+      ]
+    },
+    {
+      "name": "width",
+      "init": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
+      "on": [
+        {
+          "update": "isFinite(containerSize()[0]) ? containerSize()[0] : 200",
+          "events": "window:resize"
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "xscale",
+      "type": "band",
+      "domain": {"data": "table", "field": "category"},
+      "range": "width",
+      "padding": 0.05,
+      "round": true
+    },
+    {
+      "name": "yscale",
+      "domain": {"data": "table", "field": "amount"},
+      "nice": true,
+      "range": "height"
+    },
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": {"data": "table", "field": "color"},
+      "range": ["green", "steelblue"]
+    }
+  ],
+  "axes": [
+    {
+      "orient": "bottom",
+      "scale": "xscale",
+      "labelAngle": -90,
+      "labelPadding": 30
+    },
+    {"orient": "left", "scale": "yscale"}
+  ],
+  "marks": [
+    {
+      "type": "rect",
+      "from": {"data": "table"},
+      "encode": {
+        "enter": {
+          "x": {"scale": "xscale", "field": "category"},
+          "width": {"scale": "xscale", "band": 1},
+          "y": {"scale": "yscale", "field": "amount"},
+          "y2": {"scale": "yscale", "value": 0},
+          "tooltip": {"signal": "datum"}
+        },
+        "update": {"fill": {"scale": "color", "field": "color"}},
+        "hover": {"fill": {"value": "red"}}
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "align": {"value": "center"},
+          "baseline": {"value": "bottom"},
+          "fill": {"value": "#333"}
+        },
+        "update": {
+          "x": {"scale": "xscale", "signal": "tooltip.category", "band": 0.5},
+          "y": {"scale": "yscale", "signal": "tooltip.amount", "offset": -2},
+          "text": {"signal": "tooltip.amount"},
+          "fillOpacity": [
+            {"test": "datum === tooltip", "value": 0},
+            {"value": 1}
+          ]
+        }
+      }
+    }
+  ],
+  "autosize": {"type": "fit", "resize": true, "contains": "padding"}
+}
