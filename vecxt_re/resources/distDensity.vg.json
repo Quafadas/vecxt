@@ -250,7 +250,7 @@
             "title": "TRET",
             "titleAnchor": "middle",
             "gridOpacity": 0.5,
-            "domain": "false"
+            "domain": false
         }
     ]
 }

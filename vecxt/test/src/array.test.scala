@@ -432,6 +432,13 @@ class ArrayExtensionSuite extends munit.FunSuite:
     // assertEqualsDouble(v1.qdep(0.95, v3), 0.8, 0.0001)
   }
 
+  test("select picks elements by index order") {
+    val v = Array[Double](10.0, 20.0, 30.0, 40.0)
+    val idx = Array(3, 1, 0)
+    val out = v.select(idx)
+    assertEquals(out.toSeq, Seq(40.0, 20.0, 10.0))
+  }
+
   test("tvar index") {
     import vecxt.reinsurance.tVarIdx
     val v1 = Array.tabulate[Double](100)(_.toDouble)

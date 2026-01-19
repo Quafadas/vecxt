@@ -67,36 +67,55 @@ class IntArrayExtensionSuite extends munit.FunSuite:
 
   test("mean arithmetic progression") {
     val v = Array.tabulate[Int](10)(identity)
-    assertEqualsDouble(math.abs(v.mean - 4.5d), 0.0, 1e-12)
+    println(v.printArr)
+    assertEqualsDouble(v.mean, 4.5d, 1e-12)
   }
 
   test("variance/std zero spread") {
     val v = Array.fill[Int](6)(7)
-    assertEqualsDouble(math.abs(v.mean - 7d), 0.0, 1e-12)
-    assertEqualsDouble(math.abs(v.variance), 0.0, 1e-12)
-    assertEqualsDouble(math.abs(v.std), 0.0, 1e-12)
+    assertEqualsDouble(v.mean, 7d, 0.0, 1e-12)
+    assertEqualsDouble(v.variance, 0.0, 1e-12)
+    assertEqualsDouble(v.std, 0.0, 1e-12)
   }
 
   test("variance/std arithmetic progression") {
     val v = Array.tabulate[Int](10)(identity)
     val expectedVar = 8.25d
-    assertEqualsDouble(math.abs(v.variance - expectedVar), 0.0, 1e-9)
-    assertEqualsDouble(math.abs(v.std - math.sqrt(expectedVar)), 0.0, 1e-9)
+    assertEqualsDouble(v.variance, expectedVar, 1e-9)
+    assertEqualsDouble(v.std, math.sqrt(expectedVar), 1e-9)
   }
 
   test("meanAndVariance zero spread") {
     val v = Array.fill[Int](6)(7)
     val stats = v.meanAndVariance
-    assertEqualsDouble(math.abs(stats.mean - 7d), 0.0, 1e-12)
-    assertEqualsDouble(math.abs(stats.variance), 0.0, 1e-12)
+    assertEqualsDouble(stats.mean, 7d, 1e-12)
+    assertEqualsDouble(stats.variance, 0.0, 1e-12)
   }
 
   test("meanAndVariance arithmetic progression") {
     val v = Array.tabulate[Int](10)(identity)
     val stats = v.meanAndVariance
     val expectedVar = 8.25d
-    assertEqualsDouble(math.abs(stats.mean - 4.5d), 0.0, 1e-12)
-    assertEqualsDouble(math.abs(stats.variance - expectedVar), 0.0, 1e-9)
+    assertEqualsDouble(stats.mean, 4.5d, 1e-12)
+    assertEqualsDouble(stats.variance, expectedVar, 1e-9)
+  }
+
+  test("select picks indices in order") {
+    val base = Array.tabulate[Int](10)(identity)
+    val idx = Array(0, 3, 5, 9)
+    assertVecEquals(base.select(idx), Array(0, 3, 5, 9))
+  }
+
+  test("select handles duplicates and unsorted indices") {
+    val base = Array.tabulate[Int](6)(identity)
+    val idx = Array(5, 2, 5, 0)
+    assertVecEquals(base.select(idx), Array(5, 2, 5, 0))
+  }
+
+  test("select with empty index array") {
+    val base = Array.tabulate[Int](4)(identity)
+    val idx = Array.emptyIntArray
+    assertVecEquals(base.select(idx), Array.emptyIntArray)
   }
 
 end IntArrayExtensionSuite

@@ -250,8 +250,8 @@ object arrays:
       temp
     end sumSIMD
 
-    inline def mean: Double =      
-      sumSIMD / vec.length
+    inline def mean: Double =
+      sumSIMD / vec.length.toDouble
     end mean
 
     inline def variance: Double = variance(VarianceMode.Population)

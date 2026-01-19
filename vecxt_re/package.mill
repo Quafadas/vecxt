@@ -33,7 +33,8 @@ object `package` extends Module:
 
     override def mvnDeps = super.mvnDeps() ++ Seq(
       mvn"io.github.quafadas::scautable:0.0.35",
-      mvn"io.github.quafadas::dedav4s:0.10.3"
+      mvn"io.github.quafadas::dedav4s:0.10.3",
+      mvn"org.apache.commons:commons-math4-core:4.0-beta1"
     )
 
     object test extends VexctReTest, ScalaTests:

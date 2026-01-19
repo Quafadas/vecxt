@@ -51,3 +51,26 @@ inline def groupSum(groups: Array[Int], values: Array[Double], nitr: Int): Array
 
   result
 end groupSum
+
+/**   - count by group index
+  *   - Each group has a small number of values.
+  *   - Each the groups are keyed by their index.
+  *   - assumes groups are already sorted
+  */
+inline def groupCount(groups: Array[Int], nitr: Int): Array[Int] =
+  val result = Array.fill(nitr)(0)
+  val l = groups.length
+  var i = 0
+  while i < l do
+    val g = groups(i)
+    var groupSum = 0
+    // Process block of same group, computing cumulative sum
+    while i < l && groups(i) == g do
+      groupSum += 1
+      i += 1
+    end while
+    result(g - 1) = groupSum
+  end while
+
+  result
+end groupCount
