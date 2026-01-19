@@ -6,31 +6,31 @@
             "name": "points",
             "values": [
                 {
-                    "tret": 1.1,
+                    "amount": 1.1,
                     "probability": 0.1,
                     "c": "first",
                     "offset": 0.5
                 },
                 {
-                    "tret": 1.01,
+                    "amount": 1.01,
                     "probability": 0.2,
                     "c": "first",
                     "offset": 0.5
                 },
                 {
-                    "tret": 0.99,
+                    "amount": 0.99,
                     "probability": 0.3,
                     "c": "first",
                     "offset": 0.5
                 },
                 {
-                    "tret": 0.5,
+                    "amount": 0.5,
                     "probability": 0.5,
                     "c": "first",
                     "offset": 0.5
                 },
                 {
-                    "tret": 0.1,
+                    "amount": 0.1,
                     "probability": 0.99,
                     "c": "first",
                     "offset": 0.5
@@ -44,7 +44,7 @@
                 {
                     "type": "aggregate",
                     "fields": [
-                        "tret",
+                        "amount",
                         "offset"
                     ],
                     "groupby": [
@@ -91,7 +91,7 @@
                 "fields": [
                     {
                         "data": "points",
-                        "field": "tret"
+                        "field": "amount"
                     }
                 ]
             }
@@ -129,14 +129,14 @@
                             },
                             "y": {
                                 "scale": "yscale",
-                                "field": "tret"
+                                "field": "amount"
                             },
                             "stroke": {
                                 "scale": "color",
                                 "field": "c"
                             },
                             "tooltip": {
-                                "signal": "{tret : format(datum.tret*100, \".3f\")+\"%\" , probTretSmaller: format(datum.probability*100,\".3f\")+\"%\" }"
+                                "signal": "{amount : format(datum.amount*100, \".3f\")+\"%\" , probAmountSmaller: format(datum.probability*100,\".3f\")+\"%\" }"
                             }
                         },
                         "update": {
@@ -164,7 +164,7 @@
                 "enter": {
                     "y": {
                         "scale": "yscale",
-                        "field": "tret"
+                        "field": "amount"
                     },
                     "height": {
                         "value": 2
@@ -179,7 +179,7 @@
                         }
                     },
                     "tooltip": {
-                        "signal": "{tret : format(datum.tret*100, \".3f\")+\"%\" , probTretSmaller: format(datum.probability*100,\".3f\")+\"%\" }"
+                        "signal": "{amount : format(datum.amount*100, \".3f\")+\"%\" , probAmountSmaller: format(datum.probability*100,\".3f\")+\"%\" }"
                     },
                     "width": {
                         "value": 5
@@ -247,7 +247,7 @@
             "scale": "yscale",
             "zindex": 0,
             "grid": true,
-            "title": "TRET",
+            "title": "AMOUNT",
             "titleAnchor": "middle",
             "gridOpacity": 0.5,
             "domain": false
