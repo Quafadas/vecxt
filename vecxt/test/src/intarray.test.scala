@@ -65,4 +65,38 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assert(!v2.contiguous)
   }
 
+  test("mean arithmetic progression") {
+    val v = Array.tabulate[Int](10)(identity)
+    assertEqualsDouble(math.abs(v.mean - 4.5d), 0.0, 1e-12)
+  }
+
+  test("variance/std zero spread") {
+    val v = Array.fill[Int](6)(7)
+    assertEqualsDouble(math.abs(v.mean - 7d), 0.0, 1e-12)
+    assertEqualsDouble(math.abs(v.variance), 0.0, 1e-12)
+    assertEqualsDouble(math.abs(v.std), 0.0, 1e-12)
+  }
+
+  test("variance/std arithmetic progression") {
+    val v = Array.tabulate[Int](10)(identity)
+    val expectedVar = 8.25d
+    assertEqualsDouble(math.abs(v.variance - expectedVar), 0.0, 1e-9)
+    assertEqualsDouble(math.abs(v.std - math.sqrt(expectedVar)), 0.0, 1e-9)
+  }
+
+  test("meanAndVariance zero spread") {
+    val v = Array.fill[Int](6)(7)
+    val stats = v.meanAndVariance
+    assertEqualsDouble(math.abs(stats.mean - 7d), 0.0, 1e-12)
+    assertEqualsDouble(math.abs(stats.variance), 0.0, 1e-12)
+  }
+
+  test("meanAndVariance arithmetic progression") {
+    val v = Array.tabulate[Int](10)(identity)
+    val stats = v.meanAndVariance
+    val expectedVar = 8.25d
+    assertEqualsDouble(math.abs(stats.mean - 4.5d), 0.0, 1e-12)
+    assertEqualsDouble(math.abs(stats.variance - expectedVar), 0.0, 1e-9)
+  }
+
 end IntArrayExtensionSuite

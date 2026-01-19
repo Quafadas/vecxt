@@ -46,6 +46,39 @@ object arrays:
     // end copy
   end extension
 
+  extension (vec: Array[Int])
+
+    inline def mean: Double =
+      var sum = 0.0
+      var i = 0
+      while i < vec.length do
+        sum += vec(i)
+        i += 1
+      end while
+      sum / vec.length
+    end mean
+
+    inline def variance: Double =
+      vec.meanAndVariance.variance
+    end variance
+
+    inline def meanAndVariance: (mean: Double, variance: Double) =
+      val μ = vec.mean
+      var acc = 0.0
+      var i = 0
+      while i < vec.length do
+        val diff = vec(i) - μ
+        acc = Math.fma(diff, diff, acc)
+        i += 1
+      end while
+      (μ, acc / vec.length)
+    end meanAndVariance
+
+    inline def std: Double = Math.sqrt(vec.variance)
+
+    inline def stdDev: Double = vec.std
+  end extension
+
   extension [A: ClassTag](vec: Array[A])
 
     def apply(index: Array[Boolean]): Array[A] =

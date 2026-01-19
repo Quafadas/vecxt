@@ -250,6 +250,69 @@ object arrays:
       temp
     end sumSIMD
 
+    inline def mean: Double =
+      var i = 0
+      var acc = DoubleVector.zero(spd)
+      val tmp = new Array[Double](spdl)
+
+      while i < spd.loopBound(vec.length) do
+        var lane = 0
+        while lane < spdl do
+          tmp(lane) = vec(i + lane).toDouble
+          lane += 1
+        end while
+
+        acc = acc.add(DoubleVector.fromArray(spd, tmp, 0))
+        i += spdl
+      end while
+
+      var sum = acc.reduceLanes(VectorOperators.ADD)
+      while i < vec.length do
+        sum += vec(i)
+        i += 1
+      end while
+
+      sum / vec.length
+    end mean
+
+    inline def variance: Double = meanAndVariance.variance
+
+    inline def meanAndVariance: (mean: Double, variance: Double) =
+      val μ = vec.mean
+      val μVec = DoubleVector.broadcast(spd, μ)
+
+      var i = 0
+      var acc = DoubleVector.zero(spd)
+      val tmp = new Array[Double](spdl)
+
+      while i < spd.loopBound(vec.length) do
+        var lane = 0
+        while lane < spdl do
+          tmp(lane) = vec(i + lane).toDouble
+          lane += 1
+        end while
+
+        val v = DoubleVector.fromArray(spd, tmp, 0)
+        val diff = v.sub(μVec)
+        acc = diff.fma(diff, acc)
+        i += spdl
+      end while
+
+      var sumSqDiff = acc.reduceLanes(VectorOperators.ADD)
+
+      while i < vec.length do
+        val diff = vec(i).toDouble - μ
+        sumSqDiff = Math.fma(diff, diff, sumSqDiff)
+        i += 1
+      end while
+
+      (μ, sumSqDiff / vec.length)
+    end meanAndVariance
+
+    inline def std: Double = Math.sqrt(vec.variance)
+
+    inline def stdDev: Double = vec.std
+
     inline def dot(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
       dimCheck(vec, vec2)
       val newVec = Array.ofDim[Int](vec.length)
