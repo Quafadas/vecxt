@@ -45,6 +45,17 @@ vecxt/
 │       ├── src-jvm/          # JVM-specific tests
 │       ├── src-js/           # Js-specific tests
 │       └── src-native/       # Scala Native-specific tests
+├── vecxt_re/                 # Domain specific library for reinsurance calculations
+│   ├── src/                  # Cross-platform shared source code
+│   ├── src-jvm/              # JVM-specific implementations (SIMD Vector API)
+│   ├── src-js/               # JavaScript-specific implementations
+│   ├── src-js-native/        # JavaScript / native shared (DRY) implementations
+│   ├── src-native/           # Scala Native-specific implementations
+│   └── test/                 # Cross-platform test suite (munit)
+│       ├── src/              # Shared test source files
+│       ├── src-jvm/          # JVM-specific tests
+│       ├── src-js/           # Js-specific tests
+│       └── src-native/       # Scala Native-specific tests
 ├── vecxt/                    # Main source directory and core published module
 │   ├── src/                  # Cross-platform shared source code
 │   ├── src-jvm/              # JVM-specific implementations (SIMD Vector API)

@@ -115,6 +115,18 @@ object arrays:
       end while
       acc
     end maxSIMD
+
+    inline def -=(scalar: Int): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - scalar
+        i += 1
+      end while
+    end -=
+
+    inline def -(scalar: Int): Array[Int] =
+      vec.clone().tap(_ -= scalar)
+    end -
   end extension
 
   extension [A: ClassTag](vec: Array[A])
@@ -148,7 +160,7 @@ object arrays:
       newVec
     end apply
 
-    
+
     inline def minSIMD: Double =
       var i = 0
       var acc = Double.PositiveInfinity

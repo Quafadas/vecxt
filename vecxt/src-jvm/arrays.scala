@@ -335,6 +335,29 @@ object arrays:
       vec.clone.tap(_ -= vec2)
     end -
 
+    inline def -=(scalar: Int): Unit =
+
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector
+          .fromArray(spi, vec, i)
+          .sub(scalar)
+          .intoArray(vec, i)
+        i += spil
+      end while
+
+      while i < vec.length do
+        vec(i) = vec(i) - scalar
+        i += 1
+      end while
+
+    end -=
+
+    inline def -(scalar: Int): Array[Int] =
+      vec.clone().tap(_ -= scalar)
+    end -
+
     inline def -=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, vec2)
       var i = 0

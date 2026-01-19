@@ -31,7 +31,7 @@ case class Scenarr(
     groupSum(iterations, amounts, numberIterations)
   end agg
 
-  lazy val claimDates: Array[LocalDate] = days.map(d => ChronoUnit.DAYS.addTo(this.day1, d))
+  lazy val claimDates: Array[LocalDate] = (days - 1).map(d => ChronoUnit.DAYS.addTo(this.day1, d))
 
   /** Interpretation:
     *
@@ -97,7 +97,7 @@ object Scenarr:
 
     inline def scaleAmntBy(scale: Double): Scenarr =
       scenario.copy(amounts = scenario.amounts * scale, threshold = scenario.threshold * scale)
-  end extension
+
 
   //   def shiftDay1To(date: LocalDate): Scenarr =
   //     scenario.period.firstLoss.plusYears(1).minusDays(1)
@@ -120,18 +120,21 @@ object Scenarr:
   //     Scenario(remaining.map(_._2), scenario.numberIterations, scenario.threshold, scenario.day1, scenario.name)
   //   end removeClaimsBefore
 
-  //   inline def applyThreshold(newThresh: Double): Scenarr =
-  //     if !(newThresh > scenario.threshold) then
-  //       throw new Exception(
-  //         "Threshold may only be increased. Attempt to change it from " + scenario.threshold + " to " + newThresh + " is illegal"
-  //       )
-  //     end if
-  //     Scenarr(
-  //       scenario.eventsSorted.filter(_.loss > newThresh),
-  //       scenario.numberIterations,
-  //       newThresh,
-  //       scenario.day1,
-  //       scenario.name
-  //     )
-  //   end applyThreshold
+    inline def applyThreshold(newThresh: Double): Scenarr =
+      if !(newThresh > scenario.threshold) then
+        throw new Exception(
+          "Threshold may only be increased. Attempt to change it from " + scenario.threshold + " to " + newThresh + " is illegal"
+        )
+      end if
+      val idx = scenario.amounts > newThresh
+      Scenarr(
+        scenario.iterations(idx)(using false),
+        scenario.days(idx)(using false),
+        scenario.amounts(idx)(using false),
+        scenario.numberIterations,
+        newThresh,
+        scenario.day1,
+        scenario.name
+      )
+    end applyThreshold
 end Scenarr
