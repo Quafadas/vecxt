@@ -2,7 +2,7 @@ package vecxt
 
 import vecxt.all.*
 
-class BooleaArrayExtensionSuite extends munit.FunSuite:
+class BooleanArrayExtensionSuite extends munit.FunSuite:
 
   test("all") {
     val v1 = Array[Boolean](true, true, true)
@@ -154,4 +154,4 @@ class BooleaArrayExtensionSuite extends munit.FunSuite:
     }
   }
 
-end BooleaArrayExtensionSuite
+end BooleanArrayExtensionSuite
