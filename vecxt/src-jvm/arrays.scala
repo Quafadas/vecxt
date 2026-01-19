@@ -275,9 +275,15 @@ object arrays:
       sum / vec.length
     end mean
 
-    inline def variance: Double = meanAndVariance.variance
+    inline def variance: Double = variance(VarianceMode.Population)
+
+    inline def variance(mode: VarianceMode): Double =
+      meanAndVariance(mode).variance
 
     inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
       val μ = vec.mean
       val μVec = DoubleVector.broadcast(spd, μ)
 
@@ -306,12 +312,21 @@ object arrays:
         i += 1
       end while
 
-      (μ, sumSqDiff / vec.length)
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+      (μ, sumSqDiff / denom)
     end meanAndVariance
 
-    inline def std: Double = Math.sqrt(vec.variance)
+    inline def std: Double = std(VarianceMode.Population)
 
-    inline def stdDev: Double = vec.std
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
+
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
 
     inline def dot(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
       dimCheck(vec, vec2)
@@ -780,18 +795,25 @@ object arrays:
       Matrix(out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
     end outer
 
-    def variance: Double =
-      meanAndVariance.variance
+    inline def variance: Double = variance(VarianceMode.Population)
+
+    def variance(mode: VarianceMode): Double =
+      meanAndVariance(mode).variance
     end variance
 
-    inline def stdDev: Double =
-      // https://www.cuemath.com/data/standard-deviation/
-      val mu = vec.mean
-      val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
-      Math.sqrt(diffs_2.sumSIMD / (vec.length - 1))
-    end stdDev
+    inline def std: Double = std(VarianceMode.Population)
+
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
+
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
 
     inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
       val μ = vec.mean
       val l = spd.length()
       var tmp = DoubleVector.zero(spd)
@@ -813,7 +835,11 @@ object arrays:
         i += 1
       end while
 
-      (μ, sumSqDiff * (1.0 / (vec.length - 1)))
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+      (μ, sumSqDiff / denom)
 
     end meanAndVariance
 

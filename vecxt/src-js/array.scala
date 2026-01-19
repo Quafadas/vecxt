@@ -90,11 +90,16 @@ object arrays:
       sum / vec.length
     end mean
 
-    inline def variance: Double =
-      vec.meanAndVariance.variance
+    inline def variance: Double = variance(VarianceMode.Population)
+
+    inline def variance(mode: VarianceMode): Double =
+      vec.meanAndVariance(mode).variance
     end variance
 
     inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
       val μ = vec.mean
       var acc = 0.0
       var i = 0
@@ -103,12 +108,21 @@ object arrays:
         acc += diff * diff
         i += 1
       end while
-      (μ, acc / vec.length)
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+      (μ, acc / denom)
     end meanAndVariance
 
-    inline def std: Double = Math.sqrt(vec.variance)
+    inline def std: Double = std(VarianceMode.Population)
 
-    inline def stdDev: Double = vec.std
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
+
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
   end extension
 
   extension (vec: Array[Double])
@@ -138,12 +152,14 @@ object arrays:
       out
     end increments
 
-    inline def stdDev: Double =
-      // https://www.cuemath.com/data/standard-deviation/
-      val mu = vec.mean
-      val diffs_2 = vec.map(num => (num - mu) * (num - mu))
-      Math.sqrt(diffs_2.sum / (vec.length - 1))
-    end stdDev
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
+
+    inline def std: Double = std(VarianceMode.Population)
+
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
 
     inline def mean: Double = vec.sumSIMD / vec.length
 
@@ -167,11 +183,30 @@ object arrays:
       sum
     end product
 
-    def variance: Double =
-      // https://www.cuemath.com/sample-variance-formula/
-      val μ = vec.mean
-      vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+    inline def variance: Double = variance(VarianceMode.Population)
+
+    def variance(mode: VarianceMode): Double =
+      meanAndVariance(mode).variance
     end variance
+
+    inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+      val μ = vec.mean
+      var acc = 0.0
+      var i = 0
+      while i < vec.length do
+        val diff = vec(i) - μ
+        acc += diff * diff
+        i += 1
+      end while
+
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+      (μ, acc / denom)
 
     inline def unary_- : Array[Double] =
       val newVec = Array.ofDim[Double](vec.length)
