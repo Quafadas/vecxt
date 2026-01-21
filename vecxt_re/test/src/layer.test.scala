@@ -4,6 +4,42 @@ import vecxt_re.assertVecEquals
 
 class ScenarioRISuite extends munit.FunSuite:
 
+  test("firstLimit prefers occLimit when both present") {
+    val layer = Layer(
+      occLimit = Some(10.0),
+      occRetention = Some(1.0),
+      aggLimit = Some(20.0)
+    )
+    assertEqualsDouble(layer.firstLimit, 10.0, 0.0)
+  }
+
+  test("firstLimit is occLimit when only occLimit is present") {
+    val layer = Layer(
+      occLimit = Some(15.0),
+      occRetention = Some(2.0),
+      aggLimit = None
+    )
+    assertEqualsDouble(layer.firstLimit, 15.0, 0.0)
+  }
+
+  test("firstLimit falls back to aggLimit when occLimit is absent") {
+    val layer = Layer(
+      occLimit = None,
+      occRetention = None,
+      aggLimit = Some(25.0)
+    )
+    assertEqualsDouble(layer.firstLimit, 25.0, 0.0)
+  }
+
+  test("firstLimit is PositiveInfinity when no limits are present") {
+    val layer = Layer(
+      occLimit = None,
+      occRetention = None,
+      aggLimit = None
+    )
+    assertEqualsDouble(layer.firstLimit, Double.PositiveInfinity, 0.0)
+  }
+
   test("Layer default construction") {
     val layer = Layer()
 

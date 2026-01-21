@@ -18,7 +18,7 @@ object SplitLosses:
       */
     inline def splitAmntFast(years: Array[Int], losses: Array[Double])(using
         inline bc: BoundsCheck
-    ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(Layer, Array[Double])]) =
+    ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]) =
       inline if bc then assert(years.length == losses.length)
       end if
       if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))

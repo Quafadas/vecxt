@@ -57,6 +57,8 @@ case class Layer(
   lazy val occLayer = Sublayer(occLimit, occRetention, LossCalc.Occ, occType)
   lazy val aggLayer = Sublayer(aggLimit, aggRetention, LossCalc.Agg, aggType)
 
+  lazy val firstLimit = occLimit.orElse(aggLimit).getOrElse(Double.PositiveInfinity)
+
   /** The smallest claim which exhausts the first limit of this layer */
   lazy val cap = occLimit match
     case Some(occLimit) =>
