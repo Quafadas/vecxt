@@ -4,6 +4,7 @@ import vecxt.all.*
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import java.time.Month
 
 case class Scenarr(
     iterations: Array[Int],
@@ -32,6 +33,8 @@ case class Scenarr(
   end agg
 
   lazy val claimDates: Array[LocalDate] = (days - 1).map(d => ChronoUnit.DAYS.addTo(this.day1, d))
+
+  lazy val monthYear: Array[(month: Month, year: Int)] = claimDates.map(d => (d.getMonth, d.getYear))
 
   /** Interpretation:
     *
