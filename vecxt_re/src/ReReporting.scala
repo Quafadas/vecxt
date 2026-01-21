@@ -5,23 +5,28 @@ import vecxt.all.*
 object ReReporting: 
   extension(calcd: (layer: Layer, cededToLayer: Array[Double]))
 
-    inline def attachmentProbability(numIterations: Int) = (calcd.cededToLayer > 0).trues / numIterations.toDouble
+    inline def attachmentProbability(numIterations: Int): Double = (calcd.cededToLayer > 0).trues / numIterations.toDouble
 
-    inline def exhaustionProbability(numIterations: Int) = 
+    inline def exhaustionProbability(numIterations: Int, years: Array[Int]): Double = 
       val exhaust = calcd.layer.aggLimit.getOrElse(Double.PositiveInfinity) - 0.01
-      (calcd.cededToLayer > exhaust).trues / numIterations.toDouble
+      (groupSum(years, calcd.cededToLayer, numIterations) > exhaust).trues / numIterations.toDouble
 
-    inline def expectedLoss(numIterations: Int) = calcd.cededToLayer.sum / numIterations
+    inline def expectedLoss(numIterations: Int): Double = calcd.cededToLayer.sum / numIterations
 
-    inline def std(numIterations: Int, years: Array[Int]) = groupSum(years, calcd.cededToLayer, numIterations).stdDev
+    inline def std(numIterations: Int, years: Array[Int]): Double = groupSum(years, calcd.cededToLayer, numIterations).stdDev
         
-    inline def expectedLossAggLimit(numIterations: Int) = calcd.cededToLayer.sum / (calcd.layer.aggLimit.getOrElse(Double.PositiveInfinity) * numIterations)
+    inline def expectedLossAggLimit(numIterations: Int): Double = calcd.cededToLayer.sum / (calcd.layer.aggLimit.getOrElse(Double.PositiveInfinity) * numIterations)
 
-    inline def lossReport(numIterations: Int, limit: ReportDenominator ) = 
-        (
-            reportLimit = limit(layer)
-            attachmentProbability = attachmentProbability()
-        )
+    inline def lossReport(numIterations: Int, years: Array[Int], limit: ReportDenominator ) : (limit: Double, el: Double, stdDev: Double, attachProb: Double, exhaustProb: Double) = 
+      (
+        limit = limit.fromlayer(calcd.layer),
+        el = expectedLoss(numIterations),
+        stdDev = std(numIterations, years),
+        attachProb = attachmentProbability(numIterations),
+        exhaustProb = exhaustionProbability(numIterations, years)
+      )
+
+      //TODO formatting
 
 
 
