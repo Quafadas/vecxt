@@ -34,7 +34,7 @@ class ScenarrSuite extends FunSuite:
     assert(math.abs(sc.meanLoss - 50.0) < 1e-12)
   }
 
-  test("clusterCoeff and varianceMeanRatio compute from sample variance".only) {
+  test("clusterCoeff and varianceMeanRatio compute from sample variance") {
     val iterations = Array(1, 2, 1, 3, 1)
     val days = Array(1, 2, 3, 4, 5)
     val amounts = Array(10.0, 20.0, 30.0, 40.0, 50.0)
