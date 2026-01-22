@@ -13,4 +13,7 @@ object RPT:
   export vecxt_re.Scenarr
   export vecxt_re.Tower
   export vecxt_re.Tower.*
+  export vecxt_re.ReReporting.*
+  export vecxt_re.ReportDenominator
+
 end RPT

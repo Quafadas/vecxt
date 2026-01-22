@@ -20,7 +20,7 @@ case class Scenarr(
   assert(iterations.length == days.length && days.length == amounts.length)
 
   lazy val freq: Array[Int] =
-    assert(isSorted)
+    assert(isSorted, "Scenario must be sorted to compute frequency")
     groupCount(iterations, numberIterations)
   end freq
 
@@ -28,7 +28,7 @@ case class Scenarr(
     freq.mean
 
   lazy val agg: Array[Double] =
-    assert(isSorted)
+    assert(isSorted, "Scenario must be sorted to compute aggregate amounts")
     groupSum(iterations, amounts, numberIterations)
   end agg
 
@@ -62,7 +62,7 @@ case class Scenarr(
 
   lazy val hasOccurence: Boolean = amounts.nonEmpty
 
-  lazy val numSeasons: Int = math.ceil(days.maxSIMD / 365).toInt // doesnt deal so well with leap years.
+  lazy val numSeasons: Int = math.ceil(days.maxSIMD.toDouble / 365).toInt // doesnt deal so well with leap years.
 
   lazy val meanLoss: Double = amounts.sum / numberIterations
 
@@ -100,6 +100,23 @@ object Scenarr:
 
     inline def scaleAmntBy(scale: Double): Scenarr =
       scenario.copy(amounts = scenario.amounts * scale, threshold = scenario.threshold * scale)
+
+    inline def iteration(num: Int) =
+      assert(num > 0 && num <= scenario.numberIterations )
+      val idx = scenario.iterations =:= num
+      Scenarr(
+        scenario.iterations(idx)(using false),
+        scenario.days(idx)(using false),
+        scenario.amounts(idx)(using false),
+        scenario.numberIterations,
+        scenario.threshold,
+        scenario.day1,
+        scenario.name,
+        scenario.id,
+        isSorted = scenario.isSorted
+      )
+    end iteration
+
 
     //   def shiftDay1To(date: LocalDate): Scenarr =
     //     scenario.period.firstLoss.plusYears(1).minusDays(1)

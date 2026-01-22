@@ -25,9 +25,10 @@ object ReReporting:
         numIterations: Int,
         years: Array[Int],
         limit: ReportDenominator
-    ): (limit: Double, el: Double, stdDev: Double, attachProb: Double, exhaustProb: Double) =
+    ): (name: String, limit: Double, el: Double, stdDev: Double, attachProb: Double, exhaustProb: Double) =
       val reportLimit = limit.fromlayer(calcd.layer)
       (
+        name = calcd.layer.layerName.getOrElse(s"Layer ${calcd.layer.layerId}"),
         limit = reportLimit,
         el = expectedLoss(numIterations) / reportLimit,
         stdDev = std(numIterations, years) / reportLimit,
