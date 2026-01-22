@@ -1,7 +1,5 @@
 package vecxt_re
 
-import vecxt_re.assertVecEquals
-
 class ScenarioRISuite extends munit.FunSuite:
 
   test("firstLimit prefers occLimit when both present") {

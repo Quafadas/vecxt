@@ -160,7 +160,6 @@ object arrays:
       newVec
     end apply
 
-
     inline def minSIMD: Double =
       var i = 0
       var acc = Double.PositiveInfinity

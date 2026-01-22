@@ -101,27 +101,26 @@ object Scenarr:
     inline def scaleAmntBy(scale: Double): Scenarr =
       scenario.copy(amounts = scenario.amounts * scale, threshold = scenario.threshold * scale)
 
+    //   def shiftDay1To(date: LocalDate): Scenarr =
+    //     scenario.period.firstLoss.plusYears(1).minusDays(1)
+    // //    val ndays = ChronoUnit.DAYS.between(  period._1, seasonEnd) + 1 Let sjust ssume this is 365 ... there is a theoretical problem with air assuming 365 days. Leap years anyone?
+    //     val betweenStartDates = ChronoUnit.DAYS.between(scenario.day1, date).toInt
+    //     val newEvents =
+    //       scenario.eventsSorted.map(x =>
+    //         Event(x.eventId, x.iteration, Math.floorMod(x.day - betweenStartDates - 1, 365) + 1, x.loss)
+    //       )
+    //     Scenario(newEvents, scenario.numberIterations, scenario.threshold, date, scenario.name)
+    //   end shiftDay1To
 
-  //   def shiftDay1To(date: LocalDate): Scenarr =
-  //     scenario.period.firstLoss.plusYears(1).minusDays(1)
-  // //    val ndays = ChronoUnit.DAYS.between(  period._1, seasonEnd) + 1 Let sjust ssume this is 365 ... there is a theoretical problem with air assuming 365 days. Leap years anyone?
-  //     val betweenStartDates = ChronoUnit.DAYS.between(scenario.day1, date).toInt
-  //     val newEvents =
-  //       scenario.eventsSorted.map(x =>
-  //         Event(x.eventId, x.iteration, Math.floorMod(x.day - betweenStartDates - 1, 365) + 1, x.loss)
-  //       )
-  //     Scenario(newEvents, scenario.numberIterations, scenario.threshold, date, scenario.name)
-  //   end shiftDay1To
+    //   inline def removeClaimsAfter(date: LocalDate): Scenarr =
+    //     val remaining = scenario.claimDates.zip(scenario.eventsSorted).filter(_._1.compareTo(date) <= 0)
+    //     Scenario(remaining.map(_._2), scenario.numberIterations, scenario.threshold, scenario.day1, scenario.name)
+    //   end removeClaimsAfter
 
-  //   inline def removeClaimsAfter(date: LocalDate): Scenarr =
-  //     val remaining = scenario.claimDates.zip(scenario.eventsSorted).filter(_._1.compareTo(date) <= 0)
-  //     Scenario(remaining.map(_._2), scenario.numberIterations, scenario.threshold, scenario.day1, scenario.name)
-  //   end removeClaimsAfter
-
-  //   inline def removeClaimsBefore(date: LocalDate): Scenarr =
-  //     val remaining = scenario.claimDates.zip(scenario.eventsSorted).filter(_._1.compareTo(date) >= 0)
-  //     Scenario(remaining.map(_._2), scenario.numberIterations, scenario.threshold, scenario.day1, scenario.name)
-  //   end removeClaimsBefore
+    //   inline def removeClaimsBefore(date: LocalDate): Scenarr =
+    //     val remaining = scenario.claimDates.zip(scenario.eventsSorted).filter(_._1.compareTo(date) >= 0)
+    //     Scenario(remaining.map(_._2), scenario.numberIterations, scenario.threshold, scenario.day1, scenario.name)
+    //   end removeClaimsBefore
 
     inline def applyThreshold(newThresh: Double): Scenarr =
       if !(newThresh > scenario.threshold) then
@@ -140,4 +139,5 @@ object Scenarr:
         scenario.name
       )
     end applyThreshold
+  end extension
 end Scenarr

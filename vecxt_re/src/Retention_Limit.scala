@@ -1,7 +1,5 @@
 package vecxt_re
 
-import vecxt_re.Retentions.Retention
-
 object Retentions:
   opaque type Retention = Double
 
@@ -19,6 +17,7 @@ object Retentions:
 end Retentions
 
 object Limits:
+  import Retentions.Retention
   opaque type Limit = Double
 
   object Limit:

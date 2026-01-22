@@ -7,7 +7,11 @@ object SplitScenario:
   extension (tower: Tower)
     inline def splitScenarioAmounts(scenario: Scenarr)(using
         inline bc: BoundsCheck
-    ): (ceded: Array[Double], retained: Array[Double], splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]) =
+    ): (
+        ceded: Array[Double],
+        retained: Array[Double],
+        splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]
+    ) =
       val tmp =
         if bc then scenario.sorted
         else scenario

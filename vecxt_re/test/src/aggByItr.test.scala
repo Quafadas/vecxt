@@ -1,7 +1,6 @@
 package vecxt_re
 
 import munit.FunSuite
-import vecxt_re.Layer
 
 class AggregateByItrSpec extends FunSuite:
 

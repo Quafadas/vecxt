@@ -3,7 +3,7 @@ package vecxt_re
 import vecxt_re.*
 import vecxt.all.*
 import vecxt.all.given
-import vecxt_re.SplitLosses.*
+import SplitLosses.*
 
 class TowerSuite extends munit.FunSuite:
 
@@ -11,11 +11,11 @@ class TowerSuite extends munit.FunSuite:
       losses: Array[Double],
       ceded: Array[Double],
       retained: Array[Double],
-      splits: IndexedSeq[(Layer, Array[Double])] = IndexedSeq.empty
+      splits: IndexedSeq[(layer:Layer, cededToLayer: Array[Double])] = IndexedSeq.empty
   ) =
     import vecxt.BoundsCheck.DoBoundsCheck.yes
     assertVecEquals(ceded + retained, losses)
-    assertVecEquals(splits.map(_._2).reduce(_ + _), ceded)
+    assertVecEquals(splits.map(_.cededToLayer).reduce(_ + _), ceded)
   end noleakage
 
   test("from retention") {
@@ -44,7 +44,7 @@ class TowerSuite extends munit.FunSuite:
 
     assertEqualsDouble(ceded.head, 2.0, 0.001)
     assertEqualsDouble(retained.head, 10.0, 0.001)
-    assertEqualsDouble(splits.head._2.head, 2.0, 0.001)
+    assertEqualsDouble(splits.head.cededToLayer.head, 2.0, 0.001)
     noleakage(amounts, ceded, retained, splits)
   }
 
@@ -60,7 +60,7 @@ class TowerSuite extends munit.FunSuite:
 
     assertEqualsDouble(ceded.head, 5.0, 0.001)
     assertEqualsDouble(retained.head, 12.0, 0.001)
-    assertEqualsDouble(splits.head._2.head, 5.0, 0.001)
+    assertEqualsDouble(splits.head.cededToLayer.head, 5.0, 0.001)
     noleakage(amounts, ceded, retained, splits)
   }
 
@@ -76,7 +76,7 @@ class TowerSuite extends munit.FunSuite:
 
     assertEqualsDouble(ceded.head, 2.5, 0.001)
     assertEqualsDouble(retained.head, 14.5, 0.001)
-    assertEqualsDouble(splits.head._2.head, 2.5, 0.001)
+    assertEqualsDouble(splits.head.cededToLayer.head, 2.5, 0.001)
     noleakage(amounts, ceded, retained, splits)
   }
 
@@ -93,7 +93,7 @@ class TowerSuite extends munit.FunSuite:
     val cededExpected = Array(2.0, 1.0) // (14 -10) * 0.5, (12 - 10) * 0.5
     assertVecEquals(ceded, cededExpected)
     assertVecEquals(retained, amounts - cededExpected)
-    assertVecEquals(splits.head._2, cededExpected)
+    assertVecEquals(splits.head.cededToLayer, cededExpected)
     noleakage(amounts, ceded, retained, splits)
   }
 
@@ -110,7 +110,7 @@ class TowerSuite extends munit.FunSuite:
     val cededExpected = Array(0.0, 2.0, 1.0, 0.0, 2.5)
     assertVecEquals(ceded, cededExpected)
     assertVecEquals(retained, amounts - cededExpected)
-    assertVecEquals(splits.head._2, cededExpected)
+    assertVecEquals(splits.head.cededToLayer, cededExpected)
     noleakage(amounts, ceded, retained, splits)
   }
 
@@ -127,7 +127,7 @@ class TowerSuite extends munit.FunSuite:
     val cededExpected = Array(0.0, 7.0, 6.0, 0.0, 7.5)
     assertVecEquals(ceded, cededExpected)
     assertVecEquals(retained, amounts - cededExpected)
-    assertVecEquals(splits.head._2, cededExpected)
+    assertVecEquals(splits.head.cededToLayer, cededExpected)
     noleakage(amounts, ceded, retained, splits)
   }
 
@@ -144,7 +144,7 @@ class TowerSuite extends munit.FunSuite:
     val cededExpected = Array(0.5, 1.5, 1.5, 0.0, 0.5)
     assertVecEquals(ceded, cededExpected)
     assertVecEquals(retained, amounts - cededExpected)
-    assertVecEquals(splits.head._2, cededExpected)
+    assertVecEquals(splits.head.cededToLayer, cededExpected)
     noleakage(amounts, ceded, retained, splits)
   }
 
@@ -174,9 +174,9 @@ class TowerSuite extends munit.FunSuite:
 
     val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
-    val l1 = splits.head._2
-    val l2 = splits(1)._2
-    val l3 = splits.last._2
+    val l1 = splits.head.cededToLayer
+    val l2 = splits(1).cededToLayer
+    val l3 = splits.last.cededToLayer
 
     assertVecEquals(ceded, l1 + l2 + l3)
     noleakage(amounts, ceded, retained, splits)
@@ -193,9 +193,9 @@ class TowerSuite extends munit.FunSuite:
 
     val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
-    val l1 = splits.head._2
-    val l2 = splits(1)._2
-    val l3 = splits.last._2
+    val l1 = splits.head.cededToLayer
+    val l2 = splits(1).cededToLayer
+    val l3 = splits.last.cededToLayer
 
     assertVecEquals(ceded, l1 + l2 + l3)
     noleakage(amounts, ceded, retained, splits)
@@ -212,9 +212,9 @@ class TowerSuite extends munit.FunSuite:
 
     val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
 
-    val l1 = splits.head._2
-    val l2 = splits(1)._2
-    val l3 = splits.last._2
+    val l1 = splits.head.cededToLayer
+    val l2 = splits(1).cededToLayer
+    val l3 = splits.last.cededToLayer
 
     assertVecEquals(ceded, l1 + l2 + l3)
     noleakage(amounts, ceded, retained, splits)

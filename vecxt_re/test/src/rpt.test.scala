@@ -1,8 +1,8 @@
 package vecxt_re
 
-import vecxt_re.rpt.*
-import vecxt_re.Retentions.Retention
-import vecxt_re.Limits.Limit
+import rpt.*
+import Retentions.Retention
+import Limits.Limit
 
 class ReinsurancePricingSuite extends munit.FunSuite:
 
@@ -199,7 +199,7 @@ class ReinsuranceShareSuite extends munit.FunSuite:
     v1.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
     v2.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)), 1.0)
 
-    for i <- 0 until v1.length do assertEqualsDouble(v1(i), v2(i), 0.0001, s"Element $i")
+    for i <- 0.until(v1.length) do assertEqualsDouble(v1(i), v2(i), 0.0001, s"Element $i")
     end for
   }
 
@@ -207,7 +207,7 @@ class ReinsuranceShareSuite extends munit.FunSuite:
     val v = Array[Double](8, 11, 16, 10.0)
     v.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)), 0.0)
 
-    for i <- 0 until v.length do assertEqualsDouble(v(i), 0.0, 0.0001, s"Element $i")
+    for i <- 0.until(v.length) do assertEqualsDouble(v(i), 0.0, 0.0001, s"Element $i")
     end for
   }
 

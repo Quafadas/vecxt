@@ -1,10 +1,9 @@
 package vecxt_re
 
-import vecxt_re.Limits.Limit
-import vecxt_re.Retentions.Retention
-import vecxt_re.rpt.*
-
 import scala.util.chaining.*
+import Limits.*
+import Retentions.*
+import rpt.reinsuranceFunction
 
 class XSuite extends munit.FunSuite:
 
