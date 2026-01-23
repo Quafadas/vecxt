@@ -8,7 +8,7 @@ class ScenarrSuite extends FunSuite:
 
   test("constructor should enforce array length equality") {
     intercept[AssertionError] {
-      Scenarr(Array(1), Array(1, 2), Array(1.0))
+      Scenarr(Array(1), Array(1, 2), Array(1.0), 2)
     }
   }
 
@@ -72,10 +72,10 @@ class ScenarrSuite extends FunSuite:
   test("itrDayAmount and period produce expected tuples") {
     val days = Array(10, 100, 365, 366)
     val sc = Scenarr(Array(1, 1, 1, 1), days, Array(5.0, 6.0, 7.0, 8.0), numberIterations = 1)
-    val (itr, d, a) = sc.itrDayAmount
-    assertEquals(itr.toList, Array(1, 1, 1, 1).toList)
-    assertEquals(d.toList, days.toList)
-    assertEquals(a.toList, Array(5.0, 6.0, 7.0, 8.0).toList)
+    val itda = sc.itrDayAmount
+    assertVecEquals(itda.map(_.itr), Array(1, 1, 1, 1))
+    assertVecEquals(itda.map(_.day), days)
+    assertVecEquals(itda.map(_.amnt), Array(5.0, 6.0, 7.0, 8.0))
 
     val (firstLoss, lastLoss) = sc.period
     assertEquals(firstLoss, LocalDate.of(2019, 1, 10))

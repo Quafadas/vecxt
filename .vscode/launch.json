@@ -20,19 +20,15 @@
     {
       "type": "scala",
       "request": "launch",
-      "name": "debug test",
-      "buildTarget": "vecxt.jvm.test",
-      "testClass": "vecxt.MatrixAdditionTest",
+      "name": "Experiment",
+      "buildTarget": "experiments",
+      "mainClass": "experiments.pricingFun",
       "jvmOptions": [
         "--add-modules=jdk.incubator.vector"
       ],
       "args": [
         "-oD"
-      ],
-      "env": {},
-      "internalConsoleOptions": "openOnSessionStart",
-      "preLaunchTask": "",
-      "postDebugTask": ""
+      ]
     },
     {
       "type": "scala",

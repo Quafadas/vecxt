@@ -10,7 +10,7 @@ case class Scenarr(
     iterations: Array[Int],
     days: Array[Int],
     amounts: Array[Double],
-    numberIterations: Int = 0,
+    numberIterations: Int,
     threshold: Double = 0d,
     day1: LocalDate = LocalDate.of(2019, 1, 1),
     name: String = "",

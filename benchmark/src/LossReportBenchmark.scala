@@ -10,19 +10,15 @@ import vecxt.all.*
 
 // ./mill benchmark.runJmh "vecxt.benchmark.LossReportBenchmark" -jvmArgs --add-modules=jdk.incubator.vector -rf json -wi 1 -i 3 -f 1
 
-/**
-  * 231] Benchmark                                (numEventsStr)  (numIterationsStr)   Mode  Cnt       Score       Error  Units
-231] LossReportBenchmark.lossReport_fast               10000                 100  thrpt    3  177346.981 ± 24137.324  ops/s
-231] LossReportBenchmark.lossReport_fast               10000                1000  thrpt    3  180400.504 ±  8719.687  ops/s
-231] LossReportBenchmark.lossReport_fast              100000                 100  thrpt    3   11731.510 ±  1945.957  ops/s
-231] LossReportBenchmark.lossReport_fast              100000                1000  thrpt    3   17443.246 ±   425.030  ops/s
-231] LossReportBenchmark.lossReport_separate           10000                 100  thrpt    3   46850.187 ±  7232.734  ops/s
-231] LossReportBenchmark.lossReport_separate           10000                1000  thrpt    3   49876.719 ±  5238.487  ops/s
-231] LossReportBenchmark.lossReport_separate          100000                 100  thrpt    3    3360.234 ±   326.993  ops/s
-231] LossReportBenchmark.lossReport_separate          100000                1000  thrpt    3    4706.819 ±   615.832  ops/s
+/** 231] Benchmark (numEventsStr) (numIterationsStr) Mode Cnt Score Error Units 231] LossReportBenchmark.lossReport_fast
+  * 10000 100 thrpt 3 177346.981 ± 24137.324 ops/s 231] LossReportBenchmark.lossReport_fast 10000 1000 thrpt 3
+  * 180400.504 ± 8719.687 ops/s 231] LossReportBenchmark.lossReport_fast 100000 100 thrpt 3 11731.510 ± 1945.957 ops/s
+  * 231] LossReportBenchmark.lossReport_fast 100000 1000 thrpt 3 17443.246 ± 425.030 ops/s 231]
+  * LossReportBenchmark.lossReport_separate 10000 100 thrpt 3 46850.187 ± 7232.734 ops/s 231]
+  * LossReportBenchmark.lossReport_separate 10000 1000 thrpt 3 49876.719 ± 5238.487 ops/s 231]
+  * LossReportBenchmark.lossReport_separate 100000 100 thrpt 3 3360.234 ± 326.993 ops/s 231]
+  * LossReportBenchmark.lossReport_separate 100000 1000 thrpt 3 4706.819 ± 615.832 ops/s
   */
-
-
 
 @State(Scope.Thread)
 class LossReportBenchmark extends BLASBenchmark:

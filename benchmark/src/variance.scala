@@ -12,15 +12,11 @@ import jdk.incubator.vector.DoubleVector
 
 // ./mill benchmark.runJmh "vecxt.benchmark.VarianceBenchmark" -jvmArgs --add-modules=jdk.incubator.vector -rf json -wi 2 -i 3 -f 1
 
-/**
-  *
-  * 231] Benchmark                            (len)   Mode  Cnt        Score       Error  Units
-231] VarianceBenchmark.var_simd_twopass    1000  thrpt    3  1087302.435 ± 16013.286  ops/s
-231] VarianceBenchmark.var_simd_twopass  100000  thrpt    3     9578.869 ±   334.606  ops/s
-231] VarianceBenchmark.var_simd_welford    1000  thrpt    3   436244.559 ±  6158.585  ops/s
-231] VarianceBenchmark.var_simd_welford  100000  thrpt    3     4187.715 ±   203.266  ops/s
+/** 231] Benchmark (len) Mode Cnt Score Error Units 231] VarianceBenchmark.var_simd_twopass 1000 thrpt 3 1087302.435 ±
+  * 16013.286 ops/s 231] VarianceBenchmark.var_simd_twopass 100000 thrpt 3 9578.869 ± 334.606 ops/s 231]
+  * VarianceBenchmark.var_simd_welford 1000 thrpt 3 436244.559 ± 6158.585 ops/s 231] VarianceBenchmark.var_simd_welford
+  * 100000 thrpt 3 4187.715 ± 203.266 ops/s
   */
-
 
 @State(Scope.Thread)
 class VarianceBenchmark extends BLASBenchmark:
