@@ -66,8 +66,8 @@ case class Scenarr(
 
   lazy val meanLoss: Double = amounts.sum / numberIterations
 
-  lazy val itrDayAmount: (itr: Array[Int], days: Array[Int], amounts: Array[Double]) =
-    (itr = iterations, days = days, amounts = amounts)
+  lazy val itrDayAmount: Array[(itr: Int, day: Int, amnt: Double)] =
+    iterations.zip(days).zip(amounts).map { case ((i, d), a) => (itr = i, day = d, amnt = a) }
 
   lazy val period: (firstLoss: LocalDate, lastLoss: LocalDate) =
     (day1.plusDays((days.minSIMD - 1).toLong), day1.plusDays((days.maxSIMD - 1).toLong))
@@ -97,6 +97,23 @@ object Scenarr:
         isSorted = true
       )
     end sorted
+
+    inline def takeFirstNIterations(i: Int)=
+      assert(i > 0 && i <= scenario.numberIterations)
+      val idx = scenario.iterations <= i
+      import vecxt.BoundsCheck.DoBoundsCheck.yes
+      Scenarr(
+        scenario.iterations.mask(idx),
+        scenario.days.mask(idx),
+        scenario.amounts.mask(idx),
+        i,
+        scenario.threshold,
+        scenario.day1,
+        scenario.name,
+        scenario.id,
+        isSorted = scenario.isSorted
+      )
+    end takeFirstNIterations
 
     inline def scaleAmntBy(scale: Double): Scenarr =
       scenario.copy(amounts = scenario.amounts * scale, threshold = scenario.threshold * scale)
