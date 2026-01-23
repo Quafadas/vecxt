@@ -100,19 +100,22 @@ object arrays:
       meanAndVariance(VarianceMode.Population)
 
     inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
-      val μ = vec.mean
-      var acc = 0.0
+      var mean = 0.0
+      var m2 = 0.0
       var i = 0
       while i < vec.length do
-        val diff = vec(i) - μ
-        acc += diff * diff
+        val n = i + 1
+        val delta = vec(i) - mean
+        mean += delta / n
+        val delta2 = vec(i) - mean
+        m2 += delta * delta2
         i += 1
       end while
       val denom = mode match
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (μ, acc / denom)
+      (mean, m2 / denom)
     end meanAndVariance
 
     inline def std: Double = std(VarianceMode.Population)
@@ -253,12 +256,15 @@ object arrays:
       meanAndVariance(VarianceMode.Population)
 
     inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
-      val μ = vec.mean
-      var acc = 0.0
+      var mean = 0.0
+      var m2 = 0.0
       var i = 0
       while i < vec.length do
-        val diff = vec(i) - μ
-        acc += diff * diff
+        val n = i + 1
+        val delta = vec(i) - mean
+        mean += delta / n
+        val delta2 = vec(i) - mean
+        m2 += delta * delta2
         i += 1
       end while
 
@@ -266,7 +272,7 @@ object arrays:
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (μ, acc / denom)
+      (mean, m2 / denom)
     end meanAndVariance
 
     inline def unary_- : Array[Double] =
