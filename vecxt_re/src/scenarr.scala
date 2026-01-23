@@ -98,7 +98,7 @@ object Scenarr:
       )
     end sorted
 
-    inline def takeFirstNIterations(i: Int)=
+    inline def takeFirstNIterations(i: Int) =
       assert(i > 0 && i <= scenario.numberIterations)
       val idx = scenario.iterations <= i
       import vecxt.BoundsCheck.DoBoundsCheck.yes
