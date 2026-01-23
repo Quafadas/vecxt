@@ -3,7 +3,6 @@ package vecxt_re
 import vecxt.all.*
 import munit.FunSuite
 import java.time.{LocalDate, Month}
-import scala.util.Random
 
 class ScenarrSuite extends FunSuite:
 

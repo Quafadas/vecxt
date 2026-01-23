@@ -1,8 +1,27 @@
 package vecxt
 
 import scala.util.control.Breaks.*
+import scala.reflect.ClassTag
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.BooleanArrays.trues
 
 object IntArrays:
+
+  extension [A](vec: Array[A])
+    inline def mask(index: Array[Boolean])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]) =
+      dimCheck(vec, index)
+      val trues = index.trues
+      val newVec: Array[A] = new Array[A](trues)
+      var j = 0
+      for i <- 0 until index.length do
+        // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
+        if index(i) then
+          newVec(j) = vec(i)
+          j = 1 + j
+      end for
+      newVec
+    end mask
+  end extension
   extension (arr: Array[Int])
     inline def select(indicies: Array[Int]): Array[Int] =
       val len = indicies.length

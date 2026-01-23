@@ -102,12 +102,13 @@ object Scenarr:
       scenario.copy(amounts = scenario.amounts * scale, threshold = scenario.threshold * scale)
 
     inline def iteration(num: Int) =
-      assert(num > 0 && num <= scenario.numberIterations )
+      assert(num > 0 && num <= scenario.numberIterations)
       val idx = scenario.iterations =:= num
+      import vecxt.BoundsCheck.DoBoundsCheck.yes
       Scenarr(
-        scenario.iterations(idx)(using false),
-        scenario.days(idx)(using false),
-        scenario.amounts(idx)(using false),
+        scenario.iterations.mask(idx),
+        scenario.days.mask(idx),
+        scenario.amounts.mask(idx),
         scenario.numberIterations,
         scenario.threshold,
         scenario.day1,
@@ -116,7 +117,6 @@ object Scenarr:
         isSorted = scenario.isSorted
       )
     end iteration
-
 
     //   def shiftDay1To(date: LocalDate): Scenarr =
     //     scenario.period.firstLoss.plusYears(1).minusDays(1)
@@ -147,9 +147,9 @@ object Scenarr:
       end if
       val idx = scenario.amounts > newThresh
       Scenarr(
-        scenario.iterations(idx)(using false),
-        scenario.days(idx)(using false),
-        scenario.amounts(idx)(using false),
+        scenario.iterations.mask(idx)(using false),
+        scenario.days.mask(idx)(using false),
+        scenario.amounts.mask(idx)(using false),
         scenario.numberIterations,
         newThresh,
         scenario.day1,

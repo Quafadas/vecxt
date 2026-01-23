@@ -1,7 +1,5 @@
 package vecxt
 
-import scala.scalajs.js.typedarray.Float64Array
-
 import vecxt.BoundsCheck.BoundsCheck
 
 case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
@@ -23,6 +21,9 @@ end indexCheck
 
 protected[vecxt] object dimCheck:
   inline def apply[A](a: Array[Double], b: scala.scalajs.js.Array[A])(using inline doCheck: BoundsCheck) =
+    inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
+  inline def apply[A](a: Array[A], b: Array[Boolean])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
   inline def apply(a: Array[Double], b: Array[Double])(using inline doCheck: BoundsCheck) =

@@ -13,29 +13,34 @@ object ReReporting:
       (groupSum(years, calcd.cededToLayer, numIterations) > exhaust).trues / numIterations.toDouble
     end exhaustionProbability
 
-    inline def expectedLoss(numIterations: Int): Double = calcd.cededToLayer.sum / numIterations
+    inline def expectedLoss(numIterations: Int): Double = calcd.cededToLayer.sumSIMD / numIterations
 
     inline def std(numIterations: Int, years: Array[Int]): Double =
       groupSum(years, calcd.cededToLayer, numIterations).stdDev
 
-    inline def expectedLossAggLimit(numIterations: Int): Double =
-      calcd.cededToLayer.sum / (calcd.layer.aggLimit.getOrElse(Double.PositiveInfinity) * numIterations)
-
+    /** Efficient single-pass loss report computation.
+      *
+      * This method computes all loss metrics (EL, std, attachment probability, exhaustion probability) in a single pass
+      * through the data, using Welford's online algorithm for numerically stable variance computation.
+      *
+      * This is significantly more efficient than calling the individual metric methods separately, as it avoids
+      * multiple iterations through the grouped sums.
+      *
+      * @param numIterations
+      *   Number of simulation iterations
+      * @param years
+      *   Sorted array of 1-based iteration indices
+      * @param limit
+      *   Report denominator for normalizing EL and std
+      * @return
+      *   Named tuple with (name, limit, el, stdDev, attachProb, exhaustProb)
+      */
     inline def lossReport(
         numIterations: Int,
         years: Array[Int],
         limit: ReportDenominator
     ): (name: String, limit: Double, el: Double, stdDev: Double, attachProb: Double, exhaustProb: Double) =
-      val reportLimit = limit.fromlayer(calcd.layer)
-      (
-        name = calcd.layer.layerName.getOrElse(s"Layer ${calcd.layer.layerId}"),
-        limit = reportLimit,
-        el = expectedLoss(numIterations) / reportLimit,
-        stdDev = std(numIterations, years) / reportLimit,
-        attachProb = attachmentProbability(numIterations, years),
-        exhaustProb = exhaustionProbability(numIterations, years)
-      )
+      PlatformReporting.lossReportFast(calcd, numIterations, years, limit)
 
-      // TODO formatting
   end extension
 end ReReporting

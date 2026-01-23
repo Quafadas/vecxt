@@ -45,7 +45,9 @@ object `package` extends Module:
 
   object js extends VexctReModule with build.CommonJS:
     def moduleDeps = Seq(build.vecxt.js)
-    override def mvnDeps = super.mvnDeps()
+    override def mvnDeps = super.mvnDeps() ++ Seq(
+      build.V.scalaJavaTime
+    )
     def sources = Task(super.sources() ++ jsNativeSharedSources())
     def moduleKind = ModuleKind.ESModule
     def enableBsp = false
@@ -59,7 +61,9 @@ object `package` extends Module:
 
   object native extends VexctReModule with build.CommonNative:
     def moduleDeps = Seq(build.vecxt.native)
-    override def mvnDeps = super.mvnDeps()
+    override def mvnDeps = super.mvnDeps() ++ Seq(
+      build.V.scalaJavaTime
+    )
     def sources = Task(super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources())
     override def enableBsp = false
 

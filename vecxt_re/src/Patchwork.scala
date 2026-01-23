@@ -41,10 +41,9 @@ object Patchwork:
 
 end Patchwork
 
-/**
-  * The key difference between a Patchwork and a Tower is that in a Patchwork the layers are independent of each other. Therefore,
-  * it's _retention_ is not a valid concept. Be wary of this - a patchwork ought to be for exploratory analysis only, it is unlikely
-  * to be a valid part of a reinsurance program.
+/** The key difference between a Patchwork and a Tower is that in a Patchwork the layers are independent of each other.
+  * Therefore, it's _retention_ is not a valid concept. Be wary of this - a patchwork ought to be for exploratory
+  * analysis only, it is unlikely to be a valid part of a reinsurance program.
   *
   * @param layers
   * @param id
@@ -66,8 +65,8 @@ case class Patchwork(
     )
   end applyScale
 
-  /** A human friendly printout of this reinsurance patchwork. Skips any property which is "None" across all layers. Prints
-    * a console friendly table, with consistent spacing per column.
+  /** A human friendly printout of this reinsurance patchwork. Skips any property which is "None" across all layers.
+    * Prints a console friendly table, with consistent spacing per column.
     */
   def show: String =
     if layers.isEmpty then return s"${name.getOrElse("Patchwork")}: no layers"

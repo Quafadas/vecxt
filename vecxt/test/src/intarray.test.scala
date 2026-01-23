@@ -31,6 +31,21 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assertEquals(v1.sum, 45)
   }
 
+  test("array eq") {
+    val v1 = Array(1, 2, 3, 4, 5)
+
+    val compared = v1 =:= v1.reverse
+
+    val compared2 = v1 =:= 2
+
+    assertEquals(compared.trues, 1)
+    assert(compared(2))
+
+    assertEquals(compared.trues, 1)
+    assert(compared(2))
+
+  }
+
   test("increments") {
 
     val v1 = Array[Int](1, 2, 3, 4, 5, 6, 7, 8, 9, 10)

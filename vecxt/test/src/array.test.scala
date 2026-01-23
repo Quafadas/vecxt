@@ -147,15 +147,16 @@ class ArrayExtensionSuite extends munit.FunSuite:
     // val afterIndex = v1(vIdx)
     // assertEqualsDouble(afterIndex(0), 1.0, 0.0001)
     // assertEqualsDouble(afterIndex(1), 3.0, 0.0001)
+    import vecxt.BoundsCheck.DoBoundsCheck.yes
 
     val v2 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
     val vIdx2 = Array[Boolean](true, false, true, true, false, true, false, true, false)
-    val afterIndex2 = v2(vIdx2)
+    val afterIndex2 = v2.mask(vIdx2)
     assertEqualsDouble(afterIndex2(4), 8.0, 0.0001)
 
     val v3 = Array[Int](1, 2, 3, 4, 5, 6, 7, 8, 9)
     val vIdx3 = Array[Boolean](true, false, true, true, false, true, false, true, false)
-    val afterIndex3 = v3(vIdx3)
+    val afterIndex3 = v3.mask(vIdx3)
     assertEquals(afterIndex3(4), 8)
 
   }
@@ -398,7 +399,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   test("Array indexing") {
     val v1 = Array[Double](1.0, 2.0, 3.0)
     val vIdx = Array[Boolean](true, false, true)
-    val afterIndex = v1(vIdx)
+    val afterIndex = v1.mask(vIdx)(using true)
 
     assertEquals(afterIndex.length, 2)
     assertEqualsDouble(afterIndex.head, 1, 0.0001)
@@ -538,7 +539,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(tvar(9))
     assert(tvar(6))
 
-    val v4 = v1(tvar)
+    val v4 = v1.mask(tvar)
     assertEquals(v4.length, 2)
     assertEquals(v4(0), 2.0)
     assertEquals(v4(1), 1.0)

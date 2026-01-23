@@ -154,4 +154,18 @@ class BooleanArrayExtensionSuite extends munit.FunSuite:
     }
   }
 
+  test("Indexing into via select".only) {
+    val v1 = Array[Boolean](true, false, true, false, true)
+
+    val v2 = Array[Int](0, 1, 2, 3, 4)
+    val indexed = v2.mask(v1)(using true)
+
+    assertEquals(indexed.length, v1.trues)
+
+    assertEquals(indexed(0), 0)
+    assertEquals(indexed(1), 2)
+    assertEquals(indexed(2), 4)
+
+  }
+
 end BooleanArrayExtensionSuite

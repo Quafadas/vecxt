@@ -37,6 +37,7 @@ object V:
   val munitVersion = "1.1.1"
   val blas: Dep = mvn"dev.ludovic.netlib:blas:3.0.4"
   val lapack: Dep = mvn"dev.ludovic.netlib:lapack:3.0.4"
+  val scalaJavaTime: Dep = mvn"io.github.cquiroz::scala-java-time::2.6.0"
 end V
 
 trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule:

@@ -200,290 +200,289 @@ object arrays:
       end while
       acc
     end maxSIMD
-  end extension
 
-  def increments: Array[Double] =
-    val out = Array.ofDim[Double](vec.length)
-    out(0) = vec(0)
-    var i = 1
-    while i < vec.length do
-      out(i) = vec(i) - vec(i - 1)
-      i = i + 1
-    end while
-    out
-  end increments
+    def increments: Array[Double] =
+      val out = Array.ofDim[Double](vec.length)
+      out(0) = vec(0)
+      var i = 1
+      while i < vec.length do
+        out(i) = vec(i) - vec(i - 1)
+        i = i + 1
+      end while
+      out
+    end increments
 
-  inline def stdDev: Double = stdDev(VarianceMode.Population)
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
 
-  inline def stdDev(mode: VarianceMode): Double = std(mode)
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
 
-  inline def std: Double = std(VarianceMode.Population)
+    inline def std: Double = std(VarianceMode.Population)
 
-  inline def std(mode: VarianceMode): Double =
-    Math.sqrt(vec.variance(mode))
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
 
-  inline def mean: Double = vec.sumSIMD / vec.length
+    inline def mean: Double = vec.sumSIMD / vec.length
 
-  inline def sum: Double =
-    var sum = 0.0
-    var i = 0;
-    while i < vec.length do
-      sum = sum + vec(i)
-      i = i + 1
-    end while
-    sum
-  end sum
+    inline def sum: Double =
+      var sum = 0.0
+      var i = 0;
+      while i < vec.length do
+        sum = sum + vec(i)
+        i = i + 1
+      end while
+      sum
+    end sum
 
-  inline def product: Double =
-    var sum = 1.0
-    var i = 0;
-    while i < vec.length do
-      sum *= vec(i)
-      i = i + 1
-    end while
-    sum
-  end product
+    inline def product: Double =
+      var sum = 1.0
+      var i = 0;
+      while i < vec.length do
+        sum *= vec(i)
+        i = i + 1
+      end while
+      sum
+    end product
 
-  inline def variance: Double = variance(VarianceMode.Population)
+    inline def variance: Double = variance(VarianceMode.Population)
 
-  def variance(mode: VarianceMode): Double =
-    meanAndVariance(mode).variance
-  end variance
+    def variance(mode: VarianceMode): Double =
+      meanAndVariance(mode).variance
+    end variance
 
-  inline def meanAndVariance: (mean: Double, variance: Double) =
-    meanAndVariance(VarianceMode.Population)
+    inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
 
-  inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
-    val μ = vec.mean
-    var acc = 0.0
-    var i = 0
-    while i < vec.length do
-      val diff = vec(i) - μ
-      acc += diff * diff
-      i += 1
-    end while
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+      val μ = vec.mean
+      var acc = 0.0
+      var i = 0
+      while i < vec.length do
+        val diff = vec(i) - μ
+        acc += diff * diff
+        i += 1
+      end while
 
-    val denom = mode match
-      case VarianceMode.Population => vec.length.toDouble
-      case VarianceMode.Sample     => (vec.length - 1).toDouble
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-    (μ, acc / denom)
-  end meanAndVariance
+      (μ, acc / denom)
+    end meanAndVariance
 
-  inline def unary_- : Array[Double] =
-    val newVec = Array.ofDim[Double](vec.length)
-    var i = 0
-    while i < vec.length do
-      newVec(i) = -vec(i)
-      i += 1
-    end while
-    newVec
-  end unary_-
+    inline def unary_- : Array[Double] =
+      val newVec = Array.ofDim[Double](vec.length)
+      var i = 0
+      while i < vec.length do
+        newVec(i) = -vec(i)
+        i += 1
+      end while
+      newVec
+    end unary_-
 
-  inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using
-      inline boundsCheck: BoundsCheck.BoundsCheck
-  ): Double =
-    dimCheck(vec, thatVector)
-    val n = vec.length
-    var i = 0
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using
+        inline boundsCheck: BoundsCheck.BoundsCheck
+    ): Double =
+      dimCheck(vec, thatVector)
+      val n = vec.length
+      var i = 0
 
-    var sum_x = 0.0
-    var sum_y = 0.0
-    var sum_xy = 0.0
-    var sum_x2 = 0.0
-    var sum_y2 = 0.0
+      var sum_x = 0.0
+      var sum_y = 0.0
+      var sum_xy = 0.0
+      var sum_x2 = 0.0
+      var sum_y2 = 0.0
 
-    while i < n do
-      sum_x = sum_x + vec(i)
-      sum_y = sum_y + thatVector(i)
-      sum_xy = sum_xy + vec(i) * thatVector(i)
-      sum_x2 = sum_x2 + vec(i) * vec(i)
-      sum_y2 = sum_y2 + thatVector(i) * thatVector(i)
-      i = i + 1
-    end while
-    (n * sum_xy - (sum_x * sum_y)) / Math.sqrt(
-      (sum_x2 * n - sum_x * sum_x) * (sum_y2 * n - sum_y * sum_y)
-    )
-  end pearsonCorrelationCoefficient
+      while i < n do
+        sum_x = sum_x + vec(i)
+        sum_y = sum_y + thatVector(i)
+        sum_xy = sum_xy + vec(i) * thatVector(i)
+        sum_x2 = sum_x2 + vec(i) * vec(i)
+        sum_y2 = sum_y2 + thatVector(i) * thatVector(i)
+        i = i + 1
+      end while
+      (n * sum_xy - (sum_x * sum_y)) / Math.sqrt(
+        (sum_x2 * n - sum_x * sum_x) * (sum_y2 * n - sum_y * sum_y)
+      )
+    end pearsonCorrelationCoefficient
 
-  inline def spearmansRankCorrelation(thatVector: Array[Double])(using
-      inline boundsCheck: BoundsCheck.BoundsCheck
-  ): Double =
-    dimCheck(vec, thatVector)
-    val theseRanks = vec.elementRanks
-    val thoseRanks = thatVector.elementRanks
-    theseRanks.pearsonCorrelationCoefficient(thoseRanks)
-  end spearmansRankCorrelation
+    inline def spearmansRankCorrelation(thatVector: Array[Double])(using
+        inline boundsCheck: BoundsCheck.BoundsCheck
+    ): Double =
+      dimCheck(vec, thatVector)
+      val theseRanks = vec.elementRanks
+      val thoseRanks = thatVector.elementRanks
+      theseRanks.pearsonCorrelationCoefficient(thoseRanks)
+    end spearmansRankCorrelation
 
-  // An alias - pearson is the most commonly requested type of correlation
-  inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
-    pearsonCorrelationCoefficient(thatVector)
+    // An alias - pearson is the most commonly requested type of correlation
+    inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
+      pearsonCorrelationCoefficient(thatVector)
 
-  def elementRanks: Array[Double] =
-    val indexed1 = vec.zipWithIndex
-    val indexed = indexed1.toArray.sorted(using Ordering.by(_._1))
+    def elementRanks: Array[Double] =
+      val indexed1 = vec.zipWithIndex
+      val indexed = indexed1.toArray.sorted(using Ordering.by(_._1))
 
-    val ranks: Array[Double] = new Array(vec.length) // faster than zeros.
-    ranks(indexed.last._2) = vec.length
-    var currentValue: Double = indexed(0)._1
-    var r0: Int = 0
-    var rank: Int = 1
-    while rank < vec.length do
-      val temp: Double = indexed(rank)._1
-      val end: Int =
-        if temp != currentValue then rank
-        else if rank == vec.length - 1 then rank + 1
-        else -1
-      if end > -1 then
-        val avg: Double = (1.0 + (end + r0)) / 2.0
-        var i: Int = r0;
-        while i < end do
-          ranks(indexed(i)._2) = avg
-          i += 1
-        end while
-        r0 = rank
-        currentValue = temp
-      end if
-      rank += 1
-    end while
-    ranks
-  end elementRanks
+      val ranks: Array[Double] = new Array(vec.length) // faster than zeros.
+      ranks(indexed.last._2) = vec.length
+      var currentValue: Double = indexed(0)._1
+      var r0: Int = 0
+      var rank: Int = 1
+      while rank < vec.length do
+        val temp: Double = indexed(rank)._1
+        val end: Int =
+          if temp != currentValue then rank
+          else if rank == vec.length - 1 then rank + 1
+          else -1
+        if end > -1 then
+          val avg: Double = (1.0 + (end + r0)) / 2.0
+          var i: Int = r0;
+          while i < end do
+            ranks(indexed(i)._2) = avg
+            i += 1
+          end while
+          r0 = rank
+          currentValue = temp
+        end if
+        rank += 1
+      end while
+      ranks
+    end elementRanks
 
-  inline def `cumsum!` =
-    var i = 1
-    while i < vec.length do
-      vec(i) = vec(i - 1) + vec(i)
-      i = i + 1
-    end while
-  end `cumsum!`
+    inline def `cumsum!` =
+      var i = 1
+      while i < vec.length do
+        vec(i) = vec(i - 1) + vec(i)
+        i = i + 1
+      end while
+    end `cumsum!`
 
-  inline def cumsum: Array[Double] =
-    val out = vec.clone()
-    out.`cumsum!`
-    out
-  end cumsum
+    inline def cumsum: Array[Double] =
+      val out = vec.clone()
+      out.`cumsum!`
+      out
+    end cumsum
 
-  inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
-    dimCheck(vec, v1)
+    inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+      dimCheck(vec, v1)
 
-    var product = 0.0
-    var i = 0;
-    while i < vec.length do
-      product = product + vec(i) * v1(i)
-      i = i + 1
-    end while
-    product
-  end dot
+      var product = 0.0
+      var i = 0;
+      while i < vec.length do
+        product = product + vec(i) * v1(i)
+        i = i + 1
+      end while
+      product
+    end dot
 
-  inline def norm: Double =
-    Math.sqrt(vec.dot(vec)(using vecxt.BoundsCheck.DoBoundsCheck.no))
-  end norm
+    inline def norm: Double =
+      Math.sqrt(vec.dot(vec)(using vecxt.BoundsCheck.DoBoundsCheck.no))
+    end norm
 
-  inline def +(d: Double): Array[Double] =
-    vec.clone().tap(_ += d)
+    inline def +(d: Double): Array[Double] =
+      vec.clone().tap(_ += d)
 
-  inline def +=(d: Double): Unit =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) + d
-      i = i + 1
-    end while
-  end +=
+    inline def +=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +=
 
-  inline def -(d: Double): Array[Double] =
-    vec.clone().tap(_ -= d)
-  end -
+    inline def -(d: Double): Array[Double] =
+      vec.clone().tap(_ -= d)
+    end -
 
-  inline def -=(d: Double): Unit =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) - d
-      i = i + 1
-    end while
-  end -=
+    inline def -=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - d
+        i = i + 1
+      end while
+    end -=
 
-  inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
-    dimCheck(vec, vec2)
-    vec.clone().tap(_ -= vec2)
-  end -
+    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
+      dimCheck(vec, vec2)
+      vec.clone().tap(_ -= vec2)
+    end -
 
-  inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
-    dimCheck(vec, vec2)
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) - vec2(i)
-      i = i + 1
-    end while
-  end -=
+    inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+      dimCheck(vec, vec2)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - vec2(i)
+        i = i + 1
+      end while
+    end -=
 
-  inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
-    dimCheck(vec, vec2)
-    vec.clone().tap(_ += vec2)
-  end +
+    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
+      dimCheck(vec, vec2)
+      vec.clone().tap(_ += vec2)
+    end +
 
-  inline def +:+(d: Double) =
-    vec.clone().tap(_ +:+= d)
-  end +:+
+    inline def +:+(d: Double) =
+      vec.clone().tap(_ +:+= d)
+    end +:+
 
-  inline def +:+=(d: Double): Unit =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) + d
-      i = i + 1
-    end while
-  end +:+=
+    inline def +:+=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +:+=
 
-  inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
-    dimCheck(vec, vec2)
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) + vec2(i)
-      i = i + 1
-    end while
-  end +=
+    inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+      dimCheck(vec, vec2)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + vec2(i)
+        i = i + 1
+      end while
+    end +=
 
-  inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec + d
-  inline def multInPlace(d: Double): Unit = vec *= d
+    inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec + d
+    inline def multInPlace(d: Double): Unit = vec *= d
 
-  inline def *=(d: Double): Unit =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) * d
-      i = i + 1
-    end while
-  end *=
+    inline def *=(d: Double): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) * d
+        i = i + 1
+      end while
+    end *=
 
-  inline def *(d: Double): Array[Double] =
-    vec.clone().tap(_ *= d)
-  end *
+    inline def *(d: Double): Array[Double] =
+      vec.clone().tap(_ *= d)
+    end *
 
-  inline def /=(d: Double): Array[Double] =
-    var i = 0
-    while i < vec.length do
-      vec(i) = vec(i) / d
-      i = i + 1
-    end while
-    vec
-  end /=
+    inline def /=(d: Double): Array[Double] =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) / d
+        i = i + 1
+      end while
+      vec
+    end /=
 
-  inline def /(d: Double): Array[Double] =
-    vec.clone().tap(_ /= d)
-  end /
+    inline def /(d: Double): Array[Double] =
+      vec.clone().tap(_ /= d)
+    end /
 
-  def covariance(thatVector: Array[Double]): Double =
-    val μThis = vec.mean
-    val μThat = thatVector.mean
-    var cv: Double = 0
-    var i: Int = 0;
-    while i < vec.length do
-      cv += (vec(i) - μThis) * (thatVector(i) - μThat)
-      i += 1
-    end while
-    cv / (vec.length - 1)
-  end covariance
+    def covariance(thatVector: Array[Double]): Double =
+      val μThis = vec.mean
+      val μThat = thatVector.mean
+      var cv: Double = 0
+      var i: Int = 0;
+      while i < vec.length do
+        cv += (vec(i) - μThis) * (thatVector(i) - μThat)
+        i += 1
+      end while
+      cv / (vec.length - 1)
+    end covariance
 
-  def maxElement: Double = vec.max
-  // val t = js.Math.max( vec.toArray: _* )
+    def maxElement: Double = vec.max
+    // val t = js.Math.max( vec.toArray: _* )
   end extension
 
   extension (vec: Array[Array[Double]])

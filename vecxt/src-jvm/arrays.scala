@@ -3,7 +3,6 @@ package vecxt
 import scala.reflect.ClassTag
 import scala.util.chaining.*
 
-import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
 
@@ -435,22 +434,6 @@ object arrays:
       temp
     end maxSIMD
 
-  end extension
-
-  extension [@specialized(Double, Int) A](vec: Array[A])(using ClassTag[A])
-    inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
-      dimCheck(vec, index)
-      val trues = index.trues
-      val newVec: Array[A] = new Array[A](trues)
-      var j = 0
-      for i <- 0 until index.length do
-        // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
-        if index(i) then
-          newVec(j) = vec(i)
-          j = 1 + j
-      end for
-      newVec
-    end apply
   end extension
 
   extension (d: Double)

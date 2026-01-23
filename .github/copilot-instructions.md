@@ -93,3 +93,7 @@ Use inline methods where possible to avoid dispatch overhead where possible.
 
 ## GitHub Actions CI
 The project uses GitHub Actions for CI/CD
+
+## Vecxt Re
+
+Contains a bunch of domain specific code for reinsurance calculations, structures, and various reinsurance contract types. It will often rely on Vecxt. You should view the principles as the same - correctness above all else - performance matters. It also aims to eexpose a consistent cross platform API.

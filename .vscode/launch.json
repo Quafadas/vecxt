@@ -8,8 +8,8 @@
       "type": "scala",
       "request": "launch",
       "name": "test Suite",
-      "buildTarget": "vecxt_re.jvm.test",
-      "testClass": "vecxt_re.ScenarioSuite",
+      "buildTarget": "vecxt.jvm.test",
+      "testClass": "vecxt.BooleanArrayExtensionSuite",
       "jvmOptions": [
         "--add-modules=jdk.incubator.vector"
       ],
