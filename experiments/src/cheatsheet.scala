@@ -254,7 +254,7 @@ object CheatsheetTest:
     not(boolArr2)
 
     // Boolean indexing
-    val filtered = a(a > 2.0)
+    val filtered = a.mask(a > 2.0)
     println(s"Filtered (>2): ${filtered.mkString(", ")}")
 
     val countTrues = boolArr.trues

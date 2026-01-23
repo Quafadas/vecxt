@@ -9,12 +9,12 @@ import org.openjdk.jmh.infra.Blackhole
 import scala.compiletime.uninitialized
 import vecxt.all.*
 import vecxt.all.given
-import vecxt.reinsurance.*
+import vecxt_re.*
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
 import java.util.Random
-import vecxt.reinsurance.SplitLosses.splitAmntFast
+import vecxt_re.SplitLosses.splitAmntFast
 
 // mill benchmark.runJmh vecxt.benchmark.SplitAmntBenchmark -jvmArgs --add-modules=jdk.incubator.vector -rf json
 @State(Scope.Thread)
