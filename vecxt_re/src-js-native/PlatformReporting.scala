@@ -8,8 +8,8 @@ object PlatformReporting:
 
   /** Computes loss report metrics in a single pass using Welford's online algorithm.
     *
-    * Instead of calling groupSum multiple times (for attachment, exhaustion, std, and EL), this method iterates
-    * through the grouped sums once, accumulating all intermediate results:
+    * Instead of calling groupSum multiple times (for attachment, exhaustion, std, and EL), this method iterates through
+    * the grouped sums once, accumulating all intermediate results:
     *   - Sum for expected loss (EL)
     *   - Count of attached iterations (groupSum > 0)
     *   - Count of exhausted iterations (groupSum >= exhaust threshold)
@@ -63,9 +63,11 @@ object PlatformReporting:
 
       // Update attachment count (any positive loss)
       if groupSum > 0 then attachCount += 1
+      end if
 
       // Update exhaustion count
       if groupSum > exhaust then exhaustCount += 1
+      end if
 
       // Welford's online algorithm for variance
       n += 1
