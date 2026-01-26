@@ -49,4 +49,43 @@ class GroupSumCountSuite extends FunSuite:
     assertVecEquals(sumResult, expectedSum)
     assertVecEquals(countResult, expectedCount)
   }
+
+  test("groupMax finds max per 1-based group index with gaps") {
+    val groups = Array(1, 1, 2, 4, 4)
+    val values = Array(2.0, 3.0, 5.0, 10.0, 20.0)
+
+    val result = groupMax(groups, values, nitr = 4)
+
+    assertEquals(result.length, 4)
+    assertVecEquals(result, Array(3.0, 5.0, Double.NegativeInfinity, 20.0))
+  }
+
+  test("groupMax handles empty input by returning -Inf buckets") {
+    val groups = Array.empty[Int]
+    val values = Array.empty[Double]
+
+    val maxResult = groupMax(groups, values, nitr = 3)
+
+    assertEquals(maxResult.length, 3)
+    assert(maxResult.forall(_ == Double.NegativeInfinity))
+  }
+
+  test("groupMax single group spanning all entries") {
+    val groups = Array(3, 3, 3)
+    val values = Array(1.5, 2.5, -4.0)
+
+    val maxResult = groupMax(groups, values, nitr = 4)
+
+    val expectedMax = Array(Double.NegativeInfinity, Double.NegativeInfinity, 2.5, Double.NegativeInfinity)
+    assertVecEquals(maxResult, expectedMax)
+  }
+
+  test("groupMax with negative values") {
+    val groups = Array(1, 1, 2, 2)
+    val values = Array(-5.0, -2.0, -10.0, -3.0)
+
+    val result = groupMax(groups, values, nitr = 2)
+
+    assertVecEquals(result, Array(-2.0, -3.0))
+  }
 end GroupSumCountSuite

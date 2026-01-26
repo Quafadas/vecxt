@@ -38,6 +38,17 @@ case class Scenarr(
     groupSum(iterations, amounts, numberIterations)
   end agg
 
+  lazy val aep = agg.sorted(using Ordering[Double].reverse).zipWithIndex.map { case (amt, idx) =>
+    (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
+  }
+
+  lazy val oep = groupMax(iterations, amounts, numberIterations).sorted(using Ordering[Double].reverse).zipWithIndex.map {
+    case (amt, idx) =>
+      (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
+  }
+
+
+
   lazy val claimDates: Array[LocalDate] = (days - 1).map(d => ChronoUnit.DAYS.addTo(this.day1, d))
 
   lazy val monthYear: Array[(month: Month, year: Int)] = claimDates.map(d => (d.getMonth, d.getYear))
@@ -96,6 +107,35 @@ object Scenarr:
     id = 0L,
     isSorted = true
   )
+
+  /** Generate a small random Scenarr for experimentation.
+    *
+    * @param numClaims number of claim events to generate (default 15)
+    * @param seed optional random seed for reproducibility
+    * @return a small Scenarr with 10 iterations
+    */
+  def sample(numClaims: Int = 15, seed: Option[Long] = None): Scenarr =
+    val rng = seed.fold(scala.util.Random())(s => scala.util.Random(s))
+    val n = numClaims
+
+    val iterations = Array.fill(n)(rng.nextInt(10) + 1)
+    val days = Array.fill(n)(rng.nextInt(365) + 1)
+    val amounts = Array.fill(n)(rng.nextDouble() * 1000.0 + 100.0) // 100-1100
+    val ids = Array.fill(n)(rng.nextLong())
+
+    new Scenarr(
+      iterations = iterations,
+      days = days,
+      amounts = amounts,
+      ids = ids,
+      numberIterations = 10,
+      threshold = 0.0,
+      day1 = LocalDate.of(2019, 1, 1),
+      name = "sample",
+      id = rng.nextLong(),
+      isSorted = false
+    )
+  end sample
 
   /** Combine two Scenarr instances following monoid laws.
     *
