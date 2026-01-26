@@ -15,7 +15,7 @@ class NegBinTest extends FunSuite:
     val sd = math.sqrt(nb.variance)
     val K = (mu + 15 * sd).toInt
 
-    val sum = (0 to K).map(nb.probabilityOf).sum    
+    val sum = (0 to K).map(nb.probabilityOf).sum
 
     assert(math.abs(sum - 1.0) < 1e-8)
   }
@@ -138,12 +138,9 @@ class NegBinTest extends FunSuite:
     assertEqualsDouble(fitted.b, trueNb.b, 0.1)
   }
 
-
-  /**
-   * 
-   * 
-   * This directly exercises the volume factors: counts drawn with v = 0.5 use scale βv = 0.4, and with v = 2.0 use βv = 1.6; the fitter must undo that scaling to recover β = 0.8.
-   */
+  /** This directly exercises the volume factors: counts drawn with v = 0.5 use scale βv = 0.4, and with v = 2.0 use βv =
+    * 1.6; the fitter must undo that scaling to recover β = 0.8.
+    */
   test("SLOW: volume-weighted MLE recovers base params with mixed volumes") {
     assume(localTests, "Skip heavy sampling in CI")
 

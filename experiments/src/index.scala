@@ -9,3 +9,4 @@ import io.github.quafadas.plots.SetupVegaBrowser.{*, given}
   println(calYrIdx)
   calYrIdx.plotIndex(1.0)
   println("finished")
+end plotIndex
