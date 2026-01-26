@@ -83,7 +83,8 @@ class ScenarrSuite extends FunSuite:
   }
 
   test("hasOccurence false for empty amounts") {
-    val sc = Scenarr.withGeneratedIds(Array.emptyIntArray, Array.emptyIntArray, Array.emptyDoubleArray, numberIterations = 0)
+    val sc =
+      Scenarr.withGeneratedIds(Array.emptyIntArray, Array.emptyIntArray, Array.emptyDoubleArray, numberIterations = 0)
     assertEquals(sc.hasOccurence, false)
   }
 
@@ -101,7 +102,8 @@ class ScenarrSuite extends FunSuite:
   }
 
   test("scaleAmntBy multiplies amounts and threshold") {
-    val sc = Scenarr.withGeneratedIds(Array(1, 1), Array(1, 2), Array(10.0, 20.0), numberIterations = 1, threshold = 100.0)
+    val sc =
+      Scenarr.withGeneratedIds(Array(1, 1), Array(1, 2), Array(10.0, 20.0), numberIterations = 1, threshold = 100.0)
     val scaled = sc.scaleAmntBy(2.0)
     assertEquals(scaled.threshold, 200.0)
     assertEquals(scaled.amounts.toList, Array(20.0, 40.0).toList)
@@ -118,7 +120,13 @@ class ScenarrSuite extends FunSuite:
   }
 
   test("applyThreshold filters amounts and only allows increasing threshold") {
-    val sc = Scenarr.withGeneratedIds(Array(1, 1, 1), Array(1, 2, 3), Array(10.0, 50.0, 200.0), numberIterations = 1, threshold = 0.0)
+    val sc = Scenarr.withGeneratedIds(
+      Array(1, 1, 1),
+      Array(1, 2, 3),
+      Array(10.0, 50.0, 200.0),
+      numberIterations = 1,
+      threshold = 0.0
+    )
     val filtered = sc.applyThreshold(49.0)
     // keep > 49 => 50 and 200
     assertEquals(filtered.amounts.toList, Array(50.0, 200.0).toList)

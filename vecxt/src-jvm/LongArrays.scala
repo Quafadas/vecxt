@@ -44,6 +44,7 @@ object LongArrays:
         i += 1
       end while
       total
+    end sumSIMD
   end extension
 
 end LongArrays

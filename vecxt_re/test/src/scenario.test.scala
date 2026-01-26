@@ -72,7 +72,13 @@ class ScenarioSuite extends munit.FunSuite:
 
   test("scaleAmntBy supports negative scaling and does not mutate original"):
     val originalAmounts = Array(10.0, 20.0, 30.0)
-    val base = Scenarr.withGeneratedIds(Array(1, 1, 1), Array(1, 2, 3), originalAmounts.clone(), numberIterations = 1, threshold = 5.0)
+    val base = Scenarr.withGeneratedIds(
+      Array(1, 1, 1),
+      Array(1, 2, 3),
+      originalAmounts.clone(),
+      numberIterations = 1,
+      threshold = 5.0
+    )
     val scaled = base.scaleAmntBy(-1.5)
     assertEquals(scaled.amounts.toSeq, Seq(-15.0, -30.0, -45.0))
     assertEquals(scaled.threshold, -7.5)
@@ -105,7 +111,8 @@ class ScenarioSuite extends munit.FunSuite:
     assert(ex.getMessage.contains("Threshold may only be increased"))
 
   test("applyThreshold may result in no claims"):
-    val base3 = Scenarr.withGeneratedIds(Array(1, 1), Array(1, 2), Array(10.0, 20.0), numberIterations = 1, threshold = 5.0)
+    val base3 =
+      Scenarr.withGeneratedIds(Array(1, 1), Array(1, 2), Array(10.0, 20.0), numberIterations = 1, threshold = 5.0)
     val appliedEmpty = base3.applyThreshold(100.0)
     assertEquals(appliedEmpty.amounts.toSeq, Seq())
     assertEquals(appliedEmpty.iterations.toSeq, Seq())

@@ -81,8 +81,8 @@ case class Scenarr(
 end Scenarr
 
 object Scenarr:
-  /** The empty Scenarr - identity element for the monoid.
-    * Combining any scenario with empty returns the original scenario unchanged.
+  /** The empty Scenarr - identity element for the monoid. Combining any scenario with empty returns the original
+    * scenario unchanged.
     */
   val empty: Scenarr = new Scenarr(
     Array.emptyIntArray,
@@ -106,13 +106,17 @@ object Scenarr:
     *   - Number of iterations must match (unless one is empty)
     *   - Result is always sorted by (iteration, day)
     *
-    * @throws IllegalArgumentException if events with same ID have different iteration/day
-    * @throws IllegalArgumentException if numberIterations don't match (for non-empty scenarios)
+    * @throws IllegalArgumentException
+    *   if events with same ID have different iteration/day
+    * @throws IllegalArgumentException
+    *   if numberIterations don't match (for non-empty scenarios)
     */
   def combine(s1: Scenarr, s2: Scenarr): Scenarr =
     // Handle empty cases - identity element
     if s1.amounts.isEmpty then return s2
+    end if
     if s2.amounts.isEmpty then return s1
+    end if
 
     // Check iteration count matches for non-empty scenarios
     require(
@@ -151,6 +155,7 @@ object Scenarr:
             s"Event with ID $id has inconsistent iteration/day: ($existingIter, $existingDay) vs ($iter, $day)"
           )
           idMap(id) = (iter, day, existingAmount + amount)
+      end match
       i += 1
     end while
 
@@ -171,6 +176,7 @@ object Scenarr:
             s"Event with ID $id has inconsistent iteration/day: ($existingIter, $existingDay) vs ($iter, $day)"
           )
           idMap(id) = (iter, day, existingAmount + amount)
+      end match
       i += 1
     end while
 
@@ -199,16 +205,18 @@ object Scenarr:
 
   /** Infix operator for combining scenarios */
   extension (s1: Scenarr) def |+|(s2: Scenarr): Scenarr = combine(s1, s2)
+  end extension
 
   /** Cats Monoid instance for Scenarr.
     *
-    * This instance requires that all combined scenarios have the same `numberIterations`.
-    * The identity element is `Scenarr.empty` with `numberIterations = 0`.
+    * This instance requires that all combined scenarios have the same `numberIterations`. The identity element is
+    * `Scenarr.empty` with `numberIterations = 0`.
     *
-    * Important: This monoid is only valid for scenarios with matching `numberIterations`.
-    * Combining scenarios with different iteration counts will throw an IllegalArgumentException.
+    * Important: This monoid is only valid for scenarios with matching `numberIterations`. Combining scenarios with
+    * different iteration counts will throw an IllegalArgumentException.
     *
-    * @param numIterations The fixed number of iterations for this monoid instance
+    * @param numIterations
+    *   The fixed number of iterations for this monoid instance
     */
   def monoidForIterations(numIterations: Int): Monoid[Scenarr] = new Monoid[Scenarr]:
     def empty: Scenarr = new Scenarr(
@@ -226,16 +234,15 @@ object Scenarr:
     def combine(x: Scenarr, y: Scenarr): Scenarr = Scenarr.combine(x, y)
   end monoidForIterations
 
-  /** Default Monoid instance for Scenarr.
-    * Uses the general `combine` which treats empty scenarios as identity.
+  /** Default Monoid instance for Scenarr. Uses the general `combine` which treats empty scenarios as identity.
     */
   given Monoid[Scenarr] with
     def empty: Scenarr = Scenarr.empty
     def combine(x: Scenarr, y: Scenarr): Scenarr = Scenarr.combine(x, y)
   end given
 
-  /** Create a Scenarr with automatically generated random IDs for each event.
-    * Use this factory when you don't need to specify event IDs explicitly.
+  /** Create a Scenarr with automatically generated random IDs for each event. Use this factory when you don't need to
+    * specify event IDs explicitly.
     */
   def withGeneratedIds(
       iterations: Array[Int],

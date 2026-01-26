@@ -34,19 +34,17 @@ class ScenarrMonoidLawsSpec extends DisciplineSuite:
   // Small ID space to encourage clashes across Scenarrs being combined
   private val idGen: Gen[Long] = Gen.choose(1L, 100L)
 
-  /** Deterministically derive (iteration, day) from an ID.
-    * This ensures that when the same ID appears in different Scenarrs,
-    * it always has the same iteration and day - making the combine valid.
-    * Amounts can differ and will be aggregated.
+  /** Deterministically derive (iteration, day) from an ID. This ensures that when the same ID appears in different
+    * Scenarrs, it always has the same iteration and day - making the combine valid. Amounts can differ and will be
+    * aggregated.
     */
   private def iterationForId(id: Long): Int = ((id % TestIterations) + 1).toInt
   private def dayForId(id: Long): Int = ((id % 365) + 1).toInt
 
   /** Generate a valid Scenarr with fixed numberIterations and day1.
     *
-    * Uses a small ID space (1-100) to encourage clashes across Scenarrs.
-    * Iteration and day are derived deterministically from ID, so clashing
-    * IDs always have consistent (iteration, day) pairs - the amounts get
+    * Uses a small ID space (1-100) to encourage clashes across Scenarrs. Iteration and day are derived
+    * deterministically from ID, so clashing IDs always have consistent (iteration, day) pairs - the amounts get
     * aggregated as expected by the monoid.
     */
   private val scenarrrGen: Gen[Scenarr] = for

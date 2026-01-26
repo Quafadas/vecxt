@@ -9,13 +9,15 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 
   val data = CSV.resource("losses.csv", CsvOpts(TypeInferrer.FromAllRows, ReadAs.Columns))
 
-  val scen = Scenarr.withGeneratedIds(
-    iterations = data.year,
-    days = data.day,
-    amounts = data.amount,
-    numberIterations = 10,
-    threshold = 0.0
-  ).sorted
+  val scen = Scenarr
+    .withGeneratedIds(
+      iterations = data.year,
+      days = data.day,
+      amounts = data.amount,
+      numberIterations = 10,
+      threshold = 0.0
+    )
+    .sorted
 
   // val scen1 = scen.iteration(1).copy(numberIterations = 1)
 
