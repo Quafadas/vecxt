@@ -1,7 +1,5 @@
 package vecxt_re
 
-import io.github.quafadas.plots.SetupVega.{*, given}
-import viz.macros.VegaPlot
 import io.circe.syntax.*
 
 /** A calendar year-based wrapper around IndexPerPeriod for on-leveling historical data.
@@ -87,23 +85,6 @@ case class CalendarYearIndex(currentYear: Int, years: Array[Int], indices: Array
 end CalendarYearIndex
 
 object CalendarYearIndex:
-
-  extension (idx: CalendarYearIndex)
-    def plotIndex(reportingThreshold: Double)(using viz.LowPriorityPlotTarget) =
-      val linePlot2 = VegaPlot.fromResource("index.vl.json")
-      val cumulative = idx.onLevel(Array.fill(idx.years.length)(1.0), idx.years)
-      val factors = idx.years.zip(idx.indices).zip(cumulative).map { case ((year, index), cumulative) =>
-        (
-          year = year,
-          index = index,
-          missing = 1 / cumulative,
-          threshold = idx.suggestedNewThreshold(reportingThreshold)
-        )
-      }
-      linePlot2.plot(
-        _.data.values := factors.asJson
-      )
-  end extension
 
   /** Create a CalendarYearIndex from arrays of years and their corresponding indices. Years should be provided in
     * descending order (most recent first).
