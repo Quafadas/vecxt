@@ -8,7 +8,6 @@ object Plots:
   lazy val seasonality = VegaPlot.fromResource("seasonality.vg.json") // catagory, amount
   lazy val distributionDensity = VegaPlot.fromResource("distDensity.vg.json") // value, density
 
-  
   extension (idx: CalendarYearIndex)
     def plotIndex(reportingThreshold: Double)(using viz.LowPriorityPlotTarget) =
       val linePlot2 = VegaPlot.fromResource("index.vl.json")
