@@ -66,9 +66,9 @@ case class Pareto(scale: Double, shape: Double)
   def variance: Double = distribution.getVariance()
 
   private def guessMaxXForPlot = shape match
-      case s if s > 2 => mean + 4 * math.sqrt(variance) // mean and variance are defined
-      case s if s > 1 => mean + 20 * scale // no well defined variance
-      case _          => scale * 10 // no well defined mean
+    case s if s > 2 => mean + 4 * math.sqrt(variance) // mean and variance are defined
+    case s if s > 1 => mean + 20 * scale // no well defined variance
+    case _          => scale * 10 // no well defined mean
 
   def plot(using viz.LowPriorityPlotTarget) =
 
@@ -93,7 +93,6 @@ case class Pareto(scale: Double, shape: Double)
       _.layer._1.data.sequence.stop := maxX,
       _.layer._1.data.sequence.step := (maxX - scale) / 200,
       _.layer._1.transform.head.calculate := pdfExpr,
-      
       _ += (title = s"Pareto Distribution PDF (scale=$scale, shape=$shape)").asJson
     )
   end plot

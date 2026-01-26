@@ -6,14 +6,13 @@ import io.circe.syntax.*
 
 /** Empirical distribution (JVM only).
   *
-  * This is a nonparametric distribution built directly from observed samples.
-  * It supports positive weights $w_i$.
+  * This is a nonparametric distribution built directly from observed samples. It supports positive weights $w_i$.
   *
-  * The distribution is represented as a discrete measure on the (possibly repeated) sample values:
-  * $$\mathbb{P}(X = x) = \sum_{i: x_i = x} \frac{w_i}{\sum_k w_k}.$$
+  * The distribution is represented as a discrete measure on the (possibly repeated) sample values: $$\mathbb{P}(X = x) =
+  * \sum_{i: x_i = x} \frac{w_i}{\sum_k w_k}.$$
   *
-  * Consequently, the CDF is a right-continuous step function
-  * $$F(t) = \mathbb{P}(X \le t) = \sum_{x \le t} \mathbb{P}(X=x).$$
+  * Consequently, the CDF is a right-continuous step function $$F(t) = \mathbb{P}(X \le t) = \sum_{x \le t}
+  * \mathbb{P}(X=x).$$
   *
   * Sampling is performed by inverse-transform sampling on the cumulative weights.
   *
@@ -44,6 +43,7 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
       j += 1
     end while
     out
+  end pairs
 
   scala.util.Sorting.stableSort(pairs, (a: (Double, Double), b: (Double, Double)) => a._1 < b._1)
 
@@ -79,6 +79,7 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
       j += 1
     end while
     out
+  end cdfVals
 
   private val meanVal: Double =
     var s = 0.0
@@ -88,6 +89,7 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
       j += 1
     end while
     s
+  end meanVal
 
   private val varVal: Double =
     var s2 = 0.0
@@ -98,6 +100,7 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
       j += 1
     end while
     s2
+  end varVal
 
   def mean: Double = meanVal
 
@@ -107,11 +110,14 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
   def probabilityOf(x: Double): Double =
     val idx = java.util.Arrays.binarySearch(xs, x)
     if idx >= 0 then probs(idx) else 0.0
+    end if
+  end probabilityOf
 
   /** Draw a sample using inverse CDF sampling over the atomic masses. */
   def draw: Double =
     val u = rng.nextDouble()
     inverseCdf(u)
+  end draw
 
   /** CDF $F(t)=P(X\le t)$ (right-continuous). */
   def cdf(x: Double): Double =
@@ -136,15 +142,18 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
       val ip = java.util.Arrays.binarySearch(cdfVals, p)
       val idx = if ip >= 0 then ip else -ip - 1
       xs(math.min(idx, xs.length - 1))
+    end if
+  end inverseCdf
 
   /** Plot a (weighted) histogram density estimate. */
   def plot(using viz.LowPriorityPlotTarget) =
     val plot = VegaPlot.fromResource("empiricalPdf.vl.json")
-    val data = (0 until n).map { i => (x = values(i), w = weights(i)) }
+    val data = (0 until n).map(i => (x = values(i), w = weights(i)))
     plot.plot(
       _.data.values := data.asJson,
       _ += (title = s"Empirical Distribution (n=$n)").asJson
     )
+  end plot
 
   /** Plot the empirical CDF (step function). */
   def plotCdf(using viz.LowPriorityPlotTarget) =
@@ -160,19 +169,21 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
         j += 1
       end while
       pts.toVector
+    end points
 
     plot.plot(
       _.data.values := points.asJson,
       _ += (title = s"Empirical CDF (n=$n)").asJson
     )
+  end plotCdf
 
 end Empirical
 
 object Empirical:
   /** Construct an unweighted empirical distribution (all weights equal to $1$).
     *
-    * Note: We intentionally avoid `apply` overloads here because `IArray[Double]` erases to `Array[Double]`
-    * on the JVM, which can create signature collisions with the case class companion methods.
+    * Note: We intentionally avoid `apply` overloads here because `IArray[Double]` erases to `Array[Double]` on the JVM,
+    * which can create signature collisions with the case class companion methods.
     */
   inline def equalWeights(values: Array[Double]): Empirical =
     Empirical(
@@ -183,4 +194,4 @@ object Empirical:
   /** Construct a weighted empirical distribution from arrays. */
   inline def weighted(values: Array[Double], weights: Array[Double]): Empirical =
     Empirical(IArray.from(values), IArray.from(weights))
-
+end Empirical

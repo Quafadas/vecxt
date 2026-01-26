@@ -124,9 +124,14 @@ object NegativeBinomial:
     * @param tol
     *   convergence tolerance for parameter 'a'
     * @return
-    *   Named tuple with `dist`: the fitted NegativeBinomial distribution, and `converged`: whether the optimizer converged within maxIter
+    *   Named tuple with `dist`: the fitted NegativeBinomial distribution, and `converged`: whether the optimizer
+    *   converged within maxIter
     */
-  def mle(observations: Array[Int], maxIter: Int = 500, tol: Double = 1e-8): (dist: NegativeBinomial, converged: Boolean) =
+  def mle(
+      observations: Array[Int],
+      maxIter: Int = 500,
+      tol: Double = 1e-8
+  ): (dist: NegativeBinomial, converged: Boolean) =
     require(observations.nonEmpty, "observations must not be empty")
     require(observations.forall(_ >= 0), "all observations must be non-negative")
 
@@ -209,6 +214,7 @@ object NegativeBinomial:
 
         if aNew <= 0 || !aNew.isFinite then a = a / 2.0
         else a = aNew
+        end if
 
         converged = math.abs(step * delta) < tol * math.abs(a)
         iter += 1
@@ -221,25 +227,21 @@ object NegativeBinomial:
 
   /** Maximum likelihood estimation for the volume-adjusted Negative Binomial.
     *
-    * We observe pairs $(n_j, v_j)$ where $n_j$ is the count and $v_j$ is the volume ratio (historical volume / modeled volume).
-    * With parameters $(r, \beta)$ and $p = 1/(1+\beta v_j)$ the likelihood is
-    * $$
-    * L(r,\beta) = \prod_j \frac{\Gamma(r+n_j)}{\Gamma(r)\,\Gamma(n_j+1)} \left(\frac{\beta v_j}{1+\beta v_j}\right)^{n_j} \left(\frac{1}{1+\beta v_j}\right)^r.
-    * $$
-    * The log-likelihood is
-    * $$
-    * \ell(r,\beta) = \sum_j \big[\log\Gamma(r+n_j) - \log\Gamma(r) - \log\Gamma(n_j+1) + n_j(\log(\beta v_j) - \log(1+\beta v_j)) - r\,\log(1+\beta v_j)\big].
-    * $$
-    * Gradient components:
-    * $$\partial_\beta \ell = \sum_j \Big( \frac{n_j}{\beta(1+\beta v_j)} - \frac{r v_j}{1+\beta v_j} \Big),\quad
-    *   \partial_r \ell = \sum_j \big[\psi(r+n_j) - \psi(r) - \log(1+\beta v_j)\big],$$
-    * and Hessian entries:
-    * $$\partial^2_{\beta\beta} \ell = \sum_j \Big( \frac{r v_j}{(1+\beta v_j)^2} - \frac{n_j(1+2\beta v_j)}{\beta^2(1+\beta v_j)^2} \Big),$$
-    * $$\partial^2_{rr} \ell = \sum_j \big[\psi'(r+n_j) - \psi'(r)\big],\quad \partial^2_{\beta r} \ell = -\sum_j \frac{v_j}{1+\beta v_j}.$$
+    * We observe pairs $(n_j, v_j)$ where $n_j$ is the count and $v_j$ is the volume ratio (historical volume / modeled
+    * volume). With parameters $(r, \beta)$ and $p = 1/(1+\beta v_j)$ the likelihood is $$ L(r,\beta) = \prod_j
+    * \frac{\Gamma(r+n_j)}{\Gamma(r)\,\Gamma(n_j+1)} \left(\frac{\beta v_j}{1+\beta v_j}\right)^{n_j}
+    * \left(\frac{1}{1+\beta v_j}\right)^r. $$ The log-likelihood is $$ \ell(r,\beta) = \sum_j \big[\log\Gamma(r+n_j) -
+    * \log\Gamma(r) - \log\Gamma(n_j+1) + n_j(\log(\beta v_j) - \log(1+\beta v_j)) - r\,\log(1+\beta v_j)\big]. $$
+    * Gradient components: $$\partial_\beta \ell = \sum_j \Big( \frac{n_j}{\beta(1+\beta v_j)} - \frac{r v_j}{1+\beta
+    * v_j} \Big),\quad \partial_r \ell = \sum_j \big[\psi(r+n_j) - \psi(r) - \log(1+\beta v_j)\big],$$ and Hessian
+    * entries: $$\partial^2_{\beta\beta} \ell = \sum_j \Big( \frac{r v_j}{(1+\beta v_j)^2} - \frac{n_j(1+2\beta
+    * v_j)}{\beta^2(1+\beta v_j)^2} \Big),$$ $$\partial^2_{rr} \ell = \sum_j \big[\psi'(r+n_j) - \psi'(r)\big],\quad
+    * \partial^2_{\beta r} \ell = -\sum_j \frac{v_j}{1+\beta v_j}.$$
     *
     * Implementation details:
     *   - Initialize from method of moments on rates $n_j / v_j$; if underdispersed, start at a small $\beta$.
-    *   - Newton updates solve the $2\times2$ system from the gradient/Hessian; a tiny ridge is added to keep the Hessian invertible.
+    *   - Newton updates solve the $2\times2$ system from the gradient/Hessian; a tiny ridge is added to keep the
+    *     Hessian invertible.
     *   - Step halving is applied to enforce positivity of $r$ and $\beta$.
     *
     * @param observations
@@ -253,7 +255,12 @@ object NegativeBinomial:
     * @return
     *   tuple of fitted `NegativeBinomial(r, beta)` and a convergence flag
     */
-  def volweightedMle(observations: Array[Int], volumes: Array[Double], maxIter: Int = 500, tol: Double = 1e-8): (dist: NegativeBinomial, converged: Boolean) =
+  def volweightedMle(
+      observations: Array[Int],
+      volumes: Array[Double],
+      maxIter: Int = 500,
+      tol: Double = 1e-8
+  ): (dist: NegativeBinomial, converged: Boolean) =
     require(observations.nonEmpty, "observations must not be empty")
     require(observations.length == volumes.length, "observations and volumes must have the same length")
     require(observations.forall(_ >= 0), "all observations must be non-negative")
@@ -324,8 +331,7 @@ object NegativeBinomial:
       val hrrAdj = hrr + ridge
       val det = hbbAdj * hrrAdj - hbr * hbr
 
-      if det.isNaN || det.isInfinite || math.abs(det) < 1e-18 then
-        iter = maxIter
+      if det.isNaN || det.isInfinite || math.abs(det) < 1e-18 then iter = maxIter
       else
         val deltaBeta = (gBeta * hrrAdj - gR * hbr) / det
         val deltaR = (hbbAdj * gR - hbr * gBeta) / det
@@ -343,17 +349,23 @@ object NegativeBinomial:
         if newBeta > 0 && newR > 0 && newBeta.isFinite && newR.isFinite then
           beta = newBeta
           r = newR
-          converged =
-            math.abs(step * deltaBeta) <= tol * math.abs(beta) &&
-              math.abs(step * deltaR) <= tol * math.abs(r)
+          converged = math.abs(step * deltaBeta) <= tol * math.abs(beta) &&
+            math.abs(step * deltaR) <= tol * math.abs(r)
         else iter = maxIter
+        end if
       end if
 
       iter += 1
     end while
 
     (NegativeBinomial(r, beta), converged)
-  
-  inline def mleVolumeWeighted(observations: Array[Int], volumes: Array[Double], maxIter: Int = 100, tol: Double = 1e-8): (dist: NegativeBinomial, converged: Boolean) = volweightedMle(observations, volumes, maxIter, tol)
+  end volweightedMle
+
+  inline def mleVolumeWeighted(
+      observations: Array[Int],
+      volumes: Array[Double],
+      maxIter: Int = 100,
+      tol: Double = 1e-8
+  ): (dist: NegativeBinomial, converged: Boolean) = volweightedMle(observations, volumes, maxIter, tol)
 
 end NegativeBinomial

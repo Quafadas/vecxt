@@ -92,14 +92,13 @@ object CalendarYearIndex:
     def plotIndex(reportingThreshold: Double)(using viz.LowPriorityPlotTarget) =
       val linePlot2 = VegaPlot.fromResource("index.vl.json")
       val cumulative = idx.onLevel(Array.fill(idx.years.length)(1.0), idx.years)
-      val factors = idx.years.zip(idx.indices).zip(cumulative).map {
-        case ((year, index), cumulative) =>
-          (
-            year = year,
-            index = index,
-            missing = 1 / cumulative,
-            threshold = idx.suggestedNewThreshold(reportingThreshold)
-          )
+      val factors = idx.years.zip(idx.indices).zip(cumulative).map { case ((year, index), cumulative) =>
+        (
+          year = year,
+          index = index,
+          missing = 1 / cumulative,
+          threshold = idx.suggestedNewThreshold(reportingThreshold)
+        )
       }
       linePlot2.plot(
         _.data.values := factors.asJson

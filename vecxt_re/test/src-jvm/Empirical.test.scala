@@ -97,6 +97,5 @@ class EmpiricalTest extends FunSuite:
       Empirical.equalWeights(Array(1.0, Double.NaN))
     }
   }
-  
 
 end EmpiricalTest
