@@ -1,7 +1,5 @@
 package vecxt_re
 
-import io.circe.syntax.*
-
 /** A calendar year-based wrapper around IndexPerPeriod for on-leveling historical data.
   *
   * This class maps calendar years to index factors, allowing on-leveling of datasets where data points are labeled with
