@@ -1,45 +1,15 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
       "type": "scala",
       "request": "launch",
-      "name": "test Suite",
-      "buildTarget": "vecxt.jvm.test",
-      "testClass": "vecxt.BooleanArrayExtensionSuite",
-      "jvmOptions": [
-        "--add-modules=jdk.incubator.vector"
-      ],
-      "args": [
-        "-oD"
-      ]
-    },
-    {
-      "type": "scala",
-      "request": "launch",
-      "name": "Experiment",
-      "buildTarget": "experiments",
-      "mainClass": "experiments.pricingFun",
-      "jvmOptions": [
-        "--add-modules=jdk.incubator.vector"
-      ],
-      "args": [
-        "-oD"
-      ]
-    },
-    {
-      "type": "scala",
-      "request": "attach",
-      "name": "Attach debugger",
-      // name of the module that is being debugging
-      "buildTarget": "vecxt.jvm.test",
-      // Host of the jvm to connect to
-      "hostName": "localhost",
-      // Port to connect to
-      "port": 5005
+      "name": "plotIndex",
+      "mainClass": "experiments.plotIndex",
+      "buildTarget": "file:///Users/simon/Code/vecxt/experiments",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     }
   ]
 }
