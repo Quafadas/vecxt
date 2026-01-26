@@ -72,17 +72,28 @@ case class Pareto(scale: Double, shape: Double)
 
   def plot(using viz.LowPriorityPlotTarget) =
 
-    val linePlot = VegaPlot.fromResource("paretoPdf.vl.json")
-    val maxX = guessMaxXForPlot
-    val numPoints = 1000
+    val linePlot2 = VegaPlot.fromResource("paretoPdf.vl.json")
+    val maxX = guessMaxXForPlot * 5
+    val numPoints = 10000
     val data = (0 until numPoints).map { _ =>
-      (x = draw)
+      (x = Math.min(maxX, draw))
     }
-    linePlot.plot(
+
+    // Analytic Pareto( scale=k, shape=α ) PDF: f(x) = α k^α / x^(α+1) for x >= k
+    // The Vega template contains a placeholder formula; we inject the parameterized one here.
+    val pdfExpr = s"$shape * pow($scale, $shape) * pow(datum.data, -(${shape + 1.0}))"
+
+    linePlot2.plot(
       _.layer.head.data.values := data.asJson,
-      _.layer(1).data.sequence.start := scale,
-      _.layer(1).data.sequence.stop := maxX,
-      _.layer(1).data.sequence.step := (maxX - scale) / 200,
+      _.layer.head.encoding.x.scale.domain := List(scale, maxX).asJson,
+      _.layer.head.encoding.x.scale.nice := false,
+      _.layer.head.encoding.x.scale.domain := List(scale, maxX).asJson,
+      _.layer._1.encoding.x.scale.nice := false,
+      _.layer._1.data.sequence.start := scale,
+      _.layer._1.data.sequence.stop := maxX,
+      _.layer._1.data.sequence.step := (maxX - scale) / 200,
+      _.layer._1.transform.head.calculate := pdfExpr,
+      
       _ += (title = s"Pareto Distribution PDF (scale=$scale, shape=$shape)").asJson
     )
   end plot
