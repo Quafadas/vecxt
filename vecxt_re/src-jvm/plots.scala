@@ -8,6 +8,24 @@ object Plots:
   lazy val seasonality = VegaPlot.fromResource("seasonality.vg.json") // catagory, amount
   lazy val distributionDensity = VegaPlot.fromResource("distDensity.vg.json") // value, density
 
+  
+  extension (idx: CalendarYearIndex)
+    def plotIndex(reportingThreshold: Double)(using viz.LowPriorityPlotTarget) =
+      val linePlot2 = VegaPlot.fromResource("index.vl.json")
+      val cumulative = idx.onLevel(Array.fill(idx.years.length)(1.0), idx.years)
+      val factors = idx.years.zip(idx.indices).zip(cumulative).map { case ((year, index), cumulative) =>
+        (
+          year = year,
+          index = index,
+          missing = 1 / cumulative,
+          threshold = idx.suggestedNewThreshold(reportingThreshold)
+        )
+      }
+      linePlot2.plot(
+        _.data.values := factors.asJson
+      )
+  end extension
+
   extension (scenario: Scenarr)
     inline def plotSeasonality(highlight: Option[(year: Int, month: Int)] = None)(using
         tgt: viz.LowPriorityPlotTarget
