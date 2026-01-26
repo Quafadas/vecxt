@@ -144,6 +144,7 @@ inline def groupMax(groups: Array[Int], values: Array[Double], nitr: Int): Array
     // Process block of same group, computing max
     while i < l && groups(i) == g do
       if values(i) > groupMax then groupMax = values(i)
+      end if
       i += 1
     end while
     result(g - 1) = groupMax
@@ -151,4 +152,3 @@ inline def groupMax(groups: Array[Int], values: Array[Double], nitr: Int): Array
 
   result
 end groupMax
-

@@ -42,12 +42,11 @@ case class Scenarr(
     (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
   }
 
-  lazy val oep = groupMax(iterations, amounts, numberIterations).sorted(using Ordering[Double].reverse).zipWithIndex.map {
-    case (amt, idx) =>
-      (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
-  }
-
-
+  lazy val oep =
+    groupMax(iterations, amounts, numberIterations).sorted(using Ordering[Double].reverse).zipWithIndex.map {
+      case (amt, idx) =>
+        (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
+    }
 
   lazy val claimDates: Array[LocalDate] = (days - 1).map(d => ChronoUnit.DAYS.addTo(this.day1, d))
 
@@ -110,9 +109,12 @@ object Scenarr:
 
   /** Generate a small random Scenarr for experimentation.
     *
-    * @param numClaims number of claim events to generate (default 15)
-    * @param seed optional random seed for reproducibility
-    * @return a small Scenarr with 10 iterations
+    * @param numClaims
+    *   number of claim events to generate (default 15)
+    * @param seed
+    *   optional random seed for reproducibility
+    * @return
+    *   a small Scenarr with 10 iterations
     */
   def sample(numClaims: Int = 15, seed: Option[Long] = None): Scenarr =
     val rng = seed.fold(scala.util.Random())(s => scala.util.Random(s))

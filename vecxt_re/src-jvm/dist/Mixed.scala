@@ -58,6 +58,7 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
     while i < vals.length do
       totalW += weights(i)
       if vals(i) < mixingPoint then w += weights(i)
+      end if
       i += 1
     end while
     w / totalW
@@ -85,6 +86,7 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
       // Discrete mass in the body
       val prob = empirical.probabilityOf(x)
       if prob > 0 then math.log(prob) else Double.NegativeInfinity
+      end if
     else
       // Continuous Pareto tail, scaled by tail weight
       if tailWeight > 0 then paretoTail.unnormalizedLogPdf(x) + math.log(tailWeight)
@@ -102,8 +104,8 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
 
   /** Cumulative distribution function.
     *
-    * For x < mixingPoint: F(x) = bodyWeight * (empirical CDF normalized to body)
-    * For x >= mixingPoint: F(x) = bodyWeight + tailWeight * F_Pareto(x)
+    * For x < mixingPoint: F(x) = bodyWeight * (empirical CDF normalized to body) For x >= mixingPoint: F(x) =
+    * bodyWeight + tailWeight * F_Pareto(x)
     */
   def cdf(x: Double): Double =
     if x < mixingPoint then
