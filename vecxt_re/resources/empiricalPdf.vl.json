@@ -1,0 +1,23 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Empirical distribution PDF via (optionally weighted) histogram",
+  "width": "container",
+  "height": "container",
+  "data": { "values": [ { "x": 0.0, "w": 1.0 } ] },
+  "transform": [
+    { "bin": { "maxbins": 60 }, "field": "x", "as": ["x0", "x1"] },
+    { "aggregate": [ { "op": "sum", "field": "w", "as": "binWeight" } ], "groupby": ["x0", "x1"] },
+    { "joinaggregate": [ { "op": "sum", "field": "binWeight", "as": "W" } ] },
+    { "calculate": "datum.binWeight / (datum.W * (datum.x1 - datum.x0))", "as": "density" }
+  ],
+  "mark": { "type": "bar", "opacity": 0.65 },
+  "encoding": {
+    "x": { "field": "x0", "type": "quantitative", "title": "x" },
+    "x2": { "field": "x1" },
+    "y": { "field": "density", "type": "quantitative", "title": "PDF" },
+    "tooltip": [
+      { "field": "binWeight", "type": "quantitative", "title": "Bin weight" },
+      { "field": "density", "type": "quantitative", "title": "Density" }
+    ]
+  }
+}

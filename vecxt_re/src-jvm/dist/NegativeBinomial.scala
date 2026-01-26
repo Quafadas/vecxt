@@ -132,6 +132,30 @@ object NegativeBinomial:
 
     val n = observations.length.toDouble
     val xbar = observations.sum / n
+    val sumX = observations.sum.toDouble
+    // Constant term in the log-likelihood: -∑ log Γ(x_i+1)
+    var sumLogFact = 0.0
+    var _i = 0
+    while _i < observations.length do
+      sumLogFact += LogGamma.value(observations(_i) + 1)
+      _i += 1
+    end while
+
+    // Profile log-likelihood with b = xbar/a  (equivalently p = a/(a+xbar))
+    def profileLogLik(a: Double): Double =
+      if a <= 0 || !a.isFinite then Double.NegativeInfinity
+      else
+        val p = a / (a + xbar)
+        val logP = math.log(p)
+        val log1MinusP = math.log1p(-p)
+        var ll = n * a * logP + sumX * log1MinusP - sumLogFact - n * LogGamma.value(a)
+        var k = 0
+        while k < observations.length do
+          ll += LogGamma.value(a + observations(k))
+          k += 1
+        end while
+        ll
+
     val variance = observations.map(x => (x - xbar) * (x - xbar)).sum / n
 
     require(xbar > 0, "mean must be positive for NB fitting")
@@ -171,12 +195,22 @@ object NegativeBinomial:
         end while
 
         val delta = score / negHessian
-        val aNew = a + delta
 
-        if aNew <= 0 then a = a / 2.0
+        // Backtracking line search on the profile log-likelihood to improve robustness.
+        val llCur = profileLogLik(a)
+        var step = 1.0
+        var aNew = a + step * delta
+        var llNew = profileLogLik(aNew)
+        while step > 1e-6 && llNew < llCur do
+          step *= 0.5
+          aNew = a + step * delta
+          llNew = profileLogLik(aNew)
+        end while
+
+        if aNew <= 0 || !aNew.isFinite then a = a / 2.0
         else a = aNew
 
-        converged = math.abs(delta) < tol * math.abs(a)
+        converged = math.abs(step * delta) < tol * math.abs(a)
         iter += 1
       end while
 
