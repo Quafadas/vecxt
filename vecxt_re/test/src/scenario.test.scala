@@ -45,7 +45,7 @@ class ScenarioSuite extends munit.FunSuite:
   }
 
   test("scaleAmntBy doubles amounts and threshold, preserves other fields"):
-    val base = Scenarr(
+    val base = Scenarr.withGeneratedIds(
       iterations = Array(1, 1, 2),
       days = Array(1, 2, 3),
       amounts = Array(100.0, 200.0, 300.0),
@@ -65,14 +65,14 @@ class ScenarioSuite extends munit.FunSuite:
     assertEquals(scaled.isSorted, base.isSorted)
 
   test("scaleAmntBy with zero scale results in zero amounts and zero threshold"):
-    val base = Scenarr(Array(1), Array(1), Array(123.0), numberIterations = 1, threshold = 7.5)
+    val base = Scenarr.withGeneratedIds(Array(1), Array(1), Array(123.0), numberIterations = 1, threshold = 7.5)
     val scaled0 = base.scaleAmntBy(0.0)
     assertEquals(scaled0.amounts.toSeq, Seq(0.0))
     assertEquals(scaled0.threshold, 0.0)
 
   test("scaleAmntBy supports negative scaling and does not mutate original"):
     val originalAmounts = Array(10.0, 20.0, 30.0)
-    val base = Scenarr(Array(1, 1, 1), Array(1, 2, 3), originalAmounts.clone(), numberIterations = 1, threshold = 5.0)
+    val base = Scenarr.withGeneratedIds(Array(1, 1, 1), Array(1, 2, 3), originalAmounts.clone(), numberIterations = 1, threshold = 5.0)
     val scaled = base.scaleAmntBy(-1.5)
     assertEquals(scaled.amounts.toSeq, Seq(-15.0, -30.0, -45.0))
     assertEquals(scaled.threshold, -7.5)
@@ -81,7 +81,7 @@ class ScenarioSuite extends munit.FunSuite:
     assertEquals(base.threshold, 5.0)
 
   test("applyThreshold increases threshold and filters claims"):
-    val base = Scenarr(
+    val base = Scenarr.withGeneratedIds(
       iterations = Array(1, 2, 3),
       days = Array(10, 20, 30),
       amounts = Array(10.0, 20.0, 30.0),
@@ -100,12 +100,12 @@ class ScenarioSuite extends munit.FunSuite:
     assertEquals(base.threshold, 5.0)
 
   test("applyThreshold throws if newThresh is not greater than current threshold"):
-    val base2 = Scenarr(Array(1), Array(1), Array(100.0), numberIterations = 1, threshold = 50.0)
+    val base2 = Scenarr.withGeneratedIds(Array(1), Array(1), Array(100.0), numberIterations = 1, threshold = 50.0)
     val ex = intercept[Exception](base2.applyThreshold(50.0))
     assert(ex.getMessage.contains("Threshold may only be increased"))
 
   test("applyThreshold may result in no claims"):
-    val base3 = Scenarr(Array(1, 1), Array(1, 2), Array(10.0, 20.0), numberIterations = 1, threshold = 5.0)
+    val base3 = Scenarr.withGeneratedIds(Array(1, 1), Array(1, 2), Array(10.0, 20.0), numberIterations = 1, threshold = 5.0)
     val appliedEmpty = base3.applyThreshold(100.0)
     assertEquals(appliedEmpty.amounts.toSeq, Seq())
     assertEquals(appliedEmpty.iterations.toSeq, Seq())
@@ -113,7 +113,7 @@ class ScenarioSuite extends munit.FunSuite:
     assertEquals(appliedEmpty.threshold, 100.0)
 
   test("claimDates maps day 1 to day1 property"):
-    val base = Scenarr(
+    val base = Scenarr.withGeneratedIds(
       iterations = Array(1, 2),
       days = Array(1, 100),
       amounts = Array(10.0, 20.0),

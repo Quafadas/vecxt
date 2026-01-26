@@ -6,7 +6,7 @@ import org.apache.commons.statistics.distribution.PoissonDistribution
 
 class NegBinTest extends FunSuite:
 
-  inline val localTests = true
+  inline val localTests = false
 
   test("pmf approximately normalizes") {
     val nb = NegativeBinomial(a = 2.5, b = 1.2)

@@ -9,7 +9,7 @@ import vecxt.BoundsCheck.DoBoundsCheck.yes
 
   val data = CSV.resource("losses.csv", CsvOpts(TypeInferrer.FromAllRows, ReadAs.Columns))
 
-  val scen = Scenarr(
+  val scen = Scenarr.withGeneratedIds(
     iterations = data.year,
     days = data.day,
     amounts = data.amount,
