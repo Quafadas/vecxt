@@ -22,8 +22,7 @@ object double:
         import vecxt.BoundsCheck.DoBoundsCheck.yes
         x + y
       ,
-      inverseFn = (a) =>
-        -a
+      inverseFn = (a) => -a
     )
   end vectorAdditionGroup
 
