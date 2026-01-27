@@ -2,7 +2,7 @@
 //| mill-jvm-version: 24
 //| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
 //| mvnDeps:
-//| - io.github.quafadas:millSite_mill1_3.8:0.0.56
+//| - io.github.quafadas:millSite_mill1_3.8:0.0.57
 //| - com.goyeau:mill-scalafix_mill1_3:0.6.0
 //| - com.lihaoyi::mill-contrib-jmh:$MILL_VERSION
 
