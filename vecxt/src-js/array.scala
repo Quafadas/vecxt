@@ -5,8 +5,8 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.BooleanArrays.*
+import vecxt.BoundsCheck.BoundsCheck
 
 object arrayUtil:
   extension [A](d: Array[A]) def printArr: String = d.mkString("[", ",", "]")

@@ -1,10 +1,12 @@
 package vecxt
 
-import dev.ludovic.netlib.lapack.JavaLAPACK
 import org.netlib.util.intW
-import vecxt.matrix.Matrix
-import vecxt.MatrixInstance.*
+
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixInstance.*
+import vecxt.matrix.Matrix
+
+import dev.ludovic.netlib.lapack.JavaLAPACK
 
 /** Linear system solver using LAPACK.
   *

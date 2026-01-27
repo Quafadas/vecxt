@@ -1,7 +1,7 @@
 package vecxt_re
+import vecxt.all.*
 import vecxt_re.Limits.*
 import vecxt_re.Retentions.*
-import vecxt.all.*
 
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorSpecies

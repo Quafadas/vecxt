@@ -10,6 +10,16 @@
       "args": [],
       "jvmOptions": [],
       "env": {}
+    },
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "readXl",
+      "mainClass": "experiments.readXl",
+      "buildTarget": "file:///Users/simon/Code/vecxt/experiments",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     }
   ]
 }

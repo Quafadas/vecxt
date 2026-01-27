@@ -1,7 +1,7 @@
 package vecxt_re
 
-import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
+import vecxt.all.*
 
 /** Aims to provide a (very) simple index mapping for period-based models.
   *

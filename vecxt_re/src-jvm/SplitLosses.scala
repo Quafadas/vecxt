@@ -2,8 +2,11 @@ package vecxt_re
 
 import java.util.concurrent.Executors
 
-import jdk.incubator.vector.{DoubleVector, VectorOperators, VectorSpecies}
 import vecxt.BoundsCheck.BoundsCheck
+
+import jdk.incubator.vector.DoubleVector
+import jdk.incubator.vector.VectorOperators
+import jdk.incubator.vector.VectorSpecies
 
 object SplitLosses:
   extension (tower: Tower)

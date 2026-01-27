@@ -1,12 +1,14 @@
 package vecxt_re
 
-import vecxt.all.*
-import cats.kernel.Monoid
-
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.time.Month
+import java.time.temporal.ChronoUnit
+
 import scala.collection.mutable
+
+import vecxt.all.*
+
+import cats.kernel.Monoid
 
 case class Scenarr(
     iterations: Array[Int],

@@ -1,9 +1,10 @@
 package vecxt_re
 
-import org.apache.commons.statistics.distribution.ParetoDistribution
 import org.apache.commons.rng.simple.RandomSource
-import io.github.quafadas.plots.SetupVega.{*, given}
+import org.apache.commons.statistics.distribution.ParetoDistribution
+
 import io.circe.syntax.*
+import io.github.quafadas.plots.SetupVega.{*, given}
 
 /** Pareto Type I Distribution.
   *

@@ -1,7 +1,7 @@
 package vecxt
 
-import all.*
-import BoundsCheck.BoundsCheck
+import vecxt.BoundsCheck.BoundsCheck
+import vecxt.all.*
 
 object Eigenvalues:
   inline def eig(m: Matrix[Double])(using

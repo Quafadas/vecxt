@@ -1,9 +1,10 @@
 package vecxt
 
-import scala.util.control.Breaks.*
 import scala.reflect.ClassTag
-import vecxt.BoundsCheck.BoundsCheck
+import scala.util.control.Breaks.*
+
 import vecxt.BooleanArrays.trues
+import vecxt.BoundsCheck.BoundsCheck
 
 object IntArrays:
 

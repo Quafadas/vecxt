@@ -1,9 +1,9 @@
 package vecxt_re
 
-import vecxt.all.*
-
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+
+import vecxt.all.*
 
 case class Event(eventId: Long = scala.util.Random.nextLong(), iteration: Int = 0, day: Int = 0, loss: Double = 0):
   def multiplyBy(scale: Double): Event = this.copy(loss = loss * scale)

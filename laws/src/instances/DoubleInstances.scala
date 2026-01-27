@@ -1,9 +1,12 @@
 package vecxt.laws.instances
 
-import cats.kernel.Semigroup
-import vecxt.laws.{Dimension, VectorCommutativeGroup, VectorCommutativeMonoid}
 import vecxt.BoundsCheck
-import vecxt.all.{given, *}
+import vecxt.all.{*, given}
+import vecxt.laws.Dimension
+import vecxt.laws.VectorCommutativeGroup
+import vecxt.laws.VectorCommutativeMonoid
+
+import cats.kernel.Semigroup
 
 object double:
 
@@ -20,7 +23,6 @@ object double:
         x + y
       ,
       inverseFn = (a) =>
-        import vecxt.BoundsCheck.DoBoundsCheck.yes
         -a
     )
   end vectorAdditionGroup

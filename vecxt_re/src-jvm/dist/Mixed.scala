@@ -1,8 +1,9 @@
 package vecxt_re
 
 import org.apache.commons.rng.simple.RandomSource
-import io.github.quafadas.plots.SetupVega.{*, given}
+
 import io.circe.syntax.*
+import io.github.quafadas.plots.SetupVega.{*, given}
 
 /** Mixed distribution: Empirical body with Pareto tail.
   *
