@@ -6,6 +6,7 @@ import org.apache.commons.statistics.distribution.GammaDistribution
 import org.apache.commons.statistics.distribution.PoissonDistribution
 
 import io.circe.syntax.*
+import vecxt.all.*
 import io.github.quafadas.plots.SetupVega.{*, given}
 
 /** Negative Binomial Distribution with alternative parameterization.
@@ -137,8 +138,11 @@ object NegativeBinomial:
     require(observations.forall(_ >= 0), "all observations must be non-negative")
 
     val n = observations.length.toDouble
-    val xbar = observations.sum / n
-    val sumX = observations.sum.toDouble
+    val (xbar, variance) = observations.meanAndVariance
+    val sumX = observations.sumSIMD.toDouble
+
+    require(xbar > 0, "mean must be positive for NB fitting")
+
     // Constant term in the log-likelihood: -∑ log Γ(x_i+1)
     var sumLogFact = 0.0
     var _i = 0
@@ -148,7 +152,7 @@ object NegativeBinomial:
     end while
 
     // Profile log-likelihood with b = xbar/a  (equivalently p = a/(a+xbar))
-    def profileLogLik(a: Double): Double =
+    inline def profileLogLik(a: Double): Double =
       if a <= 0 || !a.isFinite then Double.NegativeInfinity
       else
         val p = a / (a + xbar)
@@ -162,9 +166,7 @@ object NegativeBinomial:
         end while
         ll
 
-    val variance = observations.map(x => (x - xbar) * (x - xbar)).sum / n
 
-    require(xbar > 0, "mean must be positive for NB fitting")
 
     // If variance <= mean, data is underdispersed relative to Poisson
     // In this case, return near-Poisson (small b)
@@ -205,11 +207,11 @@ object NegativeBinomial:
         // Backtracking line search on the profile log-likelihood to improve robustness.
         val llCur = profileLogLik(a)
         var step = 1.0
-        var aNew = a + step * delta
+        var aNew = Math.fma(step, delta, a)
         var llNew = profileLogLik(aNew)
         while step > 1e-6 && llNew < llCur do
           step *= 0.5
-          aNew = a + step * delta
+          aNew = Math.fma(step, delta, a)
           llNew = profileLogLik(aNew)
         end while
 
