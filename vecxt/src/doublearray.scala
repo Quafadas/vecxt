@@ -2,6 +2,18 @@ package vecxt
 
 object DoubleArrays:
   extension (vec: Array[Double])
+    // TODO bnenchmark.
+    inline def select(indicies: Array[Int]): Array[Double] =
+      val len = indicies.length
+      val out = Array.ofDim[Double](len)
+      var i = 0
+      while i < len do
+        out(i) = vec(indicies(i))
+        i += 1
+      end while
+      out
+    end select
+
     inline def unique: Array[Double] =
       if vec.size == 0 then Array.empty[Double]
       else

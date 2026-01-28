@@ -1,11 +1,13 @@
 package vecxt
 
-import dev.ludovic.netlib.lapack.JavaLAPACK
 import org.netlib.util.intW
-import vecxt.matrix.Matrix
-import vecxt.MatrixInstance.*
-import vecxt.MatrixHelper.zeros
+
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixHelper.zeros
+import vecxt.MatrixInstance.*
+import vecxt.matrix.Matrix
+
+import dev.ludovic.netlib.lapack.JavaLAPACK
 
 object QR:
   private lazy final val lapack = JavaLAPACK.getInstance()

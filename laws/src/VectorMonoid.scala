@@ -1,7 +1,9 @@
 package vecxt.laws
 
-import cats.kernel.{Monoid, Semigroup}
 import vecxt.BoundsCheck
+
+import cats.kernel.Monoid
+import cats.kernel.Semigroup
 
 /** A Monoid for Array[A] scoped to a specific dimension.
   *

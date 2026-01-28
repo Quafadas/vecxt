@@ -7,6 +7,17 @@ object LongArrays:
   final val length = spl.length()
 
   extension (arr: Array[Long])
+    inline def select(indicies: Array[Int]): Array[Long] =
+      val len = indicies.length
+      val out = Array.ofDim[Long](len)
+      var i = 0
+      while i < len do
+        out(i) = arr(indicies(i))
+        i += 1
+      end while
+      out
+    end select
+
     /** Computes the sum of all elements in the array using SIMD (Single Instruction, Multiple Data) operations.
       *
       * This method leverages the Vector API to perform parallel addition operations on chunks of the array, improving
@@ -33,6 +44,7 @@ object LongArrays:
         i += 1
       end while
       total
+    end sumSIMD
   end extension
 
 end LongArrays

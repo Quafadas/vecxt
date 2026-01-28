@@ -1,0 +1,39 @@
+
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "title": "Seasonality",
+  "autosize": {"type": "fit", "contains": "padding", "resize": true},
+  "width":"container",
+  "height":"container",
+  "data": {
+    "values": [
+      {"category": "Jan 2025", "amount": 100, "color": false},
+      {"category": "Feb 2025", "amount": 200, "color": false}   
+    ]
+  }
+  ,
+
+  "mark": {"type": "bar", "tooltip": true},
+
+  "encoding": {
+    "x": {
+      "field": "category",
+      "type": "temporal",   
+      "timeUnit": "yearmonth",
+      "bandPosition": 0,
+      "axis": {"labelAngle": -45, "grid": false, "tickCount": "month"}
+      
+    },
+    "y": {
+        "aggregate": "sum",
+        "field": "amount",
+        "type": "quantitative"      
+    },
+    "color": {
+      "field": "color",
+      "type": "nominal",
+      "scale": {"range": ["steelblue", "green"]},
+      "legend": null
+    }
+  }
+}

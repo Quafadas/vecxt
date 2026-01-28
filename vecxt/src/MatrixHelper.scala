@@ -3,8 +3,8 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.matrix.*
 import vecxt.MatrixInstance.apply
+import vecxt.matrix.*
 
 object MatrixHelper:
   extension (m: Matrix.type)

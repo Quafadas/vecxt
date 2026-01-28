@@ -1,8 +1,8 @@
 {
   "servers": {
     "vecxt-metals": {
-      "url": "http://localhost:51891/sse",
-      "type": "sse"
+      "url": "http://localhost:51891/mcp",
+      "type": "http"
     }
   }
 }

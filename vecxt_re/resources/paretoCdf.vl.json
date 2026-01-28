@@ -1,0 +1,43 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "CDF of a Pareto distribution",
+  "width": "container",
+  "height": "container",
+
+  "data": {
+    "sequence": {
+      "start": 1,
+      "stop": 20,
+      "step": 0.05
+    }
+  },
+
+  "transform": [
+    {
+      "calculate": "1 - pow(1 / datum.data, 2)",
+      "as": "cdf"
+    }
+  ],
+
+  "mark": {
+    "type": "line",
+    "interpolate": "monotone",
+    "strokeWidth": 2,
+    "tooltip": true
+  },
+
+  "encoding": {
+    "x": {
+      "field": "data",
+      "type": "quantitative",
+      "title": "x",
+      "scale": { "zero": false }
+    },
+    "y": {
+      "field": "cdf",
+      "type": "quantitative",
+      "title": "F(x)",
+      "scale": { "domain": [0, 1] }
+    }
+  }
+}

@@ -9,8 +9,11 @@ import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import scala.compiletime.uninitialized
 import vecxtensions.*
+import vecxt_re.*
 import java.util.Random
 import java.util.concurrent.TimeUnit
+
+// ./mill benchmark.runJmh "vecxt.benchmark.LossReportBenchmark" -jvmArgs --add-modules=jdk.incubator.vector -rf json -wi 1 -i 3 -f 1
 
 @State(Scope.Thread)
 @BenchmarkMode(Array(Mode.AverageTime))
@@ -91,11 +94,21 @@ class GroupOpsBenchmark:
     bh.consume(valuesCopy2)
   end benchGroupDiffInPlace
 
-  @Benchmark
-  def benchGroupSum(bh: Blackhole): Unit =
-    val (uniqueGroups, sums) = groupSum(groups, values)
-    bh.consume(uniqueGroups)
-    bh.consume(sums)
-  end benchGroupSum
+  // @Benchmark
+  // def benchGroupSum(bh: Blackhole): Unit =
+  //   // groupSum in vecxt_re takes nitr; compute number of groups then call it
+  //   var maxGroup = 0
+  //   var i = 0
+  //   while i < groups.length do
+  //     if groups(i) > maxGroup then maxGroup = groups(i)
+  //     end if
+  //     i += 1
+  //   end while
+  //   val numGroups = maxGroup + 1
+  //   val sums = groupSum(groups, values, numGroups)
+  //   val uniqueGroups = Array.tabulate(numGroups)(identity)
+  //   bh.consume(uniqueGroups)
+  //   bh.consume(sums)
+  // end benchGroupSum
 
 end GroupOpsBenchmark

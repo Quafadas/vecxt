@@ -1,0 +1,18 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Negative Binomial distribution probabilities.",
+  "data": {"values": [
+    {"value": 0, "prob": 0.0},
+    {"value": 1, "prob": 0.1},
+    {"value": 2, "prob": 0.18}
+  ]},
+  "mark": {
+    "type": "bar", "tooltip": true
+  },
+  "encoding": {
+    "x": {"field": "value", "type": "quantitative"},
+    "y": {"field": "prob", "type": "quantitative"}
+  },
+  "width": "container",
+  "height": "container"
+}

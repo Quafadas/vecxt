@@ -1,0 +1,23 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Mixed distribution PDF (empirical body + Pareto tail) via histogram of samples",
+  "width": "container",
+  "height": "container",
+  "data": { "values": [ { "x": 0.0 } ] },
+  "transform": [
+    { "bin": { "maxbins": 80 }, "field": "x", "as": ["x0", "x1"] },
+    { "aggregate": [ { "op": "count", "as": "binCount" } ], "groupby": ["x0", "x1"] },
+    { "joinaggregate": [ { "op": "sum", "field": "binCount", "as": "N" } ] },
+    { "calculate": "datum.binCount / (datum.N * (datum.x1 - datum.x0))", "as": "density" }
+  ],
+  "mark": { "type": "bar", "opacity": 0.65 },
+  "encoding": {
+    "x": { "field": "x0", "type": "quantitative", "title": "x" },
+    "x2": { "field": "x1" },
+    "y": { "field": "density", "type": "quantitative", "title": "PDF" },
+    "tooltip": [
+      { "field": "binCount", "type": "quantitative", "title": "Bin count" },
+      { "field": "density", "type": "quantitative", "title": "Density" }
+    ]
+  }
+}

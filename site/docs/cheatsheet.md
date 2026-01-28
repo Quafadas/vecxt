@@ -146,7 +146,7 @@ Is not supported in an "implicit" fashion. Look at the methods;
 | Element-wise equality | `a =:= b` | `a == b` | `a == b` |
 | Element-wise inequality | `a !:= b` | `a != b` | `a ~= b` |
 | Find indices where true | `idx.logicalIdx(...)` | `np.nonzero(a > 0.5)` | `find(a > 0.5)` |
-| Boolean indexing | `a(a > 2.0)` | `a[a > 0.5]` | `a(a > 0.5)` |
+| Boolean indexing | `a.mask(a > 2.0)` | `a[a > 0.5]` | `a(a > 0.5)` |
 | Count true values | `(a > 2.0).trues` | `np.sum(a > 0.5)` | `sum(a > 0.5)` |
 
 ## Array / Matrix Manipulation

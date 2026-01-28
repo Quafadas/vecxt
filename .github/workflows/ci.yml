@@ -68,6 +68,9 @@ jobs:
       - name: Test
         run: ./mill vecxtensions.${{ matrix.project }}.test
 
+      - name: Test
+        run: ./mill vecxt_re.${{ matrix.project }}.test
+
       - name: Laws Test
         if: matrix.project == 'jvm'
         run: ./mill laws.${{ matrix.project }}.test

@@ -8,6 +8,7 @@ object all:
   export vecxt.arrayUtil.*
   export vecxt.arrays.*
   export vecxt.DoubleArrays.*
+  export vecxt.VarianceMode
   // export vecxt.JsNativeDoubleArrays.*
   export vecxt.BooleanArrays.*
 
@@ -25,6 +26,7 @@ object all:
   export vecxt.JvmNativeDoubleMatrix.*
   export vecxt.dimensionExtender.DimensionExtender.*
   export vecxt.IntArrays.*
+  export vecxt.LongArrays.*
   export vecxt.Determinant.* // Import determinant implementations
   export vecxt.Svd.* // JS and native are stubs
   export vecxt.Cholesky.* // JS and native are stubs
@@ -34,7 +36,4 @@ object all:
   export vecxt.QR.* // JS and native are stubs
   // Random
   export vecxt.cosineSimilarity
-
-  // Longs
-  export vecxt.LongArrays.*
 end all

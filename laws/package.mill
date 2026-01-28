@@ -7,13 +7,9 @@ import mill.api.Task.Simple
 
 object `package` extends Module:
 
-  val catsVersion = "2.10.0"
-  val disciplineVersion = "2.0.0"
-  val scalacheckVersion = "1.17.0"
-
   trait LawsModule extends PlatformScalaModule with build.VecxtPublishModule:
     def mvnDeps = super.mvnDeps() ++ Seq(
-      mvn"org.typelevel::cats-kernel:$catsVersion"
+      mvn"org.typelevel::cats-kernel:${build.V.catsVersion}"
     )
   end LawsModule
 
@@ -27,9 +23,9 @@ object `package` extends Module:
 
       def mvnDeps = super.mvnDeps() ++ Seq(
         mvn"org.scalameta::munit::${build.V.munitVersion}",
-        mvn"org.typelevel::cats-kernel-laws:$catsVersion",
-        mvn"org.typelevel::discipline-munit:$disciplineVersion",
-        mvn"org.scalacheck::scalacheck:$scalacheckVersion"
+        mvn"org.typelevel::cats-kernel-laws:${build.V.catsVersion}",
+        mvn"org.typelevel::discipline-munit:${build.V.disciplineVersion}",
+        mvn"org.scalacheck::scalacheck:${build.V.scalacheckVersion}"
       )
 
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag

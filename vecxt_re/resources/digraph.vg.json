@@ -1,0 +1,103 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v6.json",
+  "description": "A node-link diagram with force-directed layout, depicting character co-occurrence in the novel Les Misérables.",
+  "width": 700,
+  "height": 500,
+  "padding": 0,
+  "autosize": "none",
+
+  "signals": [
+    { "name": "cx", "update": "width / 2" },
+    { "name": "cy", "update": "height / 2" },
+    { "name": "nodeRadius", "value": 20 }
+  ],
+
+  "data": [
+    {
+      "name": "node-data",
+      "values": [
+        { "id": "A", "x": 100, "y": 100 },
+        { "id": "B", "x": 300, "y": 120 },
+        { "id": "C", "x": 200, "y": 300 }
+      ]
+    },
+    {
+      "name": "link-data",
+      "values": [
+        { "source": "A", "target": "B" },
+        { "source": "B", "target": "C" },
+        { "source": "A", "target": "C" }
+      ],
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "node-data",
+          "key": "id",
+          "fields": ["source"],
+          "as": ["sourceNode"]
+        },
+        {
+          "type": "lookup",
+          "from": "node-data",
+          "key": "id",
+          "fields": ["target"],
+          "as": ["targetNode"]
+        }
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color",
+      "type": "ordinal",
+      "domain": { "data": "node-data", "field": "group" },
+      "range": { "scheme": "category20c" }
+    }
+  ],
+
+  "marks": [
+    {
+      "name": "nodes",
+      "type": "symbol",
+      "zindex": 1,
+
+      "from": { "data": "node-data" },
+
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "field": "y" },
+          "fill": { "scale": "color", "field": "group" },
+          "stroke": { "value": "white" }
+        },
+        "update": {
+          "size": { "signal": "2 * nodeRadius * nodeRadius" },
+          "cursor": { "value": "pointer" }
+        }
+      }
+    },
+    {
+      "type": "path",
+      "from": { "data": "link-data" },
+      "interactive": false,
+      "encode": {
+        "update": {
+          "stroke": { "value": "#ccc" },
+          "strokeWidth": { "value": 0.5 }
+        }
+      },
+      "transform": [
+        {
+          "type": "linkpath",
+          "shape": "diagonal",
+          "orient": "vertical",
+          "sourceX": "datum.sourceNode.x",
+          "sourceY": "datum.sourceNode.y",
+          "targetX": "datum.targetNode.x",
+          "targetY": "datum.targetNode.y"
+        }
+      ]
+    }
+  ]
+}

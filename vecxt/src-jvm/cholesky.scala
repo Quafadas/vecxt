@@ -1,13 +1,14 @@
 package vecxt
 
-import dev.ludovic.netlib.lapack.JavaLAPACK
 import org.netlib.util.intW
-import vecxt.matrix.Matrix
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixHelper.zeros
-import vecxt.all.update
 import vecxt.MatrixInstance.apply
+import vecxt.all.update
+import vecxt.matrix.Matrix
+
+import dev.ludovic.netlib.lapack.JavaLAPACK
 
 // https://github.com/scalanlp/breeze/blob/fd73d09976a1a50d68b91a53e3896980502d335e/math/src/main/scala/breeze/linalg/functions/svd.scala#L13
 object Cholesky:

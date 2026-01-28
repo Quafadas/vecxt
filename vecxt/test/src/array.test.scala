@@ -147,15 +147,16 @@ class ArrayExtensionSuite extends munit.FunSuite:
     // val afterIndex = v1(vIdx)
     // assertEqualsDouble(afterIndex(0), 1.0, 0.0001)
     // assertEqualsDouble(afterIndex(1), 3.0, 0.0001)
+    import vecxt.BoundsCheck.DoBoundsCheck.yes
 
     val v2 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
     val vIdx2 = Array[Boolean](true, false, true, true, false, true, false, true, false)
-    val afterIndex2 = v2(vIdx2)
+    val afterIndex2 = v2.mask(vIdx2)
     assertEqualsDouble(afterIndex2(4), 8.0, 0.0001)
 
     val v3 = Array[Int](1, 2, 3, 4, 5, 6, 7, 8, 9)
     val vIdx3 = Array[Boolean](true, false, true, true, false, true, false, true, false)
-    val afterIndex3 = v3(vIdx3)
+    val afterIndex3 = v3.mask(vIdx3)
     assertEquals(afterIndex3(4), 8)
 
   }
@@ -398,7 +399,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
   test("Array indexing") {
     val v1 = Array[Double](1.0, 2.0, 3.0)
     val vIdx = Array[Boolean](true, false, true)
-    val afterIndex = v1(vIdx)
+    val afterIndex = v1.mask(vIdx)(using true)
 
     assertEquals(afterIndex.length, 2)
     assertEqualsDouble(afterIndex.head, 1, 0.0001)
@@ -409,7 +410,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     // https://www.storyofmathematics.com/sample-variance/#:~:text=7.%20Divide%20the%20number%20you%20get%20in%20step%206%20by example 3
     val ages = Array[Double](26.0, 48.0, 67.0, 39.0, 25.0, 25.0, 36.0, 44.0, 44.0, 47.0, 53.0, 52.0, 52.0, 51.0, 52.0,
       40.0, 77.0, 44.0, 40.0, 45.0, 48.0, 49.0, 19.0, 54.0, 82.0)
-    val variance = ages.variance
+    val variance = ages.variance(VarianceMode.Sample)
     assertEqualsDouble(variance, 216.82, 0.01)
   }
 
@@ -430,6 +431,13 @@ class ArrayExtensionSuite extends munit.FunSuite:
     // val v3 = v1.copy // doesn't work ... not sure why.
     // v3(1) = 100
     // assertEqualsDouble(v1.qdep(0.95, v3), 0.8, 0.0001)
+  }
+
+  test("select picks elements by index order") {
+    val v = Array[Double](10.0, 20.0, 30.0, 40.0)
+    val idx = Array(3, 1, 0)
+    val out = v.select(idx)
+    assertEquals(out.toSeq, Seq(40.0, 20.0, 10.0))
   }
 
   test("tvar index") {
@@ -531,7 +539,7 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assert(tvar(9))
     assert(tvar(6))
 
-    val v4 = v1(tvar)
+    val v4 = v1.mask(tvar)
     assertEquals(v4.length, 2)
     assertEquals(v4(0), 2.0)
     assertEquals(v4(1), 1.0)
