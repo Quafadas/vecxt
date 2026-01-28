@@ -33,7 +33,7 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
     extends ContinuousDistr[Double]
     with HasMean[Double]
     with HasVariance[Double]
-    with HasCdf
+    with HasCdf[Double]
     with HasInverseCdf:
 
   require(mixingPoint > 0, "mixing point must be positive")

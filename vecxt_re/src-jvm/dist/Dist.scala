@@ -30,9 +30,9 @@ trait ContinuousDistr[T] extends Density[T] with Rand[T]:
   override def logApply(x: T) = unnormalizedLogPdf(x)
 end ContinuousDistr
 
-trait HasCdf:
-  def probability(x: Double, y: Double): Double // Probability that P(x < X <= y)
-  def cdf(x: Double): Double
+trait HasCdf[T]:
+  def probability(x: T, y: T): Double // Probability that P(x < X <= y)
+  def cdf(x: T): Double
 
   // experimental plotting support
   def plot(using viz.LowPriorityPlotTarget): viz.VizReturn

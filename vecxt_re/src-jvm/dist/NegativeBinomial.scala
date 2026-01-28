@@ -35,6 +35,7 @@ import io.github.quafadas.plots.SetupVega.{*, given}
 case class NegativeBinomial(a: Double, b: Double)
     extends DiscreteDistr[Int]
     with HasMean[Double]
+    with HasCdf[Int]
     with HasVariance[Double]:
   require(a > 0, "a must be positive")
   require(b > 0, "b must be positive")
@@ -76,6 +77,19 @@ case class NegativeBinomial(a: Double, b: Double)
   def mean: Double = a * b
 
   def variance: Double = a * b * (1.0 + b)
+
+
+  override def probability(x: Int, y: Int): Double =
+    if x >= y then 0.0
+    else cdf(y) - cdf(x)
+
+  override def cdf(x: Int): Double =
+    if x < 0 then 0.0
+    else
+      // CDF of NegBin(r, p) at k = I_p(r, k+1)
+      // where I_p(a, b) is the regularized incomplete beta function
+      // For our parameterization: p = 1/(1+b) is the success probability
+      org.apache.commons.numbers.gamma.RegularizedBeta.value(p, a, x.toDouble + 1.0)
 
   def plot(using viz.LowPriorityPlotTarget) =
     val linePlot = VegaPlot.fromResource("negBinProb.vl.json")

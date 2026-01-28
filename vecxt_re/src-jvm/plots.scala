@@ -48,4 +48,32 @@ object Plots:
         _.data.values := sorted.asJson
       )
   end extension
+
+  // extension (negBin: NegativeBinomial)
+  //   inline def plotPdf(using viz.LowPriorityPlotTarget) =
+  //     val numPoints = 1000
+  //     val maxX = negBin.mean + 4 * math.sqrt(negBin.variance)
+  //     val data = (0 until numPoints).map { i =>
+  //       val x = i.toDouble * maxX / numPoints
+  //       (value = x, density = negBin.probabilityOf(x.round.toInt))
+  //     }
+
+  //     distributionDensity.plot(
+  //       _.title(s"Negative Binomial Distribution Density (a=${negBin.a}, b=${negBin.b})"),
+  //       _.data.values := data.asJson
+  //     )
+
+  //   inline def plotCdf(using viz.LowPriorityPlotTarget) =
+  //     val numPoints = 1000
+  //     val maxX = negBin.mean + 4 * math.sqrt(negBin.variance)
+  //     val data = (0 until numPoints).map { i =>
+  //       val x = i.toDouble * maxX / numPoints
+  //       (value = x, density = negBin.cdf(x))
+  //     }
+
+  //     distributionDensity.plot(
+  //       _.title(s"Negative Binomial Distribution CDF (a=${negBin.a}, b=${negBin.b})"),
+  //       _.data.values := data.asJson
+  //     )
+  // end extension
 end Plots

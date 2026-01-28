@@ -24,7 +24,7 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
     extends DiscreteDistr[Double]
     with HasMean[Double]
     with HasVariance[Double]
-    with HasCdf
+    with HasCdf[Double]
     with HasInverseCdf:
 
   require(values.nonEmpty, "values must not be empty")

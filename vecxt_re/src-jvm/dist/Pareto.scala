@@ -26,7 +26,7 @@ case class Pareto(scale: Double, shape: Double)
     extends ContinuousDistr[Double]
     with HasMean[Double]
     with HasVariance[Double]
-    with HasCdf
+    with HasCdf[Double]
     with HasInverseCdf:
 
   require(scale > 0, "scale must be positive")
