@@ -4,9 +4,10 @@ import io.circe.syntax.*
 import io.github.quafadas.plots.SetupVega.{*, given}
 
 object Plots:
-  lazy val timeline = VegaPlot.fromResource("timeline.vl.json") // riskInceptionDate, riskExpiryDate
-  lazy val seasonality = VegaPlot.fromResource("seasonality.vg.json") // catagory, amount
-  lazy val distributionDensity = VegaPlot.fromResource("distDensity.vg.json") // value, density
+  // These must be private otherwise scaladoc get crazy.
+  private lazy val timeline = VegaPlot.fromResource("timeline.vl.json") // riskInceptionDate, riskExpiryDate
+  private lazy val seasonality = VegaPlot.fromResource("seasonality.vg.json") // catagory, amount
+  private lazy val distributionDensity = VegaPlot.fromResource("distDensity.vg.json") // value, density
 
   extension (idx: CalendarYearIndex)
     def plotIndex(reportingThreshold: Double)(using viz.LowPriorityPlotTarget) =
