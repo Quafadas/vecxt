@@ -20,6 +20,16 @@
       "args": [],
       "jvmOptions": [],
       "env": {}
+    },
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "pricingFun",
+      "mainClass": "experiments.pricingFun",
+      "buildTarget": "file:///Users/simon/Code/vecxt/experiments",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     }
   ]
 }
