@@ -1,0 +1,43 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Pearson residuals plot for count data",
+  "width": "container",
+  "height": "container",
+  "title": "Pearson Residuals",
+  "data": {
+    "values": [
+      {"k": 0, "residual": 0.5},
+      {"k": 1, "residual": -1.2},
+      {"k": 2, "residual": 0.8},
+      {"k": 3, "residual": -0.3}
+    ]
+  },
+  "layer": [
+    {
+      "mark": {"type": "bar", "color": "steelblue"},
+      "encoding": {
+        "x": {"field": "k", "type": "ordinal", "title": "Count (k)"},
+        "y": {"field": "residual", "type": "quantitative", "title": "Pearson Residual"},
+        "color": {
+          "condition": {
+            "test": "abs(datum.residual) > 2",
+            "value": "red"
+          },
+          "value": "steelblue"
+        }
+      }
+    },
+    {
+      "mark": {"type": "rule", "color": "black", "strokeDash": [4, 4]},
+      "encoding": {"y": {"datum": 2}}
+    },
+    {
+      "mark": {"type": "rule", "color": "black", "strokeDash": [4, 4]},
+      "encoding": {"y": {"datum": -2}}
+    },
+    {
+      "mark": {"type": "rule", "color": "gray"},
+      "encoding": {"y": {"datum": 0}}
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import org.apache.commons.statistics.distribution.PoissonDistribution as ApacheP
 
 class PoissonTest extends FunSuite:
 
-  inline val localTests = true
+  inline val localTests = false
 
   test("pmf approximately normalizes") {
     val pois = Poisson(lambda = 5.0)

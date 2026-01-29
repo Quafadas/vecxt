@@ -140,14 +140,14 @@ object NegativeBinomial:
     * @param tol
     *   convergence tolerance for parameter 'a'
     * @return
-    *   Named tuple with `dist`: the fitted NegativeBinomial distribution, and `converged`: whether the optimizer
-    *   converged within maxIter
+    *   Named tuple with `dist`: the fitted distribution (Poisson if no overdispersion, otherwise NegativeBinomial),
+    *   and `converged`: whether the optimizer converged within maxIter
     */
   def mle(
       observations: Array[Int],
       maxIter: Int = 500,
       tol: Double = 1e-8
-  ): (dist: NegativeBinomial, converged: Boolean) =
+  ): (dist: Poisson | NegativeBinomial, converged: Boolean) =
     require(observations.nonEmpty, "observations must not be empty")
     require(observations.forall(_ >= 0), "all observations must be non-negative")
 
@@ -183,8 +183,8 @@ object NegativeBinomial:
 
 
     // If variance <= mean, data is underdispersed relative to Poisson
-    // In this case, return near-Poisson (small b)
-    if variance <= xbar then (NegativeBinomial(xbar / 1e-10, 1e-10), true)
+    // In this case, return Poisson distribution
+    if variance <= xbar then (Poisson(xbar), true)
     else
       // Method of moments initial estimates:
       // b = variance/mean - 1
@@ -270,14 +270,14 @@ object NegativeBinomial:
     * @param tol
     *   relative tolerance on both parameters
     * @return
-    *   tuple of fitted `NegativeBinomial(r, beta)` and a convergence flag
+    *   tuple of fitted distribution (Poisson if no overdispersion, otherwise NegativeBinomial) and a convergence flag
     */
   def volweightedMle(
       observations: Array[Int],
       volumes: Array[Double],
       maxIter: Int = 500,
       tol: Double = 1e-8
-  ): (dist: NegativeBinomial, converged: Boolean) =
+  ): (dist: Poisson | NegativeBinomial, converged: Boolean) =
     require(observations.nonEmpty, "observations must not be empty")
     require(observations.length == volumes.length, "observations and volumes must have the same length")
     require(observations.forall(_ >= 0), "all observations must be non-negative")
@@ -305,10 +305,16 @@ object NegativeBinomial:
     end while
     varRate /= nObs.toDouble
 
+    // If variance <= mean, data is underdispersed relative to Poisson
+    // Return Poisson distribution with rate = sum(n) / sum(v)
+    if varRate <= meanRate then
+      val sumN = observations.sumSIMD.toDouble
+      val sumV = volumes.sum
+      return (Poisson(sumN / sumV), true)
+    end if
+
     val betaFloor = 1e-6
-    var beta =
-      if varRate <= meanRate then betaFloor
-      else math.max((varRate / meanRate) - 1.0, betaFloor)
+    var beta = math.max((varRate / meanRate) - 1.0, betaFloor)
     var r = meanRate / beta
 
     var iter = 0
@@ -383,6 +389,6 @@ object NegativeBinomial:
       volumes: Array[Double],
       maxIter: Int = 100,
       tol: Double = 1e-8
-  ): (dist: NegativeBinomial, converged: Boolean) = volweightedMle(observations, volumes, maxIter, tol)
+  ): (dist: Poisson | NegativeBinomial, converged: Boolean) = volweightedMle(observations, volumes, maxIter, tol)
 
 end NegativeBinomial

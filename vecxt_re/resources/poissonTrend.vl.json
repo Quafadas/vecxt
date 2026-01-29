@@ -1,0 +1,110 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Poisson GLM trend with confidence intervals",
+  "width": "container",
+  "height": "container",
+  "title": "Frequency Trend",
+  "layer": [
+    {
+      "data": {
+        "values": [{"year": 2000, "lower": 0.3, "upper": 1.2}]
+      },
+      "transform": [{"calculate": "'CI @ 95%'", "as": "legend"}],
+      "mark": {
+        "type": "area",
+        "opacity": 0.15
+      },
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative", "title": "Year", "scale": {"zero": false}},
+        "y": {"field": "lower", "type": "quantitative", "title": "Count"},
+        "y2": {"field": "upper"},
+        "color": {
+          "field": "legend",
+          "type": "nominal",
+          "scale": {"range": ["red"]},
+          "legend": {"symbolType": "square", "symbolOpacity": 0.15, "title": null}
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [{"year": 2000, "lower": 0.3}]
+      },
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2,
+        "strokeDash": [6, 4],
+        "color": "red"
+      },
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative"},
+        "y": {"field": "lower", "type": "quantitative"}
+      }
+    },
+    {
+      "data": {
+        "values": [{"year": 2000, "upper": 1.2}]
+      },
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2,
+        "strokeDash": [6, 4],
+        "color": "red"
+      },
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative"},
+        "y": {"field": "upper", "type": "quantitative", "title": "Count"}
+      }
+    },
+    {
+      "data": {
+        "values": [{"year": 2000, "fit": 0.7}]
+      },
+      "transform": [{"calculate": "'Fit'", "as": "legend"}],
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2.5,
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative"},
+        "y": {"field": "fit", "type": "quantitative"},
+        "stroke": {
+          "field": "legend",
+          "type": "nominal",
+          "scale": {"range": ["red"]},
+          "legend": {"symbolType": "stroke", "symbolStrokeWidth": 2.5, "title": null}
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [{"year": 2000, "count": 1}]
+      },
+      "transform": [{"calculate": "'Observation'", "as": "legend"}],
+      "mark": {
+        "type": "point",
+        "shape": "cross",
+        "size": 80,
+        "strokeWidth": 2,
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {"field": "year", "type": "quantitative"},
+        "y": {"field": "count", "type": "quantitative"},
+        "stroke": {
+          "field": "legend",
+          "type": "nominal",
+          "scale": {"range": ["steelblue"]},
+          "legend": {"symbolType": "cross", "symbolStrokeWidth": 2, "title": null}
+        }
+      }
+    }
+  ],
+  "config": {
+    "legend": {
+      "orient": "top-right",
+      "offset": 5
+    }
+  }
+}

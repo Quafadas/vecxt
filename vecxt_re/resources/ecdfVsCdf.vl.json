@@ -1,0 +1,54 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "ECDF vs Theoretical CDF comparison for count data",
+  "width": "container",
+  "height": "container",
+  "title": "ECDF vs Theoretical CDF",
+  "layer": [
+    {
+      "data": {
+        "values": [
+          {"value": 0, "prob": 0.1},
+          {"value": 1, "prob": 0.3},
+          {"value": 2, "prob": 0.6},
+          {"value": 3, "prob": 0.85},
+          {"value": 4, "prob": 0.95}
+        ]
+      },
+      "mark": {
+        "type": "line",
+        "interpolate": "step-after",
+        "strokeWidth": 2,
+        "color": "steelblue",
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {"field": "value", "type": "quantitative", "title": "k"},
+        "y": {"field": "prob", "type": "quantitative", "title": "Cumulative Probability"}
+      }
+    },
+    {
+      "data": {
+        "values": [
+          {"value": 0, "prob": 0.12},
+          {"value": 1, "prob": 0.32},
+          {"value": 2, "prob": 0.58},
+          {"value": 3, "prob": 0.82},
+          {"value": 4, "prob": 0.97}
+        ]
+      },
+      "mark": {
+        "type": "line",
+        "interpolate": "step-after",
+        "strokeWidth": 2,
+        "strokeDash": [4, 4],
+        "color": "orange",
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {"field": "value", "type": "quantitative", "title": "k"},
+        "y": {"field": "prob", "type": "quantitative", "title": "Cumulative Probability"}
+      }
+    }
+  ]
+}
