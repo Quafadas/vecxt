@@ -89,7 +89,7 @@ object PlatformReporting:
     val exhaustProb = exhaustCount.toDouble / numIterations
 
     (
-      name = calcd.layer.layerName.getOrElse(s"Layer ${calcd.layer.layerId}"),
+      name = calcd.layer.layerName.getOrElse(calcd.layer.autoName),
       limit = reportLimit,
       el = el / reportLimit,
       stdDev = stdDev / reportLimit,

@@ -56,6 +56,12 @@ case class Layer(
   lazy val brokerageUnitString = brokerageUnit.map(_.toString)
   lazy val occLayer = Sublayer(occLimit, occRetention, LossCalc.Occ, occType)
   lazy val aggLayer = Sublayer(aggLimit, aggRetention, LossCalc.Agg, aggType)
+  lazy val autoName: String =
+    occLimit match
+      case Some(occLim) => s"$occLim xs ${occRetention.getOrElse(0.0)}"
+      case None => aggLimit match
+        case Some(aggLim) => s"$aggLim xs ${aggRetention.getOrElse(0.0)} agg"
+        case None => "Unlimited Layer"
 
   lazy val firstLimit = occLimit.orElse(aggLimit).getOrElse(Double.PositiveInfinity)
 
