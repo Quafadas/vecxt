@@ -59,9 +59,10 @@ case class Layer(
   lazy val autoName: String =
     occLimit match
       case Some(occLim) => s"$occLim xs ${occRetention.getOrElse(0.0)}"
-      case None => aggLimit match
-        case Some(aggLim) => s"$aggLim xs ${aggRetention.getOrElse(0.0)} agg"
-        case None => "Unlimited Layer"
+      case None         =>
+        aggLimit match
+          case Some(aggLim) => s"$aggLim xs ${aggRetention.getOrElse(0.0)} agg"
+          case None         => "Unlimited Layer"
 
   lazy val firstLimit = occLimit.orElse(aggLimit).getOrElse(Double.PositiveInfinity)
 
