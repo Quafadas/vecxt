@@ -1,9 +1,10 @@
 package vecxt_re
 
-import io.circe.syntax.*
-import io.github.quafadas.plots.SetupVega.{*, given}
 import vecxt_re.HillEstimator.HillPlotResult
 import vecxt_re.PickandsEstimator.PickandsPlotResult
+
+import io.circe.syntax.*
+import io.github.quafadas.plots.SetupVega.{*, given}
 
 object Plots:
   // These must be private otherwise scaladoc get crazy.
@@ -390,7 +391,7 @@ object Plots:
       val allData = theoreticalData ++ empiricalData
 
       logLogPlot.plot(
-        _.title(s"Mixed Distribution Log-Log Plot"),
+        _.title("Mixed Distribution Log-Log Plot"),
         _.data.values := allData.asJson,
         _.layer._0.encoding.x.scale.domainMin := threshold
       )

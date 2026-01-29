@@ -4,8 +4,9 @@ import org.apache.commons.numbers.gamma.LogGamma
 import org.apache.commons.rng.simple.RandomSource
 import org.apache.commons.statistics.distribution.PoissonDistribution
 
-import io.circe.syntax.*
 import vecxt.all.*
+
+import io.circe.syntax.*
 import io.github.quafadas.plots.SetupVega.{*, given}
 
 /** Poisson Distribution.

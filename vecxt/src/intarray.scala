@@ -5,7 +5,6 @@ import scala.util.control.Breaks.*
 
 import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.arrays.sumSIMD
 
 object IntArrays:
 

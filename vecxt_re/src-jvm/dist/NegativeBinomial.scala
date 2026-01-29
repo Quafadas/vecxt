@@ -5,8 +5,9 @@ import org.apache.commons.rng.simple.RandomSource
 import org.apache.commons.statistics.distribution.GammaDistribution
 import org.apache.commons.statistics.distribution.PoissonDistribution
 
-import io.circe.syntax.*
 import vecxt.all.*
+
+import io.circe.syntax.*
 import io.github.quafadas.plots.SetupVega.{*, given}
 
 /** Negative Binomial Distribution with alternative parameterization.
