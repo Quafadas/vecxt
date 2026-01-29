@@ -43,9 +43,9 @@ object Plots:
       }
 
       negBinCdfWSample.plot(
-        _.title(s"Negative Binomial Distribution Density (a=${nb.a}, b=${nb.b}) vs Sample Data"),
+        _.title(s"Negative Binomial CDF (a=${nb.a}, b=${nb.b}) vs Sample Data"),
         _.layer._0.data.values := data.asJson,
-        _.layer._1.data.values := data.asJson
+        _.layer._1.data.values := empiricalProb.asJson
       )
   end extension
 
