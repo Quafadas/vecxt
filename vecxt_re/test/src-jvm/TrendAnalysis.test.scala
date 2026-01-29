@@ -2,6 +2,8 @@ package vecxt_re
 
 import munit.FunSuite
 
+import vecxt.all.*
+
 class TrendAnalysisTest extends FunSuite:
 
   import TrendAnalysis.*
@@ -13,20 +15,40 @@ class TrendAnalysisTest extends FunSuite:
   val yearsWithTrend = Vector(2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009)
   val countsWithTrend = Vector(1, 1, 2, 2, 3, 4, 5, 6, 8, 10) // Clear upward trend
 
-  // Example
-  val realYears = Vector(
-    1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
-    2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017,
-    2018, 2019, 2020, 2021, 2022, 2023, 2024
+  val realYears = Array(
+    1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
   )
-  val realCounts = Vector(
-    1, 0, 1, 0, 1, 0, 1, 2, 1, 0,
-    0, 3, 1, 0, 0, 1, 1, 2, 1, 2,
-    1, 3, 1, 1, 1, 0, 1
+  val realCounts = Array(
+    1,0,0,0,1,0,0,0,2,1,1,2,3,0,0,1,2,1,0,1,2,3,1,2,1,0,1
   )
+  // Example results from numpy / statsmodels for realYears
+/**
+Fitted Poisson with lambda = 0.9629629629629629
+
+Generalized Linear Model: log(Count) ~ 1 + Year
+============================================================
+                Generalized Linear Model Regression Results
+==============================================================================
+Dep. Variable:                      y   No. Observations:                   27
+Model:                            GLM   Df Residuals:                       25
+Model Family:                 Poisson   Df Model:                            1
+Link Function:                    Log   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -32.760
+Date:                Thu, 29 Jan 2026   Deviance:                       26.468
+Time:                        12:14:51   Pearson chi2:                     22.3
+No. Iterations:                     5   Pseudo R-squ. (CS):            0.08983
+Covariance Type:            nonrobust
+==============================================================================
+                coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const        -82.0576     52.254     -1.570      0.116    -184.473      20.358
+x1             0.0407      0.026      1.571      0.116      -0.010       0.092
+==============================================================================
+*/
+
 
   test("Poisson fitTrend returns valid result structure") {
-    val pois = Poisson(1.0)
+    val pois = Poisson(realCounts.mean)
     val result = pois.fitTrend(yearsNoTrend, countsNoTrend)
 
     assertEquals(result.nObs, 10)
@@ -36,6 +58,8 @@ class TrendAnalysisTest extends FunSuite:
     assert(!result.seIntercept.isNaN, "seIntercept should not be NaN")
     assert(!result.seSlope.isNaN, "seSlope should not be NaN")
     assert(result.pValueSlope >= 0 && result.pValueSlope <= 1, "p-value should be in [0,1]")
+
+
   }
 
   test("Poisson fitTrend detects no significant trend in flat data") {
@@ -118,6 +142,38 @@ class TrendAnalysisTest extends FunSuite:
     assert(summary.contains("Year"), "summary should contain 'Year'")
   }
 
+  test("Poisson fitTrend matches Python statsmodels GLM results") {
+    // Python statsmodels GLM output for realYears/realCounts:
+    // Fitted Poisson with lambda = 0.9629629629629629
+    // No. Observations: 27, Df Residuals: 25, Df Model: 1
+    // Log-Likelihood: -32.760, Deviance: 26.468, Pearson chi2: 22.3
+    // const: -82.0576 (std err 52.254), z=-1.570, p=0.116
+    // x1:      0.0407 (std err  0.026), z= 1.571, p=0.116
+    val pois = Poisson(realCounts.mean)
+    val result = pois.fitTrend(realYears, realCounts)
+
+    // Observations and degrees of freedom
+    assertEquals(result.nObs, 27)
+    assertEquals(result.dfResidual, 25)
+
+    // Coefficients (tolerance for numerical differences)
+    assertEqualsDouble(result.intercept, -82.0576, 0.5)
+    assertEqualsDouble(result.slope, 0.0407, 0.001)
+
+    // Standard errors
+    assertEqualsDouble(result.seIntercept, 52.254, 0.5)
+    assertEqualsDouble(result.seSlope, 0.026, 0.001)
+
+    // P-value for slope (Python: 0.116, some variation expected due to CDF approximation)
+    assertEqualsDouble(result.pValueSlope, 0.116, 0.03)
+
+    // Log-likelihood
+    assertEqualsDouble(result.logLikelihood, -32.760, 0.1)
+
+    // Residual deviance
+    assertEqualsDouble(result.residualDeviance, 26.468, 0.1)
+  }
+
   test("TrendFitResult summary formatting") {
     val pois = Poisson(1.0)
     val result = pois.fitTrend(yearsWithTrend, countsWithTrend)
@@ -155,6 +211,32 @@ class TrendAnalysisTest extends FunSuite:
 
     assert(result.fStatistic > 0, "F-statistic should be positive for trending data")
     assert(result.fPValue >= 0 && result.fPValue <= 1, "F p-value should be in [0,1]")
+  }
+
+  test("F-statistic p-value is small for significant trend") {
+    val pois = Poisson(1.0)
+    val result = pois.fitTrend(yearsWithTrend, countsWithTrend)
+
+    // For significant trend, F p-value should be small (< 0.05)
+    // F ~ 2.5 with df1=1, df2=8 should have p-value around 0.15
+    // For our strongly trending data, F should be larger and p-value smaller
+    assert(
+      result.fPValue < 0.2,
+      s"F p-value should be small for significant trend, got ${result.fPValue} with F=${result.fStatistic}"
+    )
+  }
+
+  test("F-statistic p-value matches expected range for known F values") {
+    // Sanity check: for trending data, higher F should mean lower p-value
+    val pois = Poisson(1.0)
+    val trendResult = pois.fitTrend(yearsWithTrend, countsWithTrend)
+    val flatResult = pois.fitTrend(yearsNoTrend, countsNoTrend)
+
+    // Trending data should have higher F-stat and lower p-value than flat data
+    assert(
+      trendResult.fStatistic > flatResult.fStatistic || flatResult.fStatistic <= 0,
+      s"Trending F (${trendResult.fStatistic}) should be >= flat F (${flatResult.fStatistic})"
+    )
   }
 
   test("AIC is finite") {

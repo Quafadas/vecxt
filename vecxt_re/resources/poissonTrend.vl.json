@@ -1,8 +1,8 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
   "description": "Poisson GLM trend with confidence intervals",
-  "width": "container",
-  "height": "container",
+  "width": 600,
+  "height": 600,
   "title": "Frequency Trend",
   "layer": [
     {
@@ -81,22 +81,23 @@
       "data": {
         "values": [{"year": 2000, "count": 1}]
       },
-      "transform": [{"calculate": "'Observation'", "as": "legend"}],
+      "transform": [{"calculate": "'Observation'", "as": "obsLegend"}],
       "mark": {
         "type": "point",
         "shape": "cross",
         "size": 80,
         "strokeWidth": 2,
-        "tooltip": true
+        "tooltip": true,
+        "stroke": "steelblue"
       },
       "encoding": {
         "x": {"field": "year", "type": "quantitative"},
         "y": {"field": "count", "type": "quantitative"},
-        "stroke": {
-          "field": "legend",
+        "fill": {
+          "field": "obsLegend",
           "type": "nominal",
           "scale": {"range": ["steelblue"]},
-          "legend": {"symbolType": "cross", "symbolStrokeWidth": 2, "title": null}
+          "legend": {"symbolType": "cross", "symbolStrokeColor": "steelblue", "title": null}
         }
       }
     }

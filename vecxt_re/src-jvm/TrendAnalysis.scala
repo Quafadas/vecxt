@@ -102,71 +102,27 @@ case class TrendFitResult(
 end TrendFitResult
 
 object TrendAnalysis:
+  private val normDist = org.apache.commons.math3.distribution.NormalDistribution(0.0, 1.0)
 
   /** Two-tailed p-value from z-statistic using normal approximation */
-  private def pValueFromZ(z: Double): Double =
+  private inline def pValueFromZ(z: Double): Double =
     if z.isNaN || z.isInfinite then Double.NaN
     else 2.0 * (1.0 - normalCdf(math.abs(z)))
 
-  /** Standard normal CDF approximation (Abramowitz & Stegun) */
-  private def normalCdf(x: Double): Double =
-    val a1 = 0.254829592
-    val a2 = -0.284496736
-    val a3 = 1.421413741
-    val a4 = -1.453152027
-    val a5 = 1.061405429
-    val p = 0.3275911
-    val sign = if x < 0 then -1 else 1
-    val absX = math.abs(x)
-    val t = 1.0 / (1.0 + p * absX)
-    val y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * math.exp(-absX * absX / 2)
-    0.5 * (1.0 + sign * y)
+  /** Standard normal CDF using Apache Commons Math */
+  private inline def normalCdf(x: Double): Double =
+    normDist.cumulativeProbability(x)
 
-  /** F-distribution CDF approximation for p-value calculation */
-  private def fDistPValue(f: Double, df1: Int, df2: Int): Double =
+  /** F-distribution p-value: P(F > f) for right-tailed test */
+  private inline def fDistPValue(f: Double, df1: Int, df2: Int): Double =
     if f <= 0 || df1 <= 0 || df2 <= 0 then 1.0
     else
-      // Use beta distribution relationship: F ~ Beta(df1/2, df2/2) transform
-      val x = df2.toDouble / (df2 + df1 * f)
-      1.0 - incompleteBeta(df2 / 2.0, df1 / 2.0, x)
+      val fDist = new org.apache.commons.math3.distribution.FDistribution(df1.toDouble, df2.toDouble)
+      1.0 - fDist.cumulativeProbability(f)
 
-  /** Incomplete beta function approximation using continued fraction */
-  private def incompleteBeta(a: Double, b: Double, x: Double): Double =
-    if x <= 0 then 0.0
-    else if x >= 1 then 1.0
-    else
-      val bt =
-        if x == 0 || x == 1 then 0.0
-        else
-          math.exp(
-            logGamma(a + b) - logGamma(a) - logGamma(b) +
-              a * math.log(x) + b * math.log(1 - x)
-          )
-      if x < (a + 1) / (a + b + 2) then bt * betaCF(a, b, x) / a
-      else 1.0 - bt * betaCF(b, a, 1 - x) / b
-
-  /** Continued fraction for incomplete beta */
-  private def betaCF(a: Double, b: Double, x: Double): Double =
-    val maxIter = 100
-    val eps = 1e-10
-    var c = 1.0
-    var d = 1.0 / math.max(1.0 - (a + b) * x / (a + 1), eps)
-    var h = d
-    var m = 1
-    while m <= maxIter do
-      val m2 = 2 * m
-      var aa = m * (b - m) * x / ((a + m2 - 1) * (a + m2))
-      d = 1.0 / math.max(1.0 + aa * d, eps)
-      c = math.max(1.0 + aa / c, eps)
-      h *= d * c
-      aa = -(a + m) * (a + b + m) * x / ((a + m2) * (a + m2 + 1))
-      d = 1.0 / math.max(1.0 + aa * d, eps)
-      c = math.max(1.0 + aa / c, eps)
-      val del = d * c
-      h *= del
-      if math.abs(del - 1.0) < eps then return h
-      m += 1
-    h
+  /** Regularized incomplete beta function using Apache Commons Math */
+  private inline def incompleteBeta(a: Double, b: Double, x: Double): Double =
+    org.apache.commons.math3.special.Beta.regularizedBeta(x, a, b)
 
   extension (p: Poisson)
     /** Fit a Poisson GLM trend model: log(μ) = β₀ + β₁·year
