@@ -8,6 +8,7 @@ object Plots:
   private lazy val timeline = VegaPlot.fromResource("timeline.vl.json") // riskInceptionDate, riskExpiryDate
   private lazy val seasonality = VegaPlot.fromResource("seasonality.vg.json") // catagory, amount
   private lazy val distributionDensity = VegaPlot.fromResource("distDensity.vg.json") // value, density
+  private lazy val negBinCdfWSample = VegaPlot.fromResource("negBinCumul_vsSample.vl.json") // value, density
 
   extension (idx: CalendarYearIndex)
     def plotIndex(reportingThreshold: Double)(using viz.LowPriorityPlotTarget) =
@@ -23,6 +24,28 @@ object Plots:
       }
       linePlot2.plot(
         _.data.values := factors.asJson
+      )
+  end extension
+
+  extension (nb: NegativeBinomial)
+    inline def plotCdfWithSamples(samples: Array[Double])(using viz.LowPriorityPlotTarget) =
+      val maxX = nb.mean + 4 * math.sqrt(nb.variance)
+      var cumProb = 0.0
+      val data = (0 to (maxX.toInt + 1)).map { k =>
+        cumProb += nb.probabilityOf(k)
+        (value = k, prob = cumProb)
+      }
+
+      val sampleData = samples.sorted
+      val n = sampleData.length
+      val empiricalProb = sampleData.zipWithIndex.map { case (value, idx) =>
+        (value = value.toInt, prob = (idx + 1).toDouble / n)
+      }
+
+      negBinCdfWSample.plot(
+        _.title(s"Negative Binomial Distribution Density (a=${nb.a}, b=${nb.b}) vs Sample Data"),
+        _.layer._0.data.values := data.asJson,
+        _.layer._1.data.values := data.asJson
       )
   end extension
 

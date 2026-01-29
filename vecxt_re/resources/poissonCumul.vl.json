@@ -1,0 +1,18 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Poisson distribution cumulative probabilities.",
+  "data": {"values": [
+    {"value": 0, "prob": 0.0},
+    {"value": 1, "prob": 0.1},
+    {"value": 2, "prob": 0.28}
+  ]},
+  "mark": {
+    "type": "line", "tooltip": true, "point": true
+  },
+  "encoding": {
+    "x": {"field": "value", "type": "quantitative"},
+    "y": {"field": "prob", "type": "quantitative"}
+  },
+  "width": "container",
+  "height": "container"
+}
