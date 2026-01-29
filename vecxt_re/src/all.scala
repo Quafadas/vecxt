@@ -10,4 +10,8 @@ object all:
   export vecxt_re.ReReporting.*
   export vecxt_re.IndexPerPeriod
   export vecxt_re.CalendarYearIndex
+  export vecxt_re.NegativeBinomial
+  export vecxt_re.Poisson
+  export vecxt_re.Empirical
+  export vecxt_re.Pareto
 end all
