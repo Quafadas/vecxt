@@ -232,6 +232,25 @@ object arrays:
 
     end increments
 
+    inline def countsToIdx: Array[Int] =
+      var total = vec.sumSIMD
+      var i = 0
+      val out = new Array[Int](total)
+      var j = 0
+      while i < vec.length do
+        val count = vec(i)
+        val idx = i + 1
+        var k = 0
+        while k < count do
+          out(j) = idx
+          j += 1
+          k += 1
+        end while
+        i += 1
+      end while
+      out
+    end countsToIdx
+
     inline def sumSIMD: Int =
       var i: Int = 0
       var acc = IntVector.zero(spi)
