@@ -11,6 +11,7 @@ class PickandsEstimatorSuite extends munit.FunSuite:
       val u = rng.nextDouble()
       xMin / math.pow(u, 1.0 / alpha)
     }
+  end generatePareto
 
   test("Pickands estimator basic formula check") {
     // Construct a simple case where we know the order statistics
@@ -132,6 +133,7 @@ class PickandsEstimatorSuite extends munit.FunSuite:
       case None =>
         // Okay if no stable region found with strict threshold
         ()
+    end match
   }
 
   test("Pickands plot step parameter works correctly") {

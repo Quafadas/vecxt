@@ -3,8 +3,8 @@ package vecxt_re
 /** Hill estimator for Pareto tail index estimation.
   *
   * The Hill estimator is used to estimate the shape parameter (α) of a Pareto distribution from the upper tail of the
-  * data. For a Pareto distribution with survival function S(x) = (x_min/x)^α, the tail index α determines how heavy
-  * the tail is:
+  * data. For a Pareto distribution with survival function S(x) = (x_min/x)^α, the tail index α determines how heavy the
+  * tail is:
   *   - α < 2: Infinite variance
   *   - α < 1: Infinite mean
   *   - Larger α means lighter tails
@@ -67,7 +67,10 @@ object HillEstimator:
       * @return
       *   Optional tuple of (start k, end k, mean estimate) for the most stable region
       */
-    def findStableRegion(windowSize: Int = 10, threshold: Double = 0.1): Option[(bestStart: Int, bestEnd: Int, meanEstimate: Double)] =
+    def findStableRegion(
+        windowSize: Int = 10,
+        threshold: Double = 0.1
+    ): Option[(bestStart: Int, bestEnd: Int, meanEstimate: Double)] =
       if kValues.length < windowSize then None
       else
         var bestVariance = Double.MaxValue
@@ -97,8 +100,10 @@ object HillEstimator:
           i += 1
         end while
 
-        if bestVariance < threshold then Some((bestStart = kValues(bestStart), bestEnd = kValues(bestStart + windowSize - 1), meanEstimate = bestMean))
+        if bestVariance < threshold then
+          Some((bestStart = kValues(bestStart), bestEnd = kValues(bestStart + windowSize - 1), meanEstimate = bestMean))
         else None
+        end if
       end if
     end findStableRegion
   end HillPlotResult
@@ -203,5 +208,6 @@ object HillEstimatorExtensions:
         step: Int = 1
     ): HillEstimator.HillPlotResult =
       HillEstimator.hillPlot(vec, kMin, kMax, step)
+  end extension
 
 end HillEstimatorExtensions

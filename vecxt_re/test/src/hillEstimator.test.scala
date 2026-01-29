@@ -11,6 +11,7 @@ class HillEstimatorSuite extends munit.FunSuite:
       val u = rng.nextDouble()
       xMin / math.pow(u, 1.0 / alpha)
     }
+  end generatePareto
 
   test("Hill estimator basic sanity check") {
     // Simple case: known sorted data
@@ -117,6 +118,7 @@ class HillEstimatorSuite extends munit.FunSuite:
         // It's okay if no stable region found with strict threshold
         // Just verify the method runs without error
         ()
+    end match
   }
 
   test("Hill estimator is invariant to data order") {

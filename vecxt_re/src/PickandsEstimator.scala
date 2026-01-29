@@ -1,8 +1,8 @@
 package vecxt_re
 
 /** Pickands estimator for extreme value index (tail index) estimation.
- *
- * It is unlikely to be useful, given the amount of data typically available in reinsurance.
+  *
+  * It is unlikely to be useful, given the amount of data typically available in reinsurance.
   *
   * The Pickands estimator is a robust, non-parametric estimator for the extreme value index (EVI) of a distribution.
   * Unlike the Hill estimator which assumes a Pareto-type tail, the Pickands estimator works for all three domains of
@@ -141,6 +141,7 @@ object PickandsEstimator:
         if bestVariance < threshold && bestMeanGamma > 0 then
           Some((kValues(bestStart), kValues(bestStart + windowSize - 1), bestMeanGamma, 1.0 / bestMeanGamma))
         else None
+        end if
       end if
     end findStableRegion
   end PickandsPlotResult
@@ -175,7 +176,10 @@ object PickandsEstimator:
     val actualKMax = if kMax < 0 then maxValidK else math.min(kMax, maxValidK)
     val actualKMin = math.max(kMin, 1)
 
-    require(actualKMin <= actualKMax, s"kMin ($actualKMin) must be <= kMax ($actualKMax), n=$n allows k up to $maxValidK")
+    require(
+      actualKMin <= actualKMax,
+      s"kMin ($actualKMin) must be <= kMax ($actualKMax), n=$n allows k up to $maxValidK"
+    )
 
     // Calculate number of k values
     val numK = (actualKMax - actualKMin) / step + 1
@@ -248,5 +252,6 @@ object PickandsEstimatorExtensions:
         step: Int = 1
     ): PickandsEstimator.PickandsPlotResult =
       PickandsEstimator.pickandsPlot(vec, kMin, kMax, step)
+  end extension
 
 end PickandsEstimatorExtensions
