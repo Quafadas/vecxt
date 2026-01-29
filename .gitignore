@@ -40,3 +40,4 @@ biases2.csv
 .DS_Store
 
 .venv/
+experiments/src/bhd.scala
