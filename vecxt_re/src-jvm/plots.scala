@@ -2,6 +2,8 @@ package vecxt_re
 
 import io.circe.syntax.*
 import io.github.quafadas.plots.SetupVega.{*, given}
+import vecxt_re.HillEstimator.HillPlotResult
+import vecxt_re.PickandsEstimator.PickandsPlotResult
 
 object Plots:
   // These must be private otherwise scaladoc get crazy.
@@ -13,6 +15,8 @@ object Plots:
   private lazy val rootogram = VegaPlot.fromResource("rootogram.vl.json") // hanging rootogram
   private lazy val pearsonResiduals = VegaPlot.fromResource("pearsonResiduals.vl.json") // residual plot
   private lazy val poissonTrend = VegaPlot.fromResource("poissonTrend.vl.json") // Poisson GLM trend
+  private lazy val logLogPlot = VegaPlot.fromResource("loglogCdf.vl.json") // log-log CDF plot
+  private lazy val hillPlotSpec = VegaPlot.fromResource("hillPlot.vl.json") // Hill plot for tail index
 
   extension (idx: CalendarYearIndex)
     def plotIndex(reportingThreshold: Double)(using viz.LowPriorityPlotTarget) =
@@ -349,6 +353,108 @@ object Plots:
         _.title("Seasonality " + scenario.name),
         _.data.values := sorted.asJson
       )
+  end extension
+
+  extension (mixed: Mixed)
+    /** Plot log-log comparison of theoretical Mixed distribution vs empirical sample data.
+      *
+      * This plot shows the complementary CDF (1 - CDF) on log-log scale, which is useful for visualizing tail behavior
+      * of heavy-tailed distributions. The x-axis shows log(value) and y-axis shows log(1 - CDF).
+      */
+    def plotLogLogVsSample(samples: IndexedSeq[Double], threshold: Double)(using viz.LowPriorityPlotTarget) =
+      val sortedSamples = samples.sorted
+      val n = sortedSamples.length.toDouble
+
+      // Empirical survival function using Hazen plotting position
+      val empiricalData = sortedSamples.zipWithIndex.collect {
+        case (x, i) if x > 0 =>
+          val survivalProb = (n - i - 0.5) / n
+          if survivalProb > 0 then Some((x = x, y = survivalProb, source = "empirical"))
+          else None
+          end if
+      }.flatten
+
+      // Theoretical survival function (1 - CDF)
+      // For Pareto: S(x) = (xₘ/x)^α, so log(S) = α·log(xₘ) - α·log(x) is linear
+      val minX = sortedSamples.filter(_ > 0).headOption.getOrElse(1.0)
+      val maxX = sortedSamples.last
+      val numPoints = 200
+      val theoreticalData = (0 until numPoints).flatMap { i =>
+        val x = minX * math.pow(maxX / minX, i.toDouble / (numPoints - 1))
+        val survivalProb = 1.0 - mixed.cdf(x)
+        if survivalProb > 1e-10 && x > 0 then Some((x = x, y = survivalProb, source = "model"))
+        else None
+        end if
+      }
+
+      val allData = theoreticalData ++ empiricalData
+
+      logLogPlot.plot(
+        _.title(s"Mixed Distribution Log-Log Plot"),
+        _.data.values := allData.asJson,
+        _.layer._0.encoding.x.scale.domainMin := threshold
+      )
+    end plotLogLogVsSample
+  end extension
+
+  extension (hp: HillPlotResult)
+    /** Plot a Hill plot showing tail index estimates α̂(k) vs k.
+      *
+      * A Hill plot helps identify the optimal number of upper order statistics to use for Pareto tail estimation. Look
+      * for a stable plateau region where the estimate is relatively constant - this indicates the range of k where the
+      * Pareto assumption holds. Too small k gives high variance; too large k includes non-tail observations.
+      */
+    def plotHill(using viz.LowPriorityPlotTarget) =
+      val data = hp.kValues.zip(hp.estimates).map { case (k, est) =>
+        (k = k, estimate = est)
+      }
+
+      hillPlotSpec.plot(
+        _.title("Hill Plot for Pareto Tail Index Estimation"),
+        _.data.values := data.asJson
+      )
+    end plotHill
+  end extension
+
+  extension (pp: PickandsPlotResult)
+    /** Plot a Pickands plot showing tail index estimates α̂(k) = 1/γ̂(k) vs k.
+      *
+      * The Pickands estimator is more robust than Hill to model misspecification but has higher variance. Look for a
+      * stable plateau region. Unlike the Hill plot, the Pickands estimator can give negative γ values for light-tailed
+      * distributions; only positive γ (and thus positive α) indicates heavy tails.
+      */
+    def plotPickands(using viz.LowPriorityPlotTarget) =
+      val data = pp.kValues
+        .zip(pp.alphaEstimates)
+        .filter { case (_, est) => !est.isNaN && est.isFinite && est > 0 }
+        .map { case (k, est) =>
+          (k = k, estimate = est)
+        }
+
+      hillPlotSpec.plot(
+        _.title("Pickands Plot for Pareto Tail Index Estimation"),
+        _.data.values := data.asJson
+      )
+    end plotPickands
+
+    /** Plot the raw extreme value index γ̂(k) from Pickands estimator.
+      *
+      * For heavy-tailed data, γ > 0. For light-tailed data (e.g., exponential), γ = 0. For bounded distributions, γ <
+      * 0.
+      */
+    def plotPickandsGamma(using viz.LowPriorityPlotTarget) =
+      val data = pp.kValues
+        .zip(pp.gammaEstimates)
+        .filter { case (_, est) => !est.isNaN && est.isFinite }
+        .map { case (k, est) =>
+          (k = k, estimate = est)
+        }
+
+      hillPlotSpec.plot(
+        _.title("Pickands Plot for Extreme Value Index γ"),
+        _.data.values := data.asJson
+      )
+    end plotPickandsGamma
   end extension
 
   // extension (negBin: NegativeBinomial)

@@ -5,6 +5,7 @@ import scala.util.control.Breaks.*
 
 import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.arrays.sumSIMD
 
 object IntArrays:
 
@@ -34,6 +35,25 @@ object IntArrays:
       end while
       out
     end select
+
+    inline def countsToIdx: Array[Int] =
+      var total = arr.sumSIMD
+      var i = 0
+      val out = new Array[Int](total)
+      var j = 0
+      while i < arr.length do
+        val count = arr(i)
+        val idx = i + 1
+        var k = 0
+        while k < count do
+          out(j) = idx
+          j += 1
+          k += 1
+        end while
+        i += 1
+      end while
+      out
+    end countsToIdx
 
     inline def contiguous: Boolean =
       var i = 1

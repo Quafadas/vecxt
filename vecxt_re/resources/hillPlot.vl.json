@@ -1,0 +1,33 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "title": "Hill Plot",
+  "width": "container",
+  "height": "container",
+  "data": {
+    "values": [
+      { "k": 10, "estimate": 2.1 },
+      { "k": 20, "estimate": 2.05 },
+      { "k": 30, "estimate": 1.98 },
+      { "k": 40, "estimate": 2.02 },
+      { "k": 50, "estimate": 1.95 }
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "point": { "filled": true, "size": 40 },
+    "tooltip": { "content": "data" }
+  },
+  "encoding": {
+    "x": {
+      "field": "k",
+      "type": "quantitative",
+      "title": "k (number of upper order statistics)"
+    },
+    "y": {
+      "field": "estimate",
+      "type": "quantitative",
+      "title": "Tail Index Estimate α̂(k)"
+    },
+    "color": { "value": "steelblue" }
+  }
+}

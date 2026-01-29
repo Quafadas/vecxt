@@ -3,6 +3,7 @@ package vecxt_re
 object all:
   export vecxt_re.Scenario
   export vecxt_re.Scenarr
+  export vecxt_re.Tower
   export vecxt_re.Plots.*
   export vecxt_re.TrendAnalysis.*
   export vecxt_re.TrendFitResult
@@ -16,4 +17,8 @@ object all:
   export vecxt_re.Poisson
   export vecxt_re.Empirical
   export vecxt_re.Pareto
+  export vecxt_re.Mixed
+  export vecxt_re.HillEstimator
+  export vecxt_re.PickandsEstimator
+
 end all

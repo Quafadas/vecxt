@@ -133,4 +133,31 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assertVecEquals(base.select(idx), Array.emptyIntArray)
   }
 
+  test("countsToIdx basic") {
+    val counts = Array(2, 3, 1)
+    // 2 ones, 3 twos, 1 three => [1, 1, 2, 2, 2, 3]
+    assertVecEquals(counts.countsToIdx, Array(1, 1, 2, 2, 2, 3))
+  }
+
+  test("countsToIdx with zeros") {
+    val counts = Array(1, 0, 2, 0, 1)
+    // 1 one, 0 twos, 2 threes, 0 fours, 1 five => [1, 3, 3, 5]
+    assertVecEquals(counts.countsToIdx, Array(1, 3, 3, 5))
+  }
+
+  test("countsToIdx empty array") {
+    val counts = Array.emptyIntArray
+    assertVecEquals(counts.countsToIdx, Array.emptyIntArray)
+  }
+
+  test("countsToIdx all zeros") {
+    val counts = Array(0, 0, 0)
+    assertVecEquals(counts.countsToIdx, Array.emptyIntArray)
+  }
+
+  test("countsToIdx single element") {
+    val counts = Array(5)
+    assertVecEquals(counts.countsToIdx, Array(1, 1, 1, 1, 1))
+  }
+
 end IntArrayExtensionSuite

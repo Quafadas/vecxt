@@ -1,0 +1,56 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "title": "Log-Log CDF Plot",
+  "width": "container",
+  "height": "container",
+  "data": {
+    "values": [
+      { "x": 1, "y": 0.9, "source": "model" },
+      { "x": 10, "y": 0.5, "source": "model" },
+      { "x": 100, "y": 0.1, "source": "model" },
+      { "x": 1000, "y": 0.01, "source": "model" },
+      { "x": 2, "y": 0.85, "source": "empirical" },
+      { "x": 15, "y": 0.55, "source": "empirical" },
+      { "x": 80, "y": 0.15, "source": "empirical" },
+      { "x": 500, "y": 0.05, "source": "empirical" }
+    ]
+  },
+  "layer": [
+    {
+      "transform": [{ "filter": "datum.source === 'model'" }],
+      "mark": "line",
+      "encoding": {
+        "x": {
+          "field": "x",
+          "type": "quantitative",
+          "scale": { "type": "log", "domainMin": 1 },
+          "title": "X (log scale)"
+        },
+        "y": {
+          "field": "y",
+          "type": "quantitative",
+          "scale": { "type": "log" },
+          "title": "Survival Probability S(x)"
+        },
+        "color": { "value": "steelblue" }
+      }
+    },
+    {
+      "transform": [{ "filter": "datum.source === 'empirical'" }],
+      "mark": { "type": "point", "shape": "cross", "size": 100, "tooltip": {"content": "data"} },
+      "encoding": {
+        "x": {
+          "field": "x",
+          "type": "quantitative",
+          "scale": { "type": "log", "domainMin": 1 }
+        },
+        "y": {
+          "field": "y",
+          "type": "quantitative",
+          "scale": { "type": "log" }
+        },
+        "color": { "value": "red" }
+      }
+    }
+  ]
+}
