@@ -28,7 +28,7 @@ object Plots:
   end extension
 
   extension (nb: NegativeBinomial)
-    inline def plotCdfWithSamples(samples: Array[Double])(using viz.LowPriorityPlotTarget) =
+    inline def plotCdfWithSamples(samples: IndexedSeq[Double])(using viz.LowPriorityPlotTarget) =
       val maxX = nb.mean + 4 * math.sqrt(nb.variance)
       var cumProb = 0.0
       val data = (0 to (maxX.toInt + 1)).map { k =>
