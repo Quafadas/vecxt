@@ -72,6 +72,7 @@ class PoissonTest extends FunSuite:
       val expected = pois.cdf(y) - pois.cdf(x)
       val actual = pois.probability(x, y)
       assert(math.abs(actual - expected) < 1e-14)
+    end for
   }
 
   test("small lambda works correctly") {
@@ -150,7 +151,6 @@ class PoissonTest extends FunSuite:
   test("SLOW: MLE volume-weighted with uniform volumes equals regular MLE") {
     assume(localTests, "Don't run local-only tests in CI ideally as they are slow")
     println("=============TURN OFF MLE volume-weighted with uniform volumes equals regular MLE IN CI========")
-
 
     val trueLambda = 5.0
     val apachePois = ApachePoisson.of(trueLambda)

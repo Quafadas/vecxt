@@ -33,7 +33,6 @@ object Plots:
 
   extension (nb: NegativeBinomial)
 
-
     /** Plot ECDF vs theoretical CDF as step functions for visual goodness-of-fit assessment.
       *
       * Both curves are step functions. Deviations between the orange (empirical) and blue (theoretical) lines indicate
@@ -63,12 +62,13 @@ object Plots:
         _.layer._0.data.values := theoreticalCdf.asJson,
         _.layer._1.data.values := empiricalCdf.asJson
       )
+    end plotEcdfVsCdf
 
     /** Plot a hanging rootogram for count data diagnostics.
       *
       * A rootogram displays sqrt(expected) as the reference curve and hangs bars from it down to sqrt(observed). When
-      * the model fits well, bars hang close to the zero line. Bars extending below zero indicate under-prediction;
-      * bars stopping above zero indicate over-prediction.
+      * the model fits well, bars hang close to the zero line. Bars extending below zero indicate under-prediction; bars
+      * stopping above zero indicate over-prediction.
       */
     inline def plotRootogram(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget) =
       val n = samples.length.toDouble
@@ -88,6 +88,7 @@ object Plots:
         _.title(s"NegBin(a=${nb.a}, b=${nb.b}) Hanging Rootogram"),
         _.data.values := data.asJson
       )
+    end plotRootogram
 
     /** Plot Pearson residuals: (observed - expected) / sqrt(expected).
       *
@@ -109,12 +110,14 @@ object Plots:
           val residual = (observed - expected) / math.sqrt(expected)
           Some((k = k, residual = residual))
         else None
+        end if
       }
 
       pearsonResiduals.plot(
         _.title(s"NegBin(a=${nb.a}, b=${nb.b}) Pearson Residuals"),
         _.data.values := data.asJson
       )
+    end plotPearsonResiduals
   end extension
 
   extension (p: Poisson)
@@ -143,6 +146,7 @@ object Plots:
         _.layer._0.data.values := theoreticalCdf.asJson,
         _.layer._1.data.values := empiricalCdf.asJson
       )
+    end plotEcdfVsCdf
 
     /** Plot a hanging rootogram for Poisson count data diagnostics.
       *
@@ -165,6 +169,7 @@ object Plots:
         _.title(s"Poisson(λ=${p.lambda}) Hanging Rootogram"),
         _.data.values := data.asJson
       )
+    end plotRootogram
 
     /** Plot Pearson residuals for Poisson: (observed - expected) / sqrt(expected).
       *
@@ -183,12 +188,14 @@ object Plots:
           val residual = (observed - expected) / math.sqrt(expected)
           Some((k = k, residual = residual))
         else None
+        end if
       }
 
       pearsonResiduals.plot(
         _.title(s"Poisson(λ=${p.lambda}) Pearson Residuals"),
         _.data.values := data.asJson
       )
+    end plotPearsonResiduals
 
     /** Plot a Poisson GLM trend: log(Count) ~ 1 + Year with 95% confidence intervals.
       *
@@ -254,6 +261,8 @@ object Plots:
         if math.abs(det) > 1e-15 then
           beta0 = (xtwx11 * xtwz0 - xtwx01 * xtwz1) / det
           beta1 = (xtwx00 * xtwz1 - xtwx01 * xtwz0) / det
+        end if
+      end for
 
       // Fisher information matrix: I = XᵀWX at final β
       // I is 2×2 symmetric: [[i00, i01], [i01, i11]]
@@ -294,9 +303,11 @@ object Plots:
       val ciData = yearRange.map { y =>
         val eta = beta0 + beta1 * y.toDouble
         // Var(η) = xᵀ Cov(β) x where x = [1, year]ᵀ
-        val varEta = covBeta.map { c =>
-          c.v00 + 2 * y * c.v01 + y.toDouble * y.toDouble * c.v11
-        }.getOrElse(0.0)
+        val varEta = covBeta
+          .map { c =>
+            c.v00 + 2 * y * c.v01 + y.toDouble * y.toDouble * c.v11
+          }
+          .getOrElse(0.0)
         val seEta = math.sqrt(math.max(varEta, 0.0))
         val fit = math.exp(eta)
         val lower = math.exp(eta - 1.96 * seEta)
@@ -314,6 +325,7 @@ object Plots:
         _.layer._3.data.values := ciData.asJson,
         _.layer._4.data.values := obsData.asJson
       )
+    end plotTrend
   end extension
 
   extension (scenario: Scenarr)

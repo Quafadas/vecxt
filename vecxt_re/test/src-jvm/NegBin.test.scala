@@ -122,6 +122,7 @@ class NegBinTest extends FunSuite:
         assertEqualsDouble(nb.b, trueNb.b, 0.1)
       case _: Poisson =>
         fail("Expected NegativeBinomial but got Poisson")
+    end match
   }
 
   test("SLOW: vol weighted MLE follows standard case with uniform volumes ") {
@@ -141,6 +142,7 @@ class NegBinTest extends FunSuite:
         assertEqualsDouble(nb.b, trueNb.b, 0.1)
       case _: Poisson =>
         fail("Expected NegativeBinomial but got Poisson")
+    end match
   }
 
   /** This directly exercises the volume factors: counts drawn with v = 0.5 use scale βv = 0.4, and with v = 2.0 use βv =
@@ -194,16 +196,20 @@ class NegBinTest extends FunSuite:
           case _: Poisson =>
             // Unweighted returned Poisson, just check that the weighted NB is reasonable
             assert(math.abs(nb.mean - modeledMean) < 0.5)
+        end match
       case _: Poisson =>
         fail("Expected NegativeBinomial but got Poisson for overdispersed data")
+    end match
   }
 
   test("MLE returns Poisson for underdispersed data") {
     // Data with variance <= mean should return Poisson
-    val poissonData = Array.fill(10000)(org.apache.commons.statistics.distribution.PoissonDistribution
-      .of(5.0)
-      .createSampler(org.apache.commons.rng.simple.RandomSource.XO_RO_SHI_RO_128_PP.create())
-      .sample())
+    val poissonData = Array.fill(10000)(
+      org.apache.commons.statistics.distribution.PoissonDistribution
+        .of(5.0)
+        .createSampler(org.apache.commons.rng.simple.RandomSource.XO_RO_SHI_RO_128_PP.create())
+        .sample()
+    )
 
     val (fitted, converged) = NegativeBinomial.mle(poissonData)
     assert(converged)
@@ -214,6 +220,7 @@ class NegBinTest extends FunSuite:
       case _: NegativeBinomial =>
         // Also acceptable if slightly overdispersed due to sampling variance
         ()
+    end match
   }
 
 end NegBinTest

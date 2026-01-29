@@ -78,7 +78,6 @@ case class NegativeBinomial(a: Double, b: Double)
 
   def variance: Double = a * b * (1.0 + b)
 
-
   override def probability(x: Int, y: Int): Double =
     if x >= y then 0.0
     else cdf(y) - cdf(x)
@@ -140,8 +139,8 @@ object NegativeBinomial:
     * @param tol
     *   convergence tolerance for parameter 'a'
     * @return
-    *   Named tuple with `dist`: the fitted distribution (Poisson if no overdispersion, otherwise NegativeBinomial),
-    *   and `converged`: whether the optimizer converged within maxIter
+    *   Named tuple with `dist`: the fitted distribution (Poisson if no overdispersion, otherwise NegativeBinomial), and
+    *   `converged`: whether the optimizer converged within maxIter
     */
   def mle(
       observations: Array[Int],
@@ -179,8 +178,6 @@ object NegativeBinomial:
           k += 1
         end while
         ll
-
-
 
     // If variance <= mean, data is underdispersed relative to Poisson
     // In this case, return Poisson distribution

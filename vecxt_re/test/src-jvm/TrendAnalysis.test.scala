@@ -16,36 +16,35 @@ class TrendAnalysisTest extends FunSuite:
   val countsWithTrend = Vector(1, 1, 2, 2, 3, 4, 5, 6, 8, 10) // Clear upward trend
 
   val realYears = Array(
-    1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
+    1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017,
+    2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
   )
   val realCounts = Array(
-    1,0,0,0,1,0,0,0,2,1,1,2,3,0,0,1,2,1,0,1,2,3,1,2,1,0,1
+    1, 0, 0, 0, 1, 0, 0, 0, 2, 1, 1, 2, 3, 0, 0, 1, 2, 1, 0, 1, 2, 3, 1, 2, 1, 0, 1
   )
   // Example results from numpy / statsmodels for realYears
-/**
-Fitted Poisson with lambda = 0.9629629629629629
-
-Generalized Linear Model: log(Count) ~ 1 + Year
-============================================================
-                Generalized Linear Model Regression Results
-==============================================================================
-Dep. Variable:                      y   No. Observations:                   27
-Model:                            GLM   Df Residuals:                       25
-Model Family:                 Poisson   Df Model:                            1
-Link Function:                    Log   Scale:                          1.0000
-Method:                          IRLS   Log-Likelihood:                -32.760
-Date:                Thu, 29 Jan 2026   Deviance:                       26.468
-Time:                        12:14:51   Pearson chi2:                     22.3
-No. Iterations:                     5   Pseudo R-squ. (CS):            0.08983
-Covariance Type:            nonrobust
-==============================================================================
-                coef    std err          z      P>|z|      [0.025      0.975]
-------------------------------------------------------------------------------
-const        -82.0576     52.254     -1.570      0.116    -184.473      20.358
-x1             0.0407      0.026      1.571      0.116      -0.010       0.092
-==============================================================================
-*/
-
+  /** Fitted Poisson with lambda = 0.9629629629629629
+    *
+    * Generalized Linear Model: log(Count) ~ 1 + Year
+    * ============================================================
+    *                Generalized Linear Model Regression Results
+    * ==============================================================================
+    * Dep. Variable:                      y   No. Observations:                   27
+    * Model:                            GLM   Df Residuals:                       25
+    * Model Family:                 Poisson   Df Model:                            1
+    * Link Function:                    Log   Scale:                          1.0000
+    * Method:                          IRLS   Log-Likelihood:                -32.760
+    * Date:                Thu, 29 Jan 2026   Deviance:                       26.468
+    * Time:                        12:14:51   Pearson chi2:                     22.3
+    * No. Iterations:                     5   Pseudo R-squ. (CS):            0.08983
+    * Covariance Type:            nonrobust
+    * ==============================================================================
+    *                coef    std err          z      P>|z|      [0.025      0.975]
+    * ------------------------------------------------------------------------------
+    * const        -82.0576     52.254     -1.570      0.116    -184.473      20.358
+    * x1             0.0407      0.026      1.571      0.116      -0.010       0.092
+    * ==============================================================================
+    */
 
   test("Poisson fitTrend returns valid result structure") {
     val pois = Poisson(realCounts.mean)
@@ -58,7 +57,6 @@ x1             0.0407      0.026      1.571      0.116      -0.010       0.092
     assert(!result.seIntercept.isNaN, "seIntercept should not be NaN")
     assert(!result.seSlope.isNaN, "seSlope should not be NaN")
     assert(result.pValueSlope >= 0 && result.pValueSlope <= 1, "p-value should be in [0,1]")
-
 
   }
 

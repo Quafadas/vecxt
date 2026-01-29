@@ -92,6 +92,7 @@ case class TrendFitResult(
     sb.append(f"F-statistic vs. constant model: $fStatistic%.3f, p-value = $fPValue%.6f\n")
 
     sb.toString
+  end summary
 
   private def significanceCode(p: Double): String =
     if p < 0.001 then " ***"
@@ -177,6 +178,8 @@ object TrendAnalysis:
         if math.abs(det) > 1e-15 then
           beta0 = (xtwx11 * xtwz0 - xtwx01 * xtwz1) / det
           beta1 = (xtwx00 * xtwz1 - xtwx01 * xtwz0) / det
+        end if
+      end for
 
       // Fit null model: log(μ) = β₀ only
       val nullBeta0 = math.log(meanY)
@@ -191,10 +194,12 @@ object TrendAnalysis:
           val y = observed(i)
           val mu = fitted(i)
           if y > 0 then dev += y * math.log(y / mu)
+          end if
           dev -= (y - mu)
           i += 1
         end while
         2.0 * dev
+      end poissonDeviance
 
       val muFull = yearsD.map(y => math.exp(beta0 + beta1 * y))
       val nullDeviance = poissonDeviance(countsD, muNull.toIndexedSeq)
@@ -251,6 +256,7 @@ object TrendAnalysis:
           i += 1
         end while
         ll
+      end poissonLogLik
 
       val logLik = poissonLogLik(countsD, muFull)
       val aic = -2 * logLik + 2 * 2 // 2 parameters
@@ -279,8 +285,8 @@ object TrendAnalysis:
   extension (nb: NegativeBinomial)
     /** Fit a Negative Binomial GLM trend model: log(μ) = β₀ + β₁·year
       *
-      * Uses IRLS with the NB2 variance function (Var = μ + μ²/θ where θ = a). This accounts for overdispersion in
-      * count data.
+      * Uses IRLS with the NB2 variance function (Var = μ + μ²/θ where θ = a). This accounts for overdispersion in count
+      * data.
       *
       * @param years
       *   the year for each observation
@@ -336,6 +342,8 @@ object TrendAnalysis:
         if math.abs(det) > 1e-15 then
           beta0 = (xtwx11 * xtwz0 - xtwx01 * xtwz1) / det
           beta1 = (xtwx00 * xtwz1 - xtwx01 * xtwz0) / det
+        end if
+      end for
 
       // Null model
       val nullBeta0 = math.log(meanY)
@@ -348,10 +356,12 @@ object TrendAnalysis:
           val y = observed(i)
           val mu = fitted(i)
           if y > 0 then dev += y * math.log(y / mu)
+          end if
           dev -= (y + theta) * math.log((y + theta) / (mu + theta))
           i += 1
         end while
         2.0 * dev
+      end nbDeviance
 
       val muFull = yearsD.map(y => math.exp(beta0 + beta1 * y))
       val muNull = IndexedSeq.fill(n)(meanY)
@@ -410,6 +420,7 @@ object TrendAnalysis:
           i += 1
         end while
         ll
+      end nbLogLik
 
       val logLik = nbLogLik(countsD, muFull)
       val aic = -2 * logLik + 2 * 2 // 2 parameters (not counting θ as estimated here)

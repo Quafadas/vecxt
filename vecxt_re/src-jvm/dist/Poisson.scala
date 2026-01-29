@@ -18,8 +18,7 @@ import io.github.quafadas.plots.SetupVega.{*, given}
   *
   * PMF: P(X = k) = λ^k * e^(-λ) / k!
   *
-  * The Poisson distribution is a limiting case of the Negative Binomial distribution as the dispersion parameter b →
-  * 0.
+  * The Poisson distribution is a limiting case of the Negative Binomial distribution as the dispersion parameter b → 0.
   *
   * @param lambda
   *   the rate parameter (must be positive)
@@ -189,7 +188,6 @@ object Poisson:
     // Find the max observation to determine bin range
     var maxObs = observations.maxSIMD
 
-
     // Count observations in each bin
     val counts = new Array[Int](maxObs + 2) // +1 for the "maxObs or more" bin
     var i = 0
@@ -197,6 +195,7 @@ object Poisson:
       val obs = observations(i)
       if obs >= counts.length - 1 then counts(counts.length - 1) += 1
       else counts(obs) += 1
+      end if
       i += 1
     end while
 
