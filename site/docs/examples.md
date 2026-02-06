@@ -68,7 +68,7 @@ v1.cumsum.printArr
 (v1 < 2).printArr
 (v1 <= 2).printArr
 
-(v1(v1 <= 2)).printArr
+(v1.mask(v1 <= 2)).printArr
 
 (v1.outer(v2)).printMat
 
@@ -121,7 +121,7 @@ v1.dot(v2)
 (v1 < 2).printArr
 (v1 <= 2).printArr
 
-(v1(v1 <= 2)).printArr
+(v1.mask(v1 <= 2)).printArr
 
 ```
 

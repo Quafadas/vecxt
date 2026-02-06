@@ -1,0 +1,95 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Incremental index and cumulative index over time.",
+  "width":"container",
+  "height":"container",
+  "data": {
+    "values": [
+      {"year": 2024, "index": 1.05, "cumulative": 0.9, "threshold": 1.1, "missing": 0.9},
+      {"year": 2025, "index": 1.05, "cumulative": 0.975, "threshold": 1.1, "missing": 0.975},
+      {"year": 2026, "index": 1.05, "cumulative": 1.0, "threshold": 1.1, "missing": 1.0}
+    ]
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "area",
+        "color": "red",
+        "opacity": 0.2,
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "ordinal",
+          "title": "Year"
+        },
+        "y": {
+          "field": "missing",
+          "type": "quantitative",
+          "scale": { "zero": false },
+          "title": "Index"
+        },
+        "y2": {
+          "datum": 1.0
+        }
+      }
+    },
+
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 80,
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "ordinal"
+        },
+        "y": {
+          "field": "index",
+          "type": "quantitative"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "rule",
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "ordinal"
+        },
+        "y": {
+          "field": "index",
+          "type": "quantitative"
+        },
+        "y2": {
+          "datum": 1.0
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "line",
+        "tooltip": true,
+        "strokeDash": [4, 4]
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "ordinal"
+        },
+        "y": {
+          "field": "threshold",
+          "type": "quantitative"
+        }
+      }
+    }
+  ]
+
+}

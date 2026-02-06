@@ -560,6 +560,12 @@ object JsNativeDoubleArrays:
       sum
     end dot
 
+    inline def =:=(nums: Array[Int]): Array[Boolean] =
+      logicalIdxArr(nums, (a, b) => a == b)
+
+    inline def =:=(num: Int): Array[Boolean] =
+      logicalIdx((a, b) => a == b, num)
+
     inline def <(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
@@ -587,6 +593,41 @@ object JsNativeDoubleArrays:
       end while
       idx
     end logicalIdx
+
+    inline def logicalIdxArr(
+        compare: Array[Int],
+        inline op: (Int, Int) => Boolean
+    ): Array[Boolean] =
+      val n = vec.length
+      val idx = Array.fill(n)(false)
+
+      var i = 0
+      while i < n do
+        if op(vec(i), compare(i)) then idx(i) = true
+        end if
+        i = i + 1
+      end while
+      idx
+    end logicalIdxArr
+
+    inline def countsToIdx: Array[Int] =
+      var total = vec.sum
+      var i = 0
+      val out = new Array[Int](total)
+      var j = 0
+      while i < vec.length do
+        val count = vec(i)
+        val idx = i + 1
+        var k = 0
+        while k < count do
+          out(j) = idx
+          j += 1
+          k += 1
+        end while
+        i += 1
+      end while
+      out
+    end countsToIdx
   end extension
 
   //   extension [@specialized(Double, Int) A: Numeric](vec: Array[A])

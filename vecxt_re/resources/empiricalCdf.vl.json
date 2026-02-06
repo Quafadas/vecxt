@@ -1,0 +1,12 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Empirical CDF (optionally weighted)",
+  "width": "container",
+  "height": "container",
+  "data": { "values": [ { "x": 0.0, "cdf": 0.0 } ] },
+  "mark": { "type": "line", "interpolate": "step-after" },
+  "encoding": {
+    "x": { "field": "x", "type": "quantitative", "title": "x" },
+    "y": { "field": "cdf", "type": "quantitative", "title": "CDF" }
+  }
+}

@@ -1,49 +1,35 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
       "type": "scala",
       "request": "launch",
-      "name": "test Suite",
-      "buildTarget": "vecxt.jvm.test",
-      "testClass": "vecxt.LongArraysSuite",
-      "jvmOptions": [
-        "--add-modules=jdk.incubator.vector"
-      ],
-      "args": [
-        "-oD"
-      ]
+      "name": "plotIndex",
+      "mainClass": "experiments.plotIndex",
+      "buildTarget": "file:///Users/simon/Code/vecxt/experiments",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     },
     {
       "type": "scala",
       "request": "launch",
-      "name": "debug test",
-      "buildTarget": "vecxt.jvm.test",
-      "testClass": "vecxt.MatrixAdditionTest",
-      "jvmOptions": [
-        "--add-modules=jdk.incubator.vector"
-      ],
-      "args": [
-        "-oD"
-      ],
-      "env": {},
-      "internalConsoleOptions": "openOnSessionStart",
-      "preLaunchTask": "",
-      "postDebugTask": ""
+      "name": "readXl",
+      "mainClass": "experiments.readXl",
+      "buildTarget": "file:///Users/simon/Code/vecxt/experiments",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     },
     {
       "type": "scala",
-      "request": "attach",
-      "name": "Attach debugger",
-      // name of the module that is being debugging
-      "buildTarget": "vecxt.jvm.test",
-      // Host of the jvm to connect to
-      "hostName": "localhost",
-      // Port to connect to
-      "port": 5005
+      "request": "launch",
+      "name": "pricingFun",
+      "mainClass": "experiments.pricingFun",
+      "buildTarget": "file:///Users/simon/Code/vecxt/experiments",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     }
   ]
 }

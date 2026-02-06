@@ -1,0 +1,74 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Stem plot with daily time unit showing amounts",
+  "title": "Stem Plot",
+  "width": "container",
+  "height": "container",
+  "data": {
+    "values": [
+      { "date": "2023-01-01", "amount": 10, "normalisedAmount": 12 },
+      { "date": "2023-01-02", "amount": 5, "normalisedAmount": 7 },
+      { "date": "2023-01-03", "amount": 15, "normalisedAmount": 20 },
+      { "date": "2023-01-04", "amount": 10, "normalisedAmount": 12 },
+      { "date": "2023-01-05", "amount": 20, "normalisedAmount": 22 }
+    ]
+  },
+  "encoding": {
+    "x": {
+      "field": "date",
+      "type": "temporal",
+      "timeUnit": "yearmonthdate",
+      "title": "Date"
+    }
+  },
+  "layer": [
+    {
+      "mark": { "type": "rule", "color": "steelblue" },
+      "encoding": {
+        "y": {
+          "field": "amount",
+          "type": "quantitative",
+          "title": "Amount"
+        },
+        "y2": { "datum": 0 }
+      }
+    },
+    {
+      "mark": { "type": "rule", "color": "orange" },
+      "encoding": {
+        "y": {
+          "field": "amount",
+          "type": "quantitative"
+        },
+        "y2": { "field": "normalisedAmount" }
+      }
+    },
+    {
+      "mark": {
+        "type": "circle",
+        "size": 100,
+        "color": "steelblue",
+        "tooltip": true
+      },
+      "encoding": {
+        "y": {
+          "field": "amount",
+          "type": "quantitative"
+        }
+      }
+    },{
+      "mark": {
+        "type": "circle",
+        "size": 100,
+        "color": "orange",
+        "tooltip": "datum"
+      },
+      "encoding": {
+        "y": {
+          "field": "normalisedAmount",
+          "type": "quantitative"
+        }
+      }
+    }
+  ]
+}

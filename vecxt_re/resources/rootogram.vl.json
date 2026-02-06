@@ -1,0 +1,38 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Hanging rootogram for count data diagnostics",
+  "width": "container",
+  "height": "container",
+  "title": "Hanging Rootogram",
+  "data": {
+    "values": [
+      {"k": 0, "sqrtExpected": 2.0, "sqrtObserved": 1.8, "hanging": 0.2},
+      {"k": 1, "sqrtExpected": 3.0, "sqrtObserved": 3.2, "hanging": -0.2},
+      {"k": 2, "sqrtExpected": 2.5, "sqrtObserved": 2.3, "hanging": 0.2}
+    ]
+  },
+  "encoding": {
+    "x": {"field": "k", "type": "ordinal", "title": "Count (k)"}
+  },
+  "layer": [
+    {
+      "mark": {"type": "bar", "color": "steelblue", "opacity": 0.7},
+      "encoding": {
+        "y": {"field": "sqrtExpected", "type": "quantitative", "title": "√Frequency"},
+        "y2": {"field": "hanging", "type": "quantitative"}
+      }
+    },
+    {
+      "mark": {"type": "line", "color": "red", "strokeWidth": 2, "point": true},
+      "encoding": {
+        "y": {"field": "sqrtExpected", "type": "quantitative"}
+      }
+    },
+    {
+      "mark": {"type": "rule", "color": "black", "strokeDash": [4, 4]},
+      "encoding": {
+        "y": {"datum": 0}
+      }
+    }
+  ]
+}

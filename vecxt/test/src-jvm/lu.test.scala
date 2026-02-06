@@ -3,6 +3,8 @@ package vecxt
 import munit.FunSuite
 import all.*
 import BoundsCheck.DoBoundsCheck.yes
+import scala.util.boundary
+import scala.util.boundary.break
 
 class LUSuite extends FunSuite:
 
@@ -37,49 +39,58 @@ class LUSuite extends FunSuite:
   def isLowerUnitTriangular(m: Matrix[Double], tol: Double = epsilon): Boolean =
     if m.rows < m.cols then return false
     end if
-
-    for i <- 0 until m.rows do
-      for j <- 0 until m.cols do
-        if i < j then
-          // Above diagonal should be zero
-          if math.abs(m(i, j)) > tol then return false
-        else if i == j then
-          // Diagonal should be one
-          if math.abs(m(i, j) - 1.0) > tol then return false
-        end if
+    var lt = true
+    boundary {
+      for i <- 0 until m.rows do
+        for j <- 0 until m.cols do
+          if i < j then
+            // Above diagonal should be zero
+            if math.abs(m(i, j)) > tol then lt = false; break()
+          else if i == j then
+            // Diagonal should be one
+            if math.abs(m(i, j) - 1.0) > tol then lt = false; break()
+          end if
+        end for
       end for
-    end for
-    true
+    }
+    lt
   end isLowerUnitTriangular
 
   /** Helper to verify U is upper triangular */
   def isUpperTriangular(m: Matrix[Double], tol: Double = epsilon): Boolean =
     if m.rows > m.cols then return false
     end if
+    var ut = true
+    boundary {
+      for i <- 0 until m.rows do
+        for j <- 0 until m.cols do
 
-    for i <- 0 until m.rows do
-      for j <- 0 until m.cols do
-        if i > j then
-          // Below diagonal should be zero
-          if math.abs(m(i, j)) > tol then return false
-        end if
+          if i > j then
+            // Below diagonal should be zero
+            if math.abs(m(i, j)) > tol then ut = false; break()
+          end if
+        end for
+
       end for
-    end for
-    true
+    }
+    ut
   end isUpperTriangular
 
   /** Helper to check if two matrices are approximately equal */
   def matricesEqual(a: Matrix[Double], b: Matrix[Double], tol: Double = epsilon): Boolean =
     if a.rows != b.rows || a.cols != b.cols then return false
     end if
+    var me = true
+    boundary {
+      for i <- 0 until a.rows do
+        for j <- 0 until a.cols do
+          if math.abs(a(i, j) - b(i, j)) > tol then me = false; break()
 
-    for i <- 0 until a.rows do
-      for j <- 0 until a.cols do
-        if math.abs(a(i, j) - b(i, j)) > tol then return false
-        end if
+        end for
       end for
-    end for
-    true
+
+    }
+    me
   end matricesEqual
 
   test("LU decomposition of identity matrix") {

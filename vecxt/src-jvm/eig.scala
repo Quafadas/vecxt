@@ -1,11 +1,13 @@
 package vecxt
 
-import dev.ludovic.netlib.lapack.JavaLAPACK
 import org.netlib.util.intW
-import vecxt.matrix.Matrix
-import vecxt.MatrixInstance.*
-import vecxt.MatrixHelper.zeros
+
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixHelper.zeros
+import vecxt.MatrixInstance.*
+import vecxt.matrix.Matrix
+
+import dev.ludovic.netlib.lapack.JavaLAPACK
 
 // https://github.com/scalanlp/breeze/blob/fd73d09976a1a50d68b91a53e3896980502d335e/math/src/main/scala/breeze/linalg/functions/eig.scala#L25
 object Eigenvalues:

@@ -3,7 +3,6 @@ package vecxt
 import scala.reflect.ClassTag
 import scala.util.chaining.*
 
-import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
 
@@ -233,6 +232,25 @@ object arrays:
 
     end increments
 
+    inline def countsToIdx: Array[Int] =
+      var total = vec.sumSIMD
+      var i = 0
+      val out = new Array[Int](total)
+      var j = 0
+      while i < vec.length do
+        val count = vec(i)
+        val idx = i + 1
+        var k = 0
+        while k < count do
+          out(j) = idx
+          j += 1
+          k += 1
+        end while
+        i += 1
+      end while
+      out
+    end countsToIdx
+
     inline def sumSIMD: Int =
       var i: Int = 0
       var acc = IntVector.zero(spi)
@@ -249,6 +267,72 @@ object arrays:
       end while
       temp
     end sumSIMD
+
+    inline def mean: Double =
+      sumSIMD / vec.length.toDouble
+    end mean
+
+    inline def variance: Double = variance(VarianceMode.Population)
+
+    inline def variance(mode: VarianceMode): Double =
+      meanAndVariance(mode).variance
+
+    inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+      meanAndVarianceTwoPass(mode)
+    end meanAndVariance
+
+    /** 231] Benchmark (len) Mode Cnt Score Error Units 231] VarianceBenchmark.var_simd_twopass 1000 thrpt 3 1087302.435
+      * ± 16013.286 ops/s 231] VarianceBenchmark.var_simd_twopass 100000 thrpt 3 9578.869 ± 334.606 ops/s 231]
+      * VarianceBenchmark.var_simd_welford 1000 thrpt 3 436244.559 ± 6158.585 ops/s 231]
+      * VarianceBenchmark.var_simd_welford 100000 thrpt 3 4187.715 ± 203.266 ops/s
+      */
+    inline def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Double, variance: Double) =
+      val μ = vec.mean
+      val μVec = DoubleVector.broadcast(spd, μ)
+
+      var i = 0
+      var acc = DoubleVector.zero(spd)
+      val tmp = new Array[Double](spdl)
+
+      while i < spd.loopBound(vec.length) do
+        var lane = 0
+        while lane < spdl do
+          tmp(lane) = vec(i + lane).toDouble
+          lane += 1
+        end while
+
+        val v = DoubleVector.fromArray(spd, tmp, 0)
+        val diff = v.sub(μVec)
+        acc = diff.fma(diff, acc)
+        i += spdl
+      end while
+
+      var sumSqDiff = acc.reduceLanes(VectorOperators.ADD)
+
+      while i < vec.length do
+        val diff = vec(i).toDouble - μ
+        sumSqDiff = Math.fma(diff, diff, sumSqDiff)
+        i += 1
+      end while
+
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+      (μ, sumSqDiff / denom)
+    end meanAndVarianceTwoPass
+
+    inline def std: Double = std(VarianceMode.Population)
+
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
+
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
 
     inline def dot(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
       dimCheck(vec, vec2)
@@ -276,6 +360,29 @@ object arrays:
     inline def -(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)
+    end -
+
+    inline def -=(scalar: Int): Unit =
+
+      var i = 0
+
+      while i < spi.loopBound(vec.length) do
+        IntVector
+          .fromArray(spi, vec, i)
+          .sub(scalar)
+          .intoArray(vec, i)
+        i += spil
+      end while
+
+      while i < vec.length do
+        vec(i) = vec(i) - scalar
+        i += 1
+      end while
+
+    end -=
+
+    inline def -(scalar: Int): Array[Int] =
+      vec.clone().tap(_ -= scalar)
     end -
 
     inline def -=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
@@ -355,22 +462,6 @@ object arrays:
       temp
     end maxSIMD
 
-  end extension
-
-  extension [@specialized(Double, Int) A](vec: Array[A])(using ClassTag[A])
-    inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck) =
-      dimCheck(vec, index)
-      val trues = index.trues
-      val newVec: Array[A] = new Array[A](trues)
-      var j = 0
-      for i <- 0 until index.length do
-        // println(s"i: $i  || j: $j || ${index(i)} ${vec(i)} ")
-        if index(i) then
-          newVec(j) = vec(i)
-          j = 1 + j
-      end for
-      newVec
-    end apply
   end extension
 
   extension (d: Double)
@@ -717,18 +808,106 @@ object arrays:
       Matrix(out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
     end outer
 
-    def variance: Double =
-      meanAndVariance.variance
+    inline def variance: Double = variance(VarianceMode.Population)
+
+    def variance(mode: VarianceMode): Double =
+      meanAndVariance(mode).variance
     end variance
 
-    inline def stdDev: Double =
-      // https://www.cuemath.com/data/standard-deviation/
-      val mu = vec.mean
-      val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
-      Math.sqrt(diffs_2.sumSIMD / (vec.length - 1))
-    end stdDev
+    inline def std: Double = std(VarianceMode.Population)
+
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
+
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
 
     inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+      meanAndVarianceTwoPass(mode)
+    end meanAndVariance
+
+    /** True SIMD-optimized Welford's algorithm for computing mean and variance.
+      *
+      * Each SIMD lane maintains independent Welford accumulators (n, mean, M2). Lanes process strided elements: lane 0
+      * gets [0,4,8,...], lane 1 gets [1,5,9,...], etc. At the end, all lanes are merged using the parallel Welford
+      * merge formula:
+      *
+      * δ = meanB - meanA n = nA + nB mean = meanA + δ * nB / n M2 = M2A + M2B + δ² * nA * nB / n
+      *
+      * This algorimth is crushed by the simple two pass SIMD version.
+      *
+      * 231] Benchmark (len) Mode Cnt Score Error Units 231] VarianceBenchmark.var_simd_twopass 1000 thrpt 3 1087302.435
+      * ± 16013.286 ops/s 231] VarianceBenchmark.var_simd_twopass 100000 thrpt 3 9578.869 ± 334.606 ops/s 231]
+      * VarianceBenchmark.var_simd_welford 1000 thrpt 3 436244.559 ± 6158.585 ops/s 231]
+      * VarianceBenchmark.var_simd_welford 100000 thrpt 3 4187.715 ± 203.266 ops/s
+      */
+    private inline def meanAndVarianceWelfordSIMD(mode: VarianceMode): (mean: Double, variance: Double) =
+      if vec.length == 0 then (0.0, 0.0)
+      else
+        // Per-lane accumulators
+        var laneMeans = DoubleVector.zero(spd)
+        var delta = DoubleVector.zero(spd)
+        var delta2 = DoubleVector.zero(spd)
+        var laneM2 = DoubleVector.zero(spd)
+
+        var i = 0
+        var j: Double = 1
+        // ALl lanes will have processed J elements at the end of this loop
+        while i < spd.loopBound(vec.length) do
+          j = j + 1
+          val values = DoubleVector.fromArray(spd, vec, i)
+          delta = values.sub(laneMeans) // Use current mean
+          laneMeans = laneMeans.add(delta.div(DoubleVector.broadcast(spd, j)))
+          delta2 = values.sub(laneMeans) // Use updated mean
+          laneM2 = laneM2.add(delta.mul(delta2))
+          i += spdl
+        end while
+
+        // val laneSumA = laneSum.toArray()
+        val laneMean = laneMeans.toArray()
+        val laneM2A = laneM2.toArray()
+        // Merge all lanes
+        var globalN = j
+        var globalMean = laneMean(0)
+        var globalM2 = laneM2A(0)
+
+        var lane = 1
+        while lane < spdl do
+          val delta = laneMean(lane) - globalMean
+          val newN = globalN + j
+          globalMean = globalMean + delta * j / newN
+          globalM2 = globalM2 + laneM2A(lane) + delta * delta * globalN * j / newN
+          globalN = newN
+
+          lane += 1
+        end while
+
+        // Process tail elements
+        while i < vec.length do
+          val n = globalN + 1
+          val delta = vec(i) - globalMean
+          globalMean += delta / n
+          val delta2 = vec(i) - globalMean
+          globalM2 += delta * delta2
+          globalN = n
+          i += 1
+        end while
+
+        val denom = mode match
+          case VarianceMode.Population => vec.length.toDouble
+          case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+        (globalMean, globalM2 / denom)
+      end if
+    end meanAndVarianceWelfordSIMD
+
+    /** Two-pass variance calculation (legacy, for comparison). First pass computes mean, second pass computes variance.
+      */
+    inline def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Double, variance: Double) =
       val μ = vec.mean
       val l = spd.length()
       var tmp = DoubleVector.zero(spd)
@@ -737,7 +916,7 @@ object arrays:
       var i = 0
       while i < spd.loopBound(vec.length) do
         val v = DoubleVector.fromArray(spd, vec, i)
-        val diff = v.sub(μVec) // Broadcast mean once, reuse
+        val diff = v.sub(μVec)
         tmp = diff.fma(diff, tmp)
         i += spdl
       end while
@@ -750,9 +929,12 @@ object arrays:
         i += 1
       end while
 
-      (μ, sumSqDiff * (1.0 / (vec.length - 1)))
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-    end meanAndVariance
+      (μ, sumSqDiff / denom)
+    end meanAndVarianceTwoPass
 
     inline def mean: Double = vec.sumSIMD / vec.length
 

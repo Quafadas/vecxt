@@ -31,6 +31,21 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assertEquals(v1.sum, 45)
   }
 
+  test("array eq") {
+    val v1 = Array(1, 2, 3, 4, 5)
+
+    val compared = v1 =:= v1.reverse
+
+    val compared2 = v1 =:= 2
+
+    assertEquals(compared.trues, 1)
+    assert(compared(2))
+
+    assertEquals(compared.trues, 1)
+    assert(compared(2))
+
+  }
+
   test("increments") {
 
     val v1 = Array[Int](1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -63,6 +78,86 @@ class IntArrayExtensionSuite extends munit.FunSuite:
 
     val v2 = Array(0, 2)
     assert(!v2.contiguous)
+  }
+
+  test("mean arithmetic progression") {
+    val v = Array.tabulate[Int](10)(identity)
+    println(v.printArr)
+    assertEqualsDouble(v.mean, 4.5d, 1e-12)
+  }
+
+  test("variance/std zero spread") {
+    val v = Array.fill[Int](6)(7)
+    assertEqualsDouble(v.mean, 7d, 0.0, 1e-12)
+    assertEqualsDouble(v.variance, 0.0, 1e-12)
+    assertEqualsDouble(v.std, 0.0, 1e-12)
+  }
+
+  test("variance/std arithmetic progression") {
+    val v = Array.tabulate[Int](10)(identity)
+    val expectedVar = 8.25d
+    assertEqualsDouble(v.variance, expectedVar, 1e-9)
+    assertEqualsDouble(v.std, math.sqrt(expectedVar), 1e-9)
+  }
+
+  test("meanAndVariance zero spread") {
+    val v = Array.fill[Int](6)(7)
+    val stats = v.meanAndVariance
+    assertEqualsDouble(stats.mean, 7d, 1e-12)
+    assertEqualsDouble(stats.variance, 0.0, 1e-12)
+  }
+
+  test("meanAndVariance arithmetic progression") {
+    val v = Array.tabulate[Int](10)(identity)
+    val stats = v.meanAndVariance
+    val expectedVar = 8.25d
+    assertEqualsDouble(stats.mean, 4.5d, 1e-12)
+    assertEqualsDouble(stats.variance, expectedVar, 1e-9)
+  }
+
+  test("select picks indices in order") {
+    val base = Array.tabulate[Int](10)(identity)
+    val idx = Array(0, 3, 5, 9)
+    assertVecEquals(base.select(idx), Array(0, 3, 5, 9))
+  }
+
+  test("select handles duplicates and unsorted indices") {
+    val base = Array.tabulate[Int](6)(identity)
+    val idx = Array(5, 2, 5, 0)
+    assertVecEquals(base.select(idx), Array(5, 2, 5, 0))
+  }
+
+  test("select with empty index array") {
+    val base = Array.tabulate[Int](4)(identity)
+    val idx = Array.emptyIntArray
+    assertVecEquals(base.select(idx), Array.emptyIntArray)
+  }
+
+  test("countsToIdx basic") {
+    val counts = Array(2, 3, 1)
+    // 2 ones, 3 twos, 1 three => [1, 1, 2, 2, 2, 3]
+    assertVecEquals(counts.countsToIdx, Array(1, 1, 2, 2, 2, 3))
+  }
+
+  test("countsToIdx with zeros") {
+    val counts = Array(1, 0, 2, 0, 1)
+    // 1 one, 0 twos, 2 threes, 0 fours, 1 five => [1, 3, 3, 5]
+    assertVecEquals(counts.countsToIdx, Array(1, 3, 3, 5))
+  }
+
+  test("countsToIdx empty array") {
+    val counts = Array.emptyIntArray
+    assertVecEquals(counts.countsToIdx, Array.emptyIntArray)
+  }
+
+  test("countsToIdx all zeros") {
+    val counts = Array(0, 0, 0)
+    assertVecEquals(counts.countsToIdx, Array.emptyIntArray)
+  }
+
+  test("countsToIdx single element") {
+    val counts = Array(5)
+    assertVecEquals(counts.countsToIdx, Array(1, 1, 1, 1, 1))
   }
 
 end IntArrayExtensionSuite

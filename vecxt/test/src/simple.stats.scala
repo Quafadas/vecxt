@@ -26,8 +26,8 @@ class StatsSuite extends munit.FunSuite:
 
   test("sample variance and std") {
     val v = Array[Double](2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0)
-    assertEqualsDouble(v.variance, 4.571429, 0.00001)
-    assertEqualsDouble(v.stdDev, 2.13809, 0.00001)
+    assertEqualsDouble(v.variance(VarianceMode.Sample), 4.571429, 0.00001)
+    assertEqualsDouble(v.stdDev(VarianceMode.Sample), 2.13809, 0.00001)
   }
 
   test("elementRanks") {

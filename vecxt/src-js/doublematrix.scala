@@ -1,10 +1,10 @@
 package vecxt
 
+import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.*
-import scala.scalajs.js.JSConverters.*
 
 object JsDoubleMatrix:
 

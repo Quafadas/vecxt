@@ -38,3 +38,6 @@ weights2.csv
 biases1.csv
 biases2.csv
 .DS_Store
+
+.venv/
+experiments/src/bhd.scala

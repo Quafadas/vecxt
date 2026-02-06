@@ -46,6 +46,92 @@ object arrays:
     // end copy
   end extension
 
+  extension (vec: Array[Int])
+
+    inline def mean: Double =
+      var sum = 0.0
+      var i = 0
+      while i < vec.length do
+        sum += vec(i)
+        i += 1
+      end while
+      sum / vec.length
+    end mean
+
+    inline def variance: Double = variance(VarianceMode.Population)
+
+    inline def variance(mode: VarianceMode): Double =
+      vec.meanAndVariance(mode).variance
+    end variance
+
+    inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+      var mean = 0.0
+      var m2 = 0.0
+      var i = 0
+      while i < vec.length do
+        val n = i + 1
+        val delta = vec(i) - mean
+        mean += delta / n
+        val delta2 = vec(i) - mean
+        m2 += delta * delta2
+        i += 1
+      end while
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+      (mean, m2 / denom)
+    end meanAndVariance
+
+    inline def std: Double = std(VarianceMode.Population)
+
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
+
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
+
+    inline def minSIMD: Int =
+      var i = 0
+      var acc = Int.MaxValue
+      while i < vec.length do
+        val v = vec(i)
+        if v < acc then acc = v
+        end if
+        i += 1
+      end while
+      acc
+    end minSIMD
+
+    inline def maxSIMD: Int =
+      var i = 0
+      var acc = Int.MinValue
+      while i < vec.length do
+        val v = vec(i)
+        if v > acc then acc = v
+        end if
+        i += 1
+      end while
+      acc
+    end maxSIMD
+
+    inline def -=(scalar: Int): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - scalar
+        i += 1
+      end while
+    end -=
+
+    inline def -(scalar: Int): Array[Int] =
+      vec.clone().tap(_ -= scalar)
+    end -
+  end extension
+
   extension [A: ClassTag](vec: Array[A])
 
     def apply(index: Array[Boolean]): Array[A] =
@@ -76,6 +162,30 @@ object arrays:
       end for
       newVec
     end apply
+
+    inline def minSIMD: Double =
+      var i = 0
+      var acc = Double.PositiveInfinity
+      while i < vec.length do
+        val v = vec(i)
+        if v < acc then acc = v
+        end if
+        i += 1
+      end while
+      acc
+    end minSIMD
+
+    inline def maxSIMD: Double =
+      var i = 0
+      var acc = Double.NegativeInfinity
+      while i < vec.length do
+        val v = vec(i)
+        if v > acc then acc = v
+        end if
+        i += 1
+      end while
+      acc
+    end maxSIMD
 
     inline def product: Double =
       var sum = 1.0
@@ -167,18 +277,43 @@ object arrays:
       ranks
     end elementRanks
 
-    inline def variance: Double =
-      // https://www.cuemath.com/sample-variance-formula/
-      val μ = vec.mean
-      vec.map(i => (i - μ) * (i - μ)).sum / (vec.length - 1)
+    inline def variance: Double = variance(VarianceMode.Population)
+
+    inline def variance(mode: VarianceMode): Double =
+      meanAndVariance(mode).variance
     end variance
 
-    inline def stdDev: Double =
-      // https://www.cuemath.com/data/standard-deviation/
-      val mu = vec.mean
-      val diffs_2 = vec.map(num => Math.pow(num - mu, 2))
-      Math.sqrt(diffs_2.sum / (vec.length - 1))
-    end stdDev
+    inline def std: Double = std(VarianceMode.Population)
+
+    inline def std(mode: VarianceMode): Double =
+      Math.sqrt(vec.variance(mode))
+
+    inline def stdDev: Double = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Double = std(mode)
+
+    inline def meanAndVariance: (mean: Double, variance: Double) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+      var mean = 0.0
+      var m2 = 0.0
+      var i = 0
+      while i < vec.length do
+        val n = i + 1
+        val delta = vec(i) - mean
+        mean += delta / n
+        val delta2 = vec(i) - mean
+        m2 += delta * delta2
+        i += 1
+      end while
+
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+      (mean, m2 / denom)
+    end meanAndVariance
 
     inline def mean: Double = vec.sum / vec.length
 

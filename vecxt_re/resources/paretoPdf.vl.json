@@ -1,0 +1,145 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Pareto PDF with correctly normalized log-binned histogram and analytic overlay",
+  "width": "container",
+  "height": "container",
+  "resolve": {
+    "scale": {
+      "x": "shared"
+    }
+  },
+  "layer": [
+    {
+      "data": {
+        "values": [
+          {
+            "x": 1.02
+          },
+          {
+            "x": 1.05
+          }
+        ]
+      },
+      "transform": [
+        {
+          "calculate": "log(datum.x)",
+          "as": "logx"
+        },
+        {
+          "bin": {
+            "maxbins": 50
+          },
+          "field": "logx",
+          "as": [
+            "logx0",
+            "logx1"
+          ]
+        },
+        {
+          "aggregate": [
+            {
+              "op": "count",
+              "as": "count"
+            }
+          ],
+          "groupby": [
+            "logx0",
+            "logx1"
+          ]
+        },
+        {
+          "joinaggregate": [
+            {
+              "op": "sum",
+              "field": "count",
+              "as": "N"
+            }
+          ]
+        },
+        {
+          "calculate": "exp(datum.logx0)",
+          "as": "x0"
+        },
+        {
+          "calculate": "exp(datum.logx1)",
+          "as": "x1"
+        },
+        {
+          "calculate": "datum.count / (datum.N * (datum.x1 - datum.x0))",
+          "as": "density"
+        }
+      ],
+      "mark": {
+        "type": "bar",
+        "opacity": 0.6
+      },
+      "encoding": {
+        "x": {
+          "field": "x0",
+          "type": "quantitative",
+          "title": "x",
+          "scale": {
+            "nice": false,
+            "domain": [
+              1,
+              20
+            ]
+          }
+        },
+        "x2": {
+          "field": "x1"
+        },
+        "y": {
+          "field": "density",
+          "type": "quantitative",
+          "title": "PDF"
+        },
+        "tooltip": [
+          {
+            "field": "count",
+            "type": "quantitative",
+            "title": "Count"
+          },
+          {
+            "field": "density",
+            "type": "quantitative",
+            "title": "Density"
+          }
+        ]
+      }
+    },
+    {
+      "data": {
+        "sequence": {
+          "start": 1,
+          "stop": 20,
+          "step": 0.05
+        }
+      },
+      "transform": [
+        {
+          "calculate": "pow(datum.data, -2)",
+          "as": "pdf"
+        }
+      ],
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2
+      },
+      "encoding": {
+        "x": {
+          "field": "data",
+          "type": "quantitative",
+          "scale": {
+            "nice": false,
+            "type": "log"
+          }
+        },
+        "y": {
+          "field": "pdf",
+          "type": "quantitative"
+        }
+      }
+    }
+  ]
+}

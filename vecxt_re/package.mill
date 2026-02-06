@@ -1,0 +1,85 @@
+package build.vecxt_re
+
+import mill.*, scalalib.*, scalajslib.*, publish.*
+import mill.scalajslib.api.ModuleKind
+import mill.api.Task.Simple
+
+object `package` extends Module:
+  trait VexctReModule extends PlatformScalaModule with build.VecxtPublishModule with build.ShareCompileResources:
+    def mvnDeps = super.mvnDeps() ++ Seq()
+
+    trait VexctReTest extends ScalaTests, TestModule.Munit:
+      def mvnDeps = super.mvnDeps() ++ Seq(
+        mvn"org.scalameta::munit::${build.V.munitVersion}"
+      )
+      override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+    end VexctReTest
+  end VexctReModule
+
+  private def jsNativeSharedSources = Task.Sources {
+    os.sub / "src-js-native"
+  }
+
+  private def jvmNativeSharedSources = Task.Sources {
+    os.sub / "src-jvm-native"
+  }
+
+  object jvm extends VexctReModule:
+    def moduleDeps = Seq(build.vecxt.jvm)
+    override def scalaVersion = build.V.scalaVersion
+    override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
+    // Ensure macro resource lookups (e.g. VegaPlot.fromResource) can see this module's resources during compilation
+    def sources = Task(super.sources() ++ jvmNativeSharedSources())
+
+    override def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"io.github.quafadas::scautable:0.0.35",
+      mvn"io.github.quafadas::dedav4s:0.10.5",
+      mvn"org.apache.commons:commons-math4-core:4.0-beta1",
+      mvn"org.apache.commons:commons-statistics-distribution:1.1",
+      mvn"org.apache.commons:commons-rng-simple:1.6",
+      mvn"org.typelevel::cats-kernel:${build.V.catsVersion}"
+    )
+
+    object test extends VexctReTest, ScalaTests:
+      def moduleDeps = Seq(jvm)
+      override def mvnDeps = super.mvnDeps() ++ Seq(
+        mvn"org.typelevel::cats-kernel-laws:${build.V.catsVersion}",
+        mvn"org.typelevel::discipline-munit:${build.V.disciplineVersion}",
+        mvn"org.scalacheck::scalacheck:${build.V.scalacheckVersion}"
+      )
+      override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+    end test
+  end jvm
+
+  object js extends VexctReModule with build.CommonJS:
+    def moduleDeps = Seq(build.vecxt.js)
+    override def mvnDeps = super.mvnDeps() ++ Seq(
+      build.V.scalaJavaTime,
+      mvn"org.typelevel::cats-kernel::${build.V.catsVersion}"
+    )
+    def sources = Task(super.sources() ++ jsNativeSharedSources())
+    def moduleKind = ModuleKind.ESModule
+    def enableBsp = false
+
+    object test extends VexctReTest, ScalaJSTests:
+      def moduleDeps = Seq(js)
+      def moduleKind = ModuleKind.CommonJSModule
+      override def enableBsp = false
+    end test
+  end js
+
+  object native extends VexctReModule with build.CommonNative:
+    def moduleDeps = Seq(build.vecxt.native)
+    override def mvnDeps = super.mvnDeps() ++ Seq(
+      build.V.scalaJavaTime,
+      mvn"org.typelevel::cats-kernel::${build.V.catsVersion}"
+    )
+    def sources = Task(super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources())
+    override def enableBsp = false
+
+    object test extends ScalaNativeTests, VexctReTest:
+      override def moduleDeps = Seq(native)
+      override def enableBsp = false
+    end test
+  end native
+end `package`

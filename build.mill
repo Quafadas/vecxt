@@ -1,8 +1,8 @@
-//| mill-version: 1.1.0-RC4
+//| mill-version: 1.1.0
 //| mill-jvm-version: 24
 //| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
 //| mvnDeps:
-//| - io.github.quafadas:millSite_mill1_3.8:0.0.56
+//| - io.github.quafadas:millSite_mill1_3.8:0.0.57
 //| - com.goyeau:mill-scalafix_mill1_3:0.6.0
 //| - com.lihaoyi::mill-contrib-jmh:$MILL_VERSION
 
@@ -37,6 +37,10 @@ object V:
   val munitVersion = "1.1.1"
   val blas: Dep = mvn"dev.ludovic.netlib:blas:3.0.4"
   val lapack: Dep = mvn"dev.ludovic.netlib:lapack:3.0.4"
+  val scalaJavaTime: Dep = mvn"io.github.cquiroz::scala-java-time::2.6.0"
+  val catsVersion = "2.13.0"
+  val disciplineVersion = "2.0.0"
+  val scalacheckVersion = "1.17.0"
 end V
 
 trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule:
@@ -77,3 +81,7 @@ trait CommonNative extends ScalaNativeModule with VecxtPublishModule:
   )
   def scalaNativeVersion: Simple[String] = "0.5.9"
 end CommonNative
+
+trait ShareCompileResources extends ScalaModule:
+  override def compileResources = super.compileResources() ++ resources()
+end ShareCompileResources

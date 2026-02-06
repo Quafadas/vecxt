@@ -1,11 +1,13 @@
 package vecxtensions
 
-import spire.implicits.*
-import spire.algebra.Ring
 import scala.reflect.ClassTag
+
 import vecxt.*
-import vecxt.all.*
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.all.*
+
+import spire.algebra.Ring
+import spire.implicits.*
 
 object SpireExt:
 

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Negative Binomial CDF with samples overlaid",
+  "width": "container",
+  "height": "container",
+  "title": "Negative Binomial CDF with Sample Points",
+  "layer": [
+    {
+      "data": {
+        "values": [
+          {"value": 0, "prob": 0.0},
+          {"value": 1, "prob": 0.1},
+          {"value": 2, "prob": 0.18},
+          {"value": 3, "prob": 0.30},
+          {"value": 4, "prob": 0.45}
+        ]
+      },
+      "mark": {
+        "type": "line",
+        "interpolate": "step-after",
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {"field": "value", "type": "quantitative", "title": "k"},
+        "y": {"field": "prob", "type": "quantitative", "title": "CDF"}
+      }
+    },
+
+    {
+      "data": {
+        "values": [
+          {"value": 1, "prob": 0.125},
+          {"value": 2.0, "prob": 0.35},
+          {"value": 3, "prob": 0.55},
+          {"value": 4, "prob": 0.85}
+        ]
+      },
+      "mark": {
+        "type": "point",
+        "shape": "cross",
+        "color": "red",
+        "size": 100,
+        "strokeWidth": 2
+      },
+      "encoding": {
+        "x": {"field": "value", "type": "quantitative", "title": "k"},
+        "y": {"field": "prob", "type": "quantitative", "title": "CDF"}
+      }
+    }
+  ]
+}

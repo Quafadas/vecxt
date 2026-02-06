@@ -1,0 +1,161 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v6.json",
+  "description": "Treemap of transactions sized by 'size'. Grouped by transaction → company.",
+  "width": 700,
+  "height": 500,
+  "padding": 2.5,
+  "autosize": "none",
+
+  "signals": [
+    {
+      "name": "layout", "value": "squarify",
+      "bind": {
+        "input": "select",
+        "options": ["squarify", "binary", "slicedice"]
+      }
+    },
+    {
+      "name": "aspectRatio", "value": 1.6,
+      "bind": { "input": "range", "min": 1, "max": 5, "step": 0.1 }
+    }
+  ],
+
+  "data": [
+    {
+      "name": "transactions",
+      "values": [
+        { "company": "A", "size": 40, "transaction": "Yey" },
+        { "company": "A", "size": 23, "transaction": "B" },
+        { "company": "B", "size": 29, "transaction": "cat" },
+        { "company": "C", "size": 17, "transaction": "dog" }
+      ]
+    },
+
+    {
+      "name": "tree",
+      "source": "transactions",
+      "transform": [
+        { "type": "nest", "keys": ["transaction", "company"] },
+        {
+          "type": "treemap",
+          "field": "size",
+          "sort": { "field": "value" },
+          "round": true,
+          "method": { "signal": "layout" },
+          "ratio": { "signal": "aspectRatio" },
+          "size": [{ "signal": "width" }, { "signal": "height" }]
+        }
+      ]
+    },
+    {
+      "name": "nodes",
+      "source": "tree",
+      "transform": [{ "type": "filter", "expr": "datum.children" }]
+    },
+    {
+      "name": "leaves",
+      "source": "tree",
+      "transform": [{ "type": "filter", "expr": "!datum.children" }]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color_companies",
+      "type": "ordinal",
+      "domain": { "data": "leaves", "field": "company" },
+      "range": {"scheme": "dark2"}
+    },
+    {
+      "name": "labelSize",
+      "type": "ordinal",
+      "domain": [0, 1, 2, 3],
+      "range": [256, 28, 20, 14]
+    },
+    {
+      "name": "labelOpacity",
+      "type": "ordinal",
+      "domain": [0, 1, 2, 3],
+      "range": [0.15, 0.5, 0.8, 1.0]
+    }
+  ],
+
+  "marks": [
+    
+    {
+      "type": "rect",
+      "from": { "data": "nodes" },
+      "interactive": false,
+      "encode": {
+        "enter": {
+          "fill": { "value": "#f3f3f3" }
+        },
+        "update": {
+          "x": { "field": "x0" },
+          "y": { "field": "y0" },
+          "x2": { "field": "x1" },
+          "y2": { "field": "y1" }
+        }
+      }
+    },
+
+    
+    {
+      "type": "rect",
+      "from": { "data": "leaves" },
+      "encode": {
+        "enter": {
+          "stroke": { "value": "#fff" },
+          "fill": { "scale": "color_companies", "field": "company" },
+          "tooltip": {
+            "signal": "{'Transaction': datum.transaction, 'Company': datum.company, 'Size': datum.size}"
+          }
+        },
+        "update": {
+          "x": { "field": "x0" },
+          "y": { "field": "y0" },
+          "x2": { "field": "x1" },
+          "y2": { "field": "y1" }
+        },
+        "hover": {
+          "stroke": { "value": "#000" }
+        }
+      }
+    },
+
+    
+    {
+  "type": "text",
+  "from": { "data": "leaves" },
+  "interactive": false,
+  "encode": {
+    "enter": {
+      "font": { "value": "Helvetica Neue, Arial" },
+      "align": { "value": "center" },
+      "baseline": { "value": "middle" },
+      "fill": { "value": "#000" },
+      "fontWeight": { "value": "bold" }      
+    },
+    "update": {
+      "x": { "signal": "(datum.x0 + datum.x1) / 2" },
+      "y": { "signal": "(datum.y0 + datum.y1) / 2" },
+
+      "text": {
+        "signal":
+          "[datum.company, datum.transaction, datum.size + 'mUSD']"
+      },
+
+      "fontSize": {
+        "signal":
+          "15"
+      },
+
+      "fillOpacity": {
+        "signal":
+          "((datum.x1-datum.x0) * (datum.y1-datum.y0)) < 2500 ? 0 : 1"
+      }
+    }
+  }
+}
+  ]
+}

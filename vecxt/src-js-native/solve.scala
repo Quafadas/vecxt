@@ -1,7 +1,7 @@
 package vecxt
 
-import vecxt.matrix.Matrix
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.matrix.Matrix
 
 /** Linear system solver placeholder for JS and Native platforms.
   *
