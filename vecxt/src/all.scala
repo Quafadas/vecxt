@@ -8,6 +8,7 @@ object all:
   export vecxt.arrayUtil.*
   export vecxt.arrays.*
   export vecxt.DoubleArrays.*
+  export vecxt.FloatArrays.*
   export vecxt.VarianceMode
   // export vecxt.JsNativeDoubleArrays.*
   export vecxt.BooleanArrays.*
