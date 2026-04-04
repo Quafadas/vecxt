@@ -38,4 +38,10 @@ protected[vecxt] object dimCheck:
   inline def apply(a: Array[Int], b: Array[Boolean])(using inline doCheck: BoundsCheck) =
     inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
+  inline def apply(a: Array[Float], b: Array[Float])(using inline doCheck: BoundsCheck) =
+    inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
+  inline def apply(a: Array[Float], b: Array[Boolean])(using inline doCheck: BoundsCheck) =
+    inline if doCheck then if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
 end dimCheck
