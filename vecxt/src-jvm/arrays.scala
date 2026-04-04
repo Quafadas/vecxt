@@ -1382,19 +1382,7 @@ object arrays:
     end /
 
     inline def *=(d: Double): Unit =
-      var i = 0
-      while i < spd.loopBound(vec.length) do
-        DoubleVector
-          .fromArray(spd, vec, i)
-          .mul(DoubleVector.broadcast(spd, d))
-          .intoArray(vec, i)
-        i += spdl
-      end while
-
-      while i < vec.length do
-        vec(i) *= d
-        i += 1
-      end while
+      blas.dscal(vec.length, d, vec, 1)
     end *=
 
     inline def *(d: Double): Array[Double] =
