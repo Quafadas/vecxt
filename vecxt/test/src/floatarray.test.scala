@@ -153,6 +153,18 @@ class FloatArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(v3(2).toDouble, 2.0, tolerance.toDouble)
   }
 
+  test("float Array -= scalar covers all elements") {
+    // Test with different sizes to verify the tail elements are handled correctly
+    // (especially important for SIMD where the tail elements after the loop bound must also be processed)
+    for size <- Seq(1, 3, 7, 8, 9, 15, 16, 17) do
+      val v = Array.fill[Float](size)(5.0f)
+      v -= 2.0f
+      for i <- 0 until size do
+        assertEqualsDouble(v(i).toDouble, 3.0, tolerance.toDouble, clue = s"size=$size at index $i")
+      end for
+    end for
+  }
+
   test("float Array -= Array") {
     val v1 = Array[Float](1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f)
     v1 -= Array[Float](3.0f, 2.0f, 1.0f, 0.0f, 0.0f, 0.0f)
@@ -196,28 +208,28 @@ class FloatArrayExtensionSuite extends munit.FunSuite:
     val v1 = Array[Float](1.0f, 2.0f, 3.0f, 4.0f, 5.0f)
 
     val expResult = v1.exp
-    for i <- 0 until v1.length do
-      assertEqualsDouble(expResult(i).toDouble, Math.exp(v1(i).toDouble), 1e-4)
+    for i <- 0 until v1.length do assertEqualsDouble(expResult(i).toDouble, Math.exp(v1(i).toDouble), 1e-4)
+    end for
 
     val logResult = v1.log
-    for i <- 0 until v1.length do
-      assertEqualsDouble(logResult(i).toDouble, Math.log(v1(i).toDouble), 1e-4)
+    for i <- 0 until v1.length do assertEqualsDouble(logResult(i).toDouble, Math.log(v1(i).toDouble), 1e-4)
+    end for
 
     val sqrtResult = v1.sqrt
-    for i <- 0 until v1.length do
-      assertEqualsDouble(sqrtResult(i).toDouble, Math.sqrt(v1(i).toDouble), 1e-4)
+    for i <- 0 until v1.length do assertEqualsDouble(sqrtResult(i).toDouble, Math.sqrt(v1(i).toDouble), 1e-4)
+    end for
   }
 
   test("float sin/cos") {
     val v1 = Array[Float](0.0f, 0.5f, 1.0f)
 
     val sinResult = v1.sin
-    for i <- 0 until v1.length do
-      assertEqualsDouble(sinResult(i).toDouble, Math.sin(v1(i).toDouble), 1e-4)
+    for i <- 0 until v1.length do assertEqualsDouble(sinResult(i).toDouble, Math.sin(v1(i).toDouble), 1e-4)
+    end for
 
     val cosResult = v1.cos
-    for i <- 0 until v1.length do
-      assertEqualsDouble(cosResult(i).toDouble, Math.cos(v1(i).toDouble), 1e-4)
+    for i <- 0 until v1.length do assertEqualsDouble(cosResult(i).toDouble, Math.cos(v1(i).toDouble), 1e-4)
+    end for
   }
 
   test("float abs") {
@@ -500,21 +512,25 @@ class FloatArrayExtensionSuite extends munit.FunSuite:
     val v2 = v1.clone()
     v2.`exp!`
     for i <- 0 until v1.length do assertEqualsDouble(v2(i).toDouble, Math.exp(v1(i).toDouble), 1e-4)
+    end for
 
     // log!
     val v3 = v1.clone()
     v3.`log!`
     for i <- 0 until v1.length do assertEqualsDouble(v3(i).toDouble, Math.log(v1(i).toDouble), 1e-4)
+    end for
 
     // sqrt!
     val v4 = v1.clone()
     v4.`sqrt!`
     for i <- 0 until v1.length do assertEqualsDouble(v4(i).toDouble, Math.sqrt(v1(i).toDouble), 1e-4)
+    end for
 
     // -!
     val v5 = v1.clone()
     v5.`-!`
     for i <- 0 until v1.length do assertEqualsDouble(v5(i).toDouble, -v1(i).toDouble, tolerance.toDouble)
+    end for
   }
 
   test("float meanAndVariance") {
@@ -561,6 +577,7 @@ class FloatArrayExtensionSuite extends munit.FunSuite:
     val ltResult = v1 < 500.0f
     var trueCount = 0
     for b <- ltResult do if b then trueCount += 1
+    end for
     assertEquals(trueCount, 499)
   }
 
