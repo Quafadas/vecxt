@@ -37,4 +37,6 @@ object all:
   export vecxt.QR.* // JS and native are stubs
   // Random
   export vecxt.cosineSimilarity
+  // ndarray
+  export vecxt.ndarray.*
 end all
