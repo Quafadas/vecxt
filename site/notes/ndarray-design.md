@@ -242,16 +242,19 @@ This is critical for AD (gradient accumulation involves broadcast reduction).
 ### Milestone 3: Element-wise operations (Double)
 **Goal:** Arithmetic works for `NDArray[Double]`, with platform-specific acceleration.
 
+**Detailed design:** See [`ndarray-m3-design.md`](ndarray-m3-design.md) for the full
+implementation plan, file-by-file code, and validation tests.
+
 - [ ] Binary ops: `+`, `-`, `*`, `/` (element-wise, with broadcasting)
 - [ ] Scalar ops: `ndarray + scalar`, `scalar * ndarray`, etc.
 - [ ] Unary ops: `neg`, `abs`, `exp`, `log`, `sqrt`, `tanh`, `sigmoid`
 - [ ] In-place variants: `+=`, `-=`, `*=`, `/=`
-- [ ] Comparison ops returning `NDArray[Boolean]`: `>`, `<`, `>=`, `<=`, `==`
+- [ ] Comparison ops returning `NDArray[Boolean]`: `>`, `<`, `>=`, `<=`, `=:=`
 - [ ] Platform-specific implementations:
-  - JVM: SIMD `DoubleVector` for contiguous arrays
-  - JS/Native: while loops
-- [ ] Broadcasting implementation (shape compatibility check + stride-0 expansion)
-- [ ] Cross-platform tests with tolerance for floating point
+  - JVM: SIMD `DoubleVector` for contiguous arrays (`src-jvm/ndarray_elemwise_jvm.scala`)
+  - JS/Native: while loops (`src-js-native/ndarray_elemwise_jsnative.scala`)
+- [ ] Shared generic fallback in `src/ndarray_elemwise.scala` (broadcasting + odometer iteration)
+- [ ] Cross-platform tests in `vecxt/test/src/ndarray_elemwise.test.scala`
 
 **Deliverable:** NDArray is useful for numeric computation. Broadcasting works.
 
