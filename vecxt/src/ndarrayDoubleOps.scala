@@ -374,7 +374,14 @@ object NDArrayDoubleOps:
           s"In-place /= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
             "Use broadcastTo to align shapes first."
         )
-      binaryOpInPlaceGeneral(a, b, _ / _)
+      if a.isColMajor && b.isColMajor then
+        val n = a.numel
+        var i = 0
+        while i < n do
+          a.data(i) /= b.data(i)
+          i += 1
+        end while
+      else binaryOpInPlaceGeneral(a, b, _ / _)
 
     // ── In-place scalar ops ────────────────────────────────────────────────
 
