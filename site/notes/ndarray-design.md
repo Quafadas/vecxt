@@ -194,12 +194,20 @@ Detection methods (`isRowMajor`, `isColMajor`, `isContiguous`) enable fast-path 
 
 ### Broadcasting rules
 
-Follow NumPy broadcasting semantics:
+**Broadcasting is explicit, not implicit.** Binary ops (`+`, `-`, `*`, `/`) require same-shape
+operands — consistent with vecxt's existing `Array[Double]` ops, which throw on length mismatch.
+
+Broadcasting is performed via an explicit `broadcastTo(targetShape)` method that returns a
+zero-copy view (stride-0 expansion). The broadcasting mechanics follow NumPy semantics:
 1. Shapes are right-aligned
 2. Dimensions are compatible if equal or one of them is 1
 3. A dimension of 1 is broadcast (stride 0) to match the other
 
-This is critical for AD (gradient accumulation involves broadcast reduction).
+A convenience `NDArray.broadcastPair(a, b)` returns both operands broadcast to their common shape.
+
+This explicit model means broadcasting is a **first-class operation** in any computation graph.
+For AD (M7), `broadcastTo` is a distinct node with a clean VJP rule (sum-reduce), rather than
+hidden bookkeeping inside every binary op.
 
 ---
 
@@ -242,18 +250,18 @@ This is critical for AD (gradient accumulation involves broadcast reduction).
 ### Milestone 3: Element-wise operations (Double)
 **Goal:** Arithmetic works for `NDArray[Double]`, with platform-specific acceleration.
 
-- [ ] Binary ops: `+`, `-`, `*`, `/` (element-wise, with broadcasting)
+- [ ] Binary ops: `+`, `-`, `*`, `/` (element-wise, **same-shape required**)
 - [ ] Scalar ops: `ndarray + scalar`, `scalar * ndarray`, etc.
 - [ ] Unary ops: `neg`, `abs`, `exp`, `log`, `sqrt`, `tanh`, `sigmoid`
 - [ ] In-place variants: `+=`, `-=`, `*=`, `/=`
-- [ ] Comparison ops returning `NDArray[Boolean]`: `>`, `<`, `>=`, `<=`, `==`
+- [ ] Comparison ops returning `NDArray[Boolean]`: `>`, `<`, `>=`, `<=`, `=:=`, `!:=`
 - [ ] Platform-specific implementations:
   - JVM: SIMD `DoubleVector` for contiguous arrays
   - JS/Native: while loops
-- [ ] Broadcasting implementation (shape compatibility check + stride-0 expansion)
+- [ ] Explicit broadcasting: `broadcastTo(shape)` → zero-copy view; `NDArray.broadcastPair(a, b)`
 - [ ] Cross-platform tests with tolerance for floating point
 
-**Deliverable:** NDArray is useful for numeric computation. Broadcasting works.
+**Deliverable:** NDArray is useful for numeric computation. Broadcasting is explicit and correct.
 
 ### Milestone 4: Reduction operations
 **Goal:** Aggregation along axes.
@@ -336,3 +344,13 @@ M3 and M5 can proceed in parallel after M2.
 4. **Naming:** `NDArray[A]` vs `NdArray[A]` vs `Tensor[A]`? Recommendation: `NDArray` for the data structure. Reserve `Tensor` for the AD-aware type in a future module. NDArray - decided.
 
 5. **Int indexing API:** Varargs `apply(indices: Int*)` is convenient but allocates. Alternative: overloads for 1, 2, 3, 4, N cases. Or: `IArray[Int]` to signal no mutation. Recommendation: specific overloads for 1-4D, varargs for N>4. Agreed to follow recommendation.
+
+6. **Broadcasting: implicit or explicit?** Implicit broadcasting (NumPy-style, where `+` silently expands shapes) vs explicit (`broadcastTo` required before binary ops). **Decided: explicit.** Rationale:
+   - **Consistent** with existing `Array[Double]` ops which require same length — no implicit expansion anywhere in vecxt.
+   - **Simpler binary ops** — `+` is always same-shape; no broadcasting code path, no shape-mismatch error messages.
+   - **Cleaner AD** — `broadcastTo` is a first-class node in the computation graph with a clean VJP rule (sum-reduce along broadcast axes). Binary ops have trivial same-shape gradients.
+   - **Better errors** — "cannot broadcastTo shape [4,3] from shape [2,3]" is more actionable than "cannot broadcast shapes [4,3] and [2,3] in +".
+   - **`broadcastTo` is free** — it's a zero-copy view (stride-0). The verbosity cost is one method call that documents intent.
+   - `NDArray.broadcastPair(a, b)` provides a convenience for the common case of broadcasting two operands to their common shape.
+
+---
