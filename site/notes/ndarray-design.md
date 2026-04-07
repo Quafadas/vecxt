@@ -133,7 +133,7 @@ It doesn't wrap or duplicate NDArray — it *composes* with it. The NDArray is t
 ### Core type
 
 ```scala
-class NDArray[@specialized(Double, Int, Float, Boolean) A] private[ndarray] (
+class NDArray[A] private[ndarray] (
   val data: Array[A],
   val shape: Array[Int],
   val strides: Array[Int],
@@ -144,11 +144,18 @@ class NDArray[@specialized(Double, Int, Float, Boolean) A] private[ndarray] (
   lazy val isContiguous: Boolean = /* check strides match dense layout */
 ```
 
+No `@specialized` annotation. `Array[A]` for primitive `A` (Double, Int, etc.) is already
+a primitive array at the JVM level (`double[]`, `int[]`) — no boxing occurs on element access.
+The operations that matter (SIMD, BLAS, reductions) are written per-type via extension methods
+anyway, so specialization on the container class adds complexity without measurable benefit.
+Scala 3's `@specialized` is inherited from Scala 2, poorly maintained, and can silently
+de-specialize when combined with `inline` methods, opaque types, or extension methods.
+
 ### Design decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Element type | Generic `A` with `@specialized` | Match existing Matrix pattern; avoid Double-only lock-in |
+| Element type | Generic `A`, **no `@specialized`** | `Array[A]` for primitives is already unboxed (`double[]`). Ops are per-type via extension methods. `@specialized` adds complexity without benefit in Scala 3. |
 | Shape representation | `Array[Int]` | Runtime, heap-efficient, no type-level arithmetic |
 | Strides | Explicit `Array[Int]` | Enables views, transpose, broadcast without copying |
 | Default layout | Column-major (F-order) for all ranks | Consistent with existing Matrix; BLAS-native; 2D slices of N-D arrays are directly BLAS-compatible; Julia validates this approach |
@@ -205,8 +212,7 @@ This is critical for AD (gradient accumulation involves broadcast reduction).
 ### Milestone 1: NDArray core type + factories
 **Goal:** The type exists, can be constructed, and has basic properties.
 
-- [ ] `NDArray[A]` class with `data`, `shape`, `strides`, `offset`
-- [ ] `@specialized(Double, Int, Float, Long, Boolean)`
+- [ ] `NDArray[A]` class with `data`, `shape`, `strides`, `offset` (no `@specialized` — see design decisions)
 - [ ] Private constructor + `NDArray.apply(...)` with `BoundsCheck` validation
 - [ ] Stride validation (generalization of `strideMatInstantiateCheck`)
 - [ ] Factory methods: `NDArray.zeros`, `NDArray.ones`, `NDArray.fill`, `NDArray.fromArray` (1D), `NDArray.fromMatrix`
