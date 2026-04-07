@@ -265,6 +265,35 @@ private[vecxt] def genericCompareOp(
 
   mkNDArray(out, outShape, colMajorStrides(outShape), 0)
 end genericCompareOp
+
+// Generic in-place scalar op. Iterates via odometer; avoids temporary NDArray allocation.
+private[vecxt] def genericInPlaceScalarOp(a: NDArray[Double], s: Double)(op: (Double, Double) => Double): Unit =
+  val n     = a.numel
+  val ndim  = a.ndim
+  val indices = new Array[Int](ndim)
+
+  var k = 0
+  while k < n do
+    var ia = a.offset
+    var d  = 0
+    while d < ndim do
+      ia += indices(d) * a.strides(d)
+      d += 1
+    end while
+    a.data(ia) = op(a.data(ia), s)
+
+    d = 0
+    while d < ndim do
+      indices(d) += 1
+      if indices(d) < a.shape(d) then d = ndim
+      else
+        indices(d) = 0
+        d += 1
+      end if
+    end while
+    k += 1
+  end while
+end genericInPlaceScalarOp
 ```
 
 ---
@@ -288,6 +317,7 @@ object NDArrayElemwiseShared:
   private[vecxt] def genericBinaryOp(a: NDArray[Double], b: NDArray[Double])(op: (Double, Double) => Double): NDArray[Double] = ...
   private[vecxt] def genericInPlaceBinaryOp(a: NDArray[Double], b: NDArray[Double])(op: (Double, Double) => Double): Unit = ...
   private[vecxt] def genericUnaryOp(a: NDArray[Double])(op: Double => Double): NDArray[Double] = ...
+  private[vecxt] def genericInPlaceScalarOp(a: NDArray[Double], s: Double)(op: (Double, Double) => Double): Unit = ...
   private[vecxt] def genericCompareOp(a: NDArray[Double], b: NDArray[Double])(op: (Double, Double) => Boolean): NDArray[Boolean] = ...
 end NDArrayElemwiseShared
 ```
@@ -368,9 +398,46 @@ object NDArrayDoubleOps:
       end if
     end +
 
-    inline def -(s: Double): NDArray[Double] = a + (-s)
+    inline def -(s: Double): NDArray[Double] =
+      if a.isColMajor then
+        val n   = a.numel
+        val out = new Array[Double](n)
+        val sv  = DoubleVector.broadcast(spd, s)
+        var i   = 0
+        while i < spd.loopBound(n) do
+          DoubleVector.fromArray(spd, a.data, a.offset + i).sub(sv).intoArray(out, i)
+          i += spdl
+        end while
+        while i < n do
+          out(i) = a.data(a.offset + i) - s
+          i += 1
+        end while
+        mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
+      else
+        genericUnaryOp(a)(_ - s)
+      end if
+    end -
+
     inline def *(s: Double): NDArray[Double] = ...  // DoubleVector.broadcast + .mul
-    inline def /(s: Double): NDArray[Double] = a * (1.0 / s)
+    inline def /(s: Double): NDArray[Double] =
+      if a.isColMajor then
+        val n   = a.numel
+        val out = new Array[Double](n)
+        val sv  = DoubleVector.broadcast(spd, s)
+        var i   = 0
+        while i < spd.loopBound(n) do
+          DoubleVector.fromArray(spd, a.data, a.offset + i).div(sv).intoArray(out, i)
+          i += spdl
+        end while
+        while i < n do
+          out(i) = a.data(a.offset + i) / s
+          i += 1
+        end while
+        mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
+      else
+        genericUnaryOp(a)(_ / s)
+      end if
+    end /
 
     // Unary ops — use VectorOperators lanewise for col-major
     inline def neg: NDArray[Double] =
@@ -464,14 +531,64 @@ object NDArrayDoubleOps:
           i += 1
         end while
       else
-        genericInPlaceBinaryOp(a, NDArray.fill(a.shape, s)(using BoundsCheck.DoBoundsCheck.no))(_ + _)
+        genericInPlaceScalarOp(a, s)(_ + _)
     end +=
 
-    inline def -=(s: Double): Unit = a += (-s)
-    inline def *=(s: Double): Unit = ...  // SIMD .mul(sv)
-    inline def /=(s: Double): Unit = a *= (1.0 / s)
+    inline def -=(s: Double): Unit =
+      if a.isColMajor then
+        val sv = DoubleVector.broadcast(spd, s)
+        val n  = a.numel
+        var i  = 0
+        while i < spd.loopBound(n) do
+          DoubleVector.fromArray(spd, a.data, a.offset + i).sub(sv)
+            .intoArray(a.data, a.offset + i)
+          i += spdl
+        end while
+        while i < n do
+          a.data(a.offset + i) -= s
+          i += 1
+        end while
+      else
+        genericInPlaceScalarOp(a, s)(_ - _)
+    end -=
 
-    // Comparison ops — generic path always (no Boolean SIMD in vecxt yet)
+    inline def *=(s: Double): Unit =
+      if a.isColMajor then
+        val sv = DoubleVector.broadcast(spd, s)
+        val n  = a.numel
+        var i  = 0
+        while i < spd.loopBound(n) do
+          DoubleVector.fromArray(spd, a.data, a.offset + i).mul(sv)
+            .intoArray(a.data, a.offset + i)
+          i += spdl
+        end while
+        while i < n do
+          a.data(a.offset + i) *= s
+          i += 1
+        end while
+      else
+        genericInPlaceScalarOp(a, s)(_ * _)
+    end *=
+
+    inline def /=(s: Double): Unit =
+      if a.isColMajor then
+        val sv = DoubleVector.broadcast(spd, s)
+        val n  = a.numel
+        var i  = 0
+        while i < spd.loopBound(n) do
+          DoubleVector.fromArray(spd, a.data, a.offset + i).div(sv)
+            .intoArray(a.data, a.offset + i)
+          i += spdl
+        end while
+        while i < n do
+          a.data(a.offset + i) /= s
+          i += 1
+        end while
+      else
+        genericInPlaceScalarOp(a, s)(_ / _)
+    end /=
+
+    // Comparison ops — generic path always (no Boolean SIMD vector ops defined in vecxt)
     inline def >(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Boolean]   = genericCompareOp(a, b)(_ > _)
     inline def <(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Boolean]   = genericCompareOp(a, b)(_ < _)
     inline def >=(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Boolean]  = genericCompareOp(a, b)(_ >= _)
@@ -547,10 +664,10 @@ object JsNativeNDArrayDoubleOps:
     inline def *=(b: NDArray[Double])(using inline bc: BoundsCheck): Unit = genericInPlaceBinaryOp(a, b)(_ * _)
     inline def /=(b: NDArray[Double])(using inline bc: BoundsCheck): Unit = genericInPlaceBinaryOp(a, b)(_ / _)
 
-    inline def +=(s: Double): Unit = genericInPlaceBinaryOp(a, NDArray.fill(a.shape, s)(using BoundsCheck.DoBoundsCheck.no))(_ + _)
-    inline def -=(s: Double): Unit = a += (-s)
-    inline def *=(s: Double): Unit = genericInPlaceBinaryOp(a, NDArray.fill(a.shape, s)(using BoundsCheck.DoBoundsCheck.no))(_ * _)
-    inline def /=(s: Double): Unit = a *= (1.0 / s)
+    inline def +=(s: Double): Unit = genericInPlaceScalarOp(a, s)(_ + _)
+    inline def -=(s: Double): Unit = genericInPlaceScalarOp(a, s)(_ - _)
+    inline def *=(s: Double): Unit = genericInPlaceScalarOp(a, s)(_ * _)
+    inline def /=(s: Double): Unit = genericInPlaceScalarOp(a, s)(_ / _)
 
     inline def >(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Boolean]   = genericCompareOp(a, b)(_ > _)
     inline def <(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Boolean]   = genericCompareOp(a, b)(_ < _)
@@ -610,7 +727,7 @@ In the `// ndarray` section (added by M1/M2):
 - Fast path condition for binary ops: `a.isColMajor && b.isColMajor && arrayEquals(a.shape, b.shape)`
 - Broadcasting always produces a **new** col-major NDArray
 - In-place ops mutate through `a.offset + index * a.strides(d)` arithmetic
-- Scalar in-place for non-contiguous: allocate temp via `NDArray.fill` (acceptable in M3)
+- In-place scalar ops for non-contiguous arrays: use `genericInPlaceScalarOp` (avoids allocating a temp NDArray)
 
 ---
 
