@@ -329,12 +329,10 @@ M3 and M5 can proceed in parallel after M2.
 
 ## Open questions
 
-1. ~~**Module placement**~~ → `vecxt/src/` (decided)
-
 2. ~~**Default layout**~~ → Column-major (F-order) for all ranks (decided). Consistent with existing Matrix and BLAS.
 
-3. **Copy semantics for views:** NDArray views share backing data. Mutation through one view is visible through others. This is the NumPy/PyTorch model and avoids unnecessary copies. Should we support copy-on-write? (Recommendation: no, too complex, just document the aliasing behavior.)
+3. **Copy semantics for views:** NDArray views share backing data. Mutation through one view is visible through others. This is the NumPy/PyTorch model and avoids unnecessary copies. Should we support copy-on-write? (Recommendation: no, too complex, just document the aliasing behavior.) Recommendation, copy on write would silently tank performance. It would be easy enough to write an immutable wrapper over the top if someone wants it. Decided. Recommendation accepted, no copy-on-write. Document aliasing semantics clearly.
 
-4. **Naming:** `NDArray[A]` vs `NdArray[A]` vs `Tensor[A]`? Recommendation: `NDArray` for the data structure. Reserve `Tensor` for the AD-aware type in a future module.
+4. **Naming:** `NDArray[A]` vs `NdArray[A]` vs `Tensor[A]`? Recommendation: `NDArray` for the data structure. Reserve `Tensor` for the AD-aware type in a future module. NDArray - decided.
 
-5. **Int indexing API:** Varargs `apply(indices: Int*)` is convenient but allocates. Alternative: overloads for 1, 2, 3, 4, N cases. Or: `IArray[Int]` to signal no mutation. Recommendation: specific overloads for 1-4D, varargs for N>4.
+5. **Int indexing API:** Varargs `apply(indices: Int*)` is convenient but allocates. Alternative: overloads for 1, 2, 3, 4, N cases. Or: `IArray[Int]` to signal no mutation. Recommendation: specific overloads for 1-4D, varargs for N>4. Agreed to follow recommendation.
