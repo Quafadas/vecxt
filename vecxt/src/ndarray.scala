@@ -6,7 +6,7 @@ import vecxt.BoundsCheck.BoundsCheck
 
 object ndarray:
 
-  class NDArray[@specialized(Double, Int, Float, Boolean) A] @publicInBinary() private[ndarray] (
+  class NDArray[A] @publicInBinary() private[ndarray] (
       val data: Array[A],
       val shape: Array[Int],
       val strides: Array[Int],
@@ -68,7 +68,7 @@ object ndarray:
   object NDArray:
 
     // Primary constructor — full control
-    inline def apply[@specialized(Double, Int, Float, Boolean) A](
+    inline def apply[A](
         data: Array[A],
         shape: Array[Int],
         strides: Array[Int],
@@ -79,7 +79,7 @@ object ndarray:
     end apply
 
     // Convenience: column-major from data + shape
-    inline def apply[@specialized(Double, Int, Float, Boolean) A](
+    inline def apply[A](
         data: Array[A],
         shape: Array[Int]
     )(using inline boundsCheck: BoundsCheck): NDArray[A] =
@@ -88,12 +88,12 @@ object ndarray:
     end apply
 
     // 1D from flat array
-    inline def fromArray[@specialized(Double, Int, Float, Boolean) A](
+    inline def fromArray[A](
         data: Array[A]
     )(using inline boundsCheck: BoundsCheck): NDArray[A] =
       new NDArray(data, Array(data.length), Array(1), 0)
 
-    inline def zeros[@specialized(Double, Int, Float, Boolean) A](
+    inline def zeros[A](
         shape: Array[Int]
     )(using inline boundsCheck: BoundsCheck, oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
       shapeCheck(shape)
@@ -102,7 +102,7 @@ object ndarray:
       new NDArray(data, shape.clone(), colMajorStrides(shape), 0)
     end zeros
 
-    inline def ones[@specialized(Double, Int, Float, Boolean) A](
+    inline def ones[A](
         shape: Array[Int]
     )(using inline boundsCheck: BoundsCheck, oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
       shapeCheck(shape)
@@ -111,7 +111,7 @@ object ndarray:
       new NDArray(data, shape.clone(), colMajorStrides(shape), 0)
     end ones
 
-    inline def fill[@specialized(Double, Int, Float, Boolean) A](
+    inline def fill[A](
         shape: Array[Int],
         value: A
     )(using inline boundsCheck: BoundsCheck, ct: scala.reflect.ClassTag[A]): NDArray[A] =
@@ -123,7 +123,7 @@ object ndarray:
 
   end NDArray
 
-  extension [@specialized(Double, Int, Float, Boolean) A](arr: NDArray[A]) inline def shapeArray: Array[Int] = arr.shape
+  extension [A](arr: NDArray[A]) inline def shapeArray: Array[Int] = arr.shape
   end extension
 
   // Compute column-major strides for a given shape
