@@ -40,4 +40,6 @@ object all:
   // ndarray
   export vecxt.ndarray.*
   export vecxt.ndarrayOps.*
+  export vecxt.NDArrayDoubleOps.*
+  export vecxt.broadcast.*
 end all
