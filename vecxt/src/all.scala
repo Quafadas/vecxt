@@ -39,4 +39,5 @@ object all:
   export vecxt.cosineSimilarity
   // ndarray
   export vecxt.ndarray.*
+  export vecxt.ndarrayOps.*
 end all

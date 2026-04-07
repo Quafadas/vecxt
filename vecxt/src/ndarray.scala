@@ -126,6 +126,16 @@ object ndarray:
   extension [A](arr: NDArray[A]) inline def shapeArray: Array[Int] = arr.shape
   end extension
 
+  /** Package-private factory — creates NDArray without bounds checking. Used by operations that have already validated
+    * invariants (slice, transpose, etc.).
+    */
+  private[vecxt] def mkNDArray[A](
+      data: Array[A],
+      shape: Array[Int],
+      strides: Array[Int],
+      offset: Int
+  ): NDArray[A] = new NDArray(data, shape, strides, offset)
+
   // Compute column-major strides for a given shape
   private[vecxt] def colMajorStrides(shape: Array[Int]): Array[Int] =
     val strides = new Array[Int](shape.length)

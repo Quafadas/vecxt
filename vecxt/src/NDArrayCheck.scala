@@ -1,6 +1,7 @@
 package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.ndarray.NDArray
 
 /** strideNDArrayCheck validates construction of an NDArray with arbitrary strides and offset.
   *
@@ -108,3 +109,23 @@ object shapeCheck:
 end shapeCheck
 
 case class InvalidNDArray(message: String) extends Exception(message)
+
+/** indexNDArrayCheck validates element-access indices against the NDArray's shape. */
+object indexNDArrayCheck:
+  inline def apply[A](arr: NDArray[A], indices: Array[Int])(using inline bc: BoundsCheck): Unit =
+    inline if bc then
+      if indices.length != arr.ndim then
+        throw InvalidNDArray(
+          s"Rank mismatch: expected ${arr.ndim} indices, got ${indices.length}"
+        )
+      end if
+      var k = 0
+      while k < indices.length do
+        if indices(k) < 0 || indices(k) >= arr.shape(k) then
+          throw new java.lang.IndexOutOfBoundsException(
+            s"Index ${indices(k)} out of bounds for dimension $k of size ${arr.shape(k)}"
+          )
+        end if
+        k += 1
+      end while
+end indexNDArrayCheck
