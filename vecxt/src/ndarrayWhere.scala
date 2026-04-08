@@ -7,9 +7,8 @@ import vecxt.ndarray.*
 
 object NDArrayWhere:
 
-  /** Element-wise conditional: where(condition, x, y) → result where
-    * result(i) = x(i) if condition(i) else y(i).
-    * All three must have the same shape.
+  /** Element-wise conditional: where(condition, x, y) → result where result(i) = x(i) if condition(i) else y(i). All
+    * three must have the same shape.
     */
   inline def where[A: ClassTag](
       condition: NDArray[Boolean],

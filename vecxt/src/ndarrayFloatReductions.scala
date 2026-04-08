@@ -158,6 +158,7 @@ object NDArrayFloatReductions:
         var i = 0
         while i < a.data.length do
           if a.data(i) < acc then acc = a.data(i)
+          end if
           i += 1
         end while
         acc
@@ -170,6 +171,7 @@ object NDArrayFloatReductions:
         var i = 0
         while i < a.data.length do
           if a.data(i) > acc then acc = a.data(i)
+          end if
           i += 1
         end while
         acc
@@ -262,6 +264,8 @@ object NDArrayFloatReductions:
           j += 1
         end while
         bestIdx
+      end if
+    end argmax
 
     /** Index of the minimum element (flat, col-major order). */
     inline def argmin: Int =
@@ -300,6 +304,8 @@ object NDArrayFloatReductions:
           j += 1
         end while
         bestIdx
+      end if
+    end argmin
 
     // ── Axis reductions ────────────────────────────────────────────────────
 

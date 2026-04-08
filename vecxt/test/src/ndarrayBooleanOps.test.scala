@@ -34,7 +34,7 @@ class NDArrayBooleanOpsSuite extends FunSuite:
   test("NDArray[Boolean] && shape mismatch throws") {
     val a = NDArray(Array(true, false, true), Array(3))
     val b = NDArray(Array(true, false), Array(2))
-    intercept[ShapeMismatchException] { a && b }
+    intercept[ShapeMismatchException](a && b)
   }
 
   // ── Logical unary ops ─────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ class NDArrayBooleanOpsSuite extends FunSuite:
   test("NDArray[Boolean] not! non-contiguous throws") {
     val a = NDArray(Array(true, false, false, true), Array(2, 2))
     val at = a.T
-    intercept[InvalidNDArray] { at.`not!` }
+    intercept[InvalidNDArray](at.`not!`)
   }
 
   // ── Full reductions ────────────────────────────────────────────────────────
@@ -149,9 +149,9 @@ class NDArrayBooleanOpsSuite extends FunSuite:
 
   test("NDArray[Boolean] axis out of range throws") {
     val a = NDArray(Array(true, false, true), Array(3))
-    intercept[InvalidNDArray] { a.any(-1) }
-    intercept[InvalidNDArray] { a.all(1) }
-    intercept[InvalidNDArray] { a.countTrue(1) }
+    intercept[InvalidNDArray](a.any(-1))
+    intercept[InvalidNDArray](a.all(1))
+    intercept[InvalidNDArray](a.countTrue(1))
   }
 
 end NDArrayBooleanOpsSuite

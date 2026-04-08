@@ -280,27 +280,32 @@ object NDArrayFloatOps:
 
     /** Element-wise absolute value. */
     inline def abs: NDArray[Float] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => Math.abs(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isColMajor then
+        mkNDArray(flatUnaryOp(a.data, x => Math.abs(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.abs(x.toDouble).toFloat)
 
     /** Element-wise natural exponential. */
     inline def exp: NDArray[Float] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => Math.exp(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isColMajor then
+        mkNDArray(flatUnaryOp(a.data, x => Math.exp(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.exp(x.toDouble).toFloat)
 
     /** Element-wise natural logarithm. */
     inline def log: NDArray[Float] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => Math.log(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isColMajor then
+        mkNDArray(flatUnaryOp(a.data, x => Math.log(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.log(x.toDouble).toFloat)
 
     /** Element-wise square root. */
     inline def sqrt: NDArray[Float] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => Math.sqrt(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isColMajor then
+        mkNDArray(flatUnaryOp(a.data, x => Math.sqrt(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.sqrt(x.toDouble).toFloat)
 
     /** Element-wise hyperbolic tangent. */
     inline def tanh: NDArray[Float] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => Math.tanh(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isColMajor then
+        mkNDArray(flatUnaryOp(a.data, x => Math.tanh(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.tanh(x.toDouble).toFloat)
 
     /** Element-wise sigmoid: `1 / (1 + exp(-x))`. */

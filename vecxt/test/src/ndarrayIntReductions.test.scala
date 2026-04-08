@@ -132,12 +132,12 @@ class NDArrayIntReductionsSuite extends FunSuite:
 
   test("NDArray[Int] sum(-1) throws InvalidNDArray") {
     val a = NDArray(Array(1, 2, 3), Array(3))
-    intercept[InvalidNDArray] { a.sum(-1) }
+    intercept[InvalidNDArray](a.sum(-1))
   }
 
   test("NDArray[Int] sum(ndim) throws InvalidNDArray") {
     val a = NDArray(Array(1, 2, 3, 4), Array(2, 2))
-    intercept[InvalidNDArray] { a.sum(2) }
+    intercept[InvalidNDArray](a.sum(2))
   }
 
 end NDArrayIntReductionsSuite

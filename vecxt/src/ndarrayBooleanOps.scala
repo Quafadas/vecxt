@@ -122,6 +122,7 @@ object NDArrayBooleanOps:
         k += 1
       end while
       if a.data(posIn) then out(posOut) += 1
+      end if
       j += 1
     end while
 
@@ -197,8 +198,7 @@ object NDArrayBooleanOps:
 
     /** Element-wise logical NOT. Returns a new NDArray[Boolean]. */
     inline def not: NDArray[Boolean] =
-      if a.isColMajor then
-        mkNDArray(a.data.not, a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isColMajor then mkNDArray(a.data.not, a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryLogicalGeneral(a)
 
     /** In-place element-wise logical NOT. `a` must be contiguous. */
@@ -206,6 +206,7 @@ object NDArrayBooleanOps:
       if !a.isContiguous then throw InvalidNDArray("In-place ops require a contiguous NDArray")
       end if
       a.data.`not!`
+    end `not!`
 
     // ── Full reductions ────────────────────────────────────────────────────
 
@@ -227,6 +228,7 @@ object NDArrayBooleanOps:
             k += 1
           end while
           if a.data(pos) then result = true
+          end if
           j += 1
         end while
         result
@@ -249,6 +251,7 @@ object NDArrayBooleanOps:
             k += 1
           end while
           if !a.data(pos) then result = false
+          end if
           j += 1
         end while
         result
@@ -271,6 +274,7 @@ object NDArrayBooleanOps:
             k += 1
           end while
           if a.data(pos) then acc += 1
+          end if
           j += 1
         end while
         acc

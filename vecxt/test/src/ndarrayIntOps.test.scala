@@ -220,7 +220,7 @@ class NDArrayIntOpsSuite extends FunSuite:
     val a = NDArray(Array(1, 2, 3, 4), Array(2, 2))
     val at = a.T // non-contiguous view
     val b = NDArray(Array(1, 1, 1, 1), Array(2, 2))
-    intercept[InvalidNDArray] { at += b.T }
+    intercept[InvalidNDArray](at += b.T)
   }
 
   // ── Shape mismatch ────────────────────────────────────────────────────────
@@ -228,13 +228,13 @@ class NDArrayIntOpsSuite extends FunSuite:
   test("NDArray[Int] + shape mismatch throws") {
     val a = NDArray(Array(1, 2, 3), Array(3))
     val b = NDArray(Array(1, 2), Array(2))
-    intercept[ShapeMismatchException] { a + b }
+    intercept[ShapeMismatchException](a + b)
   }
 
   test("NDArray[Int] > shape mismatch throws") {
     val a = NDArray(Array(1, 2, 3), Array(3))
     val b = NDArray(Array(1, 2), Array(2))
-    intercept[ShapeMismatchException] { a > b }
+    intercept[ShapeMismatchException](a > b)
   }
 
 end NDArrayIntOpsSuite

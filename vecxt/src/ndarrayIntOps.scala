@@ -299,7 +299,8 @@ object NDArrayIntOps:
 
     /** Element-wise absolute value. */
     inline def abs: NDArray[Int] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => if x < 0 then -x else x), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isColMajor then
+        mkNDArray(flatUnaryOp(a.data, x => if x < 0 then -x else x), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => if x < 0 then -x else x)
 
     // ── In-place binary ops ────────────────────────────────────────────────

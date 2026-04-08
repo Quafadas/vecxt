@@ -155,7 +155,7 @@ class NDArrayFloatOpsSuite extends FunSuite:
   test("NDArray[Float] + shape mismatch throws") {
     val a = NDArray(Array(1.0f, 2.0f, 3.0f), Array(3))
     val b = NDArray(Array(1.0f, 2.0f), Array(2))
-    intercept[ShapeMismatchException] { a + b }
+    intercept[ShapeMismatchException](a + b)
   }
 
 end NDArrayFloatOpsSuite

@@ -62,8 +62,8 @@ class NDArrayFloatReductionsSuite extends FunSuite:
 
   test("NDArray[Float] axis out of range throws") {
     val a = NDArray(Array(1.0f, 2.0f, 3.0f), Array(3))
-    intercept[InvalidNDArray] { a.sum(-1) }
-    intercept[InvalidNDArray] { a.sum(1) }
+    intercept[InvalidNDArray](a.sum(-1))
+    intercept[InvalidNDArray](a.sum(1))
   }
 
 end NDArrayFloatReductionsSuite

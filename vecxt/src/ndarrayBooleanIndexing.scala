@@ -10,8 +10,7 @@ object NDArrayBooleanIndexing:
 
   extension [A: ClassTag](arr: NDArray[A])
 
-    /** Select elements where mask is true. Returns a 1-D col-major NDArray.
-      * Mask must have the same shape as arr.
+    /** Select elements where mask is true. Returns a 1-D col-major NDArray. Mask must have the same shape as arr.
       * Result length = mask.countTrue.
       */
     inline def apply(mask: NDArray[Boolean])(using inline bc: BoundsCheck): NDArray[A] =
@@ -28,6 +27,7 @@ object NDArrayBooleanIndexing:
         var i = 0
         while i < mask.data.length do
           if mask.data(i) then count += 1
+          end if
           i += 1
         end while
         val out = new Array[A](count)
@@ -59,6 +59,7 @@ object NDArrayBooleanIndexing:
             k += 1
           end while
           if mask.data(posMask) then count += 1
+          end if
           j += 1
         end while
 
@@ -85,8 +86,8 @@ object NDArrayBooleanIndexing:
       end if
     end apply
 
-    /** Set elements where mask is true to `value`. Mutates arr.data in-place.
-      * Mask must have the same shape as arr, and arr must be contiguous.
+    /** Set elements where mask is true to `value`. Mutates arr.data in-place. Mask must have the same shape as arr, and
+      * arr must be contiguous.
       */
     inline def update(mask: NDArray[Boolean], value: A)(using inline bc: BoundsCheck): Unit =
       inline if bc then
@@ -95,14 +96,14 @@ object NDArrayBooleanIndexing:
             s"Boolean mask assignment requires arr and mask to have the same shape: [${arr.shape.mkString(",")}] vs [${mask.shape.mkString(",")}]."
           )
         end if
-        if !arr.isContiguous then
-          throw InvalidNDArray("Boolean mask assignment requires a contiguous NDArray")
+        if !arr.isContiguous then throw InvalidNDArray("Boolean mask assignment requires a contiguous NDArray")
         end if
       end if
       if arr.isColMajor && mask.isColMajor then
         var i = 0
         while i < mask.data.length do
           if mask.data(i) then arr.data(i) = value
+          end if
           i += 1
         end while
       else
@@ -121,6 +122,7 @@ object NDArrayBooleanIndexing:
             k += 1
           end while
           if mask.data(posMask) then arr.data(posArr) = value
+          end if
           j += 1
         end while
       end if
