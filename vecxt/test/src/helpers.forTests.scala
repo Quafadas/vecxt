@@ -20,6 +20,15 @@ def assertNDArrayClose(actual: NDArray[Double], expected: Array[Double])(implici
   end for
 end assertNDArrayClose
 
+def assertNDArrayShapeAndClose(
+    actual: NDArray[Double],
+    expectedShape: Array[Int],
+    expectedData: Array[Double]
+)(implicit loc: munit.Location): Unit =
+  assertEquals(actual.shape.toSeq, expectedShape.toSeq, "shape mismatch")
+  assertNDArrayClose(actual, expectedData)
+end assertNDArrayShapeAndClose
+
 def assertVecEquals(v1: Array[Double], v2: Array[Double])(implicit loc: munit.Location): Unit =
   assert(v1.length == v2.length)
   var i: Int = 0;

@@ -41,5 +41,6 @@ object all:
   export vecxt.ndarray.*
   export vecxt.ndarrayOps.*
   export vecxt.NDArrayDoubleOps.*
+  export vecxt.NDArrayReductions.*
   export vecxt.broadcast.*
 end all
