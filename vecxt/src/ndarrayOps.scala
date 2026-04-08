@@ -14,7 +14,7 @@ object ndarrayOps:
     // ── Element read (apply) ────────────────────────────────────────────────
 
     /** Read a single element from a 1D NDArray. */
-    transparent inline def apply(i0: Int)(using inline bc: BoundsCheck): A =
+    inline def apply(i0: Int)(using inline bc: BoundsCheck): A =
       inline if bc then
         if arr.ndim != 1 then throw InvalidNDArray(s"Rank mismatch: expected ndim=1, got ndim=${arr.ndim}")
         end if
@@ -28,7 +28,7 @@ object ndarrayOps:
     end apply
 
     /** Read a single element from a 2D NDArray (col-major: first index = row, second = column). */
-    transparent inline def apply(i0: Int, i1: Int)(using inline bc: BoundsCheck): A =
+    inline def apply(i0: Int, i1: Int)(using inline bc: BoundsCheck): A =
       inline if bc then
         if arr.ndim != 2 then throw InvalidNDArray(s"Rank mismatch: expected ndim=2, got ndim=${arr.ndim}")
         end if
@@ -47,7 +47,7 @@ object ndarrayOps:
     end apply
 
     /** Read a single element from a 3D NDArray. */
-    transparent inline def apply(i0: Int, i1: Int, i2: Int)(using inline bc: BoundsCheck): A =
+    inline def apply(i0: Int, i1: Int, i2: Int)(using inline bc: BoundsCheck): A =
       inline if bc then
         if arr.ndim != 3 then throw InvalidNDArray(s"Rank mismatch: expected ndim=3, got ndim=${arr.ndim}")
         end if
@@ -71,7 +71,7 @@ object ndarrayOps:
     end apply
 
     /** Read a single element from a 4D NDArray. */
-    transparent inline def apply(i0: Int, i1: Int, i2: Int, i3: Int)(using inline bc: BoundsCheck): A =
+    inline def apply(i0: Int, i1: Int, i2: Int, i3: Int)(using inline bc: BoundsCheck): A =
       inline if bc then
         if arr.ndim != 4 then throw InvalidNDArray(s"Rank mismatch: expected ndim=4, got ndim=${arr.ndim}")
         end if
