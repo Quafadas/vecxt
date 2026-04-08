@@ -88,33 +88,12 @@ It can work. We can make dgemm (matrix multiplication) netlib BLAS work for dens
 
 And we're back to trying to train our neural network. Our zero transpose works well and naively, we're still working with all 60,000 imagines in each iteration. Observations of the training diagnostics and, again, some conversations with chatGPT yield the knowledge that training works better in "small batches". We should split our images into "batches" of 120 or so, and an "epoch" outer loops, and a "batch" inner loop.
 
-We have zero copy sub-matricies so no problem... but our zero copy matricies have an offset. netlib BLAS, as far as I can tell, supports offset, but it _doesn't_ support offsets with the flexible "rowStride", "colStride" memory layout. As far as I can tell, it assumes a dense layout beyond that point, which means the results are, well... wrong.
+We have zero copy sub-matricies so no problem... but our zero copy matricies have an offset. netlib BLAS, as far as I can tell, supports offset, but it _doesn't_ support offsets with the flexible "rowStride", "colStride" memory layout, unless you fix this bug;
 
-And at this point, we're bust. Options;
-
-1. Hard copy our sub-matrix into a contiguous memory layout and continue with netlib BLAS.
-2. Implement our own matrix multiplication algorithm that works with a non-contiguous memory layout.
-3. Go native and use a library that supports non-contiguous memory layouts (e.g. [BLIS](https://github.com/flame/blis))
-
-I'm discarding 2. I don't consider myself capable of implementing a good matrix multiplication algorithm.
-
-Option 1 is distasteful, we've jus expended significant effort trying exactly to wriggle _out_ of needless memory allocation (due to the computational overhead).
-
-Option 3 is more interesting. Project panama and jextract actually get you pretty close to calling BLIS quite quickly. But when you do, you realise that you can't just wrap an `Array[Double]` in a memory segment as far as I'm aware. We have to _copy_ the data in, call BLIS, and _copy_ it back out!
+https://github.com/luhenry/netlib/pull/24
 
 # Conclusion
-I believe this strikes to the heart of why the JVM has seen little adoption in the scientific computing space. Essentially, `Array[Double]` leads you inevitably to a catastrophic allocation strategy (in the absence of a modern hardware accelerated BLAS+  library). This seems a vicious circle, it's non-existence appears increasingly unlikely, that someone capable of such a library, will spend their time on the JVM.
 
-I believe this to be quite fundamental - I don't think it can be easily worked around as a "user" of the JVM.
-
-To summarise the argument:
-
-- Zero-copy operations require flexible memory layout
-- There's no hardware accelerated BLAS-like library that supports flexible memory layout on the JVM (that I know of).
-- Which means Level 3 BLAS operations slow...
-- The alternatives I've explored lead to aggressive memory allocation strategies which are terminal for performance beyond toy scale.
-
-In this context, Oracle's Project Panama appears critical to any future of scientific computing on the JVM. Speculatively, given that the Vector API has converged with `MemorySegment`, suggests to me that Oracle themselves, are not seeing a way out of this hole in a backwards compatible manner.
 
 [`MemorySegment`](https://download.java.net/java/early_access/loom/docs/api/java.base/java/lang/foreign/MemorySegment.html) appears to offer;
 
