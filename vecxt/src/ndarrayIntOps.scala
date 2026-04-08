@@ -194,6 +194,7 @@ object NDArrayIntOps:
     // ── Binary ops (same shape required) ──────────────────────────────────
 
     /** Element-wise addition. Operands must have the same shape. */
+    @targetName("ndIntAdd")
     inline def +(b: NDArray[Int]): NDArray[Int] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -208,6 +209,7 @@ object NDArrayIntOps:
     end +
 
     /** Element-wise subtraction. Operands must have the same shape. */
+    @targetName("ndIntSub")
     inline def -(b: NDArray[Int]): NDArray[Int] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -222,6 +224,7 @@ object NDArrayIntOps:
     end -
 
     /** Element-wise multiplication. Operands must have the same shape. */
+    @targetName("ndIntMul")
     inline def *(b: NDArray[Int]): NDArray[Int] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -236,6 +239,7 @@ object NDArrayIntOps:
     end *
 
     /** Element-wise integer division. Operands must have the same shape. */
+    @targetName("ndIntDiv")
     inline def /(b: NDArray[Int]): NDArray[Int] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -250,6 +254,7 @@ object NDArrayIntOps:
     end /
 
     /** Element-wise modulo. Operands must have the same shape. */
+    @targetName("ndIntMod")
     inline def %(b: NDArray[Int]): NDArray[Int] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -293,11 +298,13 @@ object NDArrayIntOps:
     // ── Unary ops ──────────────────────────────────────────────────────────
 
     /** Element-wise negation. */
+    @targetName("ndIntNeg")
     inline def neg: NDArray[Int] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => -x), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => -x)
 
     /** Element-wise absolute value. */
+    @targetName("ndIntAbs")
     inline def abs: NDArray[Int] =
       if a.isColMajor then
         mkNDArray(flatUnaryOp(a.data, x => if x < 0 then -x else x), a.shape.clone(), colMajorStrides(a.shape), 0)
@@ -306,8 +313,9 @@ object NDArrayIntOps:
     // ── In-place binary ops ────────────────────────────────────────────────
 
     /** In-place element-wise addition. `a` must be contiguous; operands must have the same shape. */
+    @targetName("ndIntAddAssign")
     inline def +=(b: NDArray[Int]): Unit =
-      if !a.isContiguous then throw InvalidNDArray("In-place ops require a contiguous NDArray")
+      if !a.isColMajor then throw InvalidNDArray("In-place ops require a contiguous NDArray")
       end if
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -327,8 +335,9 @@ object NDArrayIntOps:
     end +=
 
     /** In-place element-wise subtraction. `a` must be contiguous; operands must have the same shape. */
+    @targetName("ndIntSubAssign")
     inline def -=(b: NDArray[Int]): Unit =
-      if !a.isContiguous then throw InvalidNDArray("In-place ops require a contiguous NDArray")
+      if !a.isColMajor then throw InvalidNDArray("In-place ops require a contiguous NDArray")
       end if
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -348,8 +357,9 @@ object NDArrayIntOps:
     end -=
 
     /** In-place element-wise multiplication. `a` must be contiguous; operands must have the same shape. */
+    @targetName("ndIntMulAssign")
     inline def *=(b: NDArray[Int]): Unit =
-      if !a.isContiguous then throw InvalidNDArray("In-place ops require a contiguous NDArray")
+      if !a.isColMajor then throw InvalidNDArray("In-place ops require a contiguous NDArray")
       end if
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -406,6 +416,7 @@ object NDArrayIntOps:
     // ── Comparison ops (array vs array) ───────────────────────────────────
 
     /** Element-wise greater-than. Operands must have the same shape. */
+    @targetName("ndIntGt")
     inline def >(b: NDArray[Int]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -420,6 +431,7 @@ object NDArrayIntOps:
     end >
 
     /** Element-wise less-than. Operands must have the same shape. */
+    @targetName("ndIntLt")
     inline def <(b: NDArray[Int]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -434,6 +446,7 @@ object NDArrayIntOps:
     end <
 
     /** Element-wise greater-than-or-equal. Operands must have the same shape. */
+    @targetName("ndIntGe")
     inline def >=(b: NDArray[Int]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -448,6 +461,7 @@ object NDArrayIntOps:
     end >=
 
     /** Element-wise less-than-or-equal. Operands must have the same shape. */
+    @targetName("ndIntLe")
     inline def <=(b: NDArray[Int]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -462,6 +476,7 @@ object NDArrayIntOps:
     end <=
 
     /** Element-wise equality. Operands must have the same shape. */
+    @targetName("ndIntEq")
     inline def =:=(b: NDArray[Int]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -476,6 +491,7 @@ object NDArrayIntOps:
     end =:=
 
     /** Element-wise inequality. Operands must have the same shape. */
+    @targetName("ndIntNe")
     inline def !:=(b: NDArray[Int]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(

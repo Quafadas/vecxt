@@ -1,6 +1,5 @@
 package vecxt
 
-import vecxt.BooleanArrays.*
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 
@@ -145,6 +144,17 @@ object NDArrayBooleanOps:
 
   // ── Flat-array loop helpers (col-major fast path) ────────────────────────
 
+  private inline def flatUnaryNot(data: Array[Boolean]): Array[Boolean] =
+    val n = data.length
+    val out = new Array[Boolean](n)
+    var i = 0
+    while i < n do
+      out(i) = !data(i)
+      i += 1
+    end while
+    out
+  end flatUnaryNot
+
   private inline def flatBinaryLogical(
       aData: Array[Boolean],
       bData: Array[Boolean],
@@ -198,21 +208,33 @@ object NDArrayBooleanOps:
 
     /** Element-wise logical NOT. Returns a new NDArray[Boolean]. */
     inline def not: NDArray[Boolean] =
-      if a.isColMajor then mkNDArray(a.data.not, a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isColMajor then mkNDArray(flatUnaryNot(a.data), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryLogicalGeneral(a)
 
     /** In-place element-wise logical NOT. `a` must be contiguous. */
     inline def `not!`: Unit =
-      if !a.isContiguous then throw InvalidNDArray("In-place ops require a contiguous NDArray")
+      if !a.isColMajor then throw InvalidNDArray("In-place ops require a contiguous NDArray")
       end if
-      a.data.`not!`
+      var i = 0
+      while i < a.data.length do
+        a.data(i) = !a.data(i)
+        i += 1
+      end while
     end `not!`
 
     // ── Full reductions ────────────────────────────────────────────────────
 
     /** Returns true if any element is true. */
     inline def any: Boolean =
-      if a.isContiguous then a.data.any
+      if a.isContiguous then
+        var i = 0
+        var result = false
+        while i < a.data.length && !result do
+          if a.data(i) then result = true
+          end if
+          i += 1
+        end while
+        result
       else
         val n = a.numel
         val ndim = a.ndim
@@ -235,7 +257,15 @@ object NDArrayBooleanOps:
 
     /** Returns true if all elements are true. */
     inline def all: Boolean =
-      if a.isContiguous then a.data.allTrue
+      if a.isContiguous then
+        var i = 0
+        var result = true
+        while i < a.data.length && result do
+          if !a.data(i) then result = false
+          end if
+          i += 1
+        end while
+        result
       else
         val n = a.numel
         val ndim = a.ndim
@@ -258,7 +288,15 @@ object NDArrayBooleanOps:
 
     /** Count of true elements. */
     inline def countTrue: Int =
-      if a.isContiguous then a.data.trues
+      if a.isContiguous then
+        var i = 0
+        var acc = 0
+        while i < a.data.length do
+          if a.data(i) then acc += 1
+          end if
+          i += 1
+        end while
+        acc
       else
         val n = a.numel
         val ndim = a.ndim

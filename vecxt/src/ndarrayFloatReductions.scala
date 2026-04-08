@@ -1,5 +1,7 @@
 package vecxt
 
+import scala.annotation.targetName
+
 import vecxt.ndarray.*
 
 object NDArrayFloatReductions:
@@ -136,6 +138,7 @@ object NDArrayFloatReductions:
     // ── Full reductions ────────────────────────────────────────────────────
 
     /** Sum of all elements. */
+    @targetName("ndFloatSum")
     inline def sum: Float =
       if a.isContiguous then
         var acc = 0.0f
@@ -148,10 +151,12 @@ object NDArrayFloatReductions:
       else reduceGeneral(a, 0.0f, _ + _)
 
     /** Arithmetic mean of all elements. */
+    @targetName("ndFloatMean")
     inline def mean: Float =
       a.sum / a.numel.toFloat
 
     /** Minimum element. */
+    @targetName("ndFloatMin")
     inline def min: Float =
       if a.isContiguous then
         var acc = Float.PositiveInfinity
@@ -165,6 +170,7 @@ object NDArrayFloatReductions:
       else reduceGeneral(a, Float.PositiveInfinity, (acc, x) => if x < acc then x else acc)
 
     /** Maximum element. */
+    @targetName("ndFloatMax")
     inline def max: Float =
       if a.isContiguous then
         var acc = Float.NegativeInfinity
@@ -178,6 +184,7 @@ object NDArrayFloatReductions:
       else reduceGeneral(a, Float.NegativeInfinity, (acc, x) => if x > acc then x else acc)
 
     /** Product of all elements. */
+    @targetName("ndFloatProduct")
     inline def product: Float =
       if a.isContiguous then
         var acc = 1.0f
@@ -190,6 +197,7 @@ object NDArrayFloatReductions:
       else reduceGeneral(a, 1.0f, _ * _)
 
     /** Population variance. */
+    @targetName("ndFloatVariance")
     inline def variance: Float =
       if a.isContiguous then
         val m = a.mean
@@ -224,10 +232,12 @@ object NDArrayFloatReductions:
         acc / n.toFloat
 
     /** L2 (Euclidean) norm: √(Σ xᵢ²). */
+    @targetName("ndFloatNorm")
     inline def norm: Float =
       Math.sqrt(reduceGeneral(a, 0.0f, (acc, x) => acc + x * x).toDouble).toFloat
 
     /** Index of the maximum element (flat, col-major order). */
+    @targetName("ndFloatArgmax")
     inline def argmax: Int =
       val n = a.numel
       val ndim = a.ndim
@@ -268,6 +278,7 @@ object NDArrayFloatReductions:
     end argmax
 
     /** Index of the minimum element (flat, col-major order). */
+    @targetName("ndFloatArgmin")
     inline def argmin: Int =
       val n = a.numel
       val ndim = a.ndim
@@ -310,6 +321,7 @@ object NDArrayFloatReductions:
     // ── Axis reductions ────────────────────────────────────────────────────
 
     /** Sum along axis `axis`. Result has one fewer dimension. */
+    @targetName("ndFloatSumAxis")
     inline def sum(axis: Int): NDArray[Float] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -317,6 +329,7 @@ object NDArrayFloatReductions:
     end sum
 
     /** Mean along axis `axis`. */
+    @targetName("ndFloatMeanAxis")
     inline def mean(axis: Int): NDArray[Float] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -331,6 +344,7 @@ object NDArrayFloatReductions:
     end mean
 
     /** Min along axis `axis`. */
+    @targetName("ndFloatMinAxis")
     inline def min(axis: Int): NDArray[Float] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -338,6 +352,7 @@ object NDArrayFloatReductions:
     end min
 
     /** Max along axis `axis`. */
+    @targetName("ndFloatMaxAxis")
     inline def max(axis: Int): NDArray[Float] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -345,6 +360,7 @@ object NDArrayFloatReductions:
     end max
 
     /** Product along axis `axis`. */
+    @targetName("ndFloatProductAxis")
     inline def product(axis: Int): NDArray[Float] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -352,6 +368,7 @@ object NDArrayFloatReductions:
     end product
 
     /** Argmax along axis `axis`. Returns NDArray[Int] of indices. */
+    @targetName("ndFloatArgmaxAxis")
     inline def argmax(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -359,6 +376,7 @@ object NDArrayFloatReductions:
     end argmax
 
     /** Argmin along axis `axis`. Returns NDArray[Int] of indices. */
+    @targetName("ndFloatArgminAxis")
     inline def argmin(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if

@@ -1,5 +1,7 @@
 package vecxt
 
+import scala.annotation.targetName
+
 import vecxt.ndarray.*
 
 private object NDArrayIntReductionHelpers:
@@ -140,6 +142,7 @@ object NDArrayIntReductions:
     // ── Full reductions ────────────────────────────────────────────────────
 
     /** Sum of all elements. */
+    @targetName("ndIntSum")
     inline def sum: Int =
       if a.isContiguous then
         var acc = 0
@@ -152,10 +155,12 @@ object NDArrayIntReductions:
       else reduceGeneral(a, 0, _ + _)
 
     /** Arithmetic mean of all elements. Returns Double since integer mean is fractional. */
+    @targetName("ndIntMean")
     inline def mean: Double =
       a.sum.toDouble / a.numel
 
     /** Minimum element. */
+    @targetName("ndIntMin")
     inline def min: Int =
       if a.isContiguous then
         var acc = Int.MaxValue
@@ -169,6 +174,7 @@ object NDArrayIntReductions:
       else reduceGeneral(a, Int.MaxValue, (acc, x) => if x < acc then x else acc)
 
     /** Maximum element. */
+    @targetName("ndIntMax")
     inline def max: Int =
       if a.isContiguous then
         var acc = Int.MinValue
@@ -182,6 +188,7 @@ object NDArrayIntReductions:
       else reduceGeneral(a, Int.MinValue, (acc, x) => if x > acc then x else acc)
 
     /** Product of all elements. */
+    @targetName("ndIntProduct")
     inline def product: Int =
       if a.isContiguous then
         var acc = 1
@@ -194,6 +201,7 @@ object NDArrayIntReductions:
       else reduceGeneral(a, 1, _ * _)
 
     /** Index of the maximum element (flat, col-major order). */
+    @targetName("ndIntArgmax")
     inline def argmax: Int =
       val n = a.numel
       val ndim = a.ndim
@@ -234,6 +242,7 @@ object NDArrayIntReductions:
     end argmax
 
     /** Index of the minimum element (flat, col-major order). */
+    @targetName("ndIntArgmin")
     inline def argmin: Int =
       val n = a.numel
       val ndim = a.ndim
@@ -276,6 +285,7 @@ object NDArrayIntReductions:
     // ── Axis reductions ────────────────────────────────────────────────────
 
     /** Sum along axis `axis`. Result has one fewer dimension. */
+    @targetName("ndIntSumAxis")
     inline def sum(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -283,6 +293,7 @@ object NDArrayIntReductions:
     end sum
 
     /** Mean along axis `axis`. Returns NDArray[Double] since integer mean is fractional. */
+    @targetName("ndIntMeanAxis")
     inline def mean(axis: Int): NDArray[Double] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -299,6 +310,7 @@ object NDArrayIntReductions:
     end mean
 
     /** Min along axis `axis`. */
+    @targetName("ndIntMinAxis")
     inline def min(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -306,6 +318,7 @@ object NDArrayIntReductions:
     end min
 
     /** Max along axis `axis`. */
+    @targetName("ndIntMaxAxis")
     inline def max(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -313,6 +326,7 @@ object NDArrayIntReductions:
     end max
 
     /** Product along axis `axis`. */
+    @targetName("ndIntProductAxis")
     inline def product(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -320,6 +334,7 @@ object NDArrayIntReductions:
     end product
 
     /** Argmax along axis `axis`. Returns NDArray[Int] of indices. */
+    @targetName("ndIntArgmaxAxis")
     inline def argmax(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
@@ -327,6 +342,7 @@ object NDArrayIntReductions:
     end argmax
 
     /** Argmin along axis `axis`. Returns NDArray[Int] of indices. */
+    @targetName("ndIntArgminAxis")
     inline def argmin(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if

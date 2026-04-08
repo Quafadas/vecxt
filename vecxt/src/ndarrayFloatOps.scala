@@ -194,6 +194,7 @@ object NDArrayFloatOps:
     // ── Binary ops (same shape required) ──────────────────────────────────
 
     /** Element-wise addition. Operands must have the same shape. */
+    @targetName("ndFloatAdd")
     inline def +(b: NDArray[Float]): NDArray[Float] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -208,6 +209,7 @@ object NDArrayFloatOps:
     end +
 
     /** Element-wise subtraction. Operands must have the same shape. */
+    @targetName("ndFloatSub")
     inline def -(b: NDArray[Float]): NDArray[Float] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -222,6 +224,7 @@ object NDArrayFloatOps:
     end -
 
     /** Element-wise multiplication. Operands must have the same shape. */
+    @targetName("ndFloatMul")
     inline def *(b: NDArray[Float]): NDArray[Float] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -236,6 +239,7 @@ object NDArrayFloatOps:
     end *
 
     /** Element-wise division. Operands must have the same shape. */
+    @targetName("ndFloatDiv")
     inline def /(b: NDArray[Float]): NDArray[Float] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -274,41 +278,48 @@ object NDArrayFloatOps:
     // ── Unary ops ──────────────────────────────────────────────────────────
 
     /** Element-wise negation. */
+    @targetName("ndFloatNeg")
     inline def neg: NDArray[Float] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => -x), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => -x)
 
     /** Element-wise absolute value. */
+    @targetName("ndFloatAbs")
     inline def abs: NDArray[Float] =
       if a.isColMajor then
         mkNDArray(flatUnaryOp(a.data, x => Math.abs(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.abs(x.toDouble).toFloat)
 
     /** Element-wise natural exponential. */
+    @targetName("ndFloatExp")
     inline def exp: NDArray[Float] =
       if a.isColMajor then
         mkNDArray(flatUnaryOp(a.data, x => Math.exp(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.exp(x.toDouble).toFloat)
 
     /** Element-wise natural logarithm. */
+    @targetName("ndFloatLog")
     inline def log: NDArray[Float] =
       if a.isColMajor then
         mkNDArray(flatUnaryOp(a.data, x => Math.log(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.log(x.toDouble).toFloat)
 
     /** Element-wise square root. */
+    @targetName("ndFloatSqrt")
     inline def sqrt: NDArray[Float] =
       if a.isColMajor then
         mkNDArray(flatUnaryOp(a.data, x => Math.sqrt(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.sqrt(x.toDouble).toFloat)
 
     /** Element-wise hyperbolic tangent. */
+    @targetName("ndFloatTanh")
     inline def tanh: NDArray[Float] =
       if a.isColMajor then
         mkNDArray(flatUnaryOp(a.data, x => Math.tanh(x.toDouble).toFloat), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => Math.tanh(x.toDouble).toFloat)
 
     /** Element-wise sigmoid: `1 / (1 + exp(-x))`. */
+    @targetName("ndFloatSigmoid")
     inline def sigmoid: NDArray[Float] =
       val sig = (x: Float) => (1.0 / (1.0 + Math.exp(-x.toDouble))).toFloat
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, sig), a.shape.clone(), colMajorStrides(a.shape), 0)
@@ -319,6 +330,7 @@ object NDArrayFloatOps:
     // ── In-place binary ops ────────────────────────────────────────────────
 
     /** In-place element-wise addition. `a` must be contiguous; operands must have the same shape. */
+    @targetName("ndFloatAddAssign")
     inline def +=(b: NDArray[Float]): Unit =
       if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       end if
@@ -340,6 +352,7 @@ object NDArrayFloatOps:
     end +=
 
     /** In-place element-wise subtraction. `a` must be contiguous; operands must have the same shape. */
+    @targetName("ndFloatSubAssign")
     inline def -=(b: NDArray[Float]): Unit =
       if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       end if
@@ -361,6 +374,7 @@ object NDArrayFloatOps:
     end -=
 
     /** In-place element-wise multiplication. `a` must be contiguous; operands must have the same shape. */
+    @targetName("ndFloatMulAssign")
     inline def *=(b: NDArray[Float]): Unit =
       if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       end if
@@ -382,6 +396,7 @@ object NDArrayFloatOps:
     end *=
 
     /** In-place element-wise division. `a` must be contiguous; operands must have the same shape. */
+    @targetName("ndFloatDivAssign")
     inline def /=(b: NDArray[Float]): Unit =
       if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       end if
@@ -451,6 +466,7 @@ object NDArrayFloatOps:
     // ── Comparison ops (array vs array) ───────────────────────────────────
 
     /** Element-wise greater-than. Operands must have the same shape. */
+    @targetName("ndFloatGt")
     inline def >(b: NDArray[Float]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -465,6 +481,7 @@ object NDArrayFloatOps:
     end >
 
     /** Element-wise less-than. Operands must have the same shape. */
+    @targetName("ndFloatLt")
     inline def <(b: NDArray[Float]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -479,6 +496,7 @@ object NDArrayFloatOps:
     end <
 
     /** Element-wise greater-than-or-equal. Operands must have the same shape. */
+    @targetName("ndFloatGe")
     inline def >=(b: NDArray[Float]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -493,6 +511,7 @@ object NDArrayFloatOps:
     end >=
 
     /** Element-wise less-than-or-equal. Operands must have the same shape. */
+    @targetName("ndFloatLe")
     inline def <=(b: NDArray[Float]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -507,6 +526,7 @@ object NDArrayFloatOps:
     end <=
 
     /** Element-wise equality. Operands must have the same shape. */
+    @targetName("ndFloatEq")
     inline def =:=(b: NDArray[Float]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
@@ -521,6 +541,7 @@ object NDArrayFloatOps:
     end =:=
 
     /** Element-wise inequality. Operands must have the same shape. */
+    @targetName("ndFloatNe")
     inline def !:=(b: NDArray[Float]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
