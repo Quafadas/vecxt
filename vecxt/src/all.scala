@@ -42,5 +42,12 @@ object all:
   export vecxt.ndarrayOps.*
   export vecxt.NDArrayDoubleOps.*
   export vecxt.NDArrayReductions.*
+  export vecxt.NDArrayIntOps.*
+  export vecxt.NDArrayIntReductions.*
+  export vecxt.NDArrayBooleanOps.*
+  export vecxt.NDArrayFloatOps.*
+  export vecxt.NDArrayFloatReductions.*
+  export vecxt.NDArrayBooleanIndexing.*
+  export vecxt.NDArrayWhere.*
   export vecxt.broadcast.*
 end all
