@@ -16,14 +16,14 @@ private object NDArrayReductionHelpers:
   import vecxt.arrays.*
   import vecxt.DoubleMatrix.*
 
-  def mean(d: Array[Double]): Double = d.mean
-  def variance(d: Array[Double]): Double = d.variance
-  def norm(d: Array[Double]): Double = d.norm
-  def argmax(d: Array[Double]): Int = d.argmax
-  def argmin(d: Array[Double]): Int = d.argmin
-  def dot(d1: Array[Double], d2: Array[Double]): Double =
+  inline def mean(d: Array[Double]): Double = d.mean
+  inline def variance(d: Array[Double]): Double = d.variance
+  inline def norm(d: Array[Double]): Double = d.norm
+  inline def argmax(d: Array[Double]): Int = d.argmax
+  inline def argmin(d: Array[Double]): Int = d.argmin
+  inline def dot(d1: Array[Double], d2: Array[Double]): Double =
     d1.dot(d2)(using BoundsCheck.DoBoundsCheck.no)
-  def matmul(m1: Matrix[Double], m2: Matrix[Double]): Matrix[Double] =
+  inline def matmul(m1: Matrix[Double], m2: Matrix[Double]): Matrix[Double] =
     m1.matmul(m2)(using BoundsCheck.DoBoundsCheck.no)
 
 end NDArrayReductionHelpers
@@ -33,7 +33,7 @@ object NDArrayReductions:
   // ── Private helper functions ──────────────────────────────────────────────
 
   /** Remove axis `k` from a shape array, producing a shape with one fewer dimension. */
-  private[NDArrayReductions] def removeAxis(shape: Array[Int], axis: Int): Array[Int] =
+  private[NDArrayReductions] inline def removeAxis(shape: Array[Int], axis: Int): Array[Int] =
     val result = new Array[Int](shape.length - 1)
     var i = 0
     var j = 0
@@ -47,37 +47,11 @@ object NDArrayReductions:
     result
   end removeAxis
 
-  /** Materialise `a` to a fresh dense col-major `Array[Double]`.
-    *
-    * Returns `a.data` directly if `a.isColMajor` (no copy). Otherwise iterates in column-major coordinate order.
-    */
-  private[NDArrayReductions] def toColMajorData(a: NDArray[Double]): Array[Double] =
-    if a.isColMajor then a.data
-    else
-      val n = a.numel
-      val ndim = a.ndim
-      val cumProd = colMajorStrides(a.shape)
-      val result = new Array[Double](n)
-      var j = 0
-      while j < n do
-        var pos = a.offset
-        var k = 0
-        while k < ndim do
-          val coord = (j / cumProd(k)) % a.shape(k)
-          pos += coord * a.strides(k)
-          k += 1
-        end while
-        result(j) = a.data(pos)
-        j += 1
-      end while
-      result
-  end toColMajorData
-
   /** General reduce kernel: iterates all elements of `a` in column-major coordinate order. */
-  private[NDArrayReductions] def reduceGeneral(
+  private[NDArrayReductions] inline def reduceGeneral(
       a: NDArray[Double],
       initial: Double,
-      f: (Double, Double) => Double
+      inline f: (Double, Double) => Double
   ): Double =
     val n = a.numel
     val ndim = a.ndim
@@ -102,11 +76,11 @@ object NDArrayReductions:
     *
     * Output shape = `a.shape` with dimension `axis` removed. Output is always col-major.
     */
-  private[NDArrayReductions] def reduceAxis(
+  private[NDArrayReductions] inline def reduceAxis(
       a: NDArray[Double],
       axis: Int,
       initial: Double,
-      f: (Double, Double) => Double
+      inline f: (Double, Double) => Double
   ): NDArray[Double] =
     val outShape = removeAxis(a.shape, axis)
     val outStrides = colMajorStrides(outShape)
@@ -146,11 +120,11 @@ object NDArrayReductions:
     *
     * Output is `NDArray[Double]` of integral indices (Double for type consistency).
     */
-  private[NDArrayReductions] def argReduceAxis(
+  private[NDArrayReductions] inline def argReduceAxis(
       a: NDArray[Double],
       axis: Int,
       initial: Double,
-      compare: (Double, Double) => Boolean
+      inline compare: (Double, Double) => Boolean
   ): NDArray[Double] =
     val outShape = removeAxis(a.shape, axis)
     val outStrides = colMajorStrides(outShape)
@@ -198,32 +172,32 @@ object NDArrayReductions:
 
     /** Sum of all elements. */
     inline def sum: Double =
-      if a.isColMajor then a.data.sum
+      if a.isContiguous then a.data.sum
       else reduceGeneral(a, 0.0, _ + _)
 
     /** Arithmetic mean of all elements. */
     inline def mean: Double =
-      if a.isColMajor then NDArrayReductionHelpers.mean(a.data)
+      if a.isContiguous then NDArrayReductionHelpers.mean(a.data)
       else reduceGeneral(a, 0.0, _ + _) / a.numel
 
     /** Minimum element. */
     inline def min: Double =
-      if a.isColMajor then a.data.minSIMD
+      if a.isContiguous then a.data.minSIMD
       else reduceGeneral(a, Double.PositiveInfinity, (acc, x) => if x < acc then x else acc)
 
     /** Maximum element. */
     inline def max: Double =
-      if a.isColMajor then a.data.maxSIMD
+      if a.isContiguous then a.data.maxSIMD
       else reduceGeneral(a, Double.NegativeInfinity, (acc, x) => if x > acc then x else acc)
 
     /** Product of all elements. */
     inline def product: Double =
-      if a.isColMajor then a.data.product
+      if a.isContiguous then a.data.product
       else reduceGeneral(a, 1.0, _ * _)
 
     /** Population variance. */
     inline def variance: Double =
-      if a.isColMajor then NDArrayReductionHelpers.variance(a.data)
+      if a.isContiguous then NDArrayReductionHelpers.variance(a.data)
       else
         val m = a.mean
         val n = a.numel
@@ -247,7 +221,7 @@ object NDArrayReductions:
 
     /** L2 (Euclidean) norm: √(Σ xᵢ²). */
     inline def norm: Double =
-      if a.isColMajor then NDArrayReductionHelpers.norm(a.data)
+      if a.isContiguous then NDArrayReductionHelpers.norm(a.data)
       else Math.sqrt(reduceGeneral(a, 0.0, (acc, x) => acc + x * x))
 
     /** Index of the maximum element (flat, col-major order). */
@@ -392,13 +366,15 @@ object NDArrayReductions:
             s"matmul: inner dimension mismatch: ${a.shape(1)} vs ${b.shape(0)}"
           )
       end if
-      val aData = toColMajorData(a)
-      val bData = toColMajorData(b)
       val aRows = a.shape(0)
       val aCols = a.shape(1)
       val bCols = b.shape(1)
-      val matA = Matrix[Double](aData, aRows, aCols)(using BoundsCheck.DoBoundsCheck.no)
-      val matB = Matrix[Double](bData, aCols, bCols)(using BoundsCheck.DoBoundsCheck.no)
+      val matA = Matrix[Double](a.data, aRows, aCols, a.strides(0), a.strides(1), a.offset)(using
+        BoundsCheck.DoBoundsCheck.no
+      )
+      val matB = Matrix[Double](b.data, b.shape(0), bCols, b.strides(0), b.strides(1), b.offset)(using
+        BoundsCheck.DoBoundsCheck.no
+      )
       val result = NDArrayReductionHelpers.matmul(matA, matB)
       val outShape = Array(result.rows, result.cols)
       mkNDArray(result.raw, outShape, colMajorStrides(outShape), 0)
