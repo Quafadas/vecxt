@@ -272,10 +272,10 @@ class NDArrayElemWiseSuite extends FunSuite:
   test("binary op throws ShapeMismatchException on shape mismatch") {
     val a = NDArray(Array(1.0, 2.0, 3.0), Array(3))
     val b = NDArray(Array(1.0, 2.0), Array(2))
-    intercept[ShapeMismatchException] { a + b }
-    intercept[ShapeMismatchException] { a - b }
-    intercept[ShapeMismatchException] { a * b }
-    intercept[ShapeMismatchException] { a / b }
+    intercept[ShapeMismatchException](a + b)
+    intercept[ShapeMismatchException](a - b)
+    intercept[ShapeMismatchException](a * b)
+    intercept[ShapeMismatchException](a / b)
   }
 
   // ── Broadcasting ──────────────────────────────────────────────────────────
@@ -313,15 +313,18 @@ class NDArrayElemWiseSuite extends FunSuite:
     assertEquals(arr.length, 12)
     // col 0 (rows 0-3): 1+1=2
     for i <- 0 until 4 do assertClose(arr(i), 2.0, s"col0 row $i")
+    end for
     // col 1 (rows 0-3): 2+1=3
     for i <- 0 until 4 do assertClose(arr(4 + i), 3.0, s"col1 row $i")
+    end for
     // col 2 (rows 0-3): 3+1=4
     for i <- 0 until 4 do assertClose(arr(8 + i), 4.0, s"col2 row $i")
+    end for
   }
 
   test("broadcastTo throws on incompatible shapes") {
     val a = NDArray(Array(1.0, 2.0, 3.0), Array(3))
-    intercept[BroadcastException] { a.broadcastTo(Array(4)) }
+    intercept[BroadcastException](a.broadcastTo(Array(4)))
   }
 
   test("broadcastShape for compatible shapes") {
@@ -334,7 +337,7 @@ class NDArrayElemWiseSuite extends FunSuite:
   }
 
   test("broadcastShape throws on incompatible shapes") {
-    intercept[BroadcastException] { broadcastShape(Array(3), Array(4)) }
+    intercept[BroadcastException](broadcastShape(Array(3), Array(4)))
   }
 
   test("sameShape") {

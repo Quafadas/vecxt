@@ -17,6 +17,8 @@ def assertNDArrayClose(actual: NDArray[Double], expected: Array[Double])(implici
   val arr = actual.toArray
   assertEquals(arr.length, expected.length, "length mismatch")
   for i <- expected.indices do assertClose(arr(i), expected(i), s"element $i")
+  end for
+end assertNDArrayClose
 
 def assertVecEquals(v1: Array[Double], v2: Array[Double])(implicit loc: munit.Location): Unit =
   assert(v1.length == v2.length)

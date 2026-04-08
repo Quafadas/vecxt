@@ -15,6 +15,7 @@ object broadcast:
       var eq = true
       while i < a.length && eq do
         if a(i) != b(i) then eq = false
+        end if
         i += 1
       end while
       eq
@@ -41,9 +42,11 @@ object broadcast:
           s"Cannot broadcast shapes [${a.mkString(",")}] and [${b.mkString(",")}]: " +
             s"incompatible at dimension $i ($da vs $db)"
         )
+      end if
       i += 1
     end while
     out
+  end broadcastShape
 
   /** Compute broadcast-extended strides for `arr` viewed as having `outShape`.
     *
@@ -58,9 +61,11 @@ object broadcast:
       if arrIdx < 0 then strides(i) = 0
       else if arr.shape(arrIdx) == 1 then strides(i) = 0
       else strides(i) = arr.strides(arrIdx)
+      end if
       i += 1
     end while
     strides
+  end broadcastStrides
 
   extension [A](arr: NDArray[A])
 
@@ -77,6 +82,7 @@ object broadcast:
             s"Cannot broadcast shape [${arr.shape.mkString(",")}] to [${targetShape.mkString(",")}]: " +
               s"source has more dimensions than target"
           )
+        end if
         val n = targetShape.length
         var i = 0
         while i < n do
@@ -88,9 +94,11 @@ object broadcast:
               s"Cannot broadcast shape [${arr.shape.mkString(",")}] to [${targetShape.mkString(",")}]: " +
                 s"incompatible at dimension $i ($da vs $dt)"
             )
+          end if
           i += 1
         end while
         mkNDArray(arr.data, targetShape.clone(), broadcastStrides(arr, targetShape), arr.offset)
+  end extension
 
   /** Broadcast both operands to their common shape.
     *
@@ -100,5 +108,6 @@ object broadcast:
   inline def broadcastPair[A](a: NDArray[A], b: NDArray[A]): (NDArray[A], NDArray[A]) =
     val outShape = broadcastShape(a.shape, b.shape)
     (a.broadcastTo(outShape), b.broadcastTo(outShape))
+  end broadcastPair
 
 end broadcast
