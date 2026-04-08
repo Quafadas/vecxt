@@ -243,7 +243,21 @@ hidden bookkeeping inside every binary op.
 - [ ] `unsqueeze` / `expandDims` (add dimension of size 1)
 - [ ] `flatten` → 1D NDArray (copy if non-contiguous)
 - [ ] `toArray` → contiguous `Array[A]`  (copy if needed)
+- [ ] Multi-dimensional `::` slicing: `ndarray(::, 1 until 3, ::)` (see below)
 - [ ] Cross-platform tests
+
+**Multi-dim indexing design:** Reuse the existing `RangeExtender = Range | Array[Int] | ::.type` from
+Matrix via a varargs `apply(selectors: RangeExtender*)` on `NDArray[A]`. One selector per dimension.
+`::` keeps the full extent, `Range` slices, `Array[Int]` gathers. When all selectors are `::` or
+contiguous `Range`, the result is a **zero-copy view** (adjust offset/shape, share strides/data).
+When any selector is `Array[Int]` or non-unit-step `Range`, a copy is made into a fresh col-major
+NDArray. This mirrors Matrix `submatrix` semantics exactly.
+
+The existing per-arity `apply(i0: Int, ...)` element-access overloads are unaffected — `Int` vs
+`RangeExtender` resolves unambiguously. Single-`Int` dimension collapsing in the varargs form
+(NumPy's `cube[0, :, :]` → 2-D result) is deferred.
+
+See `site/notes/ndarray-multidim-indexing-design.md` for full implementation and verification details.
 
 **Deliverable:** Full indexing and view algebra. This is the foundation that everything else builds on.
 
@@ -266,13 +280,28 @@ hidden bookkeeping inside every binary op.
 ### Milestone 4: Reduction operations
 **Goal:** Aggregation along axes.
 
-- [ ] Full reductions: `sum`, `mean`, `min`, `max`, `variance`
-- [ ] Axis reductions: `sum(axis=k)`, `mean(axis=k)`, etc. → NDArray with one fewer dimension
+- [ ] Full reductions: `sum`, `mean`, `min`, `max`, `product`, `variance`, `norm` (L2)
+- [ ] Axis reductions: `sum(axis)`, `mean(axis)`, `min(axis)`, `max(axis)`, `product(axis)` → NDArray with one fewer dimension
 - [ ] `argmin`, `argmax` (full and per-axis)
-- [ ] `dot` (1D), `matmul` (2D) — delegate to existing BLAS for 2D case
-- [ ] `norm` (L1, L2, Linf)
+- [ ] `dot` (1D), `matmul`/`@@` (2D) — delegate to existing BLAS for 2D case
 - [ ] Platform-specific fast paths for contiguous data
 - [ ] Cross-platform tests
+
+**Key design decisions:**
+
+- **Axis parameter is `Int`**, not `DimensionExtender`. The `Dimension` enum (`Rows`, `Cols`) is
+  ergonomic for 2-D but doesn't generalise to N-D.
+- **Axis reductions remove the collapsed dimension** (NumPy `keepdims=False` default). Users who
+  want keepdims can `unsqueeze(axis)` on the result.
+- **Full reductions return `Double`**, not 0-D NDArray. Vecxt doesn't use 0-D NDArrays.
+- **Col-major fast path delegates to existing `Array[Double]` extensions** (`sumSIMD`, `maxSIMD`,
+  `norm` via BLAS `dnrm2`, `dot` via BLAS `ddot`, `argmax`/`argmin`). No new JVM-specific code.
+- **`matmul` is 2-D only; `dot` is 1-D only.** No batched matmul. `matmul` delegates to
+  `Matrix.@@` (BLAS `dgemm`); non-contiguous inputs are materialised first.
+- All code lives in shared `src/ndarrayReductions.scala`; platform acceleration comes for free
+  through delegation to already-SIMD-accelerated `Array[Double]` methods.
+
+See `site/notes/m4-reductions-design.md` for full implementation, worked examples, and verification plan.
 
 **Deliverable:** Statistical and aggregation workloads run on NDArray.
 
