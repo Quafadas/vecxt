@@ -3,7 +3,9 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.IntArrays.*
 import vecxt.ndarray.*
+import vecxt.rangeExtender.MatrixRange.*
 
 object ndarrayOps:
 
@@ -411,6 +413,106 @@ object ndarrayOps:
       else
         val out = arr.toArray
         mkNDArray(out, Array(arr.numel), Array(1), 0)
+
+    // ── Multi-dimensional slice/select ─────────────────────────────────────
+
+    /** Multi-dimensional slice/select. One selector per dimension.
+      *
+      *   - `::` → keep entire dimension (zero-copy)
+      *   - `Range` (e.g. `1 until 3`) → contiguous slice (zero-copy if all selectors are `::` or step-1 `Range`)
+      *   - `Array[Int]` → gather (may require copy)
+      *
+      * Number of selectors must equal `arr.ndim`. Always validates bounds.
+      */
+    def apply(selectors: RangeExtender*)(using ct: ClassTag[A]): NDArray[A] =
+      if selectors.length != arr.ndim then
+        throw InvalidNDArray(
+          s"Expected ${arr.ndim} selectors for ndim=${arr.ndim}, got ${selectors.length}"
+        )
+      end if
+
+      // Validate bounds and determine if all selectors are contiguous
+      var allContiguous = true
+      var k = 0
+      while k < arr.ndim do
+        selectors(k) match
+          case _: ::.type => // always contiguous, skip
+          case r: Range   =>
+            if r.start < 0 || r.end > arr.shape(k) then
+              throw new java.lang.IndexOutOfBoundsException(
+                s"Range ${r.start} until ${r.end} out of bounds for dim $k of size ${arr.shape(k)}"
+              )
+            end if
+            if r.step != 1 then allContiguous = false
+            end if
+          case a: Array[Int] =>
+            var i = 0
+            while i < a.length do
+              if a(i) < 0 || a(i) >= arr.shape(k) then
+                throw new java.lang.IndexOutOfBoundsException(
+                  s"Index ${a(i)} out of bounds for dim $k of size ${arr.shape(k)}"
+                )
+              end if
+              i += 1
+            end while
+            if !a.contiguous then allContiguous = false
+            end if
+        end match
+        k += 1
+      end while
+
+      // Compute output shape from selectors
+      val newShape = new Array[Int](arr.ndim)
+      k = 0
+      while k < arr.ndim do
+        newShape(k) = selectors(k) match
+          case _: ::.type    => arr.shape(k)
+          case r: Range      => r.length
+          case a: Array[Int] => a.length
+        k += 1
+      end while
+
+      if allContiguous then
+        // Zero-copy view: adjust offset, keep strides
+        var newOffset = arr.offset
+        k = 0
+        while k < arr.ndim do
+          val start = selectors(k) match
+            case _: ::.type    => 0
+            case r: Range      => r.start
+            case a: Array[Int] => if a.isEmpty then 0 else a(0)
+          newOffset += start * arr.strides(k)
+          k += 1
+        end while
+        mkNDArray(arr.data, newShape, arr.strides.clone(), newOffset)
+      else
+        // Copy/gather path: resolve each selector to Array[Int] and gather
+        val resolved = new Array[Array[Int]](arr.ndim)
+        k = 0
+        while k < arr.ndim do
+          resolved(k) = range(selectors(k), arr.shape(k))
+          k += 1
+        end while
+
+        val outStrides = colMajorStrides(newShape)
+        val n = shapeProduct(newShape)
+        val out = new Array[A](n)
+
+        var j = 0
+        while j < n do
+          var posIn = arr.offset
+          k = 0
+          while k < arr.ndim do
+            val coord = (j / outStrides(k)) % newShape(k)
+            posIn += resolved(k)(coord) * arr.strides(k)
+            k += 1
+          end while
+          out(j) = arr.data(posIn)
+          j += 1
+        end while
+        mkNDArray(out, newShape, outStrides, 0)
+      end if
+    end apply
 
     // ── toArray ────────────────────────────────────────────────────────────
 
