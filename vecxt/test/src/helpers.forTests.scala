@@ -8,6 +8,18 @@ import scala.annotation.targetName
 extension [A <: AnyRef](o: A) def some: Some[A] = Some(o)
 end extension
 
+private val eps = 1e-10
+
+def assertClose(actual: Double, expected: Double, clue: String = "")(implicit loc: munit.Location): Unit =
+  assert(Math.abs(actual - expected) < eps, s"$clue: expected $expected got $actual")
+
+def assertNDArrayClose(actual: NDArray[Double], expected: Array[Double])(implicit loc: munit.Location): Unit =
+  val arr = actual.toArray
+  assertEquals(arr.length, expected.length, "length mismatch")
+  for i <- expected.indices do assertClose(arr(i), expected(i), s"element $i")
+  end for
+end assertNDArrayClose
+
 def assertVecEquals(v1: Array[Double], v2: Array[Double])(implicit loc: munit.Location): Unit =
   assert(v1.length == v2.length)
   var i: Int = 0;
