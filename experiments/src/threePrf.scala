@@ -446,14 +446,8 @@ object ThreePrf:
     hstack(ones, m)
 
   /** Stack two matrices side by side (column-wise). */
-  def hstack(left: Matrix[Double], right: Matrix[Double]): Matrix[Double] =
-    assert(left.rows == right.rows, s"hstack row mismatch: ${left.rows} vs ${right.rows}")
-    val out = Matrix.zeros[Double]((left.rows, left.cols + right.cols))
-    for j <- 0 until left.cols do
-      for i <- 0 until left.rows do out(i, j) = left(i, j)
-    for j <- 0 until right.cols do
-      for i <- 0 until right.rows do out(i, left.cols + j) = right(i, j)
-    out
+  def hstack(left: Matrix[Double], right: Matrix[Double]): Matrix[Double] = left.vertcat(right)
+
 
   def cbind(mats: Seq[Matrix[Double]]): Matrix[Double] =
     mats.reduce(hstack)
