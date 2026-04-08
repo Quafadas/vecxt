@@ -50,7 +50,7 @@ object NDArrayReductions:
   /** General reduce kernel: iterates all elements of `a` in column-major coordinate order. */
   private[NDArrayReductions] inline def reduceGeneral(
       a: NDArray[Double],
-      initial: Double,
+      inline initial: Double,
       inline f: (Double, Double) => Double
   ): Double =
     val n = a.numel
@@ -79,7 +79,7 @@ object NDArrayReductions:
   private[NDArrayReductions] inline def reduceAxis(
       a: NDArray[Double],
       axis: Int,
-      initial: Double,
+      inline initial: Double,
       inline f: (Double, Double) => Double
   ): NDArray[Double] =
     val outShape = removeAxis(a.shape, axis)
@@ -123,7 +123,7 @@ object NDArrayReductions:
   private[NDArrayReductions] inline def argReduceAxis(
       a: NDArray[Double],
       axis: Int,
-      initial: Double,
+      inline initial: Double,
       inline compare: (Double, Double) => Boolean
   ): NDArray[Double] =
     val outShape = removeAxis(a.shape, axis)
