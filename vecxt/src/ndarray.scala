@@ -129,7 +129,7 @@ object ndarray:
   /** Package-private factory — creates NDArray without bounds checking. Used by operations that have already validated
     * invariants (slice, transpose, etc.).
     */
-  private[vecxt] def mkNDArray[A](
+  private[vecxt] inline def mkNDArray[A](
       data: Array[A],
       shape: Array[Int],
       strides: Array[Int],
@@ -137,7 +137,7 @@ object ndarray:
   ): NDArray[A] = new NDArray(data, shape, strides, offset)
 
   // Compute column-major strides for a given shape
-  private[vecxt] def colMajorStrides(shape: Array[Int]): Array[Int] =
+  private[vecxt] inline def colMajorStrides(shape: Array[Int]): Array[Int] =
     val strides = new Array[Int](shape.length)
     if shape.length > 0 then
       strides(0) = 1
@@ -151,7 +151,7 @@ object ndarray:
   end colMajorStrides
 
   // Product of shape elements
-  private[vecxt] def shapeProduct(shape: Array[Int]): Int =
+  private[vecxt] inline def shapeProduct(shape: Array[Int]): Int =
     var prod = 1
     var i = 0
     while i < shape.length do

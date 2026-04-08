@@ -8,7 +8,7 @@ object broadcast:
   class ShapeMismatchException(msg: String) extends RuntimeException(msg)
 
   /** True if two shapes have the same rank and element-wise equal dimensions. */
-  def sameShape(a: Array[Int], b: Array[Int]): Boolean =
+  inline def sameShape(a: Array[Int], b: Array[Int]): Boolean =
     if a.length != b.length then false
     else
       var i = 0
@@ -24,7 +24,7 @@ object broadcast:
     * Shapes are right-aligned; a dimension of 1 expands to match the other. Throws `BroadcastException` if shapes are
     * incompatible.
     */
-  def broadcastShape(a: Array[Int], b: Array[Int]): Array[Int] =
+  inline def broadcastShape(a: Array[Int], b: Array[Int]): Array[Int] =
     val n = math.max(a.length, b.length)
     val out = new Array[Int](n)
     var i = 0
@@ -49,7 +49,7 @@ object broadcast:
     *
     * Prepends 0s for dimensions padded on the left; sets stride to 0 for original dimensions of size 1 (broadcast).
     */
-  def broadcastStrides(arr: NDArray[?], outShape: Array[Int]): Array[Int] =
+  inline def broadcastStrides(arr: NDArray[?], outShape: Array[Int]): Array[Int] =
     val n = outShape.length
     val strides = new Array[Int](n)
     var i = 0
@@ -97,7 +97,7 @@ object broadcast:
     * Returns `(a', b')` where both have `shape == broadcastShape(a.shape, b.shape)`. Throws `BroadcastException` if
     * shapes are incompatible.
     */
-  def broadcastPair[A](a: NDArray[A], b: NDArray[A]): (NDArray[A], NDArray[A]) =
+  inline def broadcastPair[A](a: NDArray[A], b: NDArray[A]): (NDArray[A], NDArray[A]) =
     val outShape = broadcastShape(a.shape, b.shape)
     (a.broadcastTo(outShape), b.broadcastTo(outShape))
 

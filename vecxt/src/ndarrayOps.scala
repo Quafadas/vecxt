@@ -419,7 +419,7 @@ object ndarrayOps:
       * If the array is already dense col-major with offset=0, returns a clone of the backing data. Otherwise iterates
       * via the stride formula.
       */
-    def toArray(using ct: ClassTag[A]): Array[A] =
+    inline def toArray(using ct: ClassTag[A]): Array[A] =
       if arr.isColMajor then arr.data.clone()
       else
         val result = new Array[A](arr.numel)

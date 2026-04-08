@@ -142,10 +142,10 @@ object NDArrayDoubleOps:
 
   // ── Flat-array loop helpers (col-major fast path) ────────────────────────
 
-  private def flatBinaryOp(
+  private inline def flatBinaryOp(
       aData: Array[Double],
       bData: Array[Double],
-      f: (Double, Double) => Double
+      inline f: (Double, Double) => Double
   ): Array[Double] =
     val n = aData.length
     val out = new Array[Double](n)
@@ -157,7 +157,7 @@ object NDArrayDoubleOps:
     out
   end flatBinaryOp
 
-  private def flatUnaryOp(data: Array[Double], f: Double => Double): Array[Double] =
+  private inline def flatUnaryOp(data: Array[Double], inline f: Double => Double): Array[Double] =
     val n = data.length
     val out = new Array[Double](n)
     var i = 0
@@ -168,10 +168,10 @@ object NDArrayDoubleOps:
     out
   end flatUnaryOp
 
-  private def flatBinaryCompare(
+  private inline def flatBinaryCompare(
       aData: Array[Double],
       bData: Array[Double],
-      f: (Double, Double) => Boolean
+      inline f: (Double, Double) => Boolean
   ): Array[Boolean] =
     val n = aData.length
     val out = new Array[Boolean](n)
@@ -183,10 +183,10 @@ object NDArrayDoubleOps:
     out
   end flatBinaryCompare
 
-  private def flatScalarCompare(
+  private inline def flatScalarCompare(
       data: Array[Double],
       s: Double,
-      f: (Double, Double) => Boolean
+      inline f: (Double, Double) => Boolean
   ): Array[Boolean] =
     val n = data.length
     val out = new Array[Boolean](n)
@@ -206,7 +206,7 @@ object NDArrayDoubleOps:
 
     /** Element-wise addition. Operands must have the same shape; use `broadcastTo` or `broadcastPair` first if needed.
       */
-    def +(b: NDArray[Double]): NDArray[Double] =
+    inline def +(b: NDArray[Double]): NDArray[Double] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -217,7 +217,7 @@ object NDArrayDoubleOps:
       else binaryOpGeneral(a, b, _ + _)
 
     /** Element-wise subtraction. Operands must have the same shape. */
-    def -(b: NDArray[Double]): NDArray[Double] =
+    inline def -(b: NDArray[Double]): NDArray[Double] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -228,7 +228,7 @@ object NDArrayDoubleOps:
       else binaryOpGeneral(a, b, _ - _)
 
     /** Element-wise multiplication (Hadamard product). Operands must have the same shape. */
-    def *(b: NDArray[Double]): NDArray[Double] =
+    inline def *(b: NDArray[Double]): NDArray[Double] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -239,7 +239,7 @@ object NDArrayDoubleOps:
       else binaryOpGeneral(a, b, _ * _)
 
     /** Element-wise division. Operands must have the same shape. */
-    def /(b: NDArray[Double]): NDArray[Double] =
+    inline def /(b: NDArray[Double]): NDArray[Double] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -252,59 +252,59 @@ object NDArrayDoubleOps:
     // ── Scalar binary ops ──────────────────────────────────────────────────
 
     /** Add scalar `s` to every element. */
-    def +(s: Double): NDArray[Double] =
+    inline def +(s: Double): NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, _ + s), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, _ + s)
 
     /** Subtract scalar `s` from every element. */
-    def -(s: Double): NDArray[Double] =
+    inline def -(s: Double): NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, _ - s), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, _ - s)
 
     /** Multiply every element by scalar `s`. */
-    def *(s: Double): NDArray[Double] =
+    inline def *(s: Double): NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, _ * s), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, _ * s)
 
     /** Divide every element by scalar `s`. */
-    def /(s: Double): NDArray[Double] =
+    inline def /(s: Double): NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, _ / s), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, _ / s)
 
     // ── Unary ops ──────────────────────────────────────────────────────────
 
     /** Element-wise negation. */
-    def neg: NDArray[Double] =
+    inline def neg: NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => -x), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => -x)
 
     /** Element-wise absolute value. */
-    def abs: NDArray[Double] =
+    inline def abs: NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.abs), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, Math.abs)
 
     /** Element-wise natural exponential. */
-    def exp: NDArray[Double] =
+    inline def exp: NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.exp), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, Math.exp)
 
     /** Element-wise natural logarithm. */
-    def log: NDArray[Double] =
+    inline def log: NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.log), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, Math.log)
 
     /** Element-wise square root. */
-    def sqrt: NDArray[Double] =
+    inline def sqrt: NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.sqrt), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, Math.sqrt)
 
     /** Element-wise hyperbolic tangent. */
-    def tanh: NDArray[Double] =
+    inline def tanh: NDArray[Double] =
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.tanh), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, Math.tanh)
 
     /** Element-wise sigmoid: `1 / (1 + exp(-x))`. */
-    def sigmoid: NDArray[Double] =
+    inline def sigmoid: NDArray[Double] =
       val sig = (x: Double) => 1.0 / (1.0 + Math.exp(-x))
       if a.isColMajor then mkNDArray(flatUnaryOp(a.data, sig), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, sig)
@@ -312,7 +312,7 @@ object NDArrayDoubleOps:
     // ── In-place binary ops ────────────────────────────────────────────────
 
     /** In-place element-wise addition. `a` must be contiguous; operands must have the same shape. */
-    def +=(b: NDArray[Double]): Unit =
+    inline def +=(b: NDArray[Double]): Unit =
       if !a.isContiguous then
         throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       if !sameShape(a.shape, b.shape) then
@@ -330,7 +330,7 @@ object NDArrayDoubleOps:
       else binaryOpInPlaceGeneral(a, b, _ + _)
 
     /** In-place element-wise subtraction. `a` must be contiguous; operands must have the same shape. */
-    def -=(b: NDArray[Double]): Unit =
+    inline def -=(b: NDArray[Double]): Unit =
       if !a.isContiguous then
         throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       if !sameShape(a.shape, b.shape) then
@@ -348,7 +348,7 @@ object NDArrayDoubleOps:
       else binaryOpInPlaceGeneral(a, b, _ - _)
 
     /** In-place element-wise multiplication. `a` must be contiguous; operands must have the same shape. */
-    def *=(b: NDArray[Double]): Unit =
+    inline def *=(b: NDArray[Double]): Unit =
       if !a.isContiguous then
         throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       if !sameShape(a.shape, b.shape) then
@@ -366,7 +366,7 @@ object NDArrayDoubleOps:
       else binaryOpInPlaceGeneral(a, b, _ * _)
 
     /** In-place element-wise division. `a` must be contiguous; operands must have the same shape. */
-    def /=(b: NDArray[Double]): Unit =
+    inline def /=(b: NDArray[Double]): Unit =
       if !a.isContiguous then
         throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       if !sameShape(a.shape, b.shape) then
@@ -386,7 +386,7 @@ object NDArrayDoubleOps:
     // ── In-place scalar ops ────────────────────────────────────────────────
 
     /** Add scalar `s` to every element in place. `a` must be contiguous. */
-    def +=(s: Double): Unit =
+    inline def +=(s: Double): Unit =
       if !a.isContiguous then
         throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       var i = 0
@@ -396,7 +396,7 @@ object NDArrayDoubleOps:
       end while
 
     /** Subtract scalar `s` from every element in place. `a` must be contiguous. */
-    def -=(s: Double): Unit =
+    inline def -=(s: Double): Unit =
       if !a.isContiguous then
         throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       var i = 0
@@ -406,7 +406,7 @@ object NDArrayDoubleOps:
       end while
 
     /** Multiply every element by scalar `s` in place. `a` must be contiguous. */
-    def *=(s: Double): Unit =
+    inline def *=(s: Double): Unit =
       if !a.isContiguous then
         throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       var i = 0
@@ -416,7 +416,7 @@ object NDArrayDoubleOps:
       end while
 
     /** Divide every element by scalar `s` in place. `a` must be contiguous. */
-    def /=(s: Double): Unit =
+    inline def /=(s: Double): Unit =
       if !a.isContiguous then
         throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       var i = 0
@@ -428,7 +428,7 @@ object NDArrayDoubleOps:
     // ── Comparison ops (array vs array) ───────────────────────────────────
 
     /** Element-wise greater-than. Operands must have the same shape. */
-    def >(b: NDArray[Double]): NDArray[Boolean] =
+    inline def >(b: NDArray[Double]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Comparison > requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -439,7 +439,7 @@ object NDArrayDoubleOps:
       else compareGeneral(a, b, _ > _)
 
     /** Element-wise less-than. Operands must have the same shape. */
-    def <(b: NDArray[Double]): NDArray[Boolean] =
+    inline def <(b: NDArray[Double]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Comparison < requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -450,7 +450,7 @@ object NDArrayDoubleOps:
       else compareGeneral(a, b, _ < _)
 
     /** Element-wise greater-than-or-equal. Operands must have the same shape. */
-    def >=(b: NDArray[Double]): NDArray[Boolean] =
+    inline def >=(b: NDArray[Double]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Comparison >= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -461,7 +461,7 @@ object NDArrayDoubleOps:
       else compareGeneral(a, b, _ >= _)
 
     /** Element-wise less-than-or-equal. Operands must have the same shape. */
-    def <=(b: NDArray[Double]): NDArray[Boolean] =
+    inline def <=(b: NDArray[Double]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Comparison <= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -472,7 +472,7 @@ object NDArrayDoubleOps:
       else compareGeneral(a, b, _ <= _)
 
     /** Element-wise equality. Operands must have the same shape. */
-    def =:=(b: NDArray[Double]): NDArray[Boolean] =
+    inline def =:=(b: NDArray[Double]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Comparison =:= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -483,7 +483,7 @@ object NDArrayDoubleOps:
       else compareGeneral(a, b, _ == _)
 
     /** Element-wise inequality. Operands must have the same shape. */
-    def !:=(b: NDArray[Double]): NDArray[Boolean] =
+    inline def !:=(b: NDArray[Double]): NDArray[Boolean] =
       if !sameShape(a.shape, b.shape) then
         throw ShapeMismatchException(
           s"Comparison !:= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
@@ -496,35 +496,35 @@ object NDArrayDoubleOps:
     // ── Comparison ops (array vs scalar) ──────────────────────────────────
 
     /** Element-wise greater-than scalar. */
-    def >(s: Double): NDArray[Boolean] =
+    inline def >(s: Double): NDArray[Boolean] =
       if a.isColMajor then mkNDArray(flatScalarCompare(a.data, s, _ > _), a.shape.clone(), colMajorStrides(a.shape), 0)
       else compareScalarGeneral(a, s, _ > _)
 
     /** Element-wise less-than scalar. */
-    def <(s: Double): NDArray[Boolean] =
+    inline def <(s: Double): NDArray[Boolean] =
       if a.isColMajor then mkNDArray(flatScalarCompare(a.data, s, _ < _), a.shape.clone(), colMajorStrides(a.shape), 0)
       else compareScalarGeneral(a, s, _ < _)
 
     /** Element-wise greater-than-or-equal scalar. */
-    def >=(s: Double): NDArray[Boolean] =
+    inline def >=(s: Double): NDArray[Boolean] =
       if a.isColMajor then
         mkNDArray(flatScalarCompare(a.data, s, _ >= _), a.shape.clone(), colMajorStrides(a.shape), 0)
       else compareScalarGeneral(a, s, _ >= _)
 
     /** Element-wise less-than-or-equal scalar. */
-    def <=(s: Double): NDArray[Boolean] =
+    inline def <=(s: Double): NDArray[Boolean] =
       if a.isColMajor then
         mkNDArray(flatScalarCompare(a.data, s, _ <= _), a.shape.clone(), colMajorStrides(a.shape), 0)
       else compareScalarGeneral(a, s, _ <= _)
 
     /** Element-wise equality with scalar. */
-    def =:=(s: Double): NDArray[Boolean] =
+    inline def =:=(s: Double): NDArray[Boolean] =
       if a.isColMajor then
         mkNDArray(flatScalarCompare(a.data, s, _ == _), a.shape.clone(), colMajorStrides(a.shape), 0)
       else compareScalarGeneral(a, s, _ == _)
 
     /** Element-wise inequality with scalar. */
-    def !:=(s: Double): NDArray[Boolean] =
+    inline def !:=(s: Double): NDArray[Boolean] =
       if a.isColMajor then
         mkNDArray(flatScalarCompare(a.data, s, _ != _), a.shape.clone(), colMajorStrides(a.shape), 0)
       else compareScalarGeneral(a, s, _ != _)
@@ -536,19 +536,19 @@ object NDArrayDoubleOps:
   extension (s: Double)
 
     /** Scalar + NDArray[Double]: equivalent to `arr + s`. */
-    def +(a: NDArray[Double]): NDArray[Double] = a + s
+    inline def +(a: NDArray[Double]): NDArray[Double] = a + s
 
     /** Scalar - NDArray[Double]: `s - arr(i)` for each element. */
-    def -(a: NDArray[Double]): NDArray[Double] =
+    inline def -(a: NDArray[Double]): NDArray[Double] =
       if a.isColMajor then
         mkNDArray(flatUnaryOp(a.data, x => s - x), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => s - x)
 
     /** Scalar * NDArray[Double]: equivalent to `arr * s`. */
-    def *(a: NDArray[Double]): NDArray[Double] = a * s
+    inline def *(a: NDArray[Double]): NDArray[Double] = a * s
 
     /** Scalar / NDArray[Double]: `s / arr(i)` for each element. */
-    def /(a: NDArray[Double]): NDArray[Double] =
+    inline def /(a: NDArray[Double]): NDArray[Double] =
       if a.isColMajor then
         mkNDArray(flatUnaryOp(a.data, x => s / x), a.shape.clone(), colMajorStrides(a.shape), 0)
       else unaryOpGeneral(a, x => s / x)

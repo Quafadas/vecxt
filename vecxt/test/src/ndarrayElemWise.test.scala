@@ -7,16 +7,6 @@ import BoundsCheck.DoBoundsCheck.yes
 
 class NDArrayElemWiseSuite extends FunSuite:
 
-  private val eps = 1e-10
-
-  private def assertClose(actual: Double, expected: Double, clue: String = ""): Unit =
-    assert(Math.abs(actual - expected) < eps, s"$clue: expected $expected got $actual")
-
-  private def assertNDArrayClose(actual: NDArray[Double], expected: Array[Double]): Unit =
-    val arr = actual.toArray
-    assertEquals(arr.length, expected.length, "length mismatch")
-    for i <- expected.indices do assertClose(arr(i), expected(i), s"element $i")
-
   // ── Binary ops (col-major fast path) ─────────────────────────────────────
 
   test("NDArray + NDArray (col-major 1D)") {
