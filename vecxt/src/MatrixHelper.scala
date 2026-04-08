@@ -98,6 +98,12 @@ object MatrixHelper:
       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
     end fill
 
+    transparent inline def NaN(dim: RowCol): Matrix[Double] =
+      val (rows, cols) = dim
+      val newArr = Array.fill[Double](rows * cols)(Double.NaN)
+      Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
+    end NaN
+
     transparent inline def eyeOf[A: ClassTag](singleton: A, dim: Int)(zero: A): Matrix[A] =
       val size = dim * dim
       val newArr: Array[A] = Array.ofDim[A](size)

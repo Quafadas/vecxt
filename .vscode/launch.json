@@ -30,6 +30,16 @@
       "args": [],
       "jvmOptions": [],
       "env": {}
+    },
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "validateTPF",
+      "mainClass": "experiments.validateTPF",
+      "buildTarget": "file:///Users/simon/Code/vecxt/experiments",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     }
   ]
 }
