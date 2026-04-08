@@ -37,6 +37,13 @@ jobs:
           jvm: temurin@17
           apps: scala-cli
 
+      - name: Cache Coursier
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/coursier/v1
+          key: coursier-${{ runner.os }}-${{ hashFiles('build.mill', '**/package.mill') }}
+          restore-keys: coursier-${{ runner.os }}-
+
       - name: Setup NodeJS v18 LTS
         if: matrix.project == 'js'
         uses: actions/setup-node@v3
@@ -105,6 +112,13 @@ jobs:
           jvm: temurin@17
           apps: scala-cli
 
+      - name: Cache Coursier
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/coursier/v1
+          key: coursier-${{ runner.os }}-${{ hashFiles('build.mill', '**/package.mill') }}
+          restore-keys: coursier-${{ runner.os }}-
+
       - name: Publish to Maven Central
         run: ./mill mill.javalib.SonatypeCentralPublishModule/
         env:
@@ -122,6 +136,14 @@ jobs:
         with:
           jvm: temurin@17
           apps: scala-cli
+
+      - name: Cache Coursier
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/coursier/v1
+          key: coursier-${{ runner.os }}-${{ hashFiles('build.mill', '**/package.mill') }}
+          restore-keys: coursier-${{ runner.os }}-
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
