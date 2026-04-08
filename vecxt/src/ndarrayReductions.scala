@@ -282,15 +282,14 @@ object NDArrayReductions:
 
     /** Sum along axis `axis`. Result has one fewer dimension. */
     inline def sum(axis: Int): NDArray[Double] =
-      if axis < 0 || axis >= a.ndim then
-        throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
+      if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       reduceAxis(a, axis, 0.0, _ + _)
+    end sum
 
     /** Mean along axis `axis`. */
     inline def mean(axis: Int): NDArray[Double] =
-      if axis < 0 || axis >= a.ndim then
-        throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
+      if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       val result = reduceAxis(a, axis, 0.0, _ + _)
       val n = a.shape(axis).toDouble
@@ -300,41 +299,42 @@ object NDArrayReductions:
         i += 1
       end while
       result
+    end mean
 
     /** Min along axis `axis`. */
     inline def min(axis: Int): NDArray[Double] =
-      if axis < 0 || axis >= a.ndim then
-        throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
+      if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       reduceAxis(a, axis, Double.PositiveInfinity, (acc, x) => if x < acc then x else acc)
+    end min
 
     /** Max along axis `axis`. */
     inline def max(axis: Int): NDArray[Double] =
-      if axis < 0 || axis >= a.ndim then
-        throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
+      if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       reduceAxis(a, axis, Double.NegativeInfinity, (acc, x) => if x > acc then x else acc)
+    end max
 
     /** Product along axis `axis`. */
     inline def product(axis: Int): NDArray[Double] =
-      if axis < 0 || axis >= a.ndim then
-        throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
+      if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       reduceAxis(a, axis, 1.0, _ * _)
+    end product
 
     /** Argmax along axis `axis`. Returns NDArray[Double] of indices (values are integral). */
     inline def argmax(axis: Int): NDArray[Double] =
-      if axis < 0 || axis >= a.ndim then
-        throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
+      if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       argReduceAxis(a, axis, Double.NegativeInfinity, _ > _)
+    end argmax
 
     /** Argmin along axis `axis`. Returns NDArray[Double] of indices (values are integral). */
     inline def argmin(axis: Int): NDArray[Double] =
-      if axis < 0 || axis >= a.ndim then
-        throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
+      if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       argReduceAxis(a, axis, Double.PositiveInfinity, _ < _)
+    end argmin
 
     // ── Linear algebra ─────────────────────────────────────────────────────
 
@@ -342,9 +342,12 @@ object NDArrayReductions:
     inline def dot(b: NDArray[Double])(using inline bc: BoundsCheck): Double =
       inline if bc then
         if a.ndim != 1 then throw InvalidNDArray(s"dot requires 1-D arrays, got ndim=${a.ndim}")
+        end if
         if b.ndim != 1 then throw InvalidNDArray(s"dot requires 1-D arrays, got ndim=${b.ndim}")
+        end if
         if a.shape(0) != b.shape(0) then
           throw ShapeMismatchException(s"dot: length mismatch: ${a.shape(0)} vs ${b.shape(0)}")
+        end if
       end if
       if a.isColMajor && b.isColMajor then NDArrayReductionHelpers.dot(a.data, b.data)
       else
@@ -355,16 +358,21 @@ object NDArrayReductions:
           i += 1
         end while
         acc
+      end if
+    end dot
 
     /** Matrix multiply two 2-D NDArrays. Result shape: [a.shape(0), b.shape(1)]. */
     inline def matmul(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
       inline if bc then
         if a.ndim != 2 then throw InvalidNDArray(s"matmul requires 2-D arrays, got ndim=${a.ndim}")
+        end if
         if b.ndim != 2 then throw InvalidNDArray(s"matmul requires 2-D arrays, got ndim=${b.ndim}")
+        end if
         if a.shape(1) != b.shape(0) then
           throw ShapeMismatchException(
             s"matmul: inner dimension mismatch: ${a.shape(1)} vs ${b.shape(0)}"
           )
+        end if
       end if
       val aRows = a.shape(0)
       val aCols = a.shape(1)
@@ -378,6 +386,7 @@ object NDArrayReductions:
       val result = NDArrayReductionHelpers.matmul(matA, matB)
       val outShape = Array(result.rows, result.cols)
       mkNDArray(result.raw, outShape, colMajorStrides(outShape), 0)
+    end matmul
 
     /** Alias for matmul. */
     inline def @@(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] = a.matmul(b)
