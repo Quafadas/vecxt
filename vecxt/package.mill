@@ -5,6 +5,8 @@ import mill.scalajslib.api.ModuleKind
 import com.goyeau.mill.scalafix.ScalafixModule
 import mill.api.Task.Simple
 
+import mill.contrib.scoverage.ScoverageModule
+
 object `package` extends Module:
   trait VecxtModule extends PlatformScalaModule with build.VecxtPublishModule:
     def mvnDeps = super.mvnDeps() ++ Seq(
@@ -25,8 +27,9 @@ object `package` extends Module:
     (os.sub / "src-jvm-native")
   }
 
-  object jvm extends VecxtModule:
+  object jvm extends VecxtModule with ScoverageModule:
     override def scalaVersion = build.V.scalaVersion
+    def scoverageVersion = "2.5.2"
     override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
     override def enableBsp = build.V.jvmBSP
     def mvnDeps = super.mvnDeps() ++ Seq(
@@ -35,7 +38,7 @@ object `package` extends Module:
     )
     def sources = Task(super.sources() ++ jvmNativeSharedSources())
 
-    object test extends VecxtTest, ScalaTests:
+    object test extends VecxtTest, ScalaTests, ScoverageTests:
       def moduleDeps = Seq(jvm)
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
       override def enableBsp = build.V.jvmBSP
