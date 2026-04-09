@@ -80,7 +80,7 @@ object broadcast:
         if arr.ndim > targetShape.length then
           throw BroadcastException(
             s"Cannot broadcast shape [${arr.shape.mkString(",")}] to [${targetShape.mkString(",")}]: " +
-              s"source has more dimensions than target"
+              "source has more dimensions than target"
           )
         end if
         val n = targetShape.length

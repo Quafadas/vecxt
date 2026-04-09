@@ -31,6 +31,8 @@ object `package` extends SiteJSModule:
     mvn"com.lihaoyi::upickle::4.0.2"
   )
 
+  override def enableBsp = V.jsBSP
+
   // object test extends ScalaJSTests with CommonTests {
   //   def moduleKind = ModuleKind.CommonJSModule
   // }

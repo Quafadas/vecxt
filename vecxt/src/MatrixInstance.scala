@@ -4,7 +4,7 @@ import scala.annotation.targetName
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.IntArrays.contiguous
+import vecxt.IntArraysX.contiguous
 import vecxt.MatrixHelper.zeros
 import vecxt.matrix.*
 import vecxt.rangeExtender.*

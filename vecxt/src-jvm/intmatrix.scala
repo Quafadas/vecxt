@@ -1,7 +1,7 @@
 package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.arrays.*
+import vecxt.intarrays.*
 import vecxt.matrix.*
 
 object JvmIntMatrix:

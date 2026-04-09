@@ -1,12 +1,15 @@
 package vecxt
 
 import scala.reflect.ClassTag
+import scala.scalajs.js
+import scala.scalajs.js.typedarray.Float32Array
+import scala.util.chaining.*
 
+import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
 
-// These use project panama (SIMD) on the JVM, so need own JS native implementation
-object JsNativeFloatArrays:
+object floatarrays:
 
   extension (f: Float)
     inline def /(arr: Array[Float]) =
@@ -207,7 +210,7 @@ object JsNativeFloatArrays:
       prod.toFloat
     end productSIMD
 
-    inline def product: Float = productSIMD
+    // inline def product: Float = productSIMD
 
     inline def `**!`(power: Float): Unit =
       var i = 0
@@ -407,27 +410,80 @@ object JsNativeFloatArrays:
       res
     end /
 
-    inline def *(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def /:/(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Float](n)
       var i = 0
       while i < n do
-        res(i) = vec(i) * d(i)
+        res(i) = vec(i) / d(i)
         i += 1
       end while
       res
-    end *
+    end /:/
 
-    inline def *=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def /=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, d)
       val n = vec.length
       var i = 0
       while i < n do
-        vec(i) = vec(i) * d(i)
+        vec(i) = vec(i) / d(i)
         i += 1
       end while
+    end /=
+
+    inline def *(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+      dimCheck(vec, d)
+      val out = new Array[Float](vec.length)
+      var i = 0
+      while i < vec.length do
+        out(i) = vec(i) * d(i)
+        i = i + 1
+      end while
+      out
+    end *
+
+    inline def *:*(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+      dimCheck(vec, d)
+      val out = new Array[Float](vec.length)
+      var i = 0
+      while i < vec.length do
+        out(i) = vec(i) * d(i)
+        i = i + 1
+      end while
+      out
+    end *:*
+
+    inline def *=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+      dimCheck(vec, d)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) * d(i)
+        i = i + 1
+      end while
     end *=
+
+    // inline def *(d: Float): Array[Float] =
+    //   val n = vec.length
+    //   val res = Array.ofDim[Float](n)
+    //   var i = 0
+    //   while i < n do
+    //     res(i) = vec(i) * d
+    //     i += 1
+    //   end while
+    //   res
+    // end *
+
+    // inline def /(d: Float): Array[Float] =
+    //   val n = vec.length
+    //   val res = Array.ofDim[Float](n)
+    //   var i = 0
+    //   while i < n do
+    //     res(i) = vec(i) / d
+    //     i += 1
+    //   end while
+    //   res
+    // end /
 
     inline def productExceptSelf: Array[Float] =
       val n = vec.length
@@ -479,23 +535,6 @@ object JsNativeFloatArrays:
       (maxVal + Math.log(sumExp)).toFloat
     end logSumExp
 
-    inline def outer(other: Array[Float])(using ClassTag[Float]): Matrix[Float] =
-      val n = vec.length
-      val m = other.length
-      val out: Array[Float] = Array.ofDim[Float](n * m)
-
-      var i = 0
-      while i < n do
-        var j = 0
-        while j < m do
-          out(j * n + i) = vec(i) * other(j)
-          j = j + 1
-        end while
-        i = i + 1
-      end while
-      Matrix[Float](out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
-    end outer
-
     inline def <(num: Float): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
@@ -524,6 +563,23 @@ object JsNativeFloatArrays:
       idx
     end logicalIdx
 
+    inline def outer(other: Array[Float])(using ClassTag[Float]): Matrix[Float] =
+      val n = vec.length
+      val m = other.length
+      val out: Array[Float] = Array.ofDim[Float](n * m)
+
+      var i = 0
+      while i < n do
+        var j = 0
+        while j < m do
+          out(j * n + i) = vec(i) * other(j)
+          j = j + 1
+        end while
+        i = i + 1
+      end while
+      Matrix[Float](out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+    end outer
+
     inline def cumsum: Array[Float] =
       val out = vec.clone()
       out.`cumsum!`
@@ -551,4 +607,252 @@ object JsNativeFloatArrays:
 
   end extension
 
-end JsNativeFloatArrays
+  extension (vec: Array[Float])
+
+    def toFloat32 = Float32Array.from(js.Array(vec*))
+
+    def apply(index: Array[Boolean]): Array[Float] =
+      val truely = index.trues
+      val newVec = Array.ofDim[Float](truely)
+      var j = 0
+      for i <- 0 until index.length do
+        if index(i) then
+          newVec(j) = vec(i)
+          j += 1
+      end for
+      newVec
+    end apply
+
+    inline def mean: Float =
+      (vec.sum / vec.length).toFloat
+    end mean
+
+    inline def variance: Float = variance(VarianceMode.Population)
+
+    inline def variance(mode: VarianceMode): Float =
+      meanAndVariance(mode).variance
+    end variance
+
+    inline def meanAndVariance: (mean: Float, variance: Float) =
+      meanAndVariance(VarianceMode.Population)
+
+    inline def meanAndVariance(mode: VarianceMode): (mean: Float, variance: Float) =
+      var mean = 0.0
+      var m2 = 0.0
+      var i = 0
+      while i < vec.length do
+        val n = i + 1
+        val delta = vec(i).toDouble - mean
+        mean += delta / n
+        val delta2 = vec(i).toDouble - mean
+        m2 += delta * delta2
+        i += 1
+      end while
+      val denom = mode match
+        case VarianceMode.Population => vec.length.toDouble
+        case VarianceMode.Sample     => (vec.length - 1).toDouble
+
+      (mean.toFloat, (m2 / denom).toFloat)
+    end meanAndVariance
+
+    inline def std: Float = std(VarianceMode.Population)
+
+    inline def std(mode: VarianceMode): Float =
+      Math.sqrt(vec.variance(mode).toDouble).toFloat
+
+    inline def stdDev: Float = stdDev(VarianceMode.Population)
+
+    inline def stdDev(mode: VarianceMode): Float = std(mode)
+
+    inline def norm: Float = blas.snrm2(vec.length, vec.toFloat32, 1)
+
+    inline def dot(v1: Array[Float])(using inline boundsCheck: BoundsCheck): Float =
+      dimCheck(vec, v1)
+      blas.sdot(vec.length, vec.toFloat32, 1, v1.toFloat32, 1)
+    end dot
+
+    inline def -(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Float] =
+      vec.clone.tap(_ -= vec2)
+    end -
+
+    inline def -=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+      dimCheck(vec, vec2)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - vec2(i)
+        i = i + 1
+      end while
+    end -=
+
+    inline def +(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Float] =
+      vec.clone.tap(_ += vec2)
+    end +
+
+    inline def +=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+      dimCheck(vec, vec2)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + vec2(i)
+        i = i + 1
+      end while
+    end +=
+
+    inline def +:+(d: Float): Array[Float] =
+      vec.clone.tap(_ +:+= d)
+    end +:+
+
+    inline def +:+=(d: Float): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +:+=
+
+    inline def -(d: Float): Array[Float] =
+      vec.clone().tap(_ -= d)
+    end -
+
+    inline def -=(d: Float): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - d
+        i = i + 1
+      end while
+    end -=
+
+    inline def +(d: Float): Array[Float] =
+      vec.clone().tap(_ += d)
+
+    inline def +=(d: Float): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + d
+        i = i + 1
+      end while
+    end +=
+
+    inline def *=(d: Float): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) * d
+        i = i + 1
+      end while
+    end *=
+
+    inline def *(d: Float): Array[Float] =
+      vec.clone.tap(_ *= d)
+    end *
+
+    inline def /=(d: Float): Unit =
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) / d
+        i = i + 1
+      end while
+    end /=
+
+    inline def /(d: Float): Array[Float] =
+      vec.clone.tap(_ /= d)
+
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Float])(using
+        inline boundsCheck: BoundsCheck.BoundsCheck
+    ): Float =
+      dimCheck(vec, thatVector)
+      val n = vec.length
+      var i = 0
+
+      var sum_x = 0.0
+      var sum_y = 0.0
+      var sum_xy = 0.0
+      var sum_x2 = 0.0
+      var sum_y2 = 0.0
+
+      while i < n do
+        sum_x = sum_x + vec(i)
+        sum_y = sum_y + thatVector(i)
+        sum_xy = sum_xy + vec(i) * thatVector(i)
+        sum_x2 = sum_x2 + vec(i) * vec(i)
+        sum_y2 = sum_y2 + thatVector(i) * thatVector(i)
+        i = i + 1
+      end while
+      ((n * sum_xy - (sum_x * sum_y)) / Math.sqrt(
+        (sum_x2 * n - sum_x * sum_x) * (sum_y2 * n - sum_y * sum_y)
+      )).toFloat
+    end pearsonCorrelationCoefficient
+
+    inline def spearmansRankCorrelation(thatVector: Array[Float])(using
+        inline boundsCheck: BoundsCheck.BoundsCheck
+    ): Float =
+      dimCheck(vec, thatVector)
+      val theseRanks = vec.elementRanks
+      val thoseRanks = thatVector.elementRanks
+      theseRanks.pearsonCorrelationCoefficient(thoseRanks)
+    end spearmansRankCorrelation
+
+    inline def corr(thatVector: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Float =
+      pearsonCorrelationCoefficient(thatVector)
+
+    def elementRanks: Array[Float] =
+      val indexed: Array[(Float, Int)] = vec.zipWithIndex
+      indexed.sortInPlace()(using Ordering.by(_._1))
+
+      val ranks: Array[Float] = new Array[Float](vec.length)
+      ranks(indexed.last._2) = vec.length.toFloat
+      var currentValue: Float = indexed(0)._1
+      var r0: Int = 0
+      var rank: Int = 1
+      while rank < vec.length do
+        val temp: Float = indexed(rank)._1
+        val end: Int =
+          if temp != currentValue then rank
+          else if rank == vec.length - 1 then rank + 1
+          else -1
+        if end > -1 then
+          val avg: Float = ((1.0 + (end + r0)) / 2.0).toFloat
+          var i: Int = r0;
+          while i < end do
+            ranks(indexed(i)._2) = avg
+            i += 1
+          end while
+          r0 = rank
+          currentValue = temp
+        end if
+        rank += 1
+      end while
+      ranks
+    end elementRanks
+
+    def covariance(thatVector: Array[Float]): Float =
+      val μThis = vec.mean
+      val μThat = thatVector.mean
+      var cv: Double = 0
+      var i: Int = 0
+      while i < vec.length do
+        cv += (vec(i) - μThis) * (thatVector(i) - μThat)
+        i += 1
+      end while
+      (cv / (vec.length - 1)).toFloat
+    end covariance
+
+  end extension
+
+  extension (vec: Array[Array[Double]])
+    inline def horizontalSum: Array[Double] =
+      val out = new Array[Double](vec.head.length)
+      var i = 0
+      while i < vec.head.length do
+        var sum = 0.0
+        var j = 0
+        while j < vec.length do
+          sum += vec(j)(i)
+          // pprint.pprintln(s"j : $j i : $i vecij : ${vec(j)(i)}  out : ${out(i)} sum : $sum")
+          j = j + 1
+        end while
+        out(i) = sum
+        i = i + 1
+      end while
+      out
+  end extension
+
+end floatarrays

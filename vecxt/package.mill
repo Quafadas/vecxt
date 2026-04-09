@@ -5,6 +5,8 @@ import mill.scalajslib.api.ModuleKind
 import com.goyeau.mill.scalafix.ScalafixModule
 import mill.api.Task.Simple
 
+import mill.contrib.scoverage.ScoverageModule
+
 object `package` extends Module:
   trait VecxtModule extends PlatformScalaModule with build.VecxtPublishModule:
     def mvnDeps = super.mvnDeps() ++ Seq(
@@ -25,18 +27,21 @@ object `package` extends Module:
     (os.sub / "src-jvm-native")
   }
 
-  object jvm extends VecxtModule:
+  object jvm extends VecxtModule with ScoverageModule:
     override def scalaVersion = build.V.scalaVersion
+    def scoverageVersion = "2.5.2"
     override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
+    override def enableBsp = build.V.jvmBSP
     def mvnDeps = super.mvnDeps() ++ Seq(
       build.V.blas,
       build.V.lapack
     )
     def sources = Task(super.sources() ++ jvmNativeSharedSources())
 
-    object test extends VecxtTest, ScalaTests:
+    object test extends VecxtTest, ScalaTests, ScoverageTests:
       def moduleDeps = Seq(jvm)
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+      override def enableBsp = build.V.jvmBSP
     end test
   end jvm
   object js extends VecxtModule with build.CommonJS:
@@ -46,19 +51,19 @@ object `package` extends Module:
     object test extends VecxtTest, ScalaJSTests:
       def moduleDeps = Seq(js)
       def moduleKind = ModuleKind.CommonJSModule
-      override def enableBsp = false
+      override def enableBsp = build.V.jsBSP
     end test
-    override def enableBsp = false
+    override def enableBsp = build.V.jsBSP
   end js
   object native extends VecxtModule with build.CommonNative:
     override def mvnDeps = super.mvnDeps()
 
     def sources = Task(super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources())
-    override def enableBsp = false
+    override def enableBsp = build.V.nativeBSP
 
     object test extends ScalaNativeTests, VecxtTest:
       override def moduleDeps = Seq(native)
-      override def enableBsp = false
+      override def enableBsp = build.V.nativeBSP
     end test
 
   end native

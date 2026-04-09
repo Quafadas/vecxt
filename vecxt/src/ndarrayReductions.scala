@@ -2,9 +2,9 @@ package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.broadcast.ShapeMismatchException
+import vecxt.doublearrays.*
 import vecxt.matrix.*
 import vecxt.ndarray.*
-import vecxt.arrays.*
 
 /** Private helper object for delegating to Array[Double] and Matrix[Double] extension methods.
   *
@@ -13,7 +13,7 @@ import vecxt.arrays.*
   * `Array[Double]`.
   */
 private object NDArrayReductionHelpers:
-  import vecxt.arrays.*
+  import vecxt.doublearrays.*
   import vecxt.DoubleMatrix.*
 
   inline def mean(d: Array[Double]): Double = d.mean
@@ -118,19 +118,19 @@ object NDArrayReductions:
     * `initial` should be `Double.NegativeInfinity` for argmax, `Double.PositiveInfinity` for argmin. `compare(newVal,
     * bestSoFar)` should return `true` when `newVal` is a better candidate.
     *
-    * Output is `NDArray[Double]` of integral indices (Double for type consistency).
+    * Output is `NDArray[Int]` of integral indices.
     */
   private[NDArrayReductions] inline def argReduceAxis(
       a: NDArray[Double],
       axis: Int,
       inline initial: Double,
       inline compare: (Double, Double) => Boolean
-  ): NDArray[Double] =
+  ): NDArray[Int] =
     val outShape = removeAxis(a.shape, axis)
     val outStrides = colMajorStrides(outShape)
     val outN = shapeProduct(outShape)
     val bestVals = Array.fill(outN)(initial)
-    val outIdx = new Array[Double](outN)
+    val outIdx = new Array[Int](outN)
 
     val n = a.numel
     val ndim = a.ndim
@@ -156,7 +156,7 @@ object NDArrayReductions:
       val v = a.data(posIn)
       if compare(v, bestVals(posOut)) then
         bestVals(posOut) = v
-        outIdx(posOut) = axisCoord.toDouble
+        outIdx(posOut) = axisCoord
       end if
       j += 1
     end while
@@ -322,15 +322,15 @@ object NDArrayReductions:
       reduceAxis(a, axis, 1.0, _ * _)
     end product
 
-    /** Argmax along axis `axis`. Returns NDArray[Double] of indices (values are integral). */
-    inline def argmax(axis: Int): NDArray[Double] =
+    /** Argmax along axis `axis`. Returns NDArray[Int] of indices. */
+    inline def argmax(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       argReduceAxis(a, axis, Double.NegativeInfinity, _ > _)
     end argmax
 
-    /** Argmin along axis `axis`. Returns NDArray[Double] of indices (values are integral). */
-    inline def argmin(axis: Int): NDArray[Double] =
+    /** Argmin along axis `axis`. Returns NDArray[Int] of indices. */
+    inline def argmin(axis: Int): NDArray[Int] =
       if axis < 0 || axis >= a.ndim then throw InvalidNDArray(s"Axis $axis out of range [0, ${a.ndim})")
       end if
       argReduceAxis(a, axis, Double.PositiveInfinity, _ < _)

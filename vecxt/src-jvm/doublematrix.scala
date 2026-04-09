@@ -11,7 +11,7 @@ import jdk.incubator.vector.*
 object JvmDoubleMatrix:
 
   final val sp_int_doubleLanes =
-    VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(vecxt.arrays.spdl * Integer.SIZE));
+    VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(vecxt.doublearrays.spdl * Integer.SIZE));
 
   extension (m: Matrix[Double]) // inline def /(n: Double): Matrix[Double] =
     //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
@@ -136,22 +136,22 @@ object JvmDoubleMatrix:
 
     inline def >=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.arrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.doublearrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
     inline def >(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.arrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.doublearrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
     inline def <=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.arrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.doublearrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
     inline def <(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.arrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.doublearrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
     /** Adds the elements of this vector to the matrix with broadcasting behavior.
@@ -188,12 +188,12 @@ object JvmDoubleMatrix:
             val offsetJ = offsetI + j
             DoubleVector
               .fromArray(
-                vecxt.arrays.spd,
+                vecxt.doublearrays.spd,
                 m.raw,
                 offsetJ
               )
               .add(
-                DoubleVector.broadcast(vecxt.arrays.spd, arr(i))
+                DoubleVector.broadcast(vecxt.doublearrays.spd, arr(i))
               )
               .intoArray(
                 m.raw,
@@ -220,12 +220,12 @@ object JvmDoubleMatrix:
             val offsetI = offsetJ + i
             DoubleVector
               .fromArray(
-                vecxt.arrays.spd,
+                vecxt.doublearrays.spd,
                 m.raw,
                 offsetI
               )
               .add(
-                DoubleVector.fromArray(vecxt.arrays.spd, arr, i)
+                DoubleVector.fromArray(vecxt.doublearrays.spd, arr, i)
               )
               .intoArray(
                 m.raw,
@@ -257,7 +257,7 @@ object JvmDoubleMatrix:
 
     def +=(n: Double): Unit =
       import vecxt.BoundsCheck.DoBoundsCheck.no
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.+=(m.raw)(n)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
       else
         // println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
         // Cache-friendly fallback: iterate with smallest stride in inner loop
@@ -278,7 +278,7 @@ object JvmDoubleMatrix:
             while i < upperBound do
               val iBlockIndex = blockIndex + i * m.rowStride
               DoubleVector
-                .fromArray(vecxt.arrays.spd, m.raw, iBlockIndex, rowStrides, 0)
+                .fromArray(vecxt.doublearrays.spd, m.raw, iBlockIndex, rowStrides, 0)
                 .add(n)
                 .intoArray(m.raw, iBlockIndex, rowStrides, 0)
               i += sp_int_doubleLanes.length
@@ -308,7 +308,7 @@ object JvmDoubleMatrix:
             while j < upperBound do
               val jblockIndex = blockIndex + j * m.colStride
               DoubleVector
-                .fromArray(vecxt.arrays.spd, m.raw, jblockIndex, colStrides, 0)
+                .fromArray(vecxt.doublearrays.spd, m.raw, jblockIndex, colStrides, 0)
                 .add(n)
                 .intoArray(m.raw, jblockIndex, colStrides, 0)
 

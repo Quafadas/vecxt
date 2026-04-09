@@ -5,11 +5,97 @@ import org.ekrich.blas.unsafe.blas
 import org.ekrich.blas.unsafe.blasEnums
 
 import vecxt.BoundsCheck.BoundsCheck
+import vecxt.MatrixInstance.*
 import vecxt.matrix.*
-// import vecxt.rangeExtender.MatrixRange.range
 
 object NativeDoubleMatrix:
   extension (m: Matrix[Double])
+    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      sameDimMatCheck(m, bmat)
+      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
+        val newArr = Array.ofDim[Double](m.rows * m.cols)
+        var i = 0
+        while i < newArr.length do
+          newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
+          i += 1
+        end while
+        Matrix[Double](newArr, (m.rows, m.cols))
+      else ???
+      end if
+    end *:*
+
+    inline def +=(arr: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+
+      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
+      end if
+
+      var i = 0
+      while i < m.rows do
+        var j = 0
+        while j < m.cols do
+          m(i, j) = m(i, j) + arr(j)
+          j += 1
+        end while
+        i += 1
+      end while
+
+    end +=
+
+    inline def +=(n: Double): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
+      else
+        // Cache-friendly fallback: iterate with smallest stride in inner loop
+        if m.rowStride <= m.colStride then
+          // Row stride is smaller, so iterate rows in inner loop
+          var j = 0
+          while j < m.cols do
+            var i = 0
+            while i < m.rows do
+              m(i, j) = n + m(i, j)
+              i += 1
+            end while
+            j += 1
+          end while
+        else
+          // Column stride is smaller, so iterate columns in inner loop
+          var i = 0
+          while i < m.rows do
+            var j = 0
+            while j < m.cols do
+              m(i, j) = n + m(i, j)
+              j += 1
+            end while
+            i += 1
+          end while
+        end if
+      end if
+
+    end +=
+
+    inline def >=(d: Double): Matrix[Boolean] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+
+    inline def >(d: Double): Matrix[Boolean] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+      end if
+    end >
+
+    inline def <=(d: Double): Matrix[Boolean] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+      end if
+    end <=
+
+    inline def <(d: Double): Matrix[Boolean] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
 
     inline def `matmulInPlace!`(
         b: Matrix[Double],
@@ -86,7 +172,6 @@ object NativeDoubleMatrix:
         newArr
       else ???
     end *
-
   end extension
 
 end NativeDoubleMatrix
@@ -94,185 +179,3 @@ end NativeDoubleMatrix
 object JvmDoubleMatrix:
 
 end JvmDoubleMatrix
-
-// object matrix:
-//   /** This is a matrix
-//     *
-//     * ._1 is the matrix values, stored as a single contiguous array ._2 is the dimensions ._2._1 is the number of rows
-//     * ._2._2 is the number of columns
-//     */
-//   opaque type Matrix[A] = (Array[A], RowCol)
-
-//   type RangeExtender = Range | Int | Array[Int] | ::.type
-
-//   // type Matrix = Matrix1 & Tensor
-
-//   object Matrix:
-
-//     inline def apply(raw: Array[Double], dim: RowCol)(using
-//         inline boundsCheck: BoundsCheck
-//     ): Matrix =
-//       dimMatInstantiateCheck(raw, dim)
-//       (raw, dim)
-//     end apply
-//     inline def apply(dim: RowCol, raw: Array[Double])(using
-//         inline boundsCheck: BoundsCheck
-//     ): Matrix =
-//       dimMatInstantiateCheck(raw, dim)
-//       (raw, dim)
-//     end apply
-
-//     inline def fromRows(a: Array[Array[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
-//       val rows = a.size
-//       val cols = a(0).size
-
-//       assert(a.forall(_.size == cols))
-
-//       val newArr = Array.ofDim[Double](rows * cols)
-//       var idx = 0
-//       var i = 0
-//       while i < cols do
-//         var j = 0
-//         while j < rows do
-//           newArr(idx) = a(j)(i)
-//           // println(s"row: $i || col: $j || ${a(j)(i)} entered at index ${idx}")
-//           j += 1
-//           idx += 1
-//         end while
-//         i += 1
-//       end while
-//       Matrix(newArr, (rows, cols))
-//     end fromRows
-
-//     inline def ones(dim: RowCol): Matrix =
-//       val (rows, cols) = dim
-//       val newArr = Array.fill[Double](rows * cols)(1.0)
-//       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
-//     end ones
-
-//     inline def zeros(dim: RowCol): Matrix =
-//       val (rows, cols) = dim
-//       val newArr = Array.ofDim[Double](rows * cols)
-//       Matrix(newArr, dim)(using BoundsCheck.DoBoundsCheck.no)
-//     end zeros
-
-//     inline def eye(dim: Int): Matrix =
-//       val newArr = Array.ofDim[Double](dim * dim)
-//       var i = 0
-//       while i < dim do
-//         newArr(i * dim + i) = 1.0
-//         i += 1
-//       end while
-//       Matrix(newArr, (dim, dim))(using BoundsCheck.DoBoundsCheck.no)
-//     end eye
-
-//     inline def fromColumns(a: Array[Array[Double]])(using inline boundsCheck: BoundsCheck): Matrix =
-//       val cols = a.size
-//       val rows = a(0).size
-//       assert(a.forall(_.size == rows))
-//       val newArr = Array.ofDim[Double](rows * cols)
-//       var idx = 0
-//       var i = 0
-//       while i < cols do
-//         var j = 0
-//         while j < rows do
-//           // val idx = i * cols + j
-//           newArr(idx) = a(i)(j)
-//           // println(s"i: $i || j: $j || ${a(i)(j)} entered at index ${idx}")
-//           j += 1
-//           idx += 1
-//         end while
-//         i += 1
-//       end while
-//       Matrix(newArr, (rows, cols))
-//     end fromColumns
-
-//   end Matrix
-
-//   extension (m: Matrix)
-
-//     inline def numel: Int = m._1.length
-
-//     inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck) =
-//       dimCheckLen(m.raw, b)
-//       (b / m.rows, b % m.rows)
-//     end tupleFromIdx
-
-//     /** element update
-//       */
-//     inline def update(loc: RowCol, value: Double)(using inline boundsCheck: BoundsCheck) =
-//       indexCheckMat(m, loc)
-//       val idx = loc._2 * m.rows + loc._1
-//       m._1(idx) = value
-//     end update
-
-//     def apply(rowRange: RangeExtender, colRange: RangeExtender): Matrix =
-//       val newRows = range(rowRange, m.rows)
-//       val newCols = range(colRange, m.cols)
-//       val newArr = Array.ofDim[Double](newCols.size * newRows.size)
-
-//       var idx = 0
-
-//       var i = 0
-//       while i < newCols.length do
-//         val colpos = newCols(i)
-//         val stride = colpos * m.cols
-//         var j = 0
-//         while j < newRows.length do
-//           val rowPos = newRows(j)
-//           newArr(idx) = m._1(stride + rowPos)
-//           idx += 1
-//           j += 1
-//         end while
-//         i += 1
-//       end while
-
-//       Matrix(newArr, (newRows.size, newCols.size))(using BoundsCheck.DoBoundsCheck.no)
-
-//     end apply
-
-//     /** element retrieval
-//       */
-//     inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck) =
-//       indexCheckMat(m, b)
-//       val idx = b._2 * m.rows + b._1
-//       m._1(idx)
-//     end apply
-
-//     inline def raw: Array[Double] = m._1
-
-//     inline def +(m2: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
-//       sameDimMatCheck(m, m2)
-//       val newArr = m._1.add(m2._1)
-//       Matrix(newArr, m._2)(using BoundsCheck.DoBoundsCheck.no)
-//     end +
-
-//     inline def rows: Row = m._2._1
-
-//     inline def cols: Col = m._2._2
-
-//     inline def matmul(b: Matrix)(using inline boundsCheck: BoundsCheck): Matrix =
-//       dimMatCheck(m, b)
-//       val newArr = Array.ofDim[Double](m.rows * b.cols)
-//       // Note, might need to deal with transpose later.
-//       blas.cblas_dgemm(
-//         blasEnums.CblasColMajor,
-//         blasEnums.CblasNoTrans,
-//         blasEnums.CblasNoTrans,
-//         m.rows,
-//         b.cols,
-//         m.cols,
-//         1.0,
-//         m.raw.at(0),
-//         m.rows,
-//         b.raw.at(0),
-//         b.rows,
-//         1.0,
-//         newArr.at(0),
-//         m.rows
-//       )
-//       Matrix(newArr, (m.rows, b.cols))
-//     end matmul
-
-//   end extension
-// end matrix

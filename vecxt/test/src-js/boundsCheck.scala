@@ -2,7 +2,7 @@ package vecxt
 
 import scala.util.chaining.*
 import BoundsCheck.DoBoundsCheck
-import arrays.*
+import doublearrays.*
 
 import BoundsCheck.DoBoundsCheck.yes
 

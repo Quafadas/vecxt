@@ -5,6 +5,7 @@
 //| - io.github.quafadas:millSite_mill1_3.8:0.0.57
 //| - com.goyeau:mill-scalafix_mill1_3:0.6.0
 //| - com.lihaoyi::mill-contrib-jmh:$MILL_VERSION
+//| - com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION
 
 /** --add-modules=jdk.incubator.vector -Xss100m -Xmx4G
   */
@@ -29,6 +30,9 @@ import mill.api.Task.Simple
 // def format = mill.scalalib.scalafmt.ScalafmtModule
 // mill mill.scalalib.scalafmt/
 // mill __.compiledClassesAndSemanticDbFiles
+// mill vecxt.jvm.scoverage.htmlReport
+// jwebserver -d out/vecxt/jvm/scoverage/data.dest]
+
 object V:
   val spire: Dep = mvn"org.typelevel::spire::0.18.0"
   val laminar: Dep = mvn"com.raquo::laminar::17.2.0"
@@ -41,6 +45,9 @@ object V:
   val catsVersion = "2.13.0"
   val disciplineVersion = "2.0.0"
   val scalacheckVersion = "1.17.0"
+  val jsBSP = true
+  val nativeBSP = false
+  val jvmBSP = false
 end V
 
 trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule:

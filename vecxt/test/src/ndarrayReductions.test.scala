@@ -202,14 +202,18 @@ class NDArrayReductionsSuite extends FunSuite:
     // data [1,4,3,2,5,6] col-major [2,3]: (0,0)=1,(1,0)=4,(0,1)=3,(1,1)=2,(0,2)=5,(1,2)=6
     // max along axis 0: col0→max at row1 (idx=1), col1→max at row0 (idx=0), col2→max at row1 (idx=1)
     val arr = NDArray(Array(1.0, 4.0, 3.0, 2.0, 5.0, 6.0), Array(2, 3))
-    assertNDArrayShapeAndClose(arr.argmax(0), Array(3), Array(1.0, 0.0, 1.0))
+    val result = arr.argmax(0)
+    assertEquals(result.shape.toSeq, Seq(3))
+    assertEquals(result.toArray.toSeq, Seq(1, 0, 1))
   }
 
   test("argmin(1) on [2,3]") {
     // data [5,6,1,2,3,4] col-major [2,3]: (0,0)=5,(1,0)=6,(0,1)=1,(1,1)=2,(0,2)=3,(1,2)=4
     // min along axis 1: row0→min at col1 (idx=1), row1→min at col1 (idx=1)
     val arr = NDArray(Array(5.0, 6.0, 1.0, 2.0, 3.0, 4.0), Array(2, 3))
-    assertNDArrayShapeAndClose(arr.argmin(1), Array(2), Array(1.0, 1.0))
+    val result = arr.argmin(1)
+    assertEquals(result.shape.toSeq, Seq(2))
+    assertEquals(result.toArray.toSeq, Seq(1, 1))
   }
 
   test("axis reduction on transposed (general strided path)") {

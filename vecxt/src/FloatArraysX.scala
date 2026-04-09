@@ -1,6 +1,6 @@
 package vecxt
 
-object FloatArrays:
+object FloatArraysX:
   extension (vec: Array[Float])
     inline def select(indices: Array[Int]): Array[Float] =
       val len = indices.length
@@ -124,4 +124,4 @@ object FloatArrays:
     end argsort
   end extension
 
-end FloatArrays
+end FloatArraysX

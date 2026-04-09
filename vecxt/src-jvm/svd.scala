@@ -7,8 +7,8 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.DoubleMatrix.matmul
 import vecxt.MatrixHelper.zeros
 import vecxt.MatrixInstance.*
-import vecxt.arrays.>
-import vecxt.arrays.maxSIMD
+import vecxt.doublearrays.>
+import vecxt.doublearrays.maxSIMD
 import vecxt.matrix.Matrix
 import vecxt.matrixUtil.transpose
 
