@@ -623,7 +623,9 @@ object doublearrays:
       (mean, m2 / denom)
     end meanAndVariance
 
-    inline def mean: Double = vec.sum / vec.length
+    inline def mean: Double = vec.sumSIMD / vec.length
+
+    inline def sumSIMD: Double = sum
 
     inline def sum: Double =
       var sum = 0.0
