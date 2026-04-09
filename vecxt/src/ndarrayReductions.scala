@@ -4,7 +4,7 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.broadcast.ShapeMismatchException
 import vecxt.matrix.*
 import vecxt.ndarray.*
-import vecxt.arrays.*
+import vecxt.doublearrays.*
 
 /** Private helper object for delegating to Array[Double] and Matrix[Double] extension methods.
   *
@@ -13,7 +13,7 @@ import vecxt.arrays.*
   * `Array[Double]`.
   */
 private object NDArrayReductionHelpers:
-  import vecxt.arrays.*
+  import vecxt.doublearrays.*
   import vecxt.DoubleMatrix.*
 
   inline def mean(d: Array[Double]): Double = d.mean

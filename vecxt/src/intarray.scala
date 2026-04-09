@@ -6,7 +6,7 @@ import scala.util.control.Breaks.*
 import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
 
-object IntArrays:
+object IntArraysX:
 
   extension [A](vec: Array[A])
     inline def mask(index: Array[Boolean])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]) =
@@ -51,4 +51,4 @@ object IntArrays:
     end contiguous
   end extension
 
-end IntArrays
+end IntArraysX

@@ -42,7 +42,7 @@ class NDArrayFloatOpsSuite extends FunSuite:
     val result = at + bt
     val expected = at.toArray.map(_ * 2)
     assertEquals(result.toArray.toSeq, expected.toSeq)
-    assert(result.isColMajor)
+    assert(result.isRowMajor)
   }
 
   // ── Scalar ops ────────────────────────────────────────────────────────────

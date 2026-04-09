@@ -28,6 +28,7 @@ object `package` extends Module:
   object jvm extends VecxtModule:
     override def scalaVersion = build.V.scalaVersion
     override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
+    override def enableBsp = build.V.jvmBSP
     def mvnDeps = super.mvnDeps() ++ Seq(
       build.V.blas,
       build.V.lapack
@@ -37,6 +38,7 @@ object `package` extends Module:
     object test extends VecxtTest, ScalaTests:
       def moduleDeps = Seq(jvm)
       override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+      override def enableBsp = build.V.jvmBSP
     end test
   end jvm
   object js extends VecxtModule with build.CommonJS:
@@ -46,19 +48,19 @@ object `package` extends Module:
     object test extends VecxtTest, ScalaJSTests:
       def moduleDeps = Seq(js)
       def moduleKind = ModuleKind.CommonJSModule
-      override def enableBsp = false
+      override def enableBsp = build.V.jsBSP
     end test
-    override def enableBsp = false
+    override def enableBsp = build.V.jsBSP
   end js
   object native extends VecxtModule with build.CommonNative:
     override def mvnDeps = super.mvnDeps()
 
     def sources = Task(super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources())
-    override def enableBsp = false
+    override def enableBsp = build.V.nativeBSP
 
     object test extends ScalaNativeTests, VecxtTest:
       override def moduleDeps = Seq(native)
-      override def enableBsp = false
+      override def enableBsp = build.V.nativeBSP
     end test
 
   end native

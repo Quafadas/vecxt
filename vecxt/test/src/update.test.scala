@@ -2,7 +2,7 @@ package vecxt
 
 import scala.util.chaining.*
 import matrix.*
-import arrays.*
+import doublearrays.*
 import MatrixHelper.*
 import MatrixInstance.*
 

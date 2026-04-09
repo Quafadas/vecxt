@@ -3,7 +3,7 @@ package vecxt
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
 import vecxt.all.`matmulInPlace!`
-import vecxt.arrays.*
+import vecxt.doublearrays.*
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.matrix.*
 import vecxt.matrixUtil.*
@@ -44,7 +44,7 @@ object DoubleMatrix:
 
     inline def *(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Double](vecxt.arrays.*(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
+        Matrix[Double](vecxt.doublearrays.*(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
           BoundsCheck.DoBoundsCheck.no
         )
       else ???
@@ -52,7 +52,7 @@ object DoubleMatrix:
 
     inline def /(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Double](vecxt.arrays./(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
+        Matrix[Double](vecxt.doublearrays./(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
           BoundsCheck.DoBoundsCheck.no
         )
       else ???
@@ -61,7 +61,7 @@ object DoubleMatrix:
     inline def +(n: Double): Matrix[Double] =
       import vecxt.BoundsCheck.DoBoundsCheck.no
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Double](vecxt.arrays.+(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)
+        Matrix[Double](vecxt.doublearrays.+(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)
       else
         val newArr = Array.ofDim[Double](m.numel)
         m.raw.copyToArray(newArr)
@@ -109,7 +109,7 @@ object DoubleMatrix:
 
     inline def -(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Double](vecxt.arrays.-(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
+        Matrix[Double](vecxt.doublearrays.-(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
           BoundsCheck.DoBoundsCheck.no
         )
       else
@@ -134,7 +134,7 @@ object DoubleMatrix:
     inline def +:+(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
-        val newArr = vecxt.arrays.+(m.raw)(m2.raw)
+        val newArr = vecxt.doublearrays.+(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
       else
         val newArr = Array.ofDim[Double](m.numel)
@@ -164,35 +164,35 @@ object DoubleMatrix:
 
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         // Fast path: use SIMD-optimized array multiplication
-        val newArr = vecxt.arrays.*(m.raw)(m2.raw)
+        val newArr = vecxt.doublearrays.*(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
       else
         // Different memory layouts: materialize one matrix to match the other's layout
         if m.isDenseColMajor then
           // m is dense column-major, materialize m2 to column-major and multiply in-place
           val m2Dense = m2.deepCopy(asRowMajor = false)
-          vecxt.arrays.*=(m2Dense.raw)(m.raw)
+          vecxt.doublearrays.*:*=(m2Dense.raw)(m.raw)
           m2Dense
         else if m.isDenseRowMajor then
           // m is dense row-major, materialize m2 to row-major and multiply in-place
           val m2Dense = m2.deepCopy(asRowMajor = true)
-          vecxt.arrays.*=(m2Dense.raw)(m.raw)
+          vecxt.doublearrays.*=(m2Dense.raw)(m.raw)
           m2Dense
         else if m2.isDenseColMajor then
           // m2 is dense column-major, materialize m to column-major and multiply in-place
           val mDense = m.deepCopy(asRowMajor = false)
-          vecxt.arrays.*=(mDense.raw)(m2.raw)
+          vecxt.doublearrays.*=(mDense.raw)(m2.raw)
           mDense
         else if m2.isDenseRowMajor then
           // m2 is dense row-major, materialize m to row-major and multiply in-place
           val mDense = m.deepCopy(asRowMajor = true)
-          vecxt.arrays.*=(mDense.raw)(m2.raw)
+          vecxt.doublearrays.*=(mDense.raw)(m2.raw)
           mDense
         else
           // Neither is dense, materialize both to column-major and use SIMD multiplication
           val mDense = m.deepCopy(asRowMajor = false)
           val m2Dense = m2.deepCopy(asRowMajor = false)
-          val newArr = vecxt.arrays.*(mDense.raw)(m2Dense.raw)
+          val newArr = vecxt.doublearrays.*(mDense.raw)(m2Dense.raw)
           Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
         end if
       end if
@@ -201,7 +201,7 @@ object DoubleMatrix:
     inline def /:/(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
-        val newArr = vecxt.arrays./(m.raw)(m2.raw)
+        val newArr = vecxt.doublearrays./(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
       else ???
       end if
@@ -212,7 +212,7 @@ object DoubleMatrix:
     inline def -:-(m2: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, m2)
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
-        val newArr = vecxt.arrays.-(m.raw)(m2.raw)
+        val newArr = vecxt.doublearrays.-(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
       else
         val newArr = Array.ofDim[Double](m.numel)
@@ -234,15 +234,15 @@ object DoubleMatrix:
 
     inline def unary_- : Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Double](vecxt.arrays.unary_-(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Double](vecxt.doublearrays.unary_-(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
     inline def `exp!`: Unit =
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.`exp!`(m.raw)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`exp!`(m.raw)
       else ???
 
     inline def `log!`: Unit =
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.`log!`(m.raw)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`log!`(m.raw)
       else ???
 
     inline def exp: Matrix[Double] =
@@ -256,7 +256,7 @@ object DoubleMatrix:
       else ???
 
     inline def `sqrt!`: Unit =
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.`sqrt!`(m.raw)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`sqrt!`(m.raw)
       else ???
 
     inline def sqrt: Matrix[Double] =
@@ -270,7 +270,7 @@ object DoubleMatrix:
       else ???
 
     inline def `sin!` =
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.`sin!`(m.raw)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`sin!`(m.raw)
       else ???
 
     inline def cos =
@@ -278,7 +278,7 @@ object DoubleMatrix:
         Matrix[Double](vecxt.all.cos(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
       else ???
 
-    inline def `cos!` = vecxt.arrays.`cos!`(m.raw)
+    inline def `cos!` = vecxt.doublearrays.`cos!`(m.raw)
 
     inline def tan =
       if m.hasSimpleContiguousMemoryLayout then
@@ -286,7 +286,7 @@ object DoubleMatrix:
       else ???
 
     inline def `tan!` =
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.`tan!`(m.raw)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`tan!`(m.raw)
       else ???
 
     inline def mean: Double =
@@ -346,7 +346,7 @@ object DoubleMatrix:
     end product
 
     // inline def - : Matrix[Double] =
-    //   Matrix(vecxt.arrays.*(m.raw)(-1), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+    //   Matrix(vecxt.doublearrays.*(m.raw)(-1), m.shape)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def trace =
       if m.shape(0) != m.shape(1) then throw new IllegalArgumentException("Matrix must be square")
@@ -357,7 +357,7 @@ object DoubleMatrix:
     inline def sum: Double = sumSIMD
 
     inline def sumSIMD: Double =
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.sumSIMD(m.raw)
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.sum(m.raw)
       else ???
 
     inline def norm: Double =

@@ -15,6 +15,22 @@ trait BlasArrayOps extends js.Object:
 
   def dscal(N: Int, alpha: Double, x: Float64Array, strideX: Int): Unit = js.native
   def dnrm2(N: Int, x: Float64Array, strideX: Int): Double = js.native
+
+  def sdot(N: Int, x: Float64Array, strideX: Int, y: Float64Array, strideY: Int): Double = js.native
+  def saxpy(
+      N: Int,
+      alpha: Float,
+      x: js.typedarray.Float32Array,
+      strideX: Int,
+      y: js.typedarray.Float32Array,
+      strideY: Int
+  ): Unit =
+    js.native
+  def sscal(N: Int, alpha: Float, x: js.typedarray.Float32Array, strideX: Int): Unit = js.native
+  def snrm2(N: Int, x: js.typedarray.Float32Array, strideX: Int): Float = js.native
+  def sdot(N: Int, x: js.typedarray.Float32Array, strideX: Int, y: js.typedarray.Float32Array, strideY: Int): Float =
+    js.native
+
 end BlasArrayOps
 
 @js.native

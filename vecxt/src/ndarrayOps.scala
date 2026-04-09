@@ -3,11 +3,14 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.IntArrays.*
+import vecxt.IntArraysX.*
 import vecxt.ndarray.*
 import vecxt.rangeExtender.MatrixRange.*
 
 object ndarrayOps:
+
+  inline def sameAndContiguousMemoryLayout(a: NDArray[?], b: NDArray[?]): Boolean =
+    (a.isColMajor && b.isColMajor) || (a.isRowMajor && b.isRowMajor)
 
   extension [A](arr: NDArray[A])
 

@@ -1,6 +1,6 @@
 package vecxt
 
-object DoubleArrays:
+object DoubleArraysX:
   extension (vec: Array[Double])
     // TODO bnenchmark.
     inline def select(indicies: Array[Int]): Array[Double] =
@@ -151,4 +151,4 @@ object DoubleArrays:
   // inline def gte(num: Double): Array[Boolean] = vec >= num
   // end extension
 
-end DoubleArrays
+end DoubleArraysX

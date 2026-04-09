@@ -5,10 +5,99 @@ import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.*
+import vecxt.MatrixInstance.*
+
 
 object JsDoubleMatrix:
 
   extension (m: Matrix[Double])
+
+    inline def >=(d: Double): Matrix[Boolean] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+
+    inline def >(d: Double): Matrix[Boolean] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+      end if
+    end >
+
+    inline def <=(d: Double): Matrix[Boolean] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+      end if
+    end <=
+
+    inline def <(d: Double): Matrix[Boolean] =
+      if m.hasSimpleContiguousMemoryLayout then
+        Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+
+    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+      sameDimMatCheck(m, bmat)
+      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
+        val newArr = Array.ofDim[Double](m.rows * m.cols)
+        var i = 0
+        while i < newArr.length do
+          newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
+          i += 1
+        end while
+        Matrix[Double](newArr, (m.rows, m.cols))
+      else ???
+      end if
+    end *:*
+
+    inline def +=(arr: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+
+      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
+      end if
+
+      var i = 0
+      while i < m.rows do
+        var j = 0
+        while j < m.cols do
+          m(i, j) = m(i, j) + arr(j)
+          j += 1
+        end while
+        i += 1
+      end while
+
+    end +=
+
+    inline def +=(n: Double): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
+      else
+        // Cache-friendly fallback: iterate with smallest stride in inner loop
+        if m.rowStride <= m.colStride then
+          // Row stride is smaller, so iterate rows in inner loop
+          var j = 0
+          while j < m.cols do
+            var i = 0
+            while i < m.rows do
+              m(i, j) = n + m(i, j)
+              i += 1
+            end while
+            j += 1
+          end while
+        else
+          // Column stride is smaller, so iterate columns in inner loop
+          var i = 0
+          while i < m.rows do
+            var j = 0
+            while j < m.cols do
+              m(i, j) = n + m(i, j)
+              j += 1
+            end while
+            i += 1
+          end while
+        end if
+      end if
+
+    end +=
 
     inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0)(using
         inline boundsCheck: BoundsCheck

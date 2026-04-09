@@ -1,5 +1,6 @@
 package vecxt
 
+import scala.annotation.targetName
 import scala.math.Ordering
 import scala.reflect.ClassTag
 
@@ -8,7 +9,7 @@ import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
 
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
-object JsNativeDoubleArrays:
+trait JsNativeDoubleArrays:
 
   def linspace(a: Double, b: Double, length: Int = 100): Array[Double] =
     val increment = (b - a) / (length - 1)
@@ -62,91 +63,6 @@ object JsNativeDoubleArrays:
 
   end extension
 
-  extension (m: Matrix[Double])
-    // TODO: SIMD
-    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      sameDimMatCheck(m, bmat)
-      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
-        val newArr = Array.ofDim[Double](m.rows * m.cols)
-        var i = 0
-        while i < newArr.length do
-          newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
-          i += 1
-        end while
-        Matrix[Double](newArr, (m.rows, m.cols))
-      else ???
-      end if
-    end *:*
-
-    inline def +=(arr: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
-
-      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
-      end if
-
-      var i = 0
-      while i < m.rows do
-        var j = 0
-        while j < m.cols do
-          m(i, j) = m(i, j) + arr(j)
-          j += 1
-        end while
-        i += 1
-      end while
-
-    end +=
-
-    inline def +=(n: Double): Unit =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
-      if m.hasSimpleContiguousMemoryLayout then vecxt.arrays.+=(m.raw)(n)
-      else
-        // Cache-friendly fallback: iterate with smallest stride in inner loop
-        if m.rowStride <= m.colStride then
-          // Row stride is smaller, so iterate rows in inner loop
-          var j = 0
-          while j < m.cols do
-            var i = 0
-            while i < m.rows do
-              m(i, j) = n + m(i, j)
-              i += 1
-            end while
-            j += 1
-          end while
-        else
-          // Column stride is smaller, so iterate columns in inner loop
-          var i = 0
-          while i < m.rows do
-            var j = 0
-            while j < m.cols do
-              m(i, j) = n + m(i, j)
-              j += 1
-            end while
-            i += 1
-          end while
-        end if
-      end if
-
-    end +=
-
-    inline def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
-
-    inline def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](m.raw > d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
-      end if
-    end >
-
-    inline def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](m.raw <= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
-      end if
-    end <=
-
-    inline def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](m.raw < d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
-  end extension
 
   // extension [@specialized(Double, Int) A: Numeric](m: Matrix[A])
   //   inline def >=(d: A): Matrix[Boolean] =
@@ -263,10 +179,6 @@ object JsNativeDoubleArrays:
         minIdx
       end if
     end argmin
-
-    inline def productSIMD: Double = vecxt.arrays.product(vec)
-
-    inline def sumSIMD: Double = vecxt.arrays.sum(vec)
 
     inline def `**!`(power: Double): Unit =
       var i = 0
@@ -433,7 +345,7 @@ object JsNativeDoubleArrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+        inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -445,6 +357,8 @@ object JsNativeDoubleArrays:
       end while
       res
     end *
+
+    inline def *:*(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec.*(d)
 
     inline def *=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, d)
@@ -503,132 +417,7 @@ object JsNativeDoubleArrays:
     end logicalIdx
   end extension
 
-  extension (vec: Array[Int])
 
-    inline def increments: Array[Int] =
-      val n = vec.length
-      val idx = Array.ofDim[Int](vec.length)
-
-      var i = 1
-      while i < n do
-
-        idx(i) = vec(i) - vec(i - 1)
-        // println(s"i: $i || vec(i): ${vec(i)} || vec(i - 1): ${vec(i - 1)} || idx(i): ${idx(i)}")
-        i = i + 1
-      end while
-      idx(0) = vec(0)
-      idx
-    end increments
-
-    inline def -(other: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
-      dimCheck(vec, other)
-      val n = vec.length
-      val res = Array.fill(n)(0)
-
-      var i = 0
-      while i < n do
-        res(i) = vec(i) - other(i)
-        i = i + 1
-      end while
-      res
-    end -
-
-    inline def +(other: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
-      dimCheck(vec, other)
-
-      val n = vec.length
-      val res = Array.fill(n)(0)
-
-      var i = 0
-      while i < n do
-        res(i) = vec(i) + other(i)
-        i = i + 1
-      end while
-      res
-    end +
-
-    inline def dot(other: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
-      dimCheck(vec, other)
-      val n = vec.length
-      var sum = 0
-
-      var i = 0
-      while i < n do
-        sum += vec(i) * other(i)
-        i = i + 1
-      end while
-      sum
-    end dot
-
-    inline def =:=(nums: Array[Int]): Array[Boolean] =
-      logicalIdxArr(nums, (a, b) => a == b)
-
-    inline def =:=(num: Int): Array[Boolean] =
-      logicalIdx((a, b) => a == b, num)
-
-    inline def <(num: Int): Array[Boolean] =
-      logicalIdx((a, b) => a < b, num)
-
-    inline def <=(num: Int): Array[Boolean] =
-      logicalIdx((a, b) => a <= b, num)
-
-    inline def >(num: Int): Array[Boolean] =
-      logicalIdx((a, b) => a > b, num)
-
-    inline def >=(num: Int): Array[Boolean] =
-      logicalIdx((a, b) => a >= b, num)
-
-    inline def logicalIdx(
-        inline op: (Int, Int) => Boolean,
-        inline num: Int
-    ): Array[Boolean] =
-      val n = vec.length
-      val idx = Array.fill(n)(false)
-
-      var i = 0
-      while i < n do
-        if op(vec(i), num) then idx(i) = true
-        end if
-        i = i + 1
-      end while
-      idx
-    end logicalIdx
-
-    inline def logicalIdxArr(
-        compare: Array[Int],
-        inline op: (Int, Int) => Boolean
-    ): Array[Boolean] =
-      val n = vec.length
-      val idx = Array.fill(n)(false)
-
-      var i = 0
-      while i < n do
-        if op(vec(i), compare(i)) then idx(i) = true
-        end if
-        i = i + 1
-      end while
-      idx
-    end logicalIdxArr
-
-    inline def countsToIdx: Array[Int] =
-      var total = vec.sum
-      var i = 0
-      val out = new Array[Int](total)
-      var j = 0
-      while i < vec.length do
-        val count = vec(i)
-        val idx = i + 1
-        var k = 0
-        while k < count do
-          out(j) = idx
-          j += 1
-          k += 1
-        end while
-        i += 1
-      end while
-      out
-    end countsToIdx
-  end extension
 
   //   extension [@specialized(Double, Int) A: Numeric](vec: Array[A])
 

@@ -6,12 +6,18 @@ object all:
 
   // arrays
   export vecxt.arrayUtil.*
-  export vecxt.arrays.*
-  export vecxt.DoubleArrays.*
-  export vecxt.FloatArrays.*
-  export vecxt.VarianceMode
-  // export vecxt.JsNativeDoubleArrays.*
+  export vecxt.doublearrays.*
+  export vecxt.floatarrays.*
+  export vecxt.intarrays.*
+
+  export vecxt.LongArrays.*
   export vecxt.BooleanArrays.*
+
+  export vecxt.DoubleArraysX.*
+  export vecxt.FloatArraysX.*
+  export vecxt.IntArraysX.*
+
+  export vecxt.VarianceMode
 
   // matricies
   export vecxt.OneAndZero.given_OneAndZero_Boolean
@@ -26,8 +32,7 @@ object all:
   export vecxt.DoubleMatrix.*
   export vecxt.JvmNativeDoubleMatrix.*
   export vecxt.dimensionExtender.DimensionExtender.*
-  export vecxt.IntArrays.*
-  export vecxt.LongArrays.*
+
   export vecxt.Determinant.* // Import determinant implementations
   export vecxt.Svd.* // JS and native are stubs
   export vecxt.Cholesky.* // JS and native are stubs
