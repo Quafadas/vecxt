@@ -13,7 +13,6 @@ import vecxt.matrix.Matrix
 object floatarrays:
   // export vecxt.JsNativeFloatArrays.*
 
-
   extension (f: Float)
     inline def /(arr: Array[Float]) =
       val out = new Array[Float](arr.length)
@@ -425,7 +424,6 @@ object floatarrays:
       res
     end /:/
 
-
     inline def /=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, d)
       val n = vec.length
@@ -488,7 +486,6 @@ object floatarrays:
     //   end while
     //   res
     // end /
-
 
     inline def productExceptSelf: Array[Float] =
       val n = vec.length
@@ -611,7 +608,6 @@ object floatarrays:
     end increments
 
   end extension
-
 
   extension (vec: Array[Float])
 

@@ -370,7 +370,7 @@ object doublearrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-        inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -411,7 +411,6 @@ object doublearrays:
       Matrix[Double](out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
     end outer
 
-
     inline def *:*(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec.*(d)
 
     inline def *:*=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit = vec.*=(d)
@@ -444,7 +443,7 @@ object doublearrays:
       idx
     end logicalIdx
 
-    def toFloat64 = Float64Array.from(js.Array(vec *))
+    def toFloat64 = Float64Array.from(js.Array(vec*))
 
     inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
       dimCheck(vec, index)

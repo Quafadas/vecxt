@@ -15,8 +15,7 @@ import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.VectorMask
 import scala.reflect.ClassTag
 
-/**
-  * Cross compilation shim
+/** Cross compilation shim
   */
 object JsNativeFloatArrays
 

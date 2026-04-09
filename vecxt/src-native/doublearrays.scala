@@ -12,7 +12,6 @@ import vecxt.matrix.Matrix
 
 object doublearrays:
 
-
   def linspace(a: Double, b: Double, length: Int = 100): Array[Double] =
     val increment = (b - a) / (length - 1)
     Array.tabulate[Double](length)(i => a + increment * i)
@@ -332,7 +331,7 @@ object doublearrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-        inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -751,6 +750,5 @@ object doublearrays:
 
     // def max: Double = vec(blas.cblas_idamax(vec.length, vec.at(0), 1)) // No JS version
   end extension
-
 
 end doublearrays

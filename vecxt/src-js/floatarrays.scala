@@ -423,7 +423,6 @@ object floatarrays:
       res
     end /:/
 
-
     inline def /=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, d)
       val n = vec.length
@@ -486,7 +485,6 @@ object floatarrays:
     //   end while
     //   res
     // end /
-
 
     inline def productExceptSelf: Array[Float] =
       val n = vec.length
@@ -610,10 +608,9 @@ object floatarrays:
 
   end extension
 
-
   extension (vec: Array[Float])
 
-    def toFloat32 = Float32Array.from(js.Array(vec *))
+    def toFloat32 = Float32Array.from(js.Array(vec*))
 
     def apply(index: Array[Boolean]): Array[Float] =
       val truely = index.trues
@@ -754,6 +751,7 @@ object floatarrays:
         vec(i) = vec(i) / d
         i = i + 1
       end while
+    end /=
 
     inline def /(d: Float): Array[Float] =
       vec.clone.tap(_ /= d)

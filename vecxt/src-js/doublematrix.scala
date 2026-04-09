@@ -7,7 +7,6 @@ import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.*
 import vecxt.MatrixInstance.*
 
-
 object JsDoubleMatrix:
 
   extension (m: Matrix[Double])

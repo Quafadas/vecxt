@@ -63,7 +63,6 @@ trait JsNativeDoubleArrays:
 
   end extension
 
-
   // extension [@specialized(Double, Int) A: Numeric](m: Matrix[A])
   //   inline def >=(d: A): Matrix[Boolean] =
   //     Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
@@ -345,7 +344,7 @@ trait JsNativeDoubleArrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-        inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -416,8 +415,6 @@ trait JsNativeDoubleArrays:
       idx
     end logicalIdx
   end extension
-
-
 
   //   extension [@specialized(Double, Int) A: Numeric](vec: Array[A])
 
