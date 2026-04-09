@@ -157,7 +157,10 @@ object Svd:
     val ldu = math.max(1, m)
     val ldvt = math.max(1, vtRows)
 
-    val uArr = Array.ofDim[Double](ldu * uCols)
+    // Allocate ldu * m (not ldu * uCols) because netlib validates u.length >= ldu * m
+    // regardless of ReducedSVD mode (changed in netlib 3.2.0). Only the first uCols
+    // columns contain meaningful data; the Matrix wrapper uses uCols as the column count.
+    val uArr = Array.ofDim[Double](ldu * m)
     val vtArr = Array.ofDim[Double](ldvt * n)
 
     val workQuery = Array.ofDim[Double](1)

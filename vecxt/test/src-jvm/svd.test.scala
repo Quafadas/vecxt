@@ -128,7 +128,7 @@ class SvdSuite extends FunSuite:
       "Singular values should be in descending order"
     )
 
-  test("SVD ReducedSVD - tall matrix (m > n)".only):
+  test("SVD ReducedSVD - tall matrix (m > n)"):
     val A = Matrix(
       Array[Double](
         1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0
@@ -136,8 +136,6 @@ class SvdSuite extends FunSuite:
       4,
       2
     )
-
-    println(A.printMat)
 
     val result = svd(A, SVDMode.ReducedSVD)
 
