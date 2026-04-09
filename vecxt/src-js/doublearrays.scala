@@ -704,7 +704,11 @@ object doublearrays:
     end -=
 
     inline def *=(d: Double): Unit =
-      blas.dscal(vec.length, d, vec.toFloat64, 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) * d
+        i = i + 1
+      end while
     end *=
 
     inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =

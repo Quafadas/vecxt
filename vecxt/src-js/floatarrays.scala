@@ -681,7 +681,11 @@ object floatarrays:
 
     inline def -=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
-      blas.saxpy(vec.length, -1.0f, vec2.toFloat32, 1, vec.toFloat32, 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) - vec2(i)
+        i = i + 1
+      end while
     end -=
 
     inline def +(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Float] =
@@ -690,7 +694,11 @@ object floatarrays:
 
     inline def +=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
       dimCheck(vec, vec2)
-      blas.saxpy(vec.length, 1.0f, vec2.toFloat32, 1, vec.toFloat32, 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) + vec2(i)
+        i = i + 1
+      end while
     end +=
 
     inline def +:+(d: Float): Array[Float] =
@@ -729,7 +737,11 @@ object floatarrays:
     end +=
 
     inline def *=(d: Float): Unit =
-      blas.sscal(vec.length, d, vec.toFloat32, 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) * d
+        i = i + 1
+      end while
     end *=
 
     inline def *(d: Float): Array[Float] =
@@ -737,7 +749,11 @@ object floatarrays:
     end *
 
     inline def /=(d: Float): Unit =
-      blas.sscal(vec.length, 1.0f / d, vec.toFloat32, 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) / d
+        i = i + 1
+      end while
 
     inline def /(d: Float): Array[Float] =
       vec.clone.tap(_ /= d)
