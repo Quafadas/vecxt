@@ -1,9 +1,8 @@
 package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.doublearrays.*
-import vecxt.matrix.*
 import vecxt.intarrays.*
+import vecxt.matrix.*
 
 object JvmIntMatrix:
   extension (m: Matrix[Int])

@@ -2,9 +2,9 @@ package vecxt
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.broadcast.ShapeMismatchException
+import vecxt.doublearrays.*
 import vecxt.matrix.*
 import vecxt.ndarray.*
-import vecxt.doublearrays.*
 
 /** Private helper object for delegating to Array[Double] and Matrix[Double] extension methods.
   *

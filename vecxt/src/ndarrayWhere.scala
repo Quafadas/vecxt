@@ -17,7 +17,7 @@ object NDArrayWhere:
   ): NDArray[A] =
     if !sameShape(condition.shape, x.shape) || !sameShape(condition.shape, y.shape) then
       throw ShapeMismatchException(
-        s"where requires all three operands to have the same shape: " +
+        "where requires all three operands to have the same shape: " +
           s"condition=[${condition.shape.mkString(",")}], x=[${x.shape.mkString(",")}], y=[${y.shape.mkString(",")}]."
       )
     end if
@@ -60,7 +60,7 @@ object NDArrayWhere:
   ): NDArray[A] =
     if !sameShape(condition.shape, y.shape) then
       throw ShapeMismatchException(
-        s"where requires condition and y to have the same shape: " +
+        "where requires condition and y to have the same shape: " +
           s"condition=[${condition.shape.mkString(",")}], y=[${y.shape.mkString(",")}]."
       )
     end if
@@ -101,7 +101,7 @@ object NDArrayWhere:
   ): NDArray[A] =
     if !sameShape(condition.shape, x.shape) then
       throw ShapeMismatchException(
-        s"where requires condition and x to have the same shape: " +
+        "where requires condition and x to have the same shape: " +
           s"condition=[${condition.shape.mkString(",")}], x=[${x.shape.mkString(",")}]."
       )
     end if

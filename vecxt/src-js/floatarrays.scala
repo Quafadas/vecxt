@@ -1,13 +1,12 @@
 package vecxt
 
 import scala.reflect.ClassTag
-import scala.util.chaining.*
-
 import scala.scalajs.js
+import scala.scalajs.js.typedarray.Float32Array
+import scala.util.chaining.*
 
 import vecxt.BooleanArrays.trues
 import vecxt.BoundsCheck.BoundsCheck
-import scala.scalajs.js.typedarray.Float32Array
 import vecxt.matrix.Matrix
 
 object floatarrays:

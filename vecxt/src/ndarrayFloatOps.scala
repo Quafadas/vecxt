@@ -2,7 +2,6 @@ package vecxt
 
 import scala.annotation.targetName
 
-import vecxt.floatarrays.*
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 import vecxt.ndarrayOps.sameAndContiguousMemoryLayout

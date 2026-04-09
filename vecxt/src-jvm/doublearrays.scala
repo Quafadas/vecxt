@@ -1,7 +1,6 @@
 package vecxt
 
 import scala.reflect.ClassTag
-import scala.annotation.targetName
 import scala.util.chaining.*
 
 import vecxt.BoundsCheck.BoundsCheck

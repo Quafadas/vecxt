@@ -1,19 +1,17 @@
 package vecxt
 
-import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
-
-import jdk.incubator.vector.FloatVector
+import scala.reflect.ClassTag
 import scala.util.chaining.*
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
-import jdk.incubator.vector.VectorOperators
 
+import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
+import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.FloatVector
 import jdk.incubator.vector.IntVector
-import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.VectorMask
-import scala.reflect.ClassTag
+import jdk.incubator.vector.VectorOperators
 
 /** Cross compilation shim
   */

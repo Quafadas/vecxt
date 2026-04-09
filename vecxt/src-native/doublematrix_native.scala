@@ -5,8 +5,8 @@ import org.ekrich.blas.unsafe.blas
 import org.ekrich.blas.unsafe.blasEnums
 
 import vecxt.BoundsCheck.BoundsCheck
-import vecxt.matrix.*
 import vecxt.MatrixInstance.*
+import vecxt.matrix.*
 
 object NativeDoubleMatrix:
   extension (m: Matrix[Double])

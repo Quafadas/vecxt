@@ -3,8 +3,8 @@ package vecxt
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
 import vecxt.all.`matmulInPlace!`
-import vecxt.doublearrays.*
 import vecxt.dimensionExtender.DimensionExtender.*
+import vecxt.doublearrays.*
 import vecxt.matrix.*
 import vecxt.matrixUtil.*
 

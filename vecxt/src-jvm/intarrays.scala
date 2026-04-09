@@ -1,15 +1,15 @@
 package vecxt
 
 import scala.reflect.ClassTag
-import jdk.incubator.vector.IntVector
-import jdk.incubator.vector.DoubleVector
-import jdk.incubator.vector.ByteVector
-import jdk.incubator.vector.VectorOperators
-import jdk.incubator.vector.VectorSpecies
+import scala.util.chaining.scalaUtilChainingOps
 
 import vecxt.BoundsCheck.BoundsCheck
 
-import scala.util.chaining.scalaUtilChainingOps
+import jdk.incubator.vector.ByteVector
+import jdk.incubator.vector.DoubleVector
+import jdk.incubator.vector.IntVector
+import jdk.incubator.vector.VectorOperators
+import jdk.incubator.vector.VectorSpecies
 
 object intarrays:
 

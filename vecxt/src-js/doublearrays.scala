@@ -1,6 +1,4 @@
 package vecxt
-
-import scala.annotation.targetName
 import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
@@ -8,7 +6,6 @@ import scala.util.chaining.*
 
 import vecxt.BooleanArrays.*
 import vecxt.BoundsCheck.BoundsCheck
-
 import vecxt.matrix.Matrix
 
 object arrayUtil:
