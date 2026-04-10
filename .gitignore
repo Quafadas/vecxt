@@ -41,3 +41,6 @@ biases2.csv
 
 .venv/
 experiments/src/bhd.scala
+
+scripts/cellar
+.cellar/
