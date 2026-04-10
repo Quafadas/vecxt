@@ -14,26 +14,74 @@ object JsDoubleMatrix:
     inline def >=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Boolean](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = m.raw(srcIdx) >= d
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def >(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Boolean](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = m.raw(srcIdx) > d
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
       end if
     end >
 
     inline def <=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Boolean](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = m.raw(srcIdx) <= d
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
       end if
     end <=
 
     inline def <(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Boolean](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = m.raw(srcIdx) < d
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, bmat)
@@ -45,7 +93,20 @@ object JsDoubleMatrix:
           i += 1
         end while
         Matrix[Double](newArr, (m.rows, m.cols))
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val mIdx = m.offset + i * m.rowStride + j * m.colStride
+            val bIdx = bmat.offset + i * bmat.rowStride + j * bmat.colStride
+            newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0.0
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
       end if
     end *:*
 

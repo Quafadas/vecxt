@@ -154,6 +154,169 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
+  test("log on submatrix (non-contiguous layout) yields correct new matrix") {
+    val base = Matrix[Double](Array.tabulate[Double](9)(_.toDouble), 3, 3)
+    val sub = base(::, Array(1, 2)) // cols 1&2 of col-major 3x3: values (3,4,5) and (6,7,8)
+    val result = sub.log
+    assertEqualsDouble(result(0, 0), Math.log(3.0), 1e-10)
+    assertEqualsDouble(result(1, 0), Math.log(4.0), 1e-10)
+    assertEqualsDouble(result(2, 0), Math.log(5.0), 1e-10)
+    assertEqualsDouble(result(0, 1), Math.log(6.0), 1e-10)
+    assertEqualsDouble(result(1, 1), Math.log(7.0), 1e-10)
+    assertEqualsDouble(result(2, 1), Math.log(8.0), 1e-10)
+    // original submatrix is unchanged
+    assertEqualsDouble(sub(0, 0), 3.0, 1e-10)
+  }
+
+  test("log! on submatrix (non-contiguous layout) mutates underlying array in place") {
+    val base = Matrix[Double](Array.tabulate[Double](9)(_.toDouble), 3, 3)
+    val sub = base(::, Array(1, 2))
+    sub.`log!`
+    assertEqualsDouble(sub(0, 0), Math.log(3.0), 1e-10)
+    assertEqualsDouble(sub(1, 0), Math.log(4.0), 1e-10)
+    assertEqualsDouble(sub(2, 0), Math.log(5.0), 1e-10)
+    assertEqualsDouble(sub(0, 1), Math.log(6.0), 1e-10)
+    assertEqualsDouble(sub(1, 1), Math.log(7.0), 1e-10)
+    assertEqualsDouble(sub(2, 1), Math.log(8.0), 1e-10)
+    // col 0 of base is untouched — proves in-place on the view
+    assertEqualsDouble(base(0, 0), 0.0, 1e-10)
+    assertEqualsDouble(base(1, 0), 1.0, 1e-10)
+    assertEqualsDouble(base(2, 0), 2.0, 1e-10)
+  }
+
+  // Helpers for non-contiguous (submatrix view) tests
+  // 3×3 col-major raw=[0..8]: col0=[0,1,2], col1=[3,4,5], col2=[6,7,8]
+  // sub = cols 1&2 → 3×2 view: sub(r,0)=col1[r], sub(r,1)=col2[r]
+  private def subMatrix: Matrix[Double] =
+    val base = Matrix[Double](Array.tabulate[Double](9)(_.toDouble), 3, 3)
+    base(::, Array(1, 2))
+  end subMatrix
+
+  private def subBoolMatrix: Matrix[Boolean] =
+    val base = Matrix[Boolean](Array.tabulate[Boolean](9)(i => i % 2 == 0), 3, 3)
+    base(::, Array(1, 2))
+  end subBoolMatrix
+
+  test("/ on submatrix yields correct result") {
+    val result = subMatrix / 2.0
+    assertEqualsDouble(result(0, 0), 1.5, 1e-10)
+    assertEqualsDouble(result(1, 0), 2.0, 1e-10)
+    assertEqualsDouble(result(2, 0), 2.5, 1e-10)
+    assertEqualsDouble(result(0, 1), 3.0, 1e-10)
+    assertEqualsDouble(result(1, 1), 3.5, 1e-10)
+    assertEqualsDouble(result(2, 1), 4.0, 1e-10)
+  }
+
+  test("/:/ on submatrix yields correct result") {
+    val divisor = subMatrix / 2.0
+    val result = subMatrix./:/(divisor)
+    for i <- 0 until 3 do for j <- 0 until 2 do assertEqualsDouble(result(i, j), 2.0, 1e-10)
+    end for
+  }
+
+  test("exp! on submatrix mutates in place") {
+    val s = subMatrix
+    s.`exp!`
+    assertEqualsDouble(s(0, 0), Math.exp(3.0), 1e-8)
+    assertEqualsDouble(s(1, 0), Math.exp(4.0), 1e-8)
+    assertEqualsDouble(s(2, 0), Math.exp(5.0), 1e-8)
+    assertEqualsDouble(s(0, 1), Math.exp(6.0), 1e-8)
+  }
+
+  test("exp on submatrix yields correct result") {
+    val result = subMatrix.exp
+    assertEqualsDouble(result(0, 0), Math.exp(3.0), 1e-8)
+    assertEqualsDouble(result(2, 1), Math.exp(8.0), 1e-8)
+    assertEqualsDouble(subMatrix(0, 0), 3.0, 1e-10) // original unchanged
+  }
+
+  test("sqrt! on submatrix mutates in place") {
+    val s = subMatrix
+    s.`sqrt!`
+    assertEqualsDouble(s(0, 0), Math.sqrt(3.0), 1e-10)
+    assertEqualsDouble(s(2, 1), Math.sqrt(8.0), 1e-10)
+  }
+
+  test("sqrt on submatrix yields correct result") {
+    val result = subMatrix.sqrt
+    assertEqualsDouble(result(0, 0), Math.sqrt(3.0), 1e-10)
+    assertEqualsDouble(result(2, 1), Math.sqrt(8.0), 1e-10)
+    assertEqualsDouble(subMatrix(0, 0), 3.0, 1e-10) // original unchanged
+  }
+
+  test("sin on submatrix yields correct result") {
+    val result = subMatrix.sin
+    assertEqualsDouble(result(0, 0), Math.sin(3.0), 1e-10)
+    assertEqualsDouble(result(2, 1), Math.sin(8.0), 1e-10)
+    assertEqualsDouble(subMatrix(0, 0), 3.0, 1e-10) // original unchanged
+  }
+
+  test("sin! on submatrix mutates in place") {
+    val s = subMatrix
+    s.`sin!`
+    assertEqualsDouble(s(0, 0), Math.sin(3.0), 1e-10)
+    assertEqualsDouble(s(2, 1), Math.sin(8.0), 1e-10)
+  }
+
+  test("cos on submatrix yields correct result") {
+    val result = subMatrix.cos
+    assertEqualsDouble(result(0, 0), Math.cos(3.0), 1e-10)
+    assertEqualsDouble(result(2, 1), Math.cos(8.0), 1e-10)
+    assertEqualsDouble(subMatrix(0, 0), 3.0, 1e-10) // original unchanged
+  }
+
+  test("*:* on submatrix with bool mask yields correct result") {
+    // raw bool = [T,F,T,F,T,F,T,F,T] → col1=[F,T,F], col2=[T,F,T]
+    val result = subMatrix.*:*(subBoolMatrix)
+    assertEqualsDouble(result(0, 0), 0.0, 1e-10) // 3 * false
+    assertEqualsDouble(result(1, 0), 4.0, 1e-10) // 4 * true
+    assertEqualsDouble(result(2, 0), 0.0, 1e-10) // 5 * false
+    assertEqualsDouble(result(0, 1), 6.0, 1e-10) // 6 * true
+    assertEqualsDouble(result(1, 1), 0.0, 1e-10) // 7 * false
+    assertEqualsDouble(result(2, 1), 8.0, 1e-10) // 8 * true
+  }
+
+  test("*= on submatrix mutates underlying array in place") {
+    val base = Matrix[Double](Array.tabulate[Double](9)(_.toDouble), 3, 3)
+    val s = base(::, Array(1, 2))
+    s *= 3.0
+    assertEqualsDouble(s(0, 0), 9.0, 1e-10)
+    assertEqualsDouble(s(1, 0), 12.0, 1e-10)
+    assertEqualsDouble(s(2, 0), 15.0, 1e-10)
+    assertEqualsDouble(base(0, 0), 0.0, 1e-10) // col0 untouched
+  }
+
+  test(">= on submatrix yields correct boolean matrix") {
+    val result = subMatrix >= 5.0
+    assertEquals(result(0, 0), false) // 3 >= 5
+    assertEquals(result(1, 0), false) // 4 >= 5
+    assertEquals(result(2, 0), true) // 5 >= 5
+    assertEquals(result(0, 1), true) // 6 >= 5
+    assertEquals(result(1, 1), true) // 7 >= 5
+    assertEquals(result(2, 1), true) // 8 >= 5
+  }
+
+  test("> on submatrix yields correct boolean matrix") {
+    val result = subMatrix > 5.0
+    assertEquals(result(0, 0), false) // 3 > 5
+    assertEquals(result(2, 0), false) // 5 > 5
+    assertEquals(result(0, 1), true) // 6 > 5
+  }
+
+  test("<= on submatrix yields correct boolean matrix") {
+    val result = subMatrix <= 5.0
+    assertEquals(result(0, 0), true) // 3 <= 5
+    assertEquals(result(2, 0), true) // 5 <= 5
+    assertEquals(result(0, 1), false) // 6 <= 5
+  }
+
+  test("< on submatrix yields correct boolean matrix") {
+    val result = subMatrix < 5.0
+    assertEquals(result(0, 0), true) // 3 < 5
+    assertEquals(result(2, 0), false) // 5 < 5
+    assertEquals(result(0, 1), false) // 6 < 5
+  }
+
   test("element access") {
 
     val orig = Matrix.fromRows[Double](
