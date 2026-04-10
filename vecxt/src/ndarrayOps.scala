@@ -116,6 +116,15 @@ object ndarrayOps:
       arr.data(pos)
     end apply
 
+    /** Read the single element of a 0-d NDArray. */
+    inline def scalar(using inline bc: BoundsCheck): A =
+      inline if bc then
+        if arr.ndim != 0 then throw InvalidNDArray(s"scalar accessor requires ndim=0, got ndim=${arr.ndim}")
+        end if
+      end if
+      arr.data(arr.offset)
+    end scalar
+
     // ── Element write (update) ──────────────────────────────────────────────
 
     /** Write a single element in a 1D NDArray. */
@@ -217,6 +226,15 @@ object ndarrayOps:
       end while
       arr.data(pos) = value
     end update
+
+    /** Write the single element of a 0-d NDArray. */
+    inline def setScalar(value: A)(using inline bc: BoundsCheck): Unit =
+      inline if bc then
+        if arr.ndim != 0 then throw InvalidNDArray(s"setScalar requires ndim=0, got ndim=${arr.ndim}")
+        end if
+      end if
+      arr.data(arr.offset) = value
+    end setScalar
 
     // ── Slice (view, no copy) ───────────────────────────────────────────────
 

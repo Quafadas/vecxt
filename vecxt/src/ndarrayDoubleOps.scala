@@ -192,87 +192,109 @@ object NDArrayDoubleOps:
     // ── Binary ops (same shape required) ──────────────────────────────────
 
     /** Element-wise addition. Operands must have the same shape; use `broadcastTo` or `broadcastPair` first if needed.
+      * If either operand is 0-d, it is treated as a scalar and broadcast to the other operand's shape.
       */
     inline def +(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
-      inline if bc then
-        if !sameShape(a.shape, b.shape) then
-          throw ShapeMismatchException(
-            s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-              "Use broadcastTo or broadcastPair to align shapes first."
-          )
+      if a.ndim == 0 then b + a.data(a.offset)
+      else if b.ndim == 0 then a + b.data(b.offset)
+      else
+        inline if bc then
+          if !sameShape(a.shape, b.shape) then
+            throw ShapeMismatchException(
+              s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+                "Use broadcastTo or broadcastPair to align shapes first."
+            )
+          end if
         end if
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(
-          vecxt.doublearrays.+(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
-          a.shape,
-          a.strides,
-          0
-        )
-      else binaryOpGeneral(a, b, _ + _)
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(
+            vecxt.doublearrays.+(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
+            a.shape,
+            a.strides,
+            0
+          )
+        else binaryOpGeneral(a, b, _ + _)
+        end if
       end if
     end +
 
-    /** Element-wise subtraction. Operands must have the same shape. */
+    /** Element-wise subtraction. Operands must have the same shape. If either operand is 0-d, it is treated as a
+      * scalar.
+      */
     inline def -(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
-      inline if bc then
-        if !sameShape(a.shape, b.shape) then
-          throw ShapeMismatchException(
-            s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-              "Use broadcastTo or broadcastPair to align shapes first."
-          )
+      if a.ndim == 0 then (a.data(a.offset): Double) - b
+      else if b.ndim == 0 then a - b.data(b.offset)
+      else
+        inline if bc then
+          if !sameShape(a.shape, b.shape) then
+            throw ShapeMismatchException(
+              s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+                "Use broadcastTo or broadcastPair to align shapes first."
+            )
+          end if
         end if
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(
-          vecxt.doublearrays.-(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
-          a.shape,
-          a.strides,
-          0
-        )
-      else binaryOpGeneral(a, b, _ - _)
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(
+            vecxt.doublearrays.-(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
+            a.shape,
+            a.strides,
+            0
+          )
+        else binaryOpGeneral(a, b, _ - _)
+        end if
       end if
     end -
 
-    /** Element-wise multiplication (Hadamard product). Operands must have the same shape. */
+    /** Element-wise multiplication (Hadamard product). Operands must have the same shape. If either operand is 0-d, it
+      * is treated as a scalar.
+      */
     inline def *(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
-      inline if bc then
-        if !sameShape(a.shape, b.shape) then
-          throw ShapeMismatchException(
-            s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-              "Use broadcastTo or broadcastPair to align shapes first."
-          )
+      if a.ndim == 0 then b * a.data(a.offset)
+      else if b.ndim == 0 then a * b.data(b.offset)
+      else
+        inline if bc then
+          if !sameShape(a.shape, b.shape) then
+            throw ShapeMismatchException(
+              s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+                "Use broadcastTo or broadcastPair to align shapes first."
+            )
+          end if
         end if
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(
-          vecxt.doublearrays.*:*(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
-          a.shape,
-          a.strides,
-          0
-        )
-      else binaryOpGeneral(a, b, _ * _)
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(
+            vecxt.doublearrays.*:*(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
+            a.shape,
+            a.strides,
+            0
+          )
+        else binaryOpGeneral(a, b, _ * _)
+        end if
       end if
     end *
 
-    /** Element-wise division. Operands must have the same shape. */
+    /** Element-wise division. Operands must have the same shape. If either operand is 0-d, it is treated as a scalar.
+      */
     inline def /(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
-      inline if bc then
-        if !sameShape(a.shape, b.shape) then
-          throw ShapeMismatchException(
-            s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-              "Use broadcastTo or broadcastPair to align shapes first."
-          )
+      if a.ndim == 0 then (a.data(a.offset): Double) / b
+      else if b.ndim == 0 then a / b.data(b.offset)
+      else
+        inline if bc then
+          if !sameShape(a.shape, b.shape) then
+            throw ShapeMismatchException(
+              s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+                "Use broadcastTo or broadcastPair to align shapes first."
+            )
+          end if
         end if
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(
-          vecxt.doublearrays./(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
-          a.shape,
-          a.strides,
-          0
-        )
-      else binaryOpGeneral(a, b, _ / _)
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(
+            vecxt.doublearrays./(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
+            a.shape,
+            a.strides,
+            0
+          )
+        else binaryOpGeneral(a, b, _ / _)
+        end if
       end if
     end /
 
@@ -340,72 +362,92 @@ object NDArrayDoubleOps:
 
     // ── In-place binary ops ────────────────────────────────────────────────
 
-    /** In-place element-wise addition. `a` must be contiguous; operands must have the same shape. */
+    /** In-place element-wise addition. `a` must be contiguous; operands must have the same shape. If `b` is 0-d, its
+      * scalar value is added to every element of `a`.
+      */
     inline def +=(b: NDArray[Double]): Unit =
-      if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
-      end if
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"In-place += requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        vecxt.doublearrays.+=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
-      else binaryOpInPlaceGeneral(a, b, _ + _)
+      if b.ndim == 0 then a += b.data(b.offset)
+      else
+        if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
+        end if
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"In-place += requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          vecxt.doublearrays.+=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
+        else binaryOpInPlaceGeneral(a, b, _ + _)
+        end if
       end if
     end +=
 
-    /** In-place element-wise subtraction. `a` must be contiguous; operands must have the same shape. */
+    /** In-place element-wise subtraction. `a` must be contiguous; operands must have the same shape. If `b` is 0-d, its
+      * scalar value is subtracted from every element of `a`.
+      */
     inline def -=(b: NDArray[Double]): Unit =
-      if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
-      end if
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"In-place -= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        vecxt.doublearrays.-=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
-      else binaryOpInPlaceGeneral(a, b, _ - _)
+      if b.ndim == 0 then a -= b.data(b.offset)
+      else
+        if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
+        end if
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"In-place -= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          vecxt.doublearrays.-=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
+        else binaryOpInPlaceGeneral(a, b, _ - _)
+        end if
       end if
     end -=
 
-    /** In-place element-wise multiplication. `a` must be contiguous; operands must have the same shape. */
+    /** In-place element-wise multiplication. `a` must be contiguous; operands must have the same shape. If `b` is 0-d,
+      * every element of `a` is multiplied by `b`'s scalar value.
+      */
     inline def *=(b: NDArray[Double]): Unit =
-      if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
-      end if
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"In-place *= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        vecxt.doublearrays.*=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
-      else binaryOpInPlaceGeneral(a, b, _ * _)
+      if b.ndim == 0 then a *= b.data(b.offset)
+      else
+        if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
+        end if
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"In-place *= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          vecxt.doublearrays.*=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
+        else binaryOpInPlaceGeneral(a, b, _ * _)
+        end if
       end if
     end *=
 
-    /** In-place element-wise division. `a` must be contiguous; operands must have the same shape. */
+    /** In-place element-wise division. `a` must be contiguous; operands must have the same shape. If `b` is 0-d, every
+      * element of `a` is divided by `b`'s scalar value.
+      */
     inline def /=(b: NDArray[Double]): Unit =
-      if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
-      end if
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"In-place /= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        val n = a.numel
-        var i = 0
-        while i < n do
-          a.data(i) /= b.data(i)
-          i += 1
-        end while
-      else binaryOpInPlaceGeneral(a, b, _ / _)
+      if b.ndim == 0 then a /= b.data(b.offset)
+      else
+        if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
+        end if
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"In-place /= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          val n = a.numel
+          var i = 0
+          while i < n do
+            a.data(i) /= b.data(i)
+            i += 1
+          end while
+        else binaryOpInPlaceGeneral(a, b, _ / _)
+        end if
       end if
     end /=
 
@@ -457,87 +499,120 @@ object NDArrayDoubleOps:
 
     // ── Comparison ops (array vs array) ───────────────────────────────────
 
-    /** Element-wise greater-than. Operands must have the same shape. */
+    /** Element-wise greater-than. Operands must have the same shape. If either operand is 0-d, it is treated as a
+      * scalar.
+      */
     inline def >(b: NDArray[Double]): NDArray[Boolean] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Comparison > requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ > _), a.shape, a.strides, 0)
-      else compareGeneral(a, b, _ > _)
+      if a.ndim == 0 then b < a.data(a.offset)
+      else if b.ndim == 0 then a > b.data(b.offset)
+      else
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Comparison > requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(flatBinaryCompare(a.data, b.data, _ > _), a.shape, a.strides, 0)
+        else compareGeneral(a, b, _ > _)
+        end if
       end if
     end >
 
-    /** Element-wise less-than. Operands must have the same shape. */
+    /** Element-wise less-than. Operands must have the same shape. If either operand is 0-d, it is treated as a scalar.
+      */
     inline def <(b: NDArray[Double]): NDArray[Boolean] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Comparison < requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ < _), a.shape, a.strides, 0)
-      else compareGeneral(a, b, _ < _)
+      if a.ndim == 0 then b > a.data(a.offset)
+      else if b.ndim == 0 then a < b.data(b.offset)
+      else
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Comparison < requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(flatBinaryCompare(a.data, b.data, _ < _), a.shape, a.strides, 0)
+        else compareGeneral(a, b, _ < _)
+        end if
       end if
     end <
 
-    /** Element-wise greater-than-or-equal. Operands must have the same shape. */
+    /** Element-wise greater-than-or-equal. Operands must have the same shape. If either operand is 0-d, it is treated
+      * as a scalar.
+      */
     inline def >=(b: NDArray[Double]): NDArray[Boolean] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Comparison >= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ >= _), a.shape, a.strides, 0)
-      else compareGeneral(a, b, _ >= _)
+      if a.ndim == 0 then b <= a.data(a.offset)
+      else if b.ndim == 0 then a >= b.data(b.offset)
+      else
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Comparison >= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(flatBinaryCompare(a.data, b.data, _ >= _), a.shape, a.strides, 0)
+        else compareGeneral(a, b, _ >= _)
+        end if
       end if
     end >=
 
-    /** Element-wise less-than-or-equal. Operands must have the same shape. */
+    /** Element-wise less-than-or-equal. Operands must have the same shape. If either operand is 0-d, it is treated as a
+      * scalar.
+      */
     inline def <=(b: NDArray[Double]): NDArray[Boolean] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Comparison <= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ <= _), a.shape, a.strides, 0)
-      else compareGeneral(a, b, _ <= _)
+      if a.ndim == 0 then b >= a.data(a.offset)
+      else if b.ndim == 0 then a <= b.data(b.offset)
+      else
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Comparison <= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(flatBinaryCompare(a.data, b.data, _ <= _), a.shape, a.strides, 0)
+        else compareGeneral(a, b, _ <= _)
+        end if
       end if
     end <=
 
-    /** Element-wise equality. Operands must have the same shape. */
+    /** Element-wise equality. Operands must have the same shape. If either operand is 0-d, it is treated as a scalar.
+      */
     inline def =:=(b: NDArray[Double]): NDArray[Boolean] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Comparison =:= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ == _), a.shape, a.strides, 0)
-      else compareGeneral(a, b, _ == _)
+      if a.ndim == 0 then b =:= a.data(a.offset)
+      else if b.ndim == 0 then a =:= b.data(b.offset)
+      else
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Comparison =:= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(flatBinaryCompare(a.data, b.data, _ == _), a.shape, a.strides, 0)
+        else compareGeneral(a, b, _ == _)
+        end if
       end if
     end =:=
 
-    /** Element-wise inequality. Operands must have the same shape. */
+    /** Element-wise inequality. Operands must have the same shape. If either operand is 0-d, it is treated as a scalar.
+      */
     inline def !:=(b: NDArray[Double]): NDArray[Boolean] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Comparison !:= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
-      end if
-      if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ != _), a.shape, a.strides, 0)
-      else compareGeneral(a, b, _ != _)
+      if a.ndim == 0 then b !:= a.data(a.offset)
+      else if b.ndim == 0 then a !:= b.data(b.offset)
+      else
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Comparison !:= requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
+        if sameAndContiguousMemoryLayout(a, b) then
+          mkNDArray(flatBinaryCompare(a.data, b.data, _ != _), a.shape, a.strides, 0)
+        else compareGeneral(a, b, _ != _)
+        end if
       end if
     end !:=
 

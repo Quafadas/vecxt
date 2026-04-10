@@ -196,10 +196,11 @@ class NDArraySuite extends FunSuite:
     }
   }
 
-  test("rejects empty shape") {
-    intercept[InvalidNDArray] {
-      NDArray.zeros[Double](Array())
-    }
+  test("NDArray.zeros(Array()) creates 0-d zero") {
+    val arr = NDArray.zeros[Double](Array())
+    assertEquals(arr.ndim, 0)
+    assertEquals(arr.numel, 1)
+    assertClose(arr.data(0), 0.0)
   }
 
   test("rejects stride/shape rank mismatch") {
