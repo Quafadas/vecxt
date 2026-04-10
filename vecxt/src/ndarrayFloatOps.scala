@@ -365,6 +365,24 @@ object NDArrayFloatOps:
       if a.isContiguous then mkNDArray(vecxt.floatarrays.tanh(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => Math.tanh(x.toDouble).toFloat)
 
+    /** Element-wise sine. */
+    @targetName("ndFloatSin")
+    inline def sin: NDArray[Float] =
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.sin(a.data), a.shape.clone(), a.strides.clone(), 0)
+      else unaryOpGeneral(a, x => Math.sin(x.toDouble).toFloat)
+
+    /** Element-wise cosine. */
+    @targetName("ndFloatCos")
+    inline def cos: NDArray[Float] =
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.cos(a.data), a.shape.clone(), a.strides.clone(), 0)
+      else unaryOpGeneral(a, x => Math.cos(x.toDouble).toFloat)
+
+    /** Element-wise arc tangent. */
+    @targetName("ndFloatAtan")
+    inline def atan: NDArray[Float] =
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.atan(a.data), a.shape.clone(), a.strides.clone(), 0)
+      else unaryOpGeneral(a, x => Math.atan(x.toDouble).toFloat)
+
     /** Element-wise sigmoid: `1 / (1 + exp(-x))`. */
     @targetName("ndFloatSigmoid")
     inline def sigmoid: NDArray[Float] =

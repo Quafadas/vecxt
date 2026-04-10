@@ -131,6 +131,47 @@ class NDArrayFloatOpsSuite extends FunSuite:
     assertEquals(result.toArray.toSeq, Seq(2.0f, 3.0f, 4.0f))
   }
 
+  test("NDArray[Float] tanh") {
+    val a = NDArray(Array(0.0f, 1.0f, -1.0f), Array(3))
+    val result = a.tanh
+    assertEqualsDouble(result.toArray(0).toDouble, 0.0, 1e-6)
+    assertEqualsDouble(result.toArray(1).toDouble, Math.tanh(1.0), 1e-6)
+    assertEqualsDouble(result.toArray(2).toDouble, Math.tanh(-1.0), 1e-6)
+  }
+
+  test("NDArray[Float] sin") {
+    val a = NDArray(Array(0.0f, (Math.PI / 2).toFloat, Math.PI.toFloat), Array(3))
+    val result = a.sin
+    assertEqualsDouble(result.toArray(0).toDouble, 0.0, 1e-6)
+    assertEqualsDouble(result.toArray(1).toDouble, 1.0, 1e-6)
+    assertEqualsDouble(result.toArray(2).toDouble, 0.0, 1e-5)
+  }
+
+  test("NDArray[Float] cos") {
+    val a = NDArray(Array(0.0f, (Math.PI / 2).toFloat, Math.PI.toFloat), Array(3))
+    val result = a.cos
+    assertEqualsDouble(result.toArray(0).toDouble, 1.0, 1e-6)
+    assertEqualsDouble(result.toArray(1).toDouble, 0.0, 1e-5)
+    assertEqualsDouble(result.toArray(2).toDouble, -1.0, 1e-6)
+  }
+
+  test("NDArray[Float] atan") {
+    val a = NDArray(Array(0.0f, 1.0f, -1.0f), Array(3))
+    val result = a.atan
+    assertEqualsDouble(result.toArray(0).toDouble, 0.0, 1e-6)
+    assertEqualsDouble(result.toArray(1).toDouble, Math.PI / 4, 1e-6)
+    assertEqualsDouble(result.toArray(2).toDouble, -Math.PI / 4, 1e-6)
+  }
+
+  test("NDArray[Float] sin on transposed (general kernel)") {
+    val a = NDArray(Array(0.0f, (Math.PI / 2).toFloat, Math.PI.toFloat, 0.0f), Array(2, 2)).T
+    val result = a.sin
+    val expected = a.toArray.map(x => Math.sin(x.toDouble).toFloat)
+    result.toArray.zip(expected).foreach { (got, exp) =>
+      assertEqualsDouble(got.toDouble, exp.toDouble, 1e-5)
+    }
+  }
+
   test("NDArray[Float] sigmoid at 0 = 0.5") {
     val a = NDArray(Array(0.0f), Array(1))
     assertEqualsDouble(a.sigmoid.toArray(0).toDouble, 0.5, 1e-6)
