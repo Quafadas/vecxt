@@ -49,12 +49,12 @@ class NDArrayElemWiseSuite extends FunSuite:
     assertNDArrayClose(result, expected)
   }
 
-  test("result of binary op on non-col-major inputs is col-major") {
+  test("result of contiguous row major operations is row-major") {
     val a = NDArray(Array(1.0, 2.0, 3.0, 4.0), Array(2, 2))
     val at = a.T // non-col-major view
     val bt = a.T
     val result = at + bt
-    assert(result.isColMajor, "result should be col-major")
+    assert(result.isRowMajor, "result should be row-major")
   }
 
   // ── Scalar ops ─────────────────────────────────────────────────────────────
@@ -142,7 +142,7 @@ class NDArrayElemWiseSuite extends FunSuite:
     val raw = Array(1.0, 4.0, 9.0, 16.0)
     val a = NDArray(raw, Array(2, 2)).T // transposed view: shape[2,2] strides[2,1]
     val result = a.sqrt
-    assert(result.isColMajor, "result must be col-major")
+    assert(result.isRowMajor, "result should be row-major when input is row-major")
     // Transposed elements: (0,0)=1.0, (1,0)=9.0, (0,1)=4.0, (1,1)=16.0
     // sqrt in col-major output order: (0,0)=1, (1,0)=3, (0,1)=2, (1,1)=4
     assertNDArrayClose(result, Array(1.0, 3.0, 2.0, 4.0))
@@ -344,6 +344,21 @@ class NDArrayElemWiseSuite extends FunSuite:
     assert(sameShape(Array(2, 3), Array(2, 3)))
     assert(!sameShape(Array(2, 3), Array(3, 2)))
     assert(!sameShape(Array(2), Array(2, 1)))
+  }
+
+  // ── General kernel with non-zero offset ──────────────────────────────────
+
+  test("binary op on slice view (non-zero offset) produces correct results") {
+    // raw data [0..5]; slice dim=0 from 2 → offset = 2*1 = 2, shape [4], strides [1]
+    // This view is contiguous but offset != 0, so isColMajor is false → general kernel
+    val raw = Array(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
+    val a = NDArray(raw, Array(6))
+    val view = a.slice(0, 2, 6) // elements [2,3,4,5], offset=2
+    assert(!view.isColMajor, "slice view must not be col-major (offset != 0)")
+    assert(view.offset == 2, s"expected offset=2, got ${view.offset}")
+    val b = NDArray(Array(10.0, 20.0, 30.0, 40.0), Array(4))
+    val result = view + b
+    assertNDArrayClose(result, Array(12.0, 23.0, 34.0, 45.0))
   }
 
   // ── N-D ops (3D array) ────────────────────────────────────────────────────

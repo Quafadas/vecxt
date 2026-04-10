@@ -2,6 +2,7 @@ package vecxt
 
 import scala.annotation.targetName
 
+import vecxt.BoundsCheck.BoundsCheck
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 import vecxt.ndarrayOps.sameAndContiguousMemoryLayout
@@ -196,18 +197,20 @@ object NDArrayFloatOps:
 
     /** Element-wise addition. Operands must have the same shape. */
     @targetName("ndFloatAdd")
-    inline def +(b: NDArray[Float]): NDArray[Float] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
+    inline def +(b: NDArray[Float])(using inline bc: BoundsCheck): NDArray[Float] =
+      inline if bc then
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
       end if
       if sameAndContiguousMemoryLayout(a, b) then
         mkNDArray(
           vecxt.floatarrays.+(a.data)(b.data)(using vecxt.BoundsCheck.DoBoundsCheck.no),
-          a.shape.clone(),
-          a.strides.clone(),
+          a.shape,
+          a.strides,
           0
         )
       else binaryOpGeneral(a, b, _ + _)
@@ -216,18 +219,20 @@ object NDArrayFloatOps:
 
     /** Element-wise subtraction. Operands must have the same shape. */
     @targetName("ndFloatSub")
-    inline def -(b: NDArray[Float]): NDArray[Float] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
+    inline def -(b: NDArray[Float])(using inline bc: BoundsCheck): NDArray[Float] =
+      inline if bc then
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
       end if
       if sameAndContiguousMemoryLayout(a, b) then
         mkNDArray(
           vecxt.floatarrays.-(a.data)(b.data)(using vecxt.BoundsCheck.DoBoundsCheck.no),
-          a.shape.clone(),
-          a.strides.clone(),
+          a.shape,
+          a.strides,
           0
         )
       else binaryOpGeneral(a, b, _ - _)
@@ -236,18 +241,20 @@ object NDArrayFloatOps:
 
     /** Element-wise multiplication. Operands must have the same shape. */
     @targetName("ndFloatMul")
-    inline def *(b: NDArray[Float]): NDArray[Float] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
+    inline def *(b: NDArray[Float])(using inline bc: BoundsCheck): NDArray[Float] =
+      inline if bc then
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
       end if
       if sameAndContiguousMemoryLayout(a, b) then
         mkNDArray(
           vecxt.floatarrays.*:*(a.data)(b.data)(using vecxt.BoundsCheck.DoBoundsCheck.no),
-          a.shape.clone(),
-          a.strides.clone(),
+          a.shape,
+          a.strides,
           0
         )
       else binaryOpGeneral(a, b, _ * _)
@@ -256,18 +263,20 @@ object NDArrayFloatOps:
 
     /** Element-wise division. Operands must have the same shape. */
     @targetName("ndFloatDiv")
-    inline def /(b: NDArray[Float]): NDArray[Float] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
+    inline def /(b: NDArray[Float])(using inline bc: BoundsCheck): NDArray[Float] =
+      inline if bc then
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
       end if
       if sameAndContiguousMemoryLayout(a, b) then
         mkNDArray(
           vecxt.floatarrays./:/(a.data)(b.data)(using vecxt.BoundsCheck.DoBoundsCheck.no),
-          a.shape.clone(),
-          a.strides.clone(),
+          a.shape,
+          a.strides,
           0
         )
       else binaryOpGeneral(a, b, _ / _)
@@ -278,22 +287,22 @@ object NDArrayFloatOps:
 
     /** Add scalar `s` to every element. */
     inline def +(s: Float): NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.+(a.data)(s), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.+(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ + s)
 
     /** Subtract scalar `s` from every element. */
     inline def -(s: Float): NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.-(a.data)(s), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.-(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ - s)
 
     /** Multiply every element by scalar `s`. */
     inline def *(s: Float): NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.*(a.data)(s), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.*(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ * s)
 
     /** Divide every element by scalar `s`. */
     inline def /(s: Float): NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays./(a.data)(s), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays./(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ / s)
 
     // ── Unary ops ──────────────────────────────────────────────────────────
@@ -301,44 +310,44 @@ object NDArrayFloatOps:
     /** Element-wise negation. */
     @targetName("ndFloatNeg")
     inline def neg: NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.unary_-(a.data), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.unary_-(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => -x)
 
     /** Element-wise absolute value. */
     @targetName("ndFloatAbs")
     inline def abs: NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.abs(a.data), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.abs(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => Math.abs(x.toDouble).toFloat)
 
     /** Element-wise natural exponential. */
     @targetName("ndFloatExp")
     inline def exp: NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.exp(a.data), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.exp(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => Math.exp(x.toDouble).toFloat)
 
     /** Element-wise natural logarithm. */
     @targetName("ndFloatLog")
     inline def log: NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.log(a.data), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.log(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => Math.log(x.toDouble).toFloat)
 
     /** Element-wise square root. */
     @targetName("ndFloatSqrt")
     inline def sqrt: NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.sqrt(a.data), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.sqrt(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => Math.sqrt(x.toDouble).toFloat)
 
     /** Element-wise hyperbolic tangent. */
     @targetName("ndFloatTanh")
     inline def tanh: NDArray[Float] =
-      if a.isContiguous then mkNDArray(vecxt.floatarrays.tanh(a.data), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.tanh(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => Math.tanh(x.toDouble).toFloat)
 
     /** Element-wise sigmoid: `1 / (1 + exp(-x))`. */
     @targetName("ndFloatSigmoid")
     inline def sigmoid: NDArray[Float] =
       val sig = (x: Float) => (1.0 / (1.0 + Math.exp(-x.toDouble))).toFloat
-      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, sig), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, sig), a.shape, a.strides, 0)
       else unaryOpGeneral(a, sig)
       end if
     end sigmoid
@@ -491,7 +500,7 @@ object NDArrayFloatOps:
         )
       end if
       if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ > _), a.shape.clone(), a.strides.clone(), 0)
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ > _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ > _)
       end if
     end >
@@ -506,7 +515,7 @@ object NDArrayFloatOps:
         )
       end if
       if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ < _), a.shape.clone(), a.strides.clone(), 0)
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ < _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ < _)
       end if
     end <
@@ -521,7 +530,7 @@ object NDArrayFloatOps:
         )
       end if
       if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ >= _), a.shape.clone(), a.strides.clone(), 0)
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ >= _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ >= _)
       end if
     end >=
@@ -536,7 +545,7 @@ object NDArrayFloatOps:
         )
       end if
       if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ <= _), a.shape.clone(), a.strides.clone(), 0)
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ <= _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ <= _)
       end if
     end <=
@@ -551,7 +560,7 @@ object NDArrayFloatOps:
         )
       end if
       if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ == _), a.shape.clone(), a.strides.clone(), 0)
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ == _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ == _)
       end if
     end =:=
@@ -566,7 +575,7 @@ object NDArrayFloatOps:
         )
       end if
       if sameAndContiguousMemoryLayout(a, b) then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ != _), a.shape.clone(), a.strides.clone(), 0)
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ != _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ != _)
       end if
     end !:=
@@ -575,32 +584,32 @@ object NDArrayFloatOps:
 
     /** Element-wise greater-than scalar. */
     inline def >(s: Float): NDArray[Boolean] =
-      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ > _), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ > _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ > _)
 
     /** Element-wise less-than scalar. */
     inline def <(s: Float): NDArray[Boolean] =
-      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ < _), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ < _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ < _)
 
     /** Element-wise greater-than-or-equal scalar. */
     inline def >=(s: Float): NDArray[Boolean] =
-      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ >= _), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ >= _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ >= _)
 
     /** Element-wise less-than-or-equal scalar. */
     inline def <=(s: Float): NDArray[Boolean] =
-      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ <= _), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ <= _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ <= _)
 
     /** Element-wise equality with scalar. */
     inline def =:=(s: Float): NDArray[Boolean] =
-      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ == _), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ == _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ == _)
 
     /** Element-wise inequality with scalar. */
     inline def !:=(s: Float): NDArray[Boolean] =
-      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ != _), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ != _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ != _)
 
   end extension
@@ -616,7 +625,7 @@ object NDArrayFloatOps:
     /** Scalar - NDArray[Float]: `s - arr(i)` for each element. */
     @targetName("floatMinusNDArray")
     inline def -(a: NDArray[Float]): NDArray[Float] =
-      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, x => s - x), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, x => s - x), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => s - x)
 
     /** Scalar * NDArray[Float]: equivalent to `arr * s`. */
@@ -626,7 +635,7 @@ object NDArrayFloatOps:
     /** Scalar / NDArray[Float]: `s / arr(i)` for each element. */
     @targetName("floatDivNDArray")
     inline def /(a: NDArray[Float]): NDArray[Float] =
-      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, x => s / x), a.shape.clone(), a.strides.clone(), 0)
+      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, x => s / x), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => s / x)
 
   end extension

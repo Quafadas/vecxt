@@ -45,6 +45,26 @@ class NDArrayFloatOpsSuite extends FunSuite:
     assert(result.isRowMajor)
   }
 
+  test("NDArray[Float] + NDArray[Float] general kernel (non-zero offset)") {
+    // slice from index 2: offset=2, shape=[4], strides=[1] → not isColMajor
+    val raw = Array(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f)
+    val a = NDArray(raw, Array(6))
+    val view = a.slice(0, 2, 6) // elements [2,3,4,5], offset=2
+    assert(!view.isColMajor, "slice view must not be col-major")
+    assert(view.offset == 2)
+    val b = NDArray(Array(10.0f, 20.0f, 30.0f, 40.0f), Array(4))
+    assertEquals((view + b).toArray.toSeq, Seq(12.0f, 23.0f, 34.0f, 45.0f))
+  }
+
+  test("NDArray[Float] unary op on row-major input preserves layout") {
+    // raw col-major [2,2]: (0,0)=1,(1,0)=4,(0,1)=9,(1,1)=16 → after .T logical matrix [[1,9],[4,16]]
+    val a = NDArray(Array(1.0f, 4.0f, 9.0f, 16.0f), Array(2, 2)).T // row-major
+    val result = a.sqrt
+    assert(result.isRowMajor, "result should be row-major when input is row-major")
+    // toArray returns logical row-major order: (0,0)=1,(0,1)=3,(1,0)=2,(1,1)=4
+    assertEquals(result.toArray.toSeq, a.toArray.map(x => math.sqrt(x.toDouble).toFloat).toSeq)
+  }
+
   // ── Scalar ops ────────────────────────────────────────────────────────────
 
   test("NDArray[Float] + scalar") {

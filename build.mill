@@ -45,9 +45,9 @@ object V:
   val catsVersion = "2.13.0"
   val disciplineVersion = "2.0.0"
   val scalacheckVersion = "1.17.0"
-  val jsBSP = true
+  val jsBSP = false
   val nativeBSP = false
-  val jvmBSP = false
+  val jvmBSP = true
 end V
 
 trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule:

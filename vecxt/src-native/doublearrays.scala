@@ -652,7 +652,7 @@ object doublearrays:
     end cumsum
 
     inline def unary_- : Array[Double] =
-      val newVec = Array[Double](vec.length)
+      val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
         newVec(i) = -vec(i)
