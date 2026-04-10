@@ -89,14 +89,12 @@ object dimNDArrayCheck:
       end if
 end dimNDArrayCheck
 
-/** shapeCheck validates that the shape is non-empty and all dimensions are > 0. */
+/** shapeCheck validates that all dimensions are > 0. A 0-length shape (0-d array) is valid. */
 object shapeCheck:
   inline def apply(
       shape: Array[Int]
   )(using inline doCheck: BoundsCheck): Unit =
     inline if doCheck then
-      if shape.length == 0 then throw InvalidNDArray("Shape must be non-empty")
-      end if
       var i = 0
       while i < shape.length do
         if shape(i) <= 0 then

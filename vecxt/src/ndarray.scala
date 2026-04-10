@@ -60,6 +60,9 @@ object ndarray:
         end while
         result && data.length == numel
 
+    /** True if this is a 0-dimensional (scalar) NDArray. */
+    lazy val isScalar: Boolean = shape.length == 0
+
     lazy val layout: String =
       s"ndim: $ndim, shape: [${shape.mkString(",")}], strides: [${strides.mkString(",")}], offset: $offset, data length: ${data.length}"
 
@@ -92,6 +95,10 @@ object ndarray:
         data: Array[A]
     )(using inline boundsCheck: BoundsCheck): NDArray[A] =
       new NDArray(data, Array(data.length), Array(1), 0)
+
+    /** Create a 0-dimensional (scalar) NDArray holding a single value. */
+    inline def scalar[A](value: A)(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
+      new NDArray(Array(value), Array.emptyIntArray, Array.emptyIntArray, 0)
 
     inline def zeros[A](
         shape: Array[Int]
