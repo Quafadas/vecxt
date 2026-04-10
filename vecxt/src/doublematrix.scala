@@ -40,7 +40,17 @@ object DoubleMatrix:
 
     inline def *=(d: Double): Unit =
       if m.hasSimpleContiguousMemoryLayout then m.raw.multInPlace(d)
-      else ???
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = m.offset + i * m.rowStride + j * m.colStride
+            m.raw(idx) = m.raw(idx) * d
+            j += 1
+          end while
+          i += 1
+        end while
 
     inline def *(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
@@ -55,7 +65,19 @@ object DoubleMatrix:
         Matrix[Double](vecxt.doublearrays./(m.raw)(n), m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using
           BoundsCheck.DoBoundsCheck.no
         )
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = m.raw(srcIdx) / n
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
     end /
 
     inline def +(n: Double): Matrix[Double] =
@@ -203,7 +225,20 @@ object DoubleMatrix:
       if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
         val newArr = vecxt.doublearrays./(m.raw)(m2.raw)
         Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val mIdx = m.offset + i * m.rowStride + j * m.colStride
+            val m2Idx = m2.offset + i * m2.rowStride + j * m2.colStride
+            newArr(i + j * m.rows) = m.raw(mIdx) / m2.raw(m2Idx)
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
       end if
     end /:/
 
@@ -239,44 +274,145 @@ object DoubleMatrix:
 
     inline def `exp!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`exp!`(m.raw)
-      else ???
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = m.offset + i * m.rowStride + j * m.colStride
+            m.raw(idx) = Math.exp(m.raw(idx))
+            j += 1
+          end while
+          i += 1
+        end while
 
     inline def `log!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`log!`(m.raw)
-      else ???
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = m.offset + i * m.rowStride + j * m.colStride
+            m.raw(idx) = Math.log(m.raw(idx))
+            j += 1
+          end while
+          i += 1
+        end while
 
     inline def exp: Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.all.exp(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = Math.exp(m.raw(srcIdx))
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def log: Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.all.log(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        // allocate a fresh column-major matrix (rowStride=1, colStride=rows)
+        val newArr = Array.ofDim[Double](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = Math.log(m.raw(srcIdx))
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def `sqrt!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`sqrt!`(m.raw)
-      else ???
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = m.offset + i * m.rowStride + j * m.colStride
+            m.raw(idx) = Math.sqrt(m.raw(idx))
+            j += 1
+          end while
+          i += 1
+        end while
 
     inline def sqrt: Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.all.sqrt(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = Math.sqrt(m.raw(srcIdx))
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def sin =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.all.sin(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = Math.sin(m.raw(srcIdx))
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def `sin!` =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`sin!`(m.raw)
-      else ???
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = m.offset + i * m.rowStride + j * m.colStride
+            m.raw(idx) = Math.sin(m.raw(idx))
+            j += 1
+          end while
+          i += 1
+        end while
 
     inline def cos =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Double](vecxt.all.cos(m.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            newArr(i + j * m.rows) = Math.cos(m.raw(srcIdx))
+            j += 1
+          end while
+          i += 1
+        end while
+        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
 
     inline def `cos!` = vecxt.doublearrays.`cos!`(m.raw)
 
