@@ -1,7 +1,9 @@
 package vecxt
 
+import vecxt.BoundsCheck.BoundsCheck
 import vecxt.broadcast.*
 import vecxt.ndarray.*
+import vecxt.ndarrayOps.sameAndContiguousMemoryLayout
 
 object NDArrayDoubleOps:
 
@@ -140,22 +142,7 @@ object NDArrayDoubleOps:
     end while
   end binaryOpInPlaceGeneral
 
-  // ── Flat-array loop helpers (col-major fast path) ────────────────────────
-
-  private inline def flatBinaryOp(
-      aData: Array[Double],
-      bData: Array[Double],
-      inline f: (Double, Double) => Double
-  ): Array[Double] =
-    val n = aData.length
-    val out = new Array[Double](n)
-    var i = 0
-    while i < n do
-      out(i) = f(aData(i), bData(i))
-      i += 1
-    end while
-    out
-  end flatBinaryOp
+  // ── Flat-array loop helpers ──────────────────────────────────────────────
 
   private inline def flatUnaryOp(data: Array[Double], inline f: Double => Double): Array[Double] =
     val n = data.length
@@ -206,57 +193,85 @@ object NDArrayDoubleOps:
 
     /** Element-wise addition. Operands must have the same shape; use `broadcastTo` or `broadcastPair` first if needed.
       */
-    inline def +(b: NDArray[Double]): NDArray[Double] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
+    inline def +(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
+      inline if bc then
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryOp(a.data, b.data, _ + _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(
+          vecxt.doublearrays.+(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
+          a.shape,
+          a.strides,
+          0
+        )
       else binaryOpGeneral(a, b, _ + _)
       end if
     end +
 
     /** Element-wise subtraction. Operands must have the same shape. */
-    inline def -(b: NDArray[Double]): NDArray[Double] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
+    inline def -(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
+      inline if bc then
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryOp(a.data, b.data, _ - _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(
+          vecxt.doublearrays.-(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
+          a.shape,
+          a.strides,
+          0
+        )
       else binaryOpGeneral(a, b, _ - _)
       end if
     end -
 
     /** Element-wise multiplication (Hadamard product). Operands must have the same shape. */
-    inline def *(b: NDArray[Double]): NDArray[Double] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
+    inline def *(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
+      inline if bc then
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryOp(a.data, b.data, _ * _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(
+          vecxt.doublearrays.*:*(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
+          a.shape,
+          a.strides,
+          0
+        )
       else binaryOpGeneral(a, b, _ * _)
       end if
     end *
 
     /** Element-wise division. Operands must have the same shape. */
-    inline def /(b: NDArray[Double]): NDArray[Double] =
-      if !sameShape(a.shape, b.shape) then
-        throw ShapeMismatchException(
-          s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
-            "Use broadcastTo or broadcastPair to align shapes first."
-        )
+    inline def /(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
+      inline if bc then
+        if !sameShape(a.shape, b.shape) then
+          throw ShapeMismatchException(
+            s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
+              "Use broadcastTo or broadcastPair to align shapes first."
+          )
+        end if
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryOp(a.data, b.data, _ / _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(
+          vecxt.doublearrays./(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no),
+          a.shape,
+          a.strides,
+          0
+        )
       else binaryOpGeneral(a, b, _ / _)
       end if
     end /
@@ -265,60 +280,60 @@ object NDArrayDoubleOps:
 
     /** Add scalar `s` to every element. */
     inline def +(s: Double): NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, _ + s), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays.+(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ + s)
 
     /** Subtract scalar `s` from every element. */
     inline def -(s: Double): NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, _ - s), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays.-(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ - s)
 
     /** Multiply every element by scalar `s`. */
     inline def *(s: Double): NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, _ * s), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays.*(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ * s)
 
     /** Divide every element by scalar `s`. */
     inline def /(s: Double): NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, _ / s), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays./(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ / s)
 
     // ── Unary ops ──────────────────────────────────────────────────────────
 
     /** Element-wise negation. */
     inline def neg: NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => -x), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays.unary_-(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => -x)
 
     /** Element-wise absolute value. */
     inline def abs: NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.abs), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, Math.abs), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.abs)
 
     /** Element-wise natural exponential. */
     inline def exp: NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.exp), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays.exp(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.exp)
 
     /** Element-wise natural logarithm. */
     inline def log: NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.log), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays.log(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.log)
 
     /** Element-wise square root. */
     inline def sqrt: NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.sqrt), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays.sqrt(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.sqrt)
 
     /** Element-wise hyperbolic tangent. */
     inline def tanh: NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, Math.tanh), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, Math.tanh), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.tanh)
 
     /** Element-wise sigmoid: `1 / (1 + exp(-x))`. */
     inline def sigmoid: NDArray[Double] =
       val sig = (x: Double) => 1.0 / (1.0 + Math.exp(-x))
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, sig), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatUnaryOp(a.data, sig), a.shape, a.strides, 0)
       else unaryOpGeneral(a, sig)
       end if
     end sigmoid
@@ -335,13 +350,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        val n = a.numel
-        var i = 0
-        while i < n do
-          a.data(i) += b.data(i)
-          i += 1
-        end while
+      if sameAndContiguousMemoryLayout(a, b) then
+        vecxt.doublearrays.+=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
       else binaryOpInPlaceGeneral(a, b, _ + _)
       end if
     end +=
@@ -356,13 +366,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        val n = a.numel
-        var i = 0
-        while i < n do
-          a.data(i) -= b.data(i)
-          i += 1
-        end while
+      if sameAndContiguousMemoryLayout(a, b) then
+        vecxt.doublearrays.-=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
       else binaryOpInPlaceGeneral(a, b, _ - _)
       end if
     end -=
@@ -377,13 +382,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        val n = a.numel
-        var i = 0
-        while i < n do
-          a.data(i) *= b.data(i)
-          i += 1
-        end while
+      if sameAndContiguousMemoryLayout(a, b) then
+        vecxt.doublearrays.*=(a.data)(b.data)(using BoundsCheck.DoBoundsCheck.no)
       else binaryOpInPlaceGeneral(a, b, _ * _)
       end if
     end *=
@@ -398,7 +398,7 @@ object NDArrayDoubleOps:
             "Use broadcastTo to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
+      if sameAndContiguousMemoryLayout(a, b) then
         val n = a.numel
         var i = 0
         while i < n do
@@ -465,8 +465,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ > _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ > _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ > _)
       end if
     end >
@@ -479,8 +479,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ < _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ < _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ < _)
       end if
     end <
@@ -493,8 +493,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo or broadcastPair to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ >= _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ >= _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ >= _)
       end if
     end >=
@@ -507,8 +507,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo or broadcastPair to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ <= _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ <= _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ <= _)
       end if
     end <=
@@ -521,8 +521,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo or broadcastPair to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ == _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ == _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ == _)
       end if
     end =:=
@@ -535,8 +535,8 @@ object NDArrayDoubleOps:
             "Use broadcastTo or broadcastPair to align shapes first."
         )
       end if
-      if a.isColMajor && b.isColMajor then
-        mkNDArray(flatBinaryCompare(a.data, b.data, _ != _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if sameAndContiguousMemoryLayout(a, b) then
+        mkNDArray(flatBinaryCompare(a.data, b.data, _ != _), a.shape, a.strides, 0)
       else compareGeneral(a, b, _ != _)
       end if
     end !:=
@@ -545,32 +545,32 @@ object NDArrayDoubleOps:
 
     /** Element-wise greater-than scalar. */
     inline def >(s: Double): NDArray[Boolean] =
-      if a.isColMajor then mkNDArray(flatScalarCompare(a.data, s, _ > _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ > _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ > _)
 
     /** Element-wise less-than scalar. */
     inline def <(s: Double): NDArray[Boolean] =
-      if a.isColMajor then mkNDArray(flatScalarCompare(a.data, s, _ < _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ < _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ < _)
 
     /** Element-wise greater-than-or-equal scalar. */
     inline def >=(s: Double): NDArray[Boolean] =
-      if a.isColMajor then mkNDArray(flatScalarCompare(a.data, s, _ >= _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ >= _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ >= _)
 
     /** Element-wise less-than-or-equal scalar. */
     inline def <=(s: Double): NDArray[Boolean] =
-      if a.isColMajor then mkNDArray(flatScalarCompare(a.data, s, _ <= _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ <= _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ <= _)
 
     /** Element-wise equality with scalar. */
     inline def =:=(s: Double): NDArray[Boolean] =
-      if a.isColMajor then mkNDArray(flatScalarCompare(a.data, s, _ == _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ == _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ == _)
 
     /** Element-wise inequality with scalar. */
     inline def !:=(s: Double): NDArray[Boolean] =
-      if a.isColMajor then mkNDArray(flatScalarCompare(a.data, s, _ != _), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ != _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ != _)
 
   end extension
@@ -584,7 +584,7 @@ object NDArrayDoubleOps:
 
     /** Scalar - NDArray[Double]: `s - arr(i)` for each element. */
     inline def -(a: NDArray[Double]): NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => s - x), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays.-(s)(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => s - x)
 
     /** Scalar * NDArray[Double]: equivalent to `arr * s`. */
@@ -592,7 +592,7 @@ object NDArrayDoubleOps:
 
     /** Scalar / NDArray[Double]: `s / arr(i)` for each element. */
     inline def /(a: NDArray[Double]): NDArray[Double] =
-      if a.isColMajor then mkNDArray(flatUnaryOp(a.data, x => s / x), a.shape.clone(), colMajorStrides(a.shape), 0)
+      if a.isContiguous then mkNDArray(vecxt.doublearrays./(s)(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => s / x)
 
   end extension

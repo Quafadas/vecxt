@@ -48,6 +48,16 @@ jobs:
       - name: Verify Java version
         run: java --version
 
+      - name: Cache Mill build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/mill
+            out/
+          key: mill-${{ runner.os }}-${{ hashFiles('build.mill', '**/package.mill', '**/*.scala') }}
+          restore-keys: |
+            mill-${{ runner.os }}-
+
       # This should resolve a JVM, download dependancies and leave mill ready for use.
       - name: setup mill
         run: ./mill vecxt.__.compiledClassesAndSemanticDbFiles
