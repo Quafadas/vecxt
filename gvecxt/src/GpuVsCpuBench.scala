@@ -45,26 +45,28 @@ private def lightGpu(a: GNDExpr, b: GNDExpr): GNDExpr =
   ((a + b) * 2.0f).exp
 
 private def heavyGpu(a: GNDExpr, b: GNDExpr): GNDExpr =
-  val sum  = a + b
+  val sum = a + b
   val prod = a * b
   val quot = a / b
-  val t1   = sum.exp.sin           // sin(exp(a+b))
-  val t2   = prod.cos              // cos(a*b)
-  val t3   = quot.atan              // atan(a/b)
-  ((t1 * t2) + t3).exp.sqrt.log    // exp(sin·cos + atan) |> sqrt |> log
+  val t1 = sum.exp.sin // sin(exp(a+b))
+  val t2 = prod.cos // cos(a*b)
+  val t3 = quot.atan // atan(a/b)
+  ((t1 * t2) + t3).exp.sqrt.log // exp(sin·cos + atan) |> sqrt |> log
+end heavyGpu
 
 // ── Pipeline definitions (CPU) ─────────────────────────────
 private def lightCpu(a: NDArray[Float], b: NDArray[Float]): NDArray[Float] =
   ((a + b) * 2.0f).exp
 
 private def heavyCpu(a: NDArray[Float], b: NDArray[Float]): NDArray[Float] =
-  val sum  = a + b
+  val sum = a + b
   val prod = a * b
   val quot = a / b
-  val t1   = sum.exp.sin           // sin(exp(a+b))
-  val t2   = prod.cos              // cos(a*b)
-  val t3   = quot.atan              // atan(a/b)
+  val t1 = sum.exp.sin // sin(exp(a+b))
+  val t2 = prod.cos // cos(a*b)
+  val t3 = quot.atan // atan(a/b)
   ((t1 * t2) + t3).exp.sqrt.log
+end heavyCpu
 
 private def benchSize(
     rows: Int,
@@ -102,6 +104,7 @@ private def benchSize(
     if run == 1 then
       logGNDExprTransfers = false
       logGExprTransfers = false
+    end if
   end for
   val gpuMs = gpuTotalMs / runs
 
@@ -146,7 +149,9 @@ private def benchSize(
     val d1 = math.abs(gv - cpuResult.get.data(i))
     val d2 = math.abs(gv - fusedResult.get.data(i))
     if d1 > maxDiffGpuCpu then maxDiffGpuCpu = d1
+    end if
     if d2 > maxDiffGpuFused then maxDiffGpuFused = d2
+    end if
     i += 1
   end while
 

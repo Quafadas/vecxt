@@ -14,12 +14,15 @@ import io.computenode.cyfra.foton.GFunction
 
 enum UnaryFn:
   case Neg, Abs, Exp, Sqrt, Sin, Cos, Tan, Asin, Acos, Atan, Log
+end UnaryFn
 
 enum ScalarFn:
   case Add, Sub, Mul, Div, Pow
+end ScalarFn
 
 enum BinaryFn:
   case Add, Sub, Mul, Div
+end BinaryFn
 
 // ── Expression tree ────────────────────────────────────────
 
@@ -60,8 +63,7 @@ sealed trait GExpr:
   // ── Materialize: compile AST → GPU dispatch → result ───
   def run(using CyfraRuntime): Array[Float] = GExprCompiler.run(this)
 
-  /** Phase 1: Walk the AST and compute the dimension at each node.
-    * All ops are elementwise, so propagation is trivial.
+  /** Phase 1: Walk the AST and compute the dimension at each node. All ops are elementwise, so propagation is trivial.
     * Catches dimension mismatches eagerly — no GPU work, no data movement.
     */
   def validateDimensions: Int = GExprCompiler.shapeAnalysis(this)
@@ -83,23 +85,23 @@ private[gpu] object GExprCompiler:
   private def transferLog(msg: => String): Unit =
     if logGExprTransfers then System.err.println(s"[GExpr] $msg")
 
-  /** Phase 1: Walk the AST and compute the dimension at each node.
-    * All ops are elementwise, so propagation is trivial.
+  /** Phase 1: Walk the AST and compute the dimension at each node. All ops are elementwise, so propagation is trivial.
     * Catches dimension mismatches eagerly — no GPU work, no data movement.
     */
   def shapeAnalysis(expr: GExpr): Int =
     expr match
-      case GLeaf(data)                 => data.length
-      case GUnaryOp(input, _)          => shapeAnalysis(input)
-      case GScalarOp(input, _, _)      => shapeAnalysis(input)
-      case GClampOp(input, _, _)       => shapeAnalysis(input)
-      case GBinaryOp(left, right, _)   =>
+      case GLeaf(data)               => data.length
+      case GUnaryOp(input, _)        => shapeAnalysis(input)
+      case GScalarOp(input, _, _)    => shapeAnalysis(input)
+      case GClampOp(input, _, _)     => shapeAnalysis(input)
+      case GBinaryOp(left, right, _) =>
         val ld = shapeAnalysis(left)
         val rd = shapeAnalysis(right)
         if ld != rd then
           throw new IllegalArgumentException(
             s"GExpr dimension mismatch: left has $ld elements, right has $rd"
           )
+        end if
         ld
 
   def run(expr: GExpr)(using CyfraRuntime): Array[Float] =
@@ -109,13 +111,15 @@ private[gpu] object GExprCompiler:
     leaves match
       case single :: Nil => runSingleInput(expr, single)
       case _             => runFused(expr, leaves)
+    end match
+  end run
 
   private def collectLeaves(expr: GExpr): List[GLeaf] =
     expr match
-      case l: GLeaf              => List(l)
-      case GUnaryOp(input, _)    => collectLeaves(input)
-      case GScalarOp(input, _, _) => collectLeaves(input)
-      case GClampOp(input, _, _) => collectLeaves(input)
+      case l: GLeaf                  => List(l)
+      case GUnaryOp(input, _)        => collectLeaves(input)
+      case GScalarOp(input, _, _)    => collectLeaves(input)
+      case GClampOp(input, _, _)     => collectLeaves(input)
       case GBinaryOp(left, right, _) =>
         val ll = collectLeaves(left)
         val rl = collectLeaves(right)
@@ -131,6 +135,7 @@ private[gpu] object GExprCompiler:
     val result: Array[Float] = gf.run(leaf.data)
     transferLog(s"  GPU→CPU download ${result.length} floats (runSingleInput)")
     result
+  end runSingleInput
 
   private def compileSingle(expr: GExpr, leaf: GLeaf, x: Float32)(using Source): Float32 =
     expr match
@@ -200,10 +205,11 @@ private[gpu] object GExprCompiler:
     case class FusedLayout(inputs: GBuffer[Float32], output: GBuffer[Float32]) derives Layout
 
     val program = GProgram.static[Int, FusedLayout](
-      layout = _ => FusedLayout(
-        inputs = GBuffer[Float32](packedSize),
-        output = GBuffer[Float32](n)
-      ),
+      layout = _ =>
+        FusedLayout(
+          inputs = GBuffer[Float32](packedSize),
+          output = GBuffer[Float32](n)
+        ),
       dispatchSize = identity
     ): layout =>
       val idx = GIO.invocationId
@@ -224,10 +230,10 @@ private[gpu] object GExprCompiler:
       )
     transferLog(s"  GPU→CPU download $n floats (runFused)")
     result
+  end runFused
 
-  /** Walk the AST emitting Cyfra DSL code that reads each leaf from
-    * the packed input buffer at offset `leafIndex * n + invocationId`.
-    * All operations are fused into a single GPU kernel.
+  /** Walk the AST emitting Cyfra DSL code that reads each leaf from the packed input buffer at offset
+    * `leafIndex * n + invocationId`. All operations are fused into a single GPU kernel.
     */
   private def compileFused(
       expr: GExpr,
@@ -241,6 +247,7 @@ private[gpu] object GExprCompiler:
         val i = leafIndex(leaf.data.asInstanceOf[AnyRef])
         if i == 0 then inputs.read(idx)
         else inputs.read(idx + i * n)
+        end if
       case GUnaryOp(input, fn) =>
         applyUnary(fn, compileFused(input, leafIndex, inputs, idx, n))
       case GScalarOp(input, s, fn) =>
@@ -253,9 +260,9 @@ private[gpu] object GExprCompiler:
         applyBinary(fn, l, r)
 
   private def exprLabel(e: GExpr): String = e match
-    case _: GLeaf       => "Leaf"
-    case GUnaryOp(_, f) => s"Unary($f)"
-    case GScalarOp(_, s, f) => s"Scalar($f, $s)"
+    case _: GLeaf            => "Leaf"
+    case GUnaryOp(_, f)      => s"Unary($f)"
+    case GScalarOp(_, s, f)  => s"Scalar($f, $s)"
     case GClampOp(_, lo, hi) => s"Clamp($lo, $hi)"
     case GBinaryOp(_, _, f)  => s"Binary($f)"
 
@@ -270,5 +277,5 @@ end GExprCompiler
 
 // ── Entry point: Array[Float] → GExpr ──────────────────────
 
-extension (arr: Array[Float])
-  inline def gpu: GExpr = GLeaf(arr)
+extension (arr: Array[Float]) inline def gpu: GExpr = GLeaf(arr)
+end extension

@@ -6,8 +6,8 @@ import io.computenode.cyfra.core.CyfraRuntime
 
 /** An N-dimensional GPU expression that tracks shape and strides.
   *
-  * All shape/stride metadata lives on the CPU. The backing data is a flat
-  * `Array[Float]` that is only uploaded to GPU at materialisation time.
+  * All shape/stride metadata lives on the CPU. The backing data is a flat `Array[Float]` that is only uploaded to GPU
+  * at materialisation time.
   *
   * Column-major by default (matching vecxt.NDArray conventions).
   */
@@ -55,15 +55,13 @@ sealed trait GNDExpr:
   /** Phase 1: validate shapes across the whole tree. Returns the output shape. */
   def validateShape: Array[Int] = GNDShapeAnalysis.analyze(this)
 
-  /** Lower to GExpr, dispatch to GPU, wrap result back as GNDLeaf.
-    * Requires all leaves to be contiguous col-major with offset=0.
-    * Throws UnsupportedOperationException for broadcast, matmul, transpose.
+  /** Lower to GExpr, dispatch to GPU, wrap result back as GNDLeaf. Requires all leaves to be contiguous col-major with
+    * offset=0. Throws UnsupportedOperationException for broadcast, matmul, transpose.
     */
   def run(using CyfraRuntime): GNDLeaf = GNDExprCompiler.run(this)
 
-  /** Fused CPU evaluation: walks the AST per-element in a single pass.
-    * No intermediate arrays — constant memory regardless of pipeline depth.
-    * Does not require a CyfraRuntime.
+  /** Fused CPU evaluation: walks the AST per-element in a single pass. No intermediate arrays — constant memory
+    * regardless of pipeline depth. Does not require a CyfraRuntime.
     */
   def runCpu: GNDLeaf = GNDExprCompiler.runCpu(this)
 end GNDExpr
@@ -94,23 +92,23 @@ object GNDShapeAnalysis:
   /** Walk the AST and compute the output shape at each node.
     *
     * Rules:
-    *  - Leaf         → leaf.shape
-    *  - Unary/Scalar/Clamp → same shape as input
-    *  - Binary       → require exact shape match (use broadcastTo first)
-    *  - Broadcast    → validate broadcast compatibility, return targetShape
-    *  - MatMul       → standard matmul shape rule: [..., M, K] @@ [..., K, N] → [..., M, N]
-    *  - Reshape      → validate numel match, return newShape
-    *  - Transpose    → reversed shape
+    *   - Leaf → leaf.shape
+    *   - Unary/Scalar/Clamp → same shape as input
+    *   - Binary → require exact shape match (use broadcastTo first)
+    *   - Broadcast → validate broadcast compatibility, return targetShape
+    *   - MatMul → standard matmul shape rule: [..., M, K] @@ [..., K, N] → [..., M, N]
+    *   - Reshape → validate numel match, return newShape
+    *   - Transpose → reversed shape
     *
     * Throws `IllegalArgumentException` on any incompatibility.
     */
   def analyze(expr: GNDExpr): Array[Int] =
     expr match
-      case GNDLeaf(_, shape, _, _)       => shape.clone()
-      case GNDUnaryOp(input, _)          => analyze(input)
-      case GNDScalarOp(input, _, _)      => analyze(input)
-      case GNDClampOp(input, _, _)       => analyze(input)
-      case GNDBinaryOp(left, right, _)   =>
+      case GNDLeaf(_, shape, _, _)     => shape.clone()
+      case GNDUnaryOp(input, _)        => analyze(input)
+      case GNDScalarOp(input, _, _)    => analyze(input)
+      case GNDClampOp(input, _, _)     => analyze(input)
+      case GNDBinaryOp(left, right, _) =>
         val ls = analyze(left)
         val rs = analyze(right)
         requireSameShape(ls, rs)
@@ -119,7 +117,7 @@ object GNDShapeAnalysis:
         val is = analyze(input)
         validateBroadcast(is, targetShape)
         targetShape.clone()
-      case GNDMatMulOp(left, right)      =>
+      case GNDMatMulOp(left, right) =>
         val ls = analyze(left)
         val rs = analyze(right)
         matmulShapeOrThrow(ls, rs)
@@ -132,6 +130,7 @@ object GNDShapeAnalysis:
             s"GNDExpr reshape: cannot reshape [${is.mkString(",")}] ($inNumel elements) " +
               s"to [${newShape.mkString(",")}] ($outNumel elements)"
           )
+        end if
         newShape.clone()
       case GNDTransposeOp(input) =>
         val is = analyze(input)
@@ -139,6 +138,7 @@ object GNDShapeAnalysis:
           throw new IllegalArgumentException(
             s"GNDExpr transpose requires at least 2 dimensions, got [${is.mkString(",")}]"
           )
+        end if
         is.reverse
 
   // ── Shape matching for binary ops ────────────────────────
@@ -150,6 +150,7 @@ object GNDShapeAnalysis:
         s"GNDExpr binary: shape mismatch — [${a.mkString(",")}] vs [${b.mkString(",")}] " +
           s"(rank ${a.length} != ${b.length}). Use .broadcastTo to align shapes explicitly."
       )
+    end if
     var i = 0
     while i < a.length do
       if a(i) != b(i) then
@@ -157,8 +158,10 @@ object GNDShapeAnalysis:
           s"GNDExpr binary: shape mismatch — [${a.mkString(",")}] vs [${b.mkString(",")}] " +
             s"at dimension $i (${a(i)} vs ${b(i)}). Use .broadcastTo to align shapes explicitly."
         )
+      end if
       i += 1
     end while
+  end requireSameShape
 
   // ── Broadcast validation ─────────────────────────────────
 
@@ -169,6 +172,7 @@ object GNDShapeAnalysis:
         s"GNDExpr broadcast: cannot broadcast [${inputShape.mkString(",")}] to [${targetShape.mkString(",")}] — " +
           s"source has more dimensions (${inputShape.length}) than target (${targetShape.length})"
       )
+    end if
     val n = targetShape.length
     var i = 0
     while i < n do
@@ -180,8 +184,10 @@ object GNDShapeAnalysis:
           s"GNDExpr broadcast: cannot broadcast [${inputShape.mkString(",")}] to [${targetShape.mkString(",")}] — " +
             s"incompatible at dimension $i ($srcDim vs $tgtDim)"
         )
+      end if
       i += 1
     end while
+  end validateBroadcast
 
   /** Compute broadcast output shape for two shapes. Used internally by matmul batch dims. */
   private[gpu] def broadcastShapeOrThrow(a: Array[Int], b: Array[Int]): Array[Int] =
@@ -201,21 +207,22 @@ object GNDShapeAnalysis:
           s"GNDExpr broadcast: incompatible shapes [${a.mkString(",")}] and [${b.mkString(",")}] " +
             s"at dimension $i ($da vs $db)"
         )
+      end if
       i += 1
     end while
     out
+  end broadcastShapeOrThrow
 
   // ── MatMul shape ─────────────────────────────────────────
 
   /** Compute matmul output shape.
     *
     * Supports:
-    *  - 2D × 2D: [M,K] @@ [K,N] → [M,N]
-    *  - Batched:  [...,M,K] @@ [...,K,N] → [...,M,N]
-    *    where batch dims are broadcast.
-    *  - 1D × 2D: [K] @@ [K,N] → [N]        (vector-matrix)
-    *  - 2D × 1D: [M,K] @@ [K] → [M]        (matrix-vector)
-    *  - 1D × 1D: [K] @@ [K] → []            (dot product → scalar)
+    *   - 2D × 2D: [M,K] @@ [K,N] → [M,N]
+    *   - Batched: [...,M,K] @@ [...,K,N] → [...,M,N] where batch dims are broadcast.
+    *   - 1D × 2D: [K] @@ [K,N] → [N] (vector-matrix)
+    *   - 2D × 1D: [M,K] @@ [K] → [M] (matrix-vector)
+    *   - 1D × 1D: [K] @@ [K] → [] (dot product → scalar)
     */
   private[gpu] def matmulShapeOrThrow(a: Array[Int], b: Array[Int]): Array[Int] =
     // Handle 1D cases by temporarily promoting to 2D
@@ -234,12 +241,14 @@ object GNDShapeAnalysis:
         s"GNDExpr matmul: inner dimensions don't match — " +
           s"[${a.mkString(",")}] @@ [${b.mkString(",")}]: $k1 != $k2"
       )
+    end if
 
     // Broadcast batch dims (everything except last 2)
     val aBatch = aEff.take(aRank - 2)
     val bBatch = bEff.take(bRank - 2)
-    val batchShape = if aBatch.isEmpty && bBatch.isEmpty then Array.empty[Int]
-                     else broadcastShapeOrThrow(aBatch, bBatch)
+    val batchShape =
+      if aBatch.isEmpty && bBatch.isEmpty then Array.empty[Int]
+      else broadcastShapeOrThrow(aBatch, bBatch)
 
     // Build output shape, then un-squeeze if we promoted 1D inputs
     val fullShape = batchShape ++ Array(m, n)
@@ -254,8 +263,8 @@ object GNDShapeAnalysis:
     else if aSqueezeBack then
       // Remove the N=1 dim from output
       batchShape ++ Array(m)
-    else
-      fullShape
+    else fullShape
+    end if
   end matmulShapeOrThrow
 
   private[gpu] def numel(shape: Array[Int]): Int =
@@ -280,10 +289,12 @@ object GNDArray:
     val strides = colMajorStrides(shape)
     requireValidLeaf(data, shape, strides, 0)
     GNDLeaf(data, shape.clone(), strides, 0)
+  end apply
 
   def apply(data: Array[Float], shape: Array[Int], strides: Array[Int], offset: Int = 0): GNDLeaf =
     requireValidLeaf(data, shape, strides, offset)
     GNDLeaf(data, shape.clone(), strides.clone(), offset)
+  end apply
 
   /** 1D convenience. */
   def fromArray(data: Array[Float]): GNDLeaf =
@@ -304,24 +315,28 @@ object GNDArray:
       end while
     end if
     s
+  end colMajorStrides
 
   private def requireValidLeaf(data: Array[Float], shape: Array[Int], strides: Array[Int], offset: Int): Unit =
     if shape.length != strides.length then
       throw new IllegalArgumentException(
         s"GNDArray: shape rank ${shape.length} != strides rank ${strides.length}"
       )
+    end if
     if shape.exists(_ < 0) then
       throw new IllegalArgumentException(
         s"GNDArray: shape has negative dimension: [${shape.mkString(",")}]"
       )
-    if offset < 0 then
-      throw new IllegalArgumentException(s"GNDArray: negative offset $offset")
+    end if
+    if offset < 0 then throw new IllegalArgumentException(s"GNDArray: negative offset $offset")
+    end if
     // Check that every reachable index stays within data bounds
     if shape.nonEmpty then
       var maxIdx = offset
       var i = 0
       while i < shape.length do
         if shape(i) > 0 then maxIdx += (shape(i) - 1) * math.abs(strides(i))
+        end if
         i += 1
       end while
       if maxIdx >= data.length then
@@ -329,6 +344,7 @@ object GNDArray:
           s"GNDArray: max reachable index $maxIdx >= data.length ${data.length} " +
             s"(shape=[${shape.mkString(",")}], strides=[${strides.mkString(",")}], offset=$offset)"
         )
+      end if
     end if
   end requireValidLeaf
 
@@ -355,25 +371,25 @@ private[gpu] object GNDExprCompiler:
     transferLog(s"  GPU→CPU done, wrapping $n floats as GNDLeaf shape=[${outShape.mkString(",")}]")
     val strides = GNDArray.colMajorStrides(outShape)
     GNDLeaf(result, outShape, strides, 0)
+  end run
 
   /** Recursively lower a GNDExpr tree to a flat GExpr tree.
     *
-    * Elementwise ops map 1:1. Reshape is a no-op (same flat data).
-    * Broadcast, matmul, and transpose throw — they require non-trivial
-    * GPU kernels that the 1D GExpr path doesn't support yet.
+    * Elementwise ops map 1:1. Reshape is a no-op (same flat data). Broadcast, matmul, and transpose throw — they
+    * require non-trivial GPU kernels that the 1D GExpr path doesn't support yet.
     */
   private def lower(expr: GNDExpr): GExpr =
     expr match
-      case leaf: GNDLeaf                  =>
+      case leaf: GNDLeaf =>
         requireContiguous(leaf)
         transferLog(s"  lower: GNDLeaf(${leaf.data.length} floats, shape=[${leaf.shape.mkString(",")}]) → GLeaf")
         GLeaf(leaf.data)
-      case GNDUnaryOp(input, fn)          => GUnaryOp(lower(input), fn)
-      case GNDScalarOp(input, s, fn)      => GScalarOp(lower(input), s, fn)
-      case GNDClampOp(input, f, c)        => GClampOp(lower(input), f, c)
-      case GNDBinaryOp(left, right, fn)   => GBinaryOp(lower(left), lower(right), fn)
-      case GNDReshapeOp(input, _)         => lower(input) // same flat data
-      case _: GNDBroadcastOp =>
+      case GNDUnaryOp(input, fn)        => GUnaryOp(lower(input), fn)
+      case GNDScalarOp(input, s, fn)    => GScalarOp(lower(input), s, fn)
+      case GNDClampOp(input, f, c)      => GClampOp(lower(input), f, c)
+      case GNDBinaryOp(left, right, fn) => GBinaryOp(lower(left), lower(right), fn)
+      case GNDReshapeOp(input, _)       => lower(input) // same flat data
+      case _: GNDBroadcastOp            =>
         throw new UnsupportedOperationException(
           "GNDExpr broadcast lowering to GExpr is not yet supported"
         )
@@ -392,17 +408,21 @@ private[gpu] object GNDExprCompiler:
       throw new UnsupportedOperationException(
         s"GNDExpr lowering requires offset=0, got ${leaf.offset}"
       )
+    end if
     val expected = GNDArray.colMajorStrides(leaf.shape)
     if !java.util.Arrays.equals(leaf.strides, expected) then
       throw new UnsupportedOperationException(
         s"GNDExpr lowering requires contiguous col-major strides [${expected.mkString(",")}], " +
           s"got [${leaf.strides.mkString(",")}]"
       )
+    end if
     val n = GNDShapeAnalysis.numel(leaf.shape)
     if leaf.data.length != n then
       throw new UnsupportedOperationException(
         s"GNDExpr lowering requires data.length == numel(shape) ($n), got ${leaf.data.length}"
       )
+    end if
+  end requireContiguous
 
   // ── Fused CPU backend ──────────────────────────────────
 
@@ -418,6 +438,7 @@ private[gpu] object GNDExprCompiler:
     end while
     val strides = GNDArray.colMajorStrides(outShape)
     GNDLeaf(out, outShape, strides, 0)
+  end runCpu
 
   /** Recursively evaluate the expression tree for a single flat index. */
   private def evalElement(expr: GNDExpr, i: Int): Float =

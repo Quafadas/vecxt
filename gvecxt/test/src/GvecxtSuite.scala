@@ -79,6 +79,7 @@ class GvecxtSuite extends munit.FunSuite:
       while i < n do
         assertEqualsFloat(result(i), input(i) * 2.0f + 1.0f, 1e-5f)
         i += 1
+      end while
 
   private def assertEqualsFloat(actual: Float, expected: Float, eps: Float)(using munit.Location): Unit =
     assert(
@@ -86,12 +87,16 @@ class GvecxtSuite extends munit.FunSuite:
       s"expected $expected but got $actual (diff=${Math.abs(actual - expected)}, eps=$eps)"
     )
 
-  private def assertArrayEqualsFloat(actual: Array[Float], expected: Array[Float], eps: Float)(using munit.Location): Unit =
+  private def assertArrayEqualsFloat(actual: Array[Float], expected: Array[Float], eps: Float)(using
+      munit.Location
+  ): Unit =
     assertEquals(actual.length, expected.length, s"length mismatch: ${actual.length} vs ${expected.length}")
     var i = 0
     while i < actual.length do
       assertEqualsFloat(actual(i), expected(i), eps)
       i += 1
+    end while
+  end assertArrayEqualsFloat
 
   // ── Binary ops: GPU vs vecxt side-by-side ────────────────
 
@@ -100,8 +105,8 @@ class GvecxtSuite extends munit.FunSuite:
       val a = Array(1.0f, 2.0f, 3.0f, 4.0f)
       val b = Array(10.0f, 20.0f, 30.0f, 40.0f)
 
-      val cpuResult = a + b          // vecxt
-      val gpuResult = (a.gpu + b.gpu).run  // gvecxt
+      val cpuResult = a + b // vecxt
+      val gpuResult = (a.gpu + b.gpu).run // gvecxt
 
       assertArrayEqualsFloat(gpuResult, cpuResult, 1e-5f)
 
@@ -140,7 +145,7 @@ class GvecxtSuite extends munit.FunSuite:
       val a = Array(0.0f, 0.5f, 1.0f)
       val b = Array(1.0f, 1.5f, 2.0f)
 
-      val cpuResult = (a.exp + b.sin) * 2.0f   // vecxt
+      val cpuResult = (a.exp + b.sin) * 2.0f // vecxt
       val gpuResult = ((a.gpu.exp + b.gpu.sin) * 2.0f).run
 
       assertArrayEqualsFloat(gpuResult, cpuResult, 1e-3f)
@@ -225,6 +230,7 @@ class GvecxtSuite extends munit.FunSuite:
       finally
         System.setErr(oldErr)
         logGExprTransfers = false
+      end try
 
   test("transfer log: (a.exp + b.sin) * 2.0"):
     VkCyfraRuntime.using:

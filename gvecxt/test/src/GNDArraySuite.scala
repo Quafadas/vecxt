@@ -43,7 +43,9 @@ class GNDArraySuite extends munit.FunSuite:
       GNDArray(Array.ofDim[Float](6), Array(2, 3), Array(1))
 
   test("GNDArray rejects out-of-bounds view"):
-    interceptMessage[IllegalArgumentException]("GNDArray: max reachable index 5 >= data.length 4 (shape=[2,3], strides=[1,2], offset=0)"):
+    interceptMessage[IllegalArgumentException](
+      "GNDArray: max reachable index 5 >= data.length 4 (shape=[2,3], strides=[1,2], offset=0)"
+    ):
       GNDArray(Array.ofDim[Float](4), Array(2, 3), Array(1, 2))
 
   test("GNDArray rejects negative offset"):
@@ -107,24 +109,32 @@ class GNDArraySuite extends munit.FunSuite:
 
   test("validateShape: broadcastTo incompatible [2,3] → [2,4] throws"):
     val a = GNDArray.matrix(Array.ofDim[Float](6), 2, 3)
-    interceptMessage[IllegalArgumentException]("GNDExpr broadcast: cannot broadcast [2,3] to [2,4] \u2014 incompatible at dimension 1 (3 vs 4)"):
+    interceptMessage[IllegalArgumentException](
+      "GNDExpr broadcast: cannot broadcast [2,3] to [2,4] \u2014 incompatible at dimension 1 (3 vs 4)"
+    ):
       a.broadcastTo(Array(2, 4)).validateShape
 
   test("validateShape: broadcastTo more dims in source throws"):
     val a = GNDArray.matrix(Array.ofDim[Float](6), 2, 3)
-    interceptMessage[IllegalArgumentException]("GNDExpr broadcast: cannot broadcast [2,3] to [6] \u2014 source has more dimensions (2) than target (1)"):
+    interceptMessage[IllegalArgumentException](
+      "GNDExpr broadcast: cannot broadcast [2,3] to [6] \u2014 source has more dimensions (2) than target (1)"
+    ):
       a.broadcastTo(Array(6)).validateShape
 
   test("validateShape: binary without broadcast rejects mismatched shapes"):
     val a = GNDArray.matrix(Array.ofDim[Float](6), 2, 3)
     val b = GNDArray.matrix(Array.ofDim[Float](8), 2, 4)
-    interceptMessage[IllegalArgumentException]("GNDExpr binary: shape mismatch \u2014 [2,3] vs [2,4] at dimension 1 (3 vs 4). Use .broadcastTo to align shapes explicitly."):
+    interceptMessage[IllegalArgumentException](
+      "GNDExpr binary: shape mismatch \u2014 [2,3] vs [2,4] at dimension 1 (3 vs 4). Use .broadcastTo to align shapes explicitly."
+    ):
       (a + b).validateShape
 
   test("validateShape: binary without broadcast rejects mismatched rank"):
     val a = GNDArray.fromArray(Array.ofDim[Float](3))
     val b = GNDArray.matrix(Array.ofDim[Float](6), 2, 3)
-    interceptMessage[IllegalArgumentException]("GNDExpr binary: shape mismatch \u2014 [3] vs [2,3] (rank 1 != 2). Use .broadcastTo to align shapes explicitly."):
+    interceptMessage[IllegalArgumentException](
+      "GNDExpr binary: shape mismatch \u2014 [3] vs [2,3] (rank 1 != 2). Use .broadcastTo to align shapes explicitly."
+    ):
       (a + b).validateShape
 
   // ── Shape analysis: matmul ───────────────────────────────
@@ -157,7 +167,9 @@ class GNDArraySuite extends munit.FunSuite:
   test("validateShape: matmul inner dim mismatch [2,3] @@ [4,5]"):
     val a = GNDArray.matrix(Array.ofDim[Float](6), 2, 3)
     val b = GNDArray.matrix(Array.ofDim[Float](20), 4, 5)
-    interceptMessage[IllegalArgumentException]("GNDExpr matmul: inner dimensions don't match \u2014 [2,3] @@ [4,5]: 3 != 4"):
+    interceptMessage[IllegalArgumentException](
+      "GNDExpr matmul: inner dimensions don't match \u2014 [2,3] @@ [4,5]: 3 != 4"
+    ):
       (a @@ b).validateShape
 
   test("validateShape: batched matmul [2,3,4] @@ [2,4,5] → [2,3,5]"):
@@ -173,7 +185,9 @@ class GNDArraySuite extends munit.FunSuite:
   test("validateShape: batched matmul batch mismatch [3,2,4] @@ [2,4,5]"):
     val a = GNDArray(Array.ofDim[Float](24), Array(3, 2, 4))
     val b = GNDArray(Array.ofDim[Float](40), Array(2, 4, 5))
-    interceptMessage[IllegalArgumentException]("GNDExpr broadcast: incompatible shapes [3] and [2] at dimension 0 (3 vs 2)"):
+    interceptMessage[IllegalArgumentException](
+      "GNDExpr broadcast: incompatible shapes [3] and [2] at dimension 0 (3 vs 2)"
+    ):
       (a @@ b).validateShape
 
   // ── Shape analysis: reshape ──────────────────────────────
@@ -192,7 +206,9 @@ class GNDArraySuite extends munit.FunSuite:
 
   test("validateShape: reshape numel mismatch [2,3] → [2,4]"):
     val a = GNDArray.matrix(Array.ofDim[Float](6), 2, 3)
-    interceptMessage[IllegalArgumentException]("GNDExpr reshape: cannot reshape [2,3] (6 elements) to [2,4] (8 elements)"):
+    interceptMessage[IllegalArgumentException](
+      "GNDExpr reshape: cannot reshape [2,3] (6 elements) to [2,4] (8 elements)"
+    ):
       a.reshape(Array(2, 4)).validateShape
 
   // ── Shape analysis: transpose ────────────────────────────
@@ -238,7 +254,9 @@ class GNDArraySuite extends munit.FunSuite:
     val a = GNDArray.matrix(Array.ofDim[Float](6), 2, 3)
     val b = GNDArray.matrix(Array.ofDim[Float](12), 3, 4)
     val c = GNDArray.matrix(Array.ofDim[Float](6), 2, 3)
-    interceptMessage[IllegalArgumentException]("GNDExpr binary: shape mismatch \u2014 [2,4] vs [2,3] at dimension 1 (4 vs 3). Use .broadcastTo to align shapes explicitly."):
+    interceptMessage[IllegalArgumentException](
+      "GNDExpr binary: shape mismatch \u2014 [2,4] vs [2,3] at dimension 1 (4 vs 3). Use .broadcastTo to align shapes explicitly."
+    ):
       ((a @@ b).exp + c).validateShape
 
   test("validateShape: deep chain with multiple matmuls"):
