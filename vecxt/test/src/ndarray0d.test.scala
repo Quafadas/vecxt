@@ -201,8 +201,8 @@ class NDArray0DSuite extends FunSuite:
     assertEquals(b.shape.toSeq, Seq(2, 3))
     assertEquals(b.strides.toSeq, Seq(0, 0))
     // all elements should be 5.0
-    for i <- 0 until 2 do
-      for j <- 0 until 3 do assertClose(b(i, j), 5.0)
+    for i <- 0 until 2 do for j <- 0 until 3 do assertClose(b(i, j), 5.0)
+    end for
   }
 
   test("0-d broadcastTo(Array()) is identity") {
