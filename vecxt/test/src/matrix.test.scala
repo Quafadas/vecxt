@@ -210,8 +210,8 @@ class MatrixExtensionSuite extends FunSuite:
   test("/:/ on submatrix yields correct result") {
     val divisor = subMatrix / 2.0
     val result = subMatrix./:/(divisor)
-    for i <- 0 until 3 do
-      for j <- 0 until 2 do assertEqualsDouble(result(i, j), 2.0, 1e-10)
+    for i <- 0 until 3 do for j <- 0 until 2 do assertEqualsDouble(result(i, j), 2.0, 1e-10)
+    end for
   }
 
   test("exp! on submatrix mutates in place") {
@@ -290,29 +290,29 @@ class MatrixExtensionSuite extends FunSuite:
     val result = subMatrix >= 5.0
     assertEquals(result(0, 0), false) // 3 >= 5
     assertEquals(result(1, 0), false) // 4 >= 5
-    assertEquals(result(2, 0), true)  // 5 >= 5
-    assertEquals(result(0, 1), true)  // 6 >= 5
-    assertEquals(result(1, 1), true)  // 7 >= 5
-    assertEquals(result(2, 1), true)  // 8 >= 5
+    assertEquals(result(2, 0), true) // 5 >= 5
+    assertEquals(result(0, 1), true) // 6 >= 5
+    assertEquals(result(1, 1), true) // 7 >= 5
+    assertEquals(result(2, 1), true) // 8 >= 5
   }
 
   test("> on submatrix yields correct boolean matrix") {
     val result = subMatrix > 5.0
     assertEquals(result(0, 0), false) // 3 > 5
     assertEquals(result(2, 0), false) // 5 > 5
-    assertEquals(result(0, 1), true)  // 6 > 5
+    assertEquals(result(0, 1), true) // 6 > 5
   }
 
   test("<= on submatrix yields correct boolean matrix") {
     val result = subMatrix <= 5.0
-    assertEquals(result(0, 0), true)  // 3 <= 5
-    assertEquals(result(2, 0), true)  // 5 <= 5
+    assertEquals(result(0, 0), true) // 3 <= 5
+    assertEquals(result(2, 0), true) // 5 <= 5
     assertEquals(result(0, 1), false) // 6 <= 5
   }
 
   test("< on submatrix yields correct boolean matrix") {
     val result = subMatrix < 5.0
-    assertEquals(result(0, 0), true)  // 3 < 5
+    assertEquals(result(0, 0), true) // 3 < 5
     assertEquals(result(2, 0), false) // 5 < 5
     assertEquals(result(0, 1), false) // 6 < 5
   }
