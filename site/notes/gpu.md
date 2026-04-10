@@ -15,7 +15,6 @@ val a = GNDArray.matrix(dataA, 1000, 1000)
 val b = GNDArray.matrix(dataB, 1000, 1000)
 val result = ((a + b) * 2.0f).exp  // builds AST — no work yet
 result.run       // GPU dispatch via Cyfra
-result.runCpu    // fused CPU interpreter (single pass, no intermediates)
 ```
 
 Supported AST nodes: unary (`neg`, `abs`, `exp`, `sqrt`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log`), scalar (`+`, `-`, `*`, `/`, `pow`, `clamp`), elementwise binary (`+`, `-`, `*`, `/`), reshape, broadcast (shape analysis only), matmul (shape analysis only), transpose (shape analysis only).
