@@ -1,0 +1,25 @@
+package build.gvecxt
+
+import mill.*, scalalib.*
+
+object `package` extends ScalaModule:
+  def scalaVersion = build.vecxt.jvm.scalaVersion
+
+  override def moduleDeps = Seq(build.vecxt.jvm)
+
+  override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag ++ Seq("-Xmx12g")
+
+  override def mvnDeps = super.mvnDeps() ++ Seq(
+    mvn"io.computenode::cyfra-foton:0.1.0-RC1",
+    mvn"org.lwjgl:lwjgl:3.4.0;classifier=natives-macos-arm64",
+    mvn"org.lwjgl:lwjgl-vulkan:3.4.0;classifier=natives-macos-arm64",
+    mvn"org.lwjgl:lwjgl-vma:3.4.0;classifier=natives-macos-arm64"
+  )
+
+  object test extends ScalaTests, TestModule.Munit:
+    override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
+    override def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"org.scalameta::munit::${build.V.munitVersion}"
+    )
+  end test
+end `package`
