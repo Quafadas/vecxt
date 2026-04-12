@@ -39,5 +39,9 @@ biases1.csv
 biases2.csv
 .DS_Store
 
+scripts/cellar
+
 .venv/
 experiments/src/bhd.scala
+
+.cellar/

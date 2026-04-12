@@ -37,7 +37,7 @@ object NDArrayFloatOps:
     mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
   end binaryOpGeneral
 
-  private[NDArrayFloatOps] def unaryOpGeneral(a: NDArray[Float], f: Float => Float): NDArray[Float] =
+  private[NDArrayFloatOps] inline def unaryOpGeneral(a: NDArray[Float], inline f: Float => Float): NDArray[Float] =
     val n = a.numel
     val ndim = a.ndim
     val out = new Array[Float](n)
@@ -339,36 +339,54 @@ object NDArrayFloatOps:
     @targetName("ndFloatAbs")
     inline def abs: NDArray[Float] =
       if a.isContiguous then mkNDArray(vecxt.floatarrays.abs(a.data), a.shape, a.strides, 0)
-      else unaryOpGeneral(a, x => Math.abs(x.toDouble).toFloat)
+      else unaryOpGeneral(a, x => Math.abs(x))
 
     /** Element-wise natural exponential. */
     @targetName("ndFloatExp")
     inline def exp: NDArray[Float] =
       if a.isContiguous then mkNDArray(vecxt.floatarrays.exp(a.data), a.shape, a.strides, 0)
-      else unaryOpGeneral(a, x => Math.exp(x.toDouble).toFloat)
+      else unaryOpGeneral(a, x => Math.exp(x).toFloat)
 
     /** Element-wise natural logarithm. */
     @targetName("ndFloatLog")
     inline def log: NDArray[Float] =
       if a.isContiguous then mkNDArray(vecxt.floatarrays.log(a.data), a.shape, a.strides, 0)
-      else unaryOpGeneral(a, x => Math.log(x.toDouble).toFloat)
+      else unaryOpGeneral(a, x => Math.log(x).toFloat)
 
     /** Element-wise square root. */
     @targetName("ndFloatSqrt")
     inline def sqrt: NDArray[Float] =
       if a.isContiguous then mkNDArray(vecxt.floatarrays.sqrt(a.data), a.shape, a.strides, 0)
-      else unaryOpGeneral(a, x => Math.sqrt(x.toDouble).toFloat)
+      else unaryOpGeneral(a, x => Math.sqrt(x).toFloat)
 
     /** Element-wise hyperbolic tangent. */
     @targetName("ndFloatTanh")
     inline def tanh: NDArray[Float] =
       if a.isContiguous then mkNDArray(vecxt.floatarrays.tanh(a.data), a.shape, a.strides, 0)
-      else unaryOpGeneral(a, x => Math.tanh(x.toDouble).toFloat)
+      else unaryOpGeneral(a, x => Math.tanh(x).toFloat)
+
+    /** Element-wise sine. */
+    @targetName("ndFloatSin")
+    inline def sin: NDArray[Float] =
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.sin(a.data), a.shape.clone(), a.strides.clone(), 0)
+      else unaryOpGeneral(a, x => Math.sin(x).toFloat)
+
+    /** Element-wise cosine. */
+    @targetName("ndFloatCos")
+    inline def cos: NDArray[Float] =
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.cos(a.data), a.shape.clone(), a.strides.clone(), 0)
+      else unaryOpGeneral(a, x => Math.cos(x).toFloat)
+
+    /** Element-wise arc tangent. */
+    @targetName("ndFloatAtan")
+    inline def atan: NDArray[Float] =
+      if a.isContiguous then mkNDArray(vecxt.floatarrays.atan(a.data), a.shape.clone(), a.strides.clone(), 0)
+      else unaryOpGeneral(a, x => Math.atan(x).toFloat)
 
     /** Element-wise sigmoid: `1 / (1 + exp(-x))`. */
     @targetName("ndFloatSigmoid")
     inline def sigmoid: NDArray[Float] =
-      val sig = (x: Float) => (1.0 / (1.0 + Math.exp(-x.toDouble))).toFloat
+      val sig = (x: Float) => (1.0 / (1.0 + Math.exp(-x))).toFloat
       if a.isContiguous then mkNDArray(flatUnaryOp(a.data, sig), a.shape, a.strides, 0)
       else unaryOpGeneral(a, sig)
       end if
