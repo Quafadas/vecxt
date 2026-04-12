@@ -64,6 +64,13 @@ sealed trait GNDExpr:
     * regardless of pipeline depth. Does not require a CyfraRuntime.
     */
   def runCpu: GNDLeaf = GNDExprCompiler.runCpu(this)
+
+  /** Fused CPU evaluation with fine-grained parallelism: same single-pass AST walk as [[runCpu]] but splits the element
+    * range across all available CPU cores using a Java parallel IntStream. Each element is still evaluated via
+    * recursive AST traversal; the concurrency comes from processing multiple elements simultaneously on different
+    * threads.
+    */
+  def runCpuParallel: GNDLeaf = GNDExprCompiler.runCpuParallel(this)
 end GNDExpr
 
 // ── AST node types ─────────────────────────────────────────
@@ -439,6 +446,19 @@ private[gpu] object GNDExprCompiler:
     val strides = GNDArray.colMajorStrides(outShape)
     GNDLeaf(out, outShape, strides, 0)
   end runCpu
+
+  /** Fused CPU evaluation with fine-grained parallelism: splits the element loop across available CPU cores using a
+    * Java parallel IntStream. The AST is walked once per element (identical to [[runCpu]]) but multiple elements are
+    * evaluated concurrently on different threads.
+    */
+  def runCpuParallel(expr: GNDExpr): GNDLeaf =
+    val outShape = GNDShapeAnalysis.analyze(expr)
+    val n = GNDShapeAnalysis.numel(outShape)
+    val out = new Array[Float](n)
+    java.util.stream.IntStream.range(0, n).parallel().forEach((i: Int) => out(i) = evalElement(expr, i))
+    val strides = GNDArray.colMajorStrides(outShape)
+    GNDLeaf(out, outShape, strides, 0)
+  end runCpuParallel
 
   /** Recursively evaluate the expression tree for a single flat index. */
   private def evalElement(expr: GNDExpr, i: Int): Float =

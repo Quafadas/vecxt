@@ -19,11 +19,23 @@ import io.computenode.cyfra.runtime.VkCyfraRuntime
     val _ = ((w + w) * 2.0f).exp.runCpu
     println("done.")
 
+    // warm-up: fused CPU parallel
+    print("Warming up fused CPU parallel… ")
+    val _ = ((w + w) * 2.0f).exp.runCpuParallel
+    println("done.")
+
     // warm-up: JVM JIT + BLAS JNI classloading
     print("Warming up unfused CPU… ")
     val cw = NDArray(Array.fill(100)(1.0f), Array(10, 10))
     val _ = ((cw + cw) * 2.0f).exp
-    println("done.\n")
+    println("done.")
+
+    // warm-up: unfused CPU parallel (coarse-grained chunk split)
+    print("Warming up unfused CPU parallel… ")
+    val nCores = Runtime.getRuntime.availableProcessors
+    val wArr = Array.fill(100)(1.0f)
+    cpuUnfusedParallel(wArr, wArr, 10, 10, nCores, lightCpu)
+    println(s"done. ($nCores cores)\n")
 
     // ── Light pipeline: (a + b) * 2 |> exp  (~4 FLOPs/element) ──
     println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -68,6 +80,46 @@ private def heavyCpu(a: NDArray[Float], b: NDArray[Float]): NDArray[Float] =
   ((t1 * t2) + t3).exp.sqrt.log
 end heavyCpu
 
+/** Coarse-grained parallel unfused CPU: split the flat data across [[nThreads]] chunks and run the SIMD-vectorised
+  * [[pipeline]] on each chunk concurrently using a Java parallel IntStream.
+  *
+  * Each chunk is treated as a 1-D NDArray because all ops are elementwise. The per-chunk results are concatenated back
+  * into a single flat array and wrapped in an NDArray with the original shape.
+  */
+private def cpuUnfusedParallel(
+    dataA: Array[Float],
+    dataB: Array[Float],
+    rows: Int,
+    cols: Int,
+    nThreads: Int,
+    pipeline: (NDArray[Float], NDArray[Float]) => NDArray[Float]
+): NDArray[Float] =
+  val n = rows * cols
+  val chunkSize = math.max(1, (n + nThreads - 1) / nThreads)
+  val numChunks = math.min(nThreads, n)
+  val chunkResults = new Array[Array[Float]](numChunks)
+  java.util.stream.IntStream
+    .range(0, numChunks)
+    .parallel()
+    .forEach: (t: Int) =>
+      val start = t * chunkSize
+      val end = math.min(start + chunkSize, n)
+      val len = end - start
+      val chunkA = NDArray(java.util.Arrays.copyOfRange(dataA, start, end), Array(len))
+      val chunkB = NDArray(java.util.Arrays.copyOfRange(dataB, start, end), Array(len))
+      chunkResults(t) = pipeline(chunkA, chunkB).data
+  val out = new Array[Float](n)
+  var offset = 0
+  var t = 0
+  while t < numChunks do
+    val chunk = chunkResults(t)
+    System.arraycopy(chunk, 0, out, offset, chunk.length)
+    offset += chunk.length
+    t += 1
+  end while
+  NDArray(out, Array(rows, cols))
+end cpuUnfusedParallel
+
 private def benchSize(
     rows: Int,
     cols: Int,
@@ -76,12 +128,13 @@ private def benchSize(
     cpuPipeline: (NDArray[Float], NDArray[Float]) => NDArray[Float]
 )(using io.computenode.cyfra.core.CyfraRuntime): Unit =
   val n = rows * cols
+  val nCores = Runtime.getRuntime.availableProcessors
   val rng = new java.util.Random(42)
   val dataA = Array.tabulate(n)(_ => rng.nextFloat().max(0.01f)) // avoid /0 for heavy pipeline
   val dataB = Array.tabulate(n)(_ => rng.nextFloat().max(0.01f))
 
   println(s"════════════════════════════════════════")
-  println(s"  ${rows}×${cols}  ($n elements)  [$label]")
+  println(s"  ${rows}×${cols}  ($n elements)  [$label]  [$nCores cores]")
   println(s"════════════════════════════════════════")
 
   val runs = 3
@@ -108,7 +161,7 @@ private def benchSize(
   end for
   val gpuMs = gpuTotalMs / runs
 
-  // ── CPU runs (unfused — separate loop per op) ─────────
+  // ── CPU runs (unfused — separate SIMD loop per op) ────
   var cpuTotalMs = 0.0
   var cpuResult: Option[NDArray[Float]] = None
   for run <- 1 to runs do
@@ -123,6 +176,20 @@ private def benchSize(
     cpuResult = Some(r)
   end for
   val cpuMs = cpuTotalMs / runs
+
+  // ── CPU runs (unfused parallel — coarse-grained chunk split) ──
+  var cpuParTotalMs = 0.0
+  var cpuParResult: Option[NDArray[Float]] = None
+  for run <- 1 to runs do
+    val t2 = System.nanoTime()
+    val r = cpuUnfusedParallel(dataA.clone(), dataB.clone(), rows, cols, nCores, cpuPipeline)
+    val t3 = System.nanoTime()
+    val ms = (t3 - t2) / 1e6
+    println(f"  CPU unfused ∥ run $run: $ms%.3f ms")
+    cpuParTotalMs += ms
+    cpuParResult = Some(r)
+  end for
+  val cpuParMs = cpuParTotalMs / runs
 
   // ── CPU fused runs (single pass, no intermediates) ───
   var fusedTotalMs = 0.0
@@ -140,25 +207,53 @@ private def benchSize(
   end for
   val fusedMs = fusedTotalMs / runs
 
+  // ── CPU fused parallel (fine-grained: element loop across cores) ──
+  var fusedParTotalMs = 0.0
+  var fusedParResult: Option[GNDLeaf] = None
+  for run <- 1 to runs do
+    val fa = GNDArray.matrix(dataA.clone(), rows, cols)
+    val fb = GNDArray.matrix(dataB.clone(), rows, cols)
+    val t4 = System.nanoTime()
+    val r = gpuPipeline(fa, fb).runCpuParallel
+    val t5 = System.nanoTime()
+    val ms = (t5 - t4) / 1e6
+    println(f"  CPU fused ∥ run $run: $ms%.3f ms")
+    fusedParTotalMs += ms
+    fusedParResult = Some(r)
+  end for
+  val fusedParMs = fusedParTotalMs / runs
+
   // ── Comparison ───────────────────────────────────────
   var maxDiffGpuCpu = 0.0f
   var maxDiffGpuFused = 0.0f
+  var maxDiffGpuCpuPar = 0.0f
+  var maxDiffGpuFusedPar = 0.0f
   var i = 0
   while i < n do
     val gv = gpuResult.get.data(i)
     val d1 = math.abs(gv - cpuResult.get.data(i))
     val d2 = math.abs(gv - fusedResult.get.data(i))
+    val d3 = math.abs(gv - cpuParResult.get.data(i))
+    val d4 = math.abs(gv - fusedParResult.get.data(i))
     if d1 > maxDiffGpuCpu then maxDiffGpuCpu = d1
     end if
     if d2 > maxDiffGpuFused then maxDiffGpuFused = d2
     end if
+    if d3 > maxDiffGpuCpuPar then maxDiffGpuCpuPar = d3
+    end if
+    if d4 > maxDiffGpuFusedPar then maxDiffGpuFusedPar = d4
+    end if
     i += 1
   end while
 
-  println(f"  GPU avg ($runs):          $gpuMs%8.3f ms")
-  println(f"  CPU unfused avg ($runs):  $cpuMs%8.3f ms")
-  println(f"  CPU fused avg ($runs):    $fusedMs%8.3f ms")
-  println(f"  max |GPU - CPU unfused|:  $maxDiffGpuCpu%.6f")
-  println(f"  max |GPU - CPU fused|:    $maxDiffGpuFused%.6f")
+  println(f"  GPU avg ($runs):                 $gpuMs%8.3f ms")
+  println(f"  CPU unfused avg ($runs):         $cpuMs%8.3f ms")
+  println(f"  CPU unfused ∥ avg ($runs):       $cpuParMs%8.3f ms  [$nCores cores, coarse-grained]")
+  println(f"  CPU fused avg ($runs):           $fusedMs%8.3f ms")
+  println(f"  CPU fused ∥ avg ($runs):         $fusedParMs%8.3f ms  [$nCores cores, fine-grained]")
+  println(f"  max |GPU - CPU unfused|:         $maxDiffGpuCpu%.6f")
+  println(f"  max |GPU - CPU unfused ∥|:       $maxDiffGpuCpuPar%.6f")
+  println(f"  max |GPU - CPU fused|:           $maxDiffGpuFused%.6f")
+  println(f"  max |GPU - CPU fused ∥|:         $maxDiffGpuFusedPar%.6f")
   println()
 end benchSize
