@@ -13,6 +13,13 @@ object JvmIntMatrix:
 
     end matmul
 
+    inline def /(d: Double): Matrix[Double] =
+      if m.hasSimpleContiguousMemoryLayout then
+        val i: Array[Int] = m.raw
+        Matrix[Double](vecxt.intarrays./(i)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+    end /
+
     inline def >=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw

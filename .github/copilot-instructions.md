@@ -16,7 +16,7 @@ If you are on windows, use `mill`, not `./mill`.
 
 Each module contains it's own build definition in the package.mill file in it's module directory.
 
-- BUILDS: Mill cold compilation takes 2 minutes or so. Stay patient!
+- BUILDS: Cold compilation may take 1 minute or so the _first_ time any compilation is run. Subsequent (incremental) compilations are fast.
 - Compile specific platforms (e.g. jvm) with `./mill vecxt.jvm.compile` or `./mill vecxt.js.compile` etc.
 - Run all tests by following with the same pattern `./mill vecxt.__.test`
 - Format code with `./mill mill.scalalib.scalafmt.ScalafmtModule/`. CI will enforce formatting, and will fail if code is not formatted.

@@ -31,6 +31,17 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assertEquals(v1.sum, 45)
   }
 
+  test("int Array / scalar") {
+    val values = Array.tabulate[Int](33)(i => (i + 1) * 3)
+    val actual = values / 3.0
+
+    var i = 0
+    while i < values.length do
+      assertEqualsDouble(actual(i), i + 1.0, 1e-12, clue = s"at index $i")
+      i += 1
+    end while
+  }
+
   test("array eq") {
     val v1 = Array(1, 2, 3, 4, 5)
 

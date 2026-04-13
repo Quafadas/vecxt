@@ -5,38 +5,87 @@ import vecxt.BoundsCheck.DoBoundsCheck.no
 import scala.math.Numeric
 import scala.reflect.ClassTag
 
+/** Matrix CSV serialization: each line stores one matrix row. */
 object MatrixIO:
+  private inline def dropLeadingRows(lines: Seq[String], dropRows: Int): Seq[String] =
+    if dropRows < 0 then throw new IllegalArgumentException(s"dropRows must be non-negative, got $dropRows")
+    else lines.drop(dropRows)
+
+  private inline def splitLine(line: String, seperator: Char): Array[String] =
+    line.split(java.util.regex.Pattern.quote(seperator.toString), -1).map(_.trim)
+
+  private inline def parseValue[A: Numeric](value: String): A =
+    summon[Numeric[A]].parseString(value).getOrElse(
+      throw new IllegalArgumentException(s"Could not parse matrix value '$value'")
+    )
+
   extension [A: ClassTag](m: Matrix[A])
     def write(path: os.Path, seperator: Char = ','): Unit =
-      os.write.over(path, "") // Clean and create file
-      val (r, c) = m.shape
-      for (i <- 0 until r) do
-          val value = m(Array(i), ::)
-          os.write.append(path, value.deepCopy.raw.mkString(seperator.toString) + "\n")
+      if m.rows == 0 || m.cols == 0 then
+        os.write.over(path, "")
+      else
+        val lines = Array.ofDim[String](m.rows)
+        var row = 0
+        while row < m.rows do
+          lines(row) = m.row(row).mkString(seperator.toString)
+          row += 1
+        end while
+        os.write.over(path, lines.mkString("\n"))
 
-    // TODO parse from lines to make cross platform. Maybe
-  def loadMatrix[A: Numeric: ClassTag](path: os.Path, seperator: Char = ','): Matrix[A] =
-    val lines = os.read.lines(path)
+  def loadMatrix[A: Numeric: ClassTag](
+      path: os.Path | os.ResourcePath,
+      seperator: Char = ',',
+      dropRows: Int = 0
+  ): Matrix[A] =
+    val allLines = path match
+      case p: os.Path         => os.read.lines(p)
+      case p: os.ResourcePath => os.read.lines(p)
+    val lines = dropLeadingRows(allLines, dropRows)
 
-    val headerline = lines.head
-    val cols = headerline.split(" ")(1).toInt
+    if lines.isEmpty then
+      Matrix(Array.empty[A], (0, 0))(using no)
+    else
+      val firstRow = splitLine(lines.head, seperator)
+      if firstRow.isEmpty || firstRow.exists(_.isEmpty) then
+        throw new IllegalArgumentException("Matrix file contains an empty value in the first row")
 
-    val rows = lines.length - 1
-    val data = new Array[A](rows * cols)
+      val rows = lines.length
+      val cols = firstRow.length
+      val data = new Array[A](rows * cols)
 
-    for (line, i) <- lines.tail.zipWithIndex do
-      val arr = line.split(seperator).map(_.trim).filter(_.nonEmpty)
+      var row = 0
+      while row < rows do
+        val values = splitLine(lines(row), seperator)
+        if values.length != cols then
+          throw new IllegalArgumentException(
+            s"Expected $cols values in row ${row + 1}, but found ${values.length}"
+          )
 
-      if arr.length != cols then
-        throw new RuntimeException(s"...")
-      arr.zipWithIndex.foreach { (s, j) =>
-        val value = Numeric[A].parseString(s).getOrElse(
-          throw new RuntimeException(s"...")
-        )
+        var col = 0
+        while col < cols do
+          val value = values(col)
+          if value.isEmpty then
+            throw new IllegalArgumentException(
+              s"Matrix file contains an empty value at row ${row + 1}, column ${col + 1}"
+            )
 
-        data(i + j * rows) = value
-      }
-    Matrix(data, (rows, cols))
+          data(row + col * rows) = parseValue[A](value)
+          col += 1
+        end while
+
+        row += 1
+      end while
+
+      Matrix(data, (rows, cols))(using no)
 
 
   end loadMatrix
+
+  def fromResource[A: Numeric: ClassTag](
+      resourceName: String,
+      seperator: Char = ',',
+      dropRows: Int = 0
+  ): Matrix[A] =
+    loadMatrix(os.resource / resourceName, seperator, dropRows)
+
+end MatrixIO

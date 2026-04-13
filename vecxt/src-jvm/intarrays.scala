@@ -351,6 +351,37 @@ object intarrays:
 
     end -=
 
+    inline def /(scalar: Double): Array[Double] =
+      val result = new Array[Double](vec.length)
+      val scalarDoubleVec = DoubleVector.broadcast(spd, scalar)
+      val tmp = new Array[Double](spdl)
+
+      var i = 0
+
+      while i < spd.loopBound(vec.length) do
+        var lane = 0
+        while lane < spdl do
+          tmp(lane) = vec(i + lane).toDouble
+          lane += 1
+        end while
+
+        DoubleVector
+          .fromArray(spd, tmp, 0)
+          .div(scalarDoubleVec)
+          .intoArray(result, i)
+
+        i += spdl
+      end while
+
+      while i < vec.length do
+        result(i) = vec(i) / scalar
+        i += 1
+      end while
+
+      result
+
+    end /
+
     inline def -(scalar: Int): Array[Int] =
       vec.clone().tap(_ -= scalar)
     end -

@@ -1,14 +1,17 @@
-import io.github.quafadas.table.*
+
 import scala.util.chaining.*
 
-import viz.PlotTargets.desktopBrowser
-import viz.vegaFlavour
-import viz.Plottable.*
-import viz.Macros.Implicits.given_Writer_T
+import io.github.quafadas.plots.SetupVegaBrowser.{*, given}
+import io.circe.syntax.*
+
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import vecxt.BoundsCheck
 import scala.reflect.ClassTag
+import vecxt_io.MatrixIO
+import vecxt_io.MatrixIO.*
+import vecxt_io.ArrayIO.*
+import vecxt.JvmIntMatrix./
 
 // File can be dowloaded from Kaggle at:
 // https://www.kaggle.com/datasets/quangphota/mnist-csv/data?select=train.csv
@@ -17,42 +20,48 @@ import scala.reflect.ClassTag
 //
 
 @main def mnist =
-  def traindata = LazyList.from(os.read.lines(os.resource / "train.csv").iterator.drop(1).map { line =>
-    line.split(",")
-  })
+  val traindata: Matrix[Int] = MatrixIO.fromResource[Int]("train.csv", ',', dropRows = 1)
 
   val samplePlot = false
-  val trainSize = 60000
+  val shapeDiagnostic = true
 
-  val l1Size = 128
+  val trainSize = traindata.rows
+
+  val l1Size = 128 //
   val l2Size = 64
   val l3Size = 10 // output layer size, number of classes
   val imageWidth = 28
   val imageHeight = 28
 
-  val labels = traindata.map(_.head.toInt)
-  val others =
-    traindata
-      .map(_.tail.map(_.toDouble))
-      .map(_.toList.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
+  val labels: Array[Int] = traindata.col(0) // y data, the labels are in the first column
+  val pixelData : Matrix[Double] = traindata(::,1 until traindata.cols).deepCopy / 255.0
 
   if samplePlot then
-    (os.resource / "hist.vg.json").plot(
-      List { spec =>
-        spec("data")(0)("values") = upickle.default.writeJs(labels.map(i => (u = i)))
-      }
+    VegaPlot.fromResource("hist.vg.json").plot(
+      _.data._0.values := labels.map(label => (u = label)).asJson
     )
   end if
 
+  val one_hot_Y = oneHotEncode(labels)
+
   if samplePlot then
-    others
-      .take(5)
-      .foreach(data =>
-        val d = dataToCoords(data)
-        (os.resource / "pixelPlot.vg.json").plot(
-          List(spec => spec("data")("values") = upickle.default.writeJs(d))
-        )
+    val random = scala.util.Random
+
+    Iterator.continually(random.nextInt(trainSize)).take(5).foreach { idx =>
+      val data = pixelData.row(idx)
+      val pixelSize = 10
+      val d = dataToCoords(data, pixelSize)
+      VegaPlot.fromResource("pixelPlot.vg.json").plot(
+        _.data.values := d.asJson,
+        _.mark.width := pixelSize,
+        _.mark.height := pixelSize,
+        _.width := imageWidth * pixelSize,
+        _.height := imageHeight * pixelSize,
+        _.title := s"Sample: $idx - Label ${labels(idx)}"
       )
+      one_hot_Y.row(idx).mkString(", ").tap(str => println(s"One hot encoding for sample $idx:, label ${labels(idx)}: $str"))
+    }
+
   end if
 
   val weight1 = Matrix(
@@ -63,16 +72,18 @@ import scala.reflect.ClassTag
   val weight2 = Matrix(Array.fill(l1Size * l3Size)(scala.util.Random.nextDouble() * 0.2), (l1Size, l3Size))
   val bias2 = Array.fill(l3Size)(0.0)
 
-  val x = Matrix.fromRows(others.toArray*)
-  println(s"x layout ${x.layout}")
+  if shapeDiagnostic then
+    println(s"pixelData shape: ${pixelData.shape}, pixelData rows: ${pixelData.rows}, pixelData cols: ${pixelData.cols}, pixelData rowStride: ${pixelData.rowStride}, pixelData colStride: ${pixelData.colStride} pixelData offset: ${pixelData.offset}")
 
-  println(s"weight1 shape: ${weight1.shape}, weight1 rows: ${weight1.rows}, weight1 cols: ${weight1.cols}")
-  println(s"weight2 shape: ${weight2.shape}, weight2 rows: ${weight2.rows}, weight2 cols: ${weight2.cols}")
+    println(s"x layout ${pixelData.layout}")
+
+    println(s"weight1 shape: ${weight1.shape}, weight1 rows: ${weight1.rows}, weight1 cols: ${weight1.cols}")
+    println(s"weight2 shape: ${weight2.shape}, weight2 rows: ${weight2.rows}, weight2 cols: ${weight2.cols}")
+
+  end if
   // val i = x @@ weight1 // This is just to check that the matrix multiplication works
   // println(s"i shape: ${i.shape}, i rows: ${i.rows}, i cols: ${i.cols}")
   // println(labels)
-  val one_hot_Y = oneHotEncode(labels)
-
   // println(s"one_hot_Y shape: ${one_hot_Y.shape}, one_hot_Y rows: ${one_hot_Y.rows}, one_hot_Y cols: ${one_hot_Y.cols}")
   // println(one_hot_Y.printMat)
 
@@ -85,11 +96,11 @@ import scala.reflect.ClassTag
   // println(s"initial biases2: ${bias2.mkString(", ")}")
   // println(s"labels: ${labels.take(10).mkString(", ")}")
 
-  val arg = gradient_decent(
-    x = x,
+  gradient_decent(
+    x = pixelData,
     y = one_hot_Y,
     labels = labels.toArray,
-    iterations = 10,
+    iterations = 5,
     batchSize = 120,
     alpha = 0.05,
     decayRate = 0.0125,
@@ -99,14 +110,15 @@ import scala.reflect.ClassTag
     b2 = bias2
   )
 
-  println(arg)
 
 end mnist
 
-def dataToCoords(data: Array[Double]): IndexedSeq[(x: Int, y: Int, opacity: Double)] =
+// Helper methods.
+
+def dataToCoords(data: Array[Double], pixelSize: Int): IndexedSeq[(x: Int, y: Int, opacity: Double)] =
   for i <- 0.until(28); j <- 0.until(28) yield
     val value = data(i * 28 + j)
-    (x = j, y = 28 - i, opacity = value)
+    (x = j * pixelSize, y = (28 - i) * pixelSize, opacity = value)
 
 // -- Below here is the neural network machinery
 
@@ -287,38 +299,27 @@ def gradient_decent(
   // println(s"a2 shape: ${a2.shape}, a2 rows: ${a2.rows}, a2 cols: ${a2.cols}")
   // println(s"a2: ${a2(::, ::).printMat}")
 
-  println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
+  // println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
 
-  println(s"weights1 first row: ${w1(Array(0), ::).printMat}")
-  println(s"weights1 shape: ${w1_.shape}")
-  println(s"weights2: ${w2_.printMat}")
+  // println(s"weights1 first row: ${w1(Array(0), ::).printMat}")
+  // println(s"weights1 shape: ${w1_.shape}")
+  // println(s"weights2: ${w2_.printMat}")
 
   import java.io.PrintWriter
+  val w1_tmp = os.temp.dir() / "weights1.csv"
+  val w2_tmp = os.temp.dir() / "weights2.csv"
+  val b1_tmp = os.temp.dir() / "biases1.csv"
+  val b2_tmp = os.temp.dir() / "biases2.csv"
 
-  def writeMatrixToFile(matrix: Matrix[Double], filename: String): Unit =
-    val pw = new PrintWriter(filename)
-    try
-      matrix.raw.grouped(matrix.rows).foreach { col =>
-        pw.println(col.mkString(","))
-      }
-    finally pw.close()
-    end try
-  end writeMatrixToFile
+  println(s"Saving weights to ${w1_tmp} and ${w2_tmp}")
 
-  writeMatrixToFile(w1_, "weights1.csv")
-  writeMatrixToFile(w2_, "weights2.csv")
-  def writeArrayToFile(array: Array[Double], filename: String): Unit =
-    val pw = new PrintWriter(filename)
-    try
-      pw.println(array.mkString(","))
-    finally pw.close()
-    end try
-  end writeArrayToFile
+  w1_.write(w1_tmp)
+  w2_.write(w2_tmp)
 
-  writeArrayToFile(b1_, "biases1.csv")
-  writeArrayToFile(b2_, "biases2.csv")
+  b1_.write(b1_tmp)
+  b2_.write(b2_tmp)
 
-  println("Weights and biases saved to weights1.csv and weights2.csv")
+  println(s"Weights and biases saved to ${w1_tmp}, ${w2_tmp}, ${b1_tmp}, and ${b2_tmp}")
 
   println("Gradient descent finished.")
 
