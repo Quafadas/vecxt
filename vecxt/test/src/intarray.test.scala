@@ -42,6 +42,28 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     end while
   }
 
+  test("int Array / float scalar") {
+    val values = Array.tabulate[Int](33)(i => i * 2 + 1)
+    val actual = values / 2.0f
+
+    var i = 0
+    while i < values.length do
+      assertEqualsDouble(actual(i).toDouble, values(i).toFloat / 2.0f, 1e-6, clue = s"at index $i")
+      i += 1
+    end while
+  }
+
+  test("int Array * float scalar") {
+    val values = Array.tabulate[Int](33)(i => i - 16)
+    val actual = values * 1.5f
+
+    var i = 0
+    while i < values.length do
+      assertEqualsDouble(actual(i).toDouble, values(i).toFloat * 1.5f, 1e-6, clue = s"at index $i")
+      i += 1
+    end while
+  }
+
   test("array eq") {
     val v1 = Array(1, 2, 3, 4, 5)
 

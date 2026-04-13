@@ -20,6 +20,13 @@ object JvmIntMatrix:
       else ???
     end /
 
+    inline def /(d: Float): Matrix[Float] =
+      if m.hasSimpleContiguousMemoryLayout then
+        val i: Array[Int] = m.raw
+        Matrix[Float](vecxt.intarrays./(i)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+    end /
+
     inline def >=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw

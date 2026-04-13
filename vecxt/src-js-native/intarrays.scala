@@ -219,6 +219,26 @@ object intarrays:
       result
     end /
 
+    inline def /(scalar: Float): Array[Float] =
+      val result = new Array[Float](vec.length)
+      var i = 0
+      while i < vec.length do
+        result(i) = vec(i) / scalar
+        i += 1
+      end while
+      result
+    end /
+
+    inline def *(scalar: Float): Array[Float] =
+      val result = new Array[Float](vec.length)
+      var i = 0
+      while i < vec.length do
+        result(i) = vec(i) * scalar
+        i += 1
+      end while
+      result
+    end *
+
     inline def -(scalar: Int): Array[Int] =
       vec.clone().tap(_ -= scalar)
     end -

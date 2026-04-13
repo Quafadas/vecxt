@@ -7,6 +7,7 @@ import vecxt.BoundsCheck.BoundsCheck
 
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
+import jdk.incubator.vector.FloatVector
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.VectorSpecies
@@ -16,9 +17,11 @@ object intarrays:
   private final val spi: VectorSpecies[Integer] = IntVector.SPECIES_PREFERRED
   private final val spd: VectorSpecies[java.lang.Double] = DoubleVector.SPECIES_PREFERRED
   private final val spb = ByteVector.SPECIES_PREFERRED
+  private final val spf = FloatVector.SPECIES_PREFERRED
 
   private final val spdl = spd.length()
   private final val spbl = spb.length()
+  private final val spfl = spf.length()
   private final val spil: Int = spi.length()
 
   extension (vec: Array[Int])
@@ -381,6 +384,62 @@ object intarrays:
       result
 
     end /
+
+    inline def /(scalar: Float): Array[Float] =
+      val result = new Array[Float](vec.length)
+      val scalarFloatVec = FloatVector.broadcast(spf, scalar)
+      val tmp = new Array[Float](spfl)
+
+      var i = 0
+
+      while i < spf.loopBound(vec.length) do
+        var lane = 0
+        while lane < spfl do
+          tmp(lane) = vec(i + lane).toFloat
+          lane += 1
+        end while
+
+        FloatVector.fromArray(spf, tmp, 0)
+          .div(scalarFloatVec)
+          .intoArray(result, i)
+        i += spfl
+      end while
+
+      while i < vec.length do
+        result(i) = vec(i) / scalar
+        i += 1
+      end while
+
+      result
+    end /
+
+    inline def *(scalar: Float): Array[Float] =
+      val result = new Array[Float](vec.length)
+      val scalarFloatVec = FloatVector.broadcast(spf, scalar)
+      val tmp = new Array[Float](spfl)
+
+      var i = 0
+
+      while i < spf.loopBound(vec.length) do
+        var lane = 0
+        while lane < spfl do
+          tmp(lane) = vec(i + lane).toFloat
+          lane += 1
+        end while
+
+        FloatVector.fromArray(spf, tmp, 0)
+          .mul(scalarFloatVec)
+          .intoArray(result, i)
+        i += spfl
+      end while
+
+      while i < vec.length do
+        result(i) = vec(i) * scalar
+        i += 1
+      end while
+
+      result
+    end *
 
     inline def -(scalar: Int): Array[Int] =
       vec.clone().tap(_ -= scalar)
