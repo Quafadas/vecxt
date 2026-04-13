@@ -18,6 +18,7 @@ object all:
   export vecxt.IntArraysX.*
 
   export vecxt.VarianceMode
+  export vecxt.ComparisonOp
 
   // matricies
   export vecxt.OneAndZero.given_OneAndZero_Boolean

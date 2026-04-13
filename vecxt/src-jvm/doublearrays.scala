@@ -1239,6 +1239,52 @@ object doublearrays:
 
     // def max: Double =
     //   vec(blas.idamax(vec.length, vec, 1)) // No JS version
+
+    inline def `zeroWhere!`(
+        other: Array[Double],
+        threshold: Double,
+        inline op: ComparisonOp
+    ): Unit =
+      assert(vec.length == other.length)
+      val zero = DoubleVector.zero(spd)
+      val thresh = DoubleVector.broadcast(spd, threshold)
+      var i = 0
+
+      while i < spd.loopBound(vec.length) do
+        val values = DoubleVector.fromArray(spd, vec, i)
+        val cmp = DoubleVector.fromArray(spd, other, i)
+        val mask = inline op match
+          case ComparisonOp.LE => cmp.compare(VectorOperators.LE, thresh)
+          case ComparisonOp.LT => cmp.compare(VectorOperators.LT, thresh)
+          case ComparisonOp.GE => cmp.compare(VectorOperators.GE, thresh)
+          case ComparisonOp.GT => cmp.compare(VectorOperators.GT, thresh)
+          case ComparisonOp.EQ => cmp.compare(VectorOperators.EQ, thresh)
+          case ComparisonOp.NE => cmp.compare(VectorOperators.NE, thresh)
+        values.blend(zero, mask).intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        val hit = inline op match
+          case ComparisonOp.LE => other(i) <= threshold
+          case ComparisonOp.LT => other(i) < threshold
+          case ComparisonOp.GE => other(i) >= threshold
+          case ComparisonOp.GT => other(i) > threshold
+          case ComparisonOp.EQ => other(i) == threshold
+          case ComparisonOp.NE => other(i) != threshold
+        if hit then vec(i) = 0.0
+        end if
+        i += 1
+      end while
+    end `zeroWhere!`
+
+    inline def zeroWhere(
+        other: Array[Double],
+        threshold: Double,
+        inline op: ComparisonOp
+    ): Array[Double] =
+      vec.clone().tap(_.`zeroWhere!`(other, threshold, op))
+
   end extension
 
 end doublearrays
