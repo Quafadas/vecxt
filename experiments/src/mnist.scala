@@ -200,29 +200,20 @@ def back_prop(
 		X: Matrix[Float],
 		Y: Matrix[Float]
 ) =
-	println("back propagation ----")
 	val m = Y.rows
 	val m_inv = 1.0f / m
-	println(s"m: $m, m_inv: $m_inv")
-	println(s"Y shape: ${Y.shape}, Y rows: ${Y.rows}, Y cols: ${Y.cols} y colStride: ${Y.colStride}, y rowStride: ${Y.rowStride}, y offset: ${Y.offset}")
-	println(a2.layout)
-	println(Y.layout)
-
 	val dz2 = a2 - Y
 	val dw2 = m_inv * (a1.transpose @@ dz2)
-	println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
-	println(s"dw2 shape: ${dw2.shape}, dw2 rows: ${dw2.rows}, dw2 cols: ${dw2.cols}")
+
 	val db2 = dz2.mapColsToScalar(_.sum).raw
 	val dz1Check = (z1 > 0)
-	// println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}\n")
-	// println(s"dz1Check: ${dz1Check.shape}, dz1Check rows: ${dz1Check.rows}, dz1Check cols: ${dz1Check.cols}\n"``)
-	// println(s"dz1Check: ${dz1Check(0 to 10, ::).printMat}\n")
 	val dz1 = (dz2 @@ w2.transpose)
-	dz1 *:*= dz1Check // (10, 784)
-	// print(s"dz1 shape: ${dz1.shape}, dz1 rows: ${dz1.rows}, dz1 cols: ${dz1.cols}\n")
+	dz1 *:*= dz1Check
+
 	val dw1 = m_inv * (X.transpose @@ dz1)
+
 	val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
-	// println("back propagation done ----")
+	// println("back propagation (Float) done ----")
 	(dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
 end back_prop
 

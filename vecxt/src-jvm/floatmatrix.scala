@@ -342,10 +342,25 @@ object JvmFloatMatrix:
 
     @targetName("floatmatrixSubVector")
     inline def - (mat1: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] =
-      if m.hasSimpleContiguousMemoryLayout then
-        val i: Array[Float] = m.raw
-        Matrix[Float](vecxt.floatarrays.-(i)(mat1.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
-      else ???
+      sameDimMatCheck(m, mat1)
+      if sameDenseElementWiseMemoryLayoutCheck(m, mat1) then
+        val newArr = vecxt.floatarrays.-(m.raw)(mat1.raw)
+        Matrix[Float](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
+      else
+        val newArr = Array.ofDim[Float](m.numel)
+        m.raw.copyToArray(newArr)
+        val newMat = Matrix[Float](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            newMat(i, j) = newMat(i, j) - mat1(i, j)
+            j += 1
+          end while
+          i += 1
+        end while
+        newMat
+      end if
     end -
 
     @targetName("floatmatrixSubVectorInPlace")

@@ -529,4 +529,65 @@ class FloatMatrixJvmSuite extends FunSuite:
       )
     )
 
+  test("- on two dense contiguous Float matrices returns correct result"):
+    val a = Matrix.fromRows[Float](
+      Array[Float](5.0f, 8.0f, 3.0f),
+      Array[Float](1.0f, 6.0f, 9.0f)
+    )
+    val b = Matrix.fromRows[Float](
+      Array[Float](2.0f, 3.0f, 1.0f),
+      Array[Float](4.0f, 1.0f, 7.0f)
+    )
+    val result = a - b
+    assertFloatMatrixEquals(
+      result,
+      Matrix.fromRows[Float](
+        Array[Float](3.0f, 5.0f, 2.0f),
+        Array[Float](-3.0f, 5.0f, 2.0f)
+      )
+    )
+
+  test("- works when both operands are submatrix views"):
+    // 4x4 backing matrix, take a 2x2 slice from each
+    val big = Matrix.fromRows[Float](
+      Array[Float](10.0f, 20.0f, 30.0f, 40.0f),
+      Array[Float](50.0f, 60.0f, 70.0f, 80.0f),
+      Array[Float](90.0f, 100.0f, 110.0f, 120.0f),
+      Array[Float](130.0f, 140.0f, 150.0f, 160.0f)
+    )
+    val viewA = big(0 until 2, 0 until 2) // [[10,20],[50,60]]
+    val viewB = big(2 until 4, 2 until 4) // [[110,120],[150,160]]
+
+    // views have offsets and strides, not contiguous
+    val result = viewA - viewB
+    assertEquals(result.rows, 2)
+    assertEquals(result.cols, 2)
+    assertFloatMatrixEquals(
+      result,
+      Matrix.fromRows[Float](
+        Array[Float](-100.0f, -100.0f),
+        Array[Float](-100.0f, -100.0f)
+      )
+    )
+
+  test("- works when one operand is a view and the other is dense"):
+    val big = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f, 3.0f),
+      Array[Float](4.0f, 5.0f, 6.0f),
+      Array[Float](7.0f, 8.0f, 9.0f)
+    )
+    val view = big(0 until 2, 1 until 3) // [[2,3],[5,6]]
+    val dense = Matrix.fromRows[Float](
+      Array[Float](1.0f, 1.0f),
+      Array[Float](2.0f, 2.0f)
+    )
+    val result = view - dense
+    assertFloatMatrixEquals(
+      result,
+      Matrix.fromRows[Float](
+        Array[Float](1.0f, 2.0f),
+        Array[Float](3.0f, 4.0f)
+      )
+    )
+
 end FloatMatrixJvmSuite
