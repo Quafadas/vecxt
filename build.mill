@@ -48,6 +48,7 @@ object V:
   val jsBSP = false
   val nativeBSP = false
   val jvmBSP = true
+  val oslib = mvn"com.lihaoyi::os-lib::0.11.5"
 end V
 
 trait VecxtPublishModule extends PublishModule, ScalaModule, ScalafixModule:
