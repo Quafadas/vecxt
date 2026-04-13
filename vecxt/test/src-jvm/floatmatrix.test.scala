@@ -219,6 +219,57 @@ class FloatMatrixJvmSuite extends FunSuite:
     )
     assertFloatVecEquals(raw.filter(_ == 99.0f), Array.fill[Float](6)(99.0f))
 
+  test("-= scalar updates dense row-major Float matrix"):
+    val rowMajor = Matrix[Float](
+      Array[Float](1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f),
+      2,
+      3,
+      3,
+      1,
+      0
+    )
+
+    rowMajor -= 0.5f
+
+    assertFloatMatrixEquals(
+      rowMajor,
+      Matrix.fromRows[Float](
+        Array[Float](0.5f, 1.5f, 2.5f),
+        Array[Float](3.5f, 4.5f, 5.5f)
+      )
+    )
+
+  test("-= scalar updates Float matrix with row-stride ordered gather path"):
+    val raw = Array[Float](1.0f, 99.0f, 2.0f, 99.0f, 3.0f, 99.0f, 4.0f, 99.0f, 5.0f, 99.0f, 6.0f, 99.0f)
+    val mat = Matrix[Float](raw, 3, 2, 2, 6, 0)
+
+    mat -= 1.25f
+
+    assertFloatMatrixEquals(
+      mat,
+      Matrix.fromRows[Float](
+        Array[Float](-0.25f, 2.75f),
+        Array[Float](0.75f, 3.75f),
+        Array[Float](1.75f, 4.75f)
+      )
+    )
+    assertFloatVecEquals(raw.filter(_ == 99.0f), Array.fill[Float](6)(99.0f))
+
+  test("-= scalar updates Float matrix with col-stride ordered gather path"):
+    val raw = Array[Float](1.0f, 99.0f, 2.0f, 99.0f, 3.0f, 99.0f, 4.0f, 99.0f, 5.0f, 99.0f, 6.0f, 99.0f)
+    val mat = Matrix[Float](raw, 2, 3, 6, 2, 0)
+
+    mat -= 2.0f
+
+    assertFloatMatrixEquals(
+      mat,
+      Matrix.fromRows[Float](
+        Array[Float](-1.0f, 0.0f, 1.0f),
+        Array[Float](2.0f, 3.0f, 4.0f)
+      )
+    )
+    assertFloatVecEquals(raw.filter(_ == 99.0f), Array.fill[Float](6)(99.0f))
+
   test("+= array broadcasts across dense and general-stride Float matrices"):
     val dense = Matrix.fromRows[Float](
       Array[Float](1.0f, 2.0f, 3.0f),
@@ -264,6 +315,163 @@ class FloatMatrixJvmSuite extends FunSuite:
       )
     )
     assertFloatVecEquals(sparseRaw.filter(_ >= 91.0f), Array[Float](91.0f, 92.0f, 93.0f, 94.0f))
+
+  test("-= array broadcasts across dense and general-stride Float matrices"):
+    val dense = Matrix.fromRows[Float](
+      Array[Float](11.0f, 22.0f, 33.0f),
+      Array[Float](14.0f, 25.0f, 36.0f)
+    )
+    dense -= Array[Float](10.0f, 20.0f, 30.0f)
+
+    assertFloatMatrixEquals(
+      dense,
+      Matrix.fromRows[Float](
+        Array[Float](1.0f, 2.0f, 3.0f),
+        Array[Float](4.0f, 5.0f, 6.0f)
+      )
+    )
+
+    val rowMajor = Matrix[Float](
+      Array[Float](11.0f, 22.0f, 33.0f, 14.0f, 25.0f, 36.0f),
+      2,
+      3,
+      3,
+      1,
+      0
+    )
+    rowMajor -= Array[Float](10.0f, 20.0f, 30.0f)
+
+    assertFloatMatrixEquals(
+      rowMajor,
+      Matrix.fromRows[Float](
+        Array[Float](1.0f, 2.0f, 3.0f),
+        Array[Float](4.0f, 5.0f, 6.0f)
+      )
+    )
+
+    val sparseRaw = Array[Float](11.0f, 91.0f, 12.0f, 92.0f, 93.0f, 23.0f, 94.0f, 24.0f)
+    val strided = Matrix[Float](sparseRaw, 2, 2, 2, 5, 0)
+    strided -= Array[Float](10.0f, 20.0f)
+
+    assertFloatMatrixEquals(
+      strided,
+      Matrix.fromRows[Float](
+        Array[Float](1.0f, 3.0f),
+        Array[Float](2.0f, 4.0f)
+      )
+    )
+    assertFloatVecEquals(sparseRaw.filter(_ >= 91.0f), Array[Float](91.0f, 92.0f, 93.0f, 94.0f))
+
+  test("*= scalar mutates dense Float matrix in place"):
+    val mat = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f, 3.0f),
+      Array[Float](4.0f, 5.0f, 6.0f)
+    )
+
+    mat *= 2.5f
+
+    assertFloatMatrixEquals(
+      mat,
+      Matrix.fromRows[Float](
+        Array[Float](2.5f, 5.0f, 7.5f),
+        Array[Float](10.0f, 12.5f, 15.0f)
+      )
+    )
+
+  test("* scalar returns new Float matrix and leaves source unchanged"):
+    val mat = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f, 3.0f),
+      Array[Float](4.0f, 5.0f, 6.0f)
+    )
+
+    val result = mat * 2.0f
+
+    assertFloatMatrixEquals(
+      result,
+      Matrix.fromRows[Float](
+        Array[Float](2.0f, 4.0f, 6.0f),
+        Array[Float](8.0f, 10.0f, 12.0f)
+      )
+    )
+    assertFloatMatrixEquals(
+      mat,
+      Matrix.fromRows[Float](
+        Array[Float](1.0f, 2.0f, 3.0f),
+        Array[Float](4.0f, 5.0f, 6.0f)
+      )
+    )
+
+  test("* scalar supports Float submatrix views via deep copy"):
+    val base = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f, 3.0f, 4.0f),
+      Array[Float](5.0f, 6.0f, 7.0f, 8.0f),
+      Array[Float](9.0f, 10.0f, 11.0f, 12.0f)
+    )
+    val sub = base(Range.Inclusive(0, 2, 1), Range.Inclusive(1, 2, 1))
+
+    val result = sub * 3.0f
+
+    assertFloatMatrixEquals(
+      result,
+      Matrix.fromRows[Float](
+        Array[Float](6.0f, 9.0f),
+        Array[Float](18.0f, 21.0f),
+        Array[Float](30.0f, 33.0f)
+      )
+    )
+    assertFloatMatrixEquals(
+      sub,
+      Matrix.fromRows[Float](
+        Array[Float](2.0f, 3.0f),
+        Array[Float](6.0f, 7.0f),
+        Array[Float](10.0f, 11.0f)
+      )
+    )
+
+  test("+ scalar returns new Float matrix and leaves source unchanged"):
+    val mat = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f, 3.0f),
+      Array[Float](4.0f, 5.0f, 6.0f)
+    )
+
+    val result = mat + 1.5f
+
+    assertFloatMatrixEquals(
+      result,
+      Matrix.fromRows[Float](
+        Array[Float](2.5f, 3.5f, 4.5f),
+        Array[Float](5.5f, 6.5f, 7.5f)
+      )
+    )
+    assertFloatMatrixEquals(
+      mat,
+      Matrix.fromRows[Float](
+        Array[Float](1.0f, 2.0f, 3.0f),
+        Array[Float](4.0f, 5.0f, 6.0f)
+      )
+    )
+
+  test("left scalar Float operators delegate to matrix implementations"):
+    val mat = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f),
+      Array[Float](3.0f, 4.0f)
+    )
+
+    assertFloatMatrixEquals(
+      2.0f * mat,
+      Matrix.fromRows[Float](
+        Array[Float](2.0f, 4.0f),
+        Array[Float](6.0f, 8.0f)
+      )
+    )
+
+    assertFloatMatrixEquals(
+      1.5f + mat,
+      Matrix.fromRows[Float](
+        Array[Float](2.5f, 3.5f),
+        Array[Float](4.5f, 5.5f)
+      )
+    )
 
   test("Float matrix-vector multiply supports alpha scaling"):
     val mat = Matrix.fromRows[Float](

@@ -62,4 +62,12 @@ class TODO extends FunSuite:
       rowMajor.*(Array[Float](1.0f, 0.5f, -1.0f), alpha = 1.0f, beta = 0.0f)
     }
 
+  test("*= scalar throws for unsupported non-contiguous Float layouts"):
+    val raw = Array[Float](1.0f, 90.0f, 2.0f, 91.0f, 92.0f, 3.0f, 93.0f, 4.0f)
+    val mat = Matrix[Float](raw, 2, 2, 2, 5, 0)
+
+    intercept[NotImplementedError] {
+      mat *= 2.0f
+    }
+
 end TODO

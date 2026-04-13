@@ -4,7 +4,7 @@ import scala.reflect.ClassTag
 
 import vecxt.BoundsCheck.BoundsCheck
 import vecxt.all.*
-
+import scala.util.chaining.*
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.*
 import scala.annotation.targetName
@@ -340,6 +340,98 @@ object JvmFloatMatrix:
 
     end +=
 
+    @targetName("floatmatrixSubVector")
+    inline def - (mat1: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] =
+      if m.hasSimpleContiguousMemoryLayout then
+        val i: Array[Float] = m.raw
+        Matrix[Float](vecxt.floatarrays.-(i)(mat1.raw), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      else ???
+    end -
+
+    @targetName("floatmatrixSubVectorInPlace")
+    inline def -=(arr: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+
+      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
+      end if
+
+      if m.rowStride == 1 then
+        var i = 0
+        while i < m.cols do
+
+          var j = 0
+          val offsetI = m.offset + i * m.colStride
+          while j < spf.loopBound(m.rows) do
+
+            val offsetJ = offsetI + j
+            FloatVector
+              .fromArray(
+                spf,
+                m.raw,
+                offsetJ
+              )
+              .sub(
+                FloatVector.broadcast(spf, arr(i))
+              )
+              .intoArray(
+                m.raw,
+                offsetJ
+              )
+
+            j += spf.length()
+
+          end while
+          while j < m.rows do
+            val idx = offsetI + j
+            m.raw(idx) = m.raw(idx) - arr(i)
+            j += 1
+          end while
+
+          i += 1
+        end while
+      else if m.colStride == 1 then
+        var j = 0
+        while j < m.rows do
+          var i = 0
+          val offsetJ = m.offset + j * m.rowStride
+          while i < spf.loopBound(m.cols) do
+            val offsetI = offsetJ + i
+            FloatVector
+              .fromArray(
+                spf,
+                m.raw,
+                offsetI
+              )
+              .sub(
+                FloatVector.fromArray(spf, arr, i)
+              )
+              .intoArray(
+                m.raw,
+                offsetI
+              )
+            i += spf.length()
+
+          end while
+          while i < m.cols do
+            val idx = offsetJ + i
+            m.raw(idx) = m.raw(idx) - arr(i)
+            i += 1
+          end while
+          j = j + 1
+        end while
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            m(i, j) = m(i, j) - arr(j)
+            j += 1
+          end while
+          i += 1
+        end while
+      end if
+
+    end -=
+
     @targetName("floatmatrixAddScalarInPlace")
     def +=(n: Float): Unit =
       import vecxt.BoundsCheck.DoBoundsCheck.no
@@ -412,6 +504,94 @@ object JvmFloatMatrix:
       end if
 
     end +=
+
+    @targetName("floatmatrixSubScalarInPlace")
+    def -=(n: Float): Unit =
+      import vecxt.BoundsCheck.DoBoundsCheck.no
+      if m.hasSimpleContiguousMemoryLayout then vecxt.floatarrays.-=(m.raw)(n)
+      else
+        if m.rowStride <= m.colStride then
+          val rowStrides = IntVector.zero(sp_int_floatLanes).addIndex(m.rowStride).toArray
+          var j = 0
+          while j < m.cols do
+            var i = 0
+            var blockIndex = m.offset + j * m.colStride
+            val upperBound = sp_int_floatLanes.loopBound(m.rows)
+            while i < upperBound do
+              val iBlockIndex = blockIndex + i * m.rowStride
+              FloatVector
+                .fromArray(spf, m.raw, iBlockIndex, rowStrides, 0)
+                .sub(n)
+                .intoArray(m.raw, iBlockIndex, rowStrides, 0)
+              i += sp_int_floatLanes.length()
+            end while
+            while i < m.rows do
+              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m(i, j) = m(i, j) - n
+              i += 1
+            end while
+
+            j += 1
+          end while
+        else
+          val colStrides = IntVector.zero(sp_int_floatLanes).addIndex(m.colStride).toArray
+          var i = 0
+          while i < m.rows do
+            var j = 0
+            val upperBound = sp_int_floatLanes.loopBound(m.cols)
+
+            var blockIndex = m.offset + i * m.rowStride
+            while j < upperBound do
+              val jblockIndex = blockIndex + j * m.colStride
+              FloatVector
+                .fromArray(spf, m.raw, jblockIndex, colStrides, 0)
+                .sub(n)
+                .intoArray(m.raw, jblockIndex, colStrides, 0)
+
+              j += sp_int_floatLanes.length()
+            end while
+
+            while j < m.cols do
+              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m(i, j) = m(i, j) - n
+              j += 1
+            end while
+            i += 1
+          end while
+        end if
+      end if
+
+    end -=
+
+    inline def *=(d: Float): Unit =
+      if m.hasSimpleContiguousMemoryLayout then
+        floatarrays.*=(m.raw)(d)
+      else ???
+    end *=
+
+    inline def *(d: Float): Matrix[Float] =
+      m.deepCopy.tap(_.*=(d))
+
+    end *
+
+    inline def +(d: Float): Matrix[Float] =
+      m.deepCopy.tap(_.+=(d))
+    end +
+
+  end extension
+
+  extension (d: Float)
+    inline def *(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] = m * d
+
+    inline def +(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] = m + d
+
+    inline def -(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] = ???
+    inline def /(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] = ???
+
+    inline def *=(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Unit = m *= d
+    inline def +=(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Unit = ??? // m += d
+    inline def -=(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Unit = ??? // m -= d
+    inline def /=(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Unit = ???
 
   end extension
 
