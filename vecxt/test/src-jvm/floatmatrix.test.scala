@@ -18,7 +18,9 @@ class FloatMatrixJvmSuite extends FunSuite:
     end while
   end assertFloatVecEquals
 
-  private def assertFloatMatrixEquals(actual: Matrix[Float], expected: Matrix[Float])(implicit loc: munit.Location): Unit =
+  private def assertFloatMatrixEquals(actual: Matrix[Float], expected: Matrix[Float])(implicit
+      loc: munit.Location
+  ): Unit =
     assertEquals(actual.shape, expected.shape, "matrix shape mismatch")
     var row = 0
     while row < actual.rows do
@@ -31,7 +33,9 @@ class FloatMatrixJvmSuite extends FunSuite:
     end while
   end assertFloatMatrixEquals
 
-  private def assertDoubleMatrixEquals(actual: Matrix[Double], expected: Matrix[Double])(implicit loc: munit.Location): Unit =
+  private def assertDoubleMatrixEquals(actual: Matrix[Double], expected: Matrix[Double])(implicit
+      loc: munit.Location
+  ): Unit =
     assertEquals(actual.shape, expected.shape, "matrix shape mismatch")
     var row = 0
     while row < actual.rows do
@@ -44,7 +48,9 @@ class FloatMatrixJvmSuite extends FunSuite:
     end while
   end assertDoubleMatrixEquals
 
-  private def assertBooleanMatrixEquals(actual: Matrix[Boolean], expected: Matrix[Boolean])(implicit loc: munit.Location): Unit =
+  private def assertBooleanMatrixEquals(actual: Matrix[Boolean], expected: Matrix[Boolean])(implicit
+      loc: munit.Location
+  ): Unit =
     assertEquals(actual.shape, expected.shape, "matrix shape mismatch")
     var row = 0
     while row < actual.rows do

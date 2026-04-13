@@ -173,7 +173,6 @@ object JvmFloatMatrix:
       else ???
     end *
 
-
     inline def >=(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
@@ -348,7 +347,7 @@ object JvmFloatMatrix:
     end +=
 
     @targetName("floatmatrixSubVector")
-    inline def - (mat1: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] =
+    inline def -(mat1: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] =
       sameDimMatCheck(m, mat1)
       if sameDenseElementWiseMemoryLayoutCheck(m, mat1) then
         val newArr = vecxt.floatarrays.-(m.raw)(mat1.raw)
@@ -356,7 +355,8 @@ object JvmFloatMatrix:
       else
         val newArr = Array.ofDim[Float](m.numel)
         m.raw.copyToArray(newArr)
-        val newMat = Matrix[Float](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
+        val newMat =
+          Matrix[Float](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
         var i = 0
         while i < m.rows do
           var j = 0
@@ -586,8 +586,7 @@ object JvmFloatMatrix:
     end -=
 
     inline def *=(d: Float): Unit =
-      if m.hasSimpleContiguousMemoryLayout then
-        floatarrays.*=(m.raw)(d)
+      if m.hasSimpleContiguousMemoryLayout then floatarrays.*=(m.raw)(d)
       else ???
     end *=
 
