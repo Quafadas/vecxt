@@ -11,6 +11,7 @@ import jdk.incubator.vector.FloatVector
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.VectorSpecies
+import scala.annotation.targetName
 
 object intarrays:
 
@@ -354,6 +355,7 @@ object intarrays:
 
     end -=
 
+    @targetName("divideByDoubleScalar")
     inline def /(scalar: Double): Array[Double] =
       val result = new Array[Double](vec.length)
       val scalarDoubleVec = DoubleVector.broadcast(spd, scalar)

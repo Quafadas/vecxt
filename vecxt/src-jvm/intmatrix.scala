@@ -16,6 +16,7 @@ object JvmIntMatrix:
 
     end matmul
 
+    @scala.annotation.targetName("intMatrixDivDouble")
     inline def /(d: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
@@ -23,6 +24,7 @@ object JvmIntMatrix:
       else ???
     end /
 
+    @scala.annotation.targetName("intMatrixDivFloat")
     inline def /(d: Float): Matrix[Float] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
