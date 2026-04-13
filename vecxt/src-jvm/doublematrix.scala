@@ -105,9 +105,17 @@ object JvmDoubleMatrix:
     inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
+        val spd = doublearrays.spd
+        val spdl = doublearrays.spdl
+        val zero = DoubleVector.zero(spd)
         var i = 0
+        while i < spd.loopBound(m.raw.length) do
+          val mask = VectorMask.fromArray(spd, bmat.raw, i)
+          zero.blend(DoubleVector.fromArray(spd, m.raw, i), mask).intoArray(m.raw, i)
+          i += spdl
+        end while
         while i < m.raw.length do
-          m.raw.update(i, (if bmat.raw(i) then 1.0 else 0.0) * m.raw(i))
+          if !bmat.raw(i) then m.raw.update(i, 0.0)
           i += 1
         end while
       else ???
