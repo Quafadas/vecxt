@@ -80,6 +80,7 @@ class ZeroWhereSuite extends munit.FunSuite:
     while i < n do
       if i % 3 == 0 then assertEquals(vec(i), 0.0f, s"index $i should be zeroed")
       else assertEquals(vec(i), (i + 1).toFloat, s"index $i should be kept")
+      end if
       i += 1
     end while
   }
