@@ -123,9 +123,16 @@ object JvmFloatMatrix:
     inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
+        val zero = FloatVector.zero(spf)
         var i = 0
+        while i < spf.loopBound(m.raw.length) do
+          val mask = VectorMask.fromArray(spf, bmat.raw, i)
+          // keep float value where mask=true, zero where mask=false
+          zero.blend(FloatVector.fromArray(spf, m.raw, i), mask).intoArray(m.raw, i)
+          i += spfl
+        end while
         while i < m.raw.length do
-          m.raw.update(i, (if bmat.raw(i) then 1.0f else 0.0f) * m.raw(i))
+          if !bmat.raw(i) then m.raw.update(i, 0.0f)
           i += 1
         end while
       else ???
