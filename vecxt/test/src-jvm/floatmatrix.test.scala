@@ -63,7 +63,7 @@ class FloatMatrixJvmSuite extends FunSuite:
     end while
   end assertBooleanMatrixEquals
 
-  test("*:* on dense Float matrix yields expected Double matrix"):
+  test("*:* on dense Float matrix yields expected Float matrix"):
     val mat = Matrix.fromRows[Float](
       Array[Float](1.0f, 2.0f, 3.0f),
       Array[Float](4.0f, 5.0f, 6.0f)
@@ -76,11 +76,11 @@ class FloatMatrixJvmSuite extends FunSuite:
 
     val result = mat *:* mask
 
-    assertDoubleMatrixEquals(
+    assertFloatMatrixEquals(
       result,
-      Matrix.fromRows[Double](
-        Array[Double](1.0, 0.0, 3.0),
-        Array[Double](0.0, 5.0, 0.0)
+      Matrix.fromRows[Float](
+        Array[Float](1.0f, 0.0f, 3.0f),
+        Array[Float](0.0f, 5.0f, 0.0f)
       )
     )
 
@@ -100,12 +100,12 @@ class FloatMatrixJvmSuite extends FunSuite:
 
     val result = sub *:* mask
 
-    assertDoubleMatrixEquals(
+    assertFloatMatrixEquals(
       result,
-      Matrix.fromRows[Double](
-        Array[Double](0.0, 3.0),
-        Array[Double](6.0, 0.0),
-        Array[Double](0.0, 11.0)
+      Matrix.fromRows[Float](
+        Array[Float](0.0f, 3.0f),
+        Array[Float](6.0f, 0.0f),
+        Array[Float](0.0f, 11.0f)
       )
     )
 

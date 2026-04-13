@@ -92,30 +92,26 @@ object JvmFloatMatrix:
     end `matmulInPlace!`
 
     @targetName("matmulFloatElementWise")
-    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Float] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
-        val newArr = Array.fill[Double](m.rows * m.cols)(0.0)
-        var i = 0
-        while i < newArr.length do
-          newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
-          i += 1
-        end while
-        Matrix(newArr, m.rows, m.cols)
+        val copy = m.deepCopy
+        copy *:*= bmat
+        copy
       else
-        val newArr = Array.ofDim[Double](m.numel)
+        val newArr = Array.ofDim[Float](m.numel)
         var i = 0
         while i < m.rows do
           var j = 0
           while j < m.cols do
             val mIdx = m.offset + i * m.rowStride + j * m.colStride
             val bIdx = bmat.offset + i * bmat.rowStride + j * bmat.colStride
-            newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0.0
+            newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0.0f
             j += 1
           end while
           i += 1
         end while
-        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Float](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
       end if
     end *:*
 
@@ -354,14 +350,13 @@ object JvmFloatMatrix:
         Matrix[Float](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
       else
         val newArr = Array.ofDim[Float](m.numel)
-        m.raw.copyToArray(newArr)
         val newMat =
-          Matrix[Float](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
+          Matrix[Float](newArr, m.rows, m.cols, m.cols, 1, 0)(using BoundsCheck.DoBoundsCheck.no)
         var i = 0
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            newMat(i, j) = newMat(i, j) - mat1(i, j)
+            newMat(i, j) = m(i, j) - mat1(i, j)
             j += 1
           end while
           i += 1
