@@ -1,4 +1,3 @@
-
 import scala.util.chaining.*
 
 import io.github.quafadas.plots.SetupVegaBrowser.{*, given}
@@ -35,12 +34,14 @@ import scala.annotation.targetName
   val imageHeight = 28
 
   val labels: Array[Int] = traindata.col(0) // y data, the labels are in the first column
-  val pixelData : Matrix[Float] = traindata(::,1 until traindata.cols).deepCopy / 255.0f
+  val pixelData: Matrix[Float] = traindata(::, 1 until traindata.cols).deepCopy / 255.0f
 
   if samplePlot then
-    VegaPlot.fromResource("hist.vg.json").plot(
-      _.data._0.values := labels.map(label => (u = label)).asJson
-    )
+    VegaPlot
+      .fromResource("hist.vg.json")
+      .plot(
+        _.data._0.values := labels.map(label => (u = label)).asJson
+      )
   end if
 
   val one_hot_Y = oneHotEncode[Float](labels)
@@ -52,15 +53,20 @@ import scala.annotation.targetName
       val data = pixelData.row(idx)
       val pixelSize = 10
       val d = dataToCoords(data, pixelSize)
-      VegaPlot.fromResource("pixelPlot.vg.json").plot(
-        _.data.values := d.asJson,
-        _.mark.width := pixelSize,
-        _.mark.height := pixelSize,
-        _.width := imageWidth * pixelSize,
-        _.height := imageHeight * pixelSize,
-        _.title := s"Sample: $idx - Label ${labels(idx)}"
-      )
-      one_hot_Y.row(idx).mkString(", ").tap(str => println(s"One hot encoding for sample $idx:, label ${labels(idx)}: $str"))
+      VegaPlot
+        .fromResource("pixelPlot.vg.json")
+        .plot(
+          _.data.values := d.asJson,
+          _.mark.width := pixelSize,
+          _.mark.height := pixelSize,
+          _.width := imageWidth * pixelSize,
+          _.height := imageHeight * pixelSize,
+          _.title := s"Sample: $idx - Label ${labels(idx)}"
+        )
+      one_hot_Y
+        .row(idx)
+        .mkString(", ")
+        .tap(str => println(s"One hot encoding for sample $idx:, label ${labels(idx)}: $str"))
     }
 
   end if
@@ -77,7 +83,9 @@ import scala.annotation.targetName
   val bias2 = Array.fill(l3Size)(startBias)
 
   if shapeDiagnostic then
-    println(s"pixelData shape: ${pixelData.shape}, pixelData rows: ${pixelData.rows}, pixelData cols: ${pixelData.cols}, pixelData rowStride: ${pixelData.rowStride}, pixelData colStride: ${pixelData.colStride} pixelData offset: ${pixelData.offset}")
+    println(
+      s"pixelData shape: ${pixelData.shape}, pixelData rows: ${pixelData.rows}, pixelData cols: ${pixelData.cols}, pixelData rowStride: ${pixelData.rowStride}, pixelData colStride: ${pixelData.colStride} pixelData offset: ${pixelData.offset}"
+    )
 
     println(s"x layout ${pixelData.layout}")
 
@@ -113,7 +121,6 @@ import scala.annotation.targetName
     w2 = weight2,
     b2 = bias2
   )
-
 
 end mnist
 
@@ -178,45 +185,43 @@ end foward_prop
 
 // Float version
 def foward_prop(w1: Matrix[Float], b1: Array[Float], w2: Matrix[Float], b2: Array[Float], x: Matrix[Float]) =
-	val z1 = (x @@ w1)
-	z1.mapRowsInPlace(r => r.tap(_ += b1))
-	val a1 = reluM(z1) // get rid of negative values
-	val z2 = (a1 @@ w2)
-	z2.mapRowsInPlace(r => r.tap(_ += b2)) // results [(rows, 10) @ (10, 10)] = (rows, 10)
-	val a2 = softmaxRows(z2)
-	(z1 = z1, a1 = a1, z2 = z2, a2 = a2)
+  val z1 = (x @@ w1)
+  z1.mapRowsInPlace(r => r.tap(_ += b1))
+  val a1 = reluM(z1) // get rid of negative values
+  val z2 = (a1 @@ w2)
+  z2.mapRowsInPlace(r => r.tap(_ += b2)) // results [(rows, 10) @ (10, 10)] = (rows, 10)
+  val a2 = softmaxRows(z2)
+  (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
 end foward_prop
 
-
 def back_prop(
-		w1: Matrix[Float],
-		b1: Array[Float],
-		w2: Matrix[Float],
-		b2: Array[Float],
-		z1: Matrix[Float],
-		a1: Matrix[Float],
-		z2: Matrix[Float],
-		a2: Matrix[Float],
-		X: Matrix[Float],
-		Y: Matrix[Float]
+    w1: Matrix[Float],
+    b1: Array[Float],
+    w2: Matrix[Float],
+    b2: Array[Float],
+    z1: Matrix[Float],
+    a1: Matrix[Float],
+    z2: Matrix[Float],
+    a2: Matrix[Float],
+    X: Matrix[Float],
+    Y: Matrix[Float]
 ) =
-	val m = Y.rows
-	val m_inv = 1.0f / m
-	val dz2 = a2 - Y
-	val dw2 = m_inv * (a1.transpose @@ dz2)
+  val m = Y.rows
+  val m_inv = 1.0f / m
+  val dz2 = a2 - Y
+  val dw2 = m_inv * (a1.transpose @@ dz2)
 
-	val db2 = dz2.mapColsToScalar(_.sum).raw
-	val dz1Check = (z1 > 0)
-	val dz1 = (dz2 @@ w2.transpose)
-	dz1 *:*= dz1Check
+  val db2 = dz2.mapColsToScalar(_.sum).raw
+  val dz1Check = (z1 > 0)
+  val dz1 = (dz2 @@ w2.transpose)
+  dz1 *:*= dz1Check
 
-	val dw1 = m_inv * (X.transpose @@ dz1)
+  val dw1 = m_inv * (X.transpose @@ dz1)
 
-	val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
-	// println("back propagation (Float) done ----")
-	(dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
+  val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
+  // println("back propagation (Float) done ----")
+  (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
 end back_prop
-
 
 def back_prop(
     w1: Matrix[Double],
@@ -295,17 +300,17 @@ def loss(predicted: Array[Int], actual: Array[Int]) =
   (predicted =:= actual).trues.toDouble / predicted.length
 
 def gradient_descentf(
-  x: Matrix[Float],
-  y: Matrix[Float],
-  labels: Array[Int],
-  iterations: Int,
-  batchSize: Int,
-  alpha: Float,
-  decayRate: Float,
-  w1: Matrix[Float],
-  b1: Array[Float],
-  w2: Matrix[Float],
-  b2: Array[Float]
+    x: Matrix[Float],
+    y: Matrix[Float],
+    labels: Array[Int],
+    iterations: Int,
+    batchSize: Int,
+    alpha: Float,
+    decayRate: Float,
+    w1: Matrix[Float],
+    b1: Array[Float],
+    w2: Matrix[Float],
+    b2: Array[Float]
 ) =
   import BoundsCheck.DoBoundsCheck.yes
   println("Starting gradient descent...")
@@ -355,7 +360,6 @@ def gradient_descentf(
       println(s"Accuracy : $acc")
     end if
   end for
-
 
   val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
   println(s"iterations: $iterations, alpha: $alpha_, samples: ${x.rows}, classes: ${w2_.cols}")

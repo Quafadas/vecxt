@@ -399,7 +399,8 @@ object intarrays:
           lane += 1
         end while
 
-        FloatVector.fromArray(spf, tmp, 0)
+        FloatVector
+          .fromArray(spf, tmp, 0)
           .div(scalarFloatVec)
           .intoArray(result, i)
         i += spfl
@@ -427,7 +428,8 @@ object intarrays:
           lane += 1
         end while
 
-        FloatVector.fromArray(spf, tmp, 0)
+        FloatVector
+          .fromArray(spf, tmp, 0)
           .mul(scalarFloatVec)
           .intoArray(result, i)
         i += spfl

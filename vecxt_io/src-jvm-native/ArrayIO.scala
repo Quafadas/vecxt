@@ -12,13 +12,16 @@ object ArrayIO:
     line.split(java.util.regex.Pattern.quote(seperator.toString), -1).map(_.trim)
 
   private inline def parseValue[A: Numeric](value: String): A =
-    summon[Numeric[A]].parseString(value).getOrElse(
-      throw new IllegalArgumentException(s"Could not parse array value '$value'")
-    )
+    summon[Numeric[A]]
+      .parseString(value)
+      .getOrElse(
+        throw new IllegalArgumentException(s"Could not parse array value '$value'")
+      )
 
   extension [A](arr: Array[A])
     def write(path: os.Path, seperator: Char = ','): Unit =
       os.write.over(path, arr.mkString(seperator.toString))
+  end extension
 
   def loadArray[A: Numeric: ClassTag](
       path: os.Path | os.ResourcePath,
@@ -43,6 +46,7 @@ object ArrayIO:
             throw new IllegalArgumentException(
               s"Array file contains an empty value at line ${lineIndex + 1}, column ${valueIndex + 1}"
             )
+          end if
 
           builder += parseValue[A](value)
           valueIndex += 1
@@ -50,6 +54,8 @@ object ArrayIO:
         lineIndex += 1
       end while
       builder.result()
+    end if
+  end loadArray
 
   def fromResource[A: Numeric: ClassTag](
       resourceName: String,

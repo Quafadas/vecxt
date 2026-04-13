@@ -14,6 +14,7 @@ class MatrixIOSuite extends munit.FunSuite:
     val tempFile = Files.createTempFile("vecxt-matrix-io-", suffix)
     try body(os.Path(tempFile.toString))
     finally Files.deleteIfExists(tempFile)
+    end try
   end withTempFile
 
   test("write and load round-trip row-per-line csv"):

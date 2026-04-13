@@ -15,14 +15,15 @@ object MatrixIO:
     line.split(java.util.regex.Pattern.quote(seperator.toString), -1).map(_.trim)
 
   private inline def parseValue[A: Numeric](value: String): A =
-    summon[Numeric[A]].parseString(value).getOrElse(
-      throw new IllegalArgumentException(s"Could not parse matrix value '$value'")
-    )
+    summon[Numeric[A]]
+      .parseString(value)
+      .getOrElse(
+        throw new IllegalArgumentException(s"Could not parse matrix value '$value'")
+      )
 
   extension [A: ClassTag](m: Matrix[A])
     def write(path: os.Path, seperator: Char = ','): Unit =
-      if m.rows == 0 || m.cols == 0 then
-        os.write.over(path, "")
+      if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
       else
         val lines = Array.ofDim[String](m.rows)
         var row = 0
@@ -31,6 +32,7 @@ object MatrixIO:
           row += 1
         end while
         os.write.over(path, lines.mkString("\n"))
+  end extension
 
   def loadMatrix[A: Numeric: ClassTag](
       path: os.Path | os.ResourcePath,
@@ -42,12 +44,12 @@ object MatrixIO:
       case p: os.ResourcePath => os.read.lines(p)
     val lines = dropLeadingRows(allLines, dropRows)
 
-    if lines.isEmpty then
-      Matrix(Array.empty[A], (0, 0))(using no)
+    if lines.isEmpty then Matrix(Array.empty[A], (0, 0))(using no)
     else
       val firstRow = splitLine(lines.head, seperator)
       if firstRow.isEmpty || firstRow.exists(_.isEmpty) then
         throw new IllegalArgumentException("Matrix file contains an empty value in the first row")
+      end if
 
       val rows = lines.length
       val cols = firstRow.length
@@ -60,6 +62,7 @@ object MatrixIO:
           throw new IllegalArgumentException(
             s"Expected $cols values in row ${row + 1}, but found ${values.length}"
           )
+        end if
 
         var col = 0
         while col < cols do
@@ -68,6 +71,7 @@ object MatrixIO:
             throw new IllegalArgumentException(
               s"Matrix file contains an empty value at row ${row + 1}, column ${col + 1}"
             )
+          end if
 
           data(row + col * rows) = parseValue[A](value)
           col += 1
@@ -77,7 +81,7 @@ object MatrixIO:
       end while
 
       Matrix(data, (rows, cols))(using no)
-
+    end if
 
   end loadMatrix
 
