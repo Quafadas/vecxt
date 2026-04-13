@@ -111,6 +111,7 @@ object JvmDoubleMatrix:
         end while
         while i < m.raw.length do
           if !bmat.raw(i) then m.raw.update(i, 0.0)
+          end if
           i += 1
         end while
       else ???
