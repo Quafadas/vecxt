@@ -86,6 +86,14 @@ object MatrixInstance:
       end match
     end updateInPlace
 
+    def apply(rowRange: RangeExtender, col: Int)(using ClassTag[A]): Matrix[A] =
+      apply(rowRange, Array(col))
+    end apply
+
+    def apply(row: Int, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
+      apply(Array(row), colRange)
+    end apply
+
     def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)
       val newCols = range(colRange, m.cols)

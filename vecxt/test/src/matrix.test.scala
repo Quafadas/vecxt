@@ -804,6 +804,19 @@ class MatrixExtensionSuite extends FunSuite:
     val f = mat(Array.from[Int](Array(0, 2)), 0 to 1)
     assertMatrixEquals(Matrix(Array[Double](1.0, 7.0, 2.0, 8.0), 2, 2), f)
 
+    // Int shorthand syntax: mat(::, 0) should equal mat(::, Array(0))
+    val g = mat(::, 1)
+    assertMatrixEquals(Matrix(Array[Double](2.0, 5.0, 8.0), 3, 1), g)
+
+    val h = mat(1, ::)
+    assertMatrixEquals(Matrix(Array[Double](4.0, 5.0, 6.0), 1, 3), h)
+
+    val i2 = mat(1, 0 to 1)
+    assertMatrixEquals(Matrix(Array[Double](4.0, 5.0), 1, 2), i2)
+
+    val j = mat(0 to 1, 1)
+    assertMatrixEquals(Matrix(Array[Double](2.0, 5.0), 2, 1), j)
+
   }
 
   test("hadamard product") {
