@@ -74,17 +74,12 @@ object JvmDoubleMatrix:
 
     end `matmulInPlace!`
 
-    // TODO: SIMD
     inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
-        val newArr = Array.fill[Double](m.rows * m.cols)(0.0)
-        var i = 0
-        while i < newArr.length do
-          newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
-          i += 1
-        end while
-        Matrix(newArr, m.rows, m.cols)
+        val copy = m.deepCopy
+        copy *:*= bmat
+        copy
       else
         val newArr = Array.ofDim[Double](m.numel)
         var i = 0
@@ -105,9 +100,18 @@ object JvmDoubleMatrix:
     inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
+        val spd = doublearrays.spd
+        val spdl = doublearrays.spdl
+        val zero = DoubleVector.zero(spd)
         var i = 0
+        while i < spd.loopBound(m.raw.length) do
+          val mask = VectorMask.fromArray(spd, bmat.raw, i)
+          zero.blend(DoubleVector.fromArray(spd, m.raw, i), mask).intoArray(m.raw, i)
+          i += spdl
+        end while
         while i < m.raw.length do
-          m.raw.update(i, (if bmat.raw(i) then 1.0 else 0.0) * m.raw(i))
+          if !bmat.raw(i) then m.raw.update(i, 0.0)
+          end if
           i += 1
         end while
       else ???

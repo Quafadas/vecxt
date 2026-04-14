@@ -1,14 +1,17 @@
-import io.github.quafadas.table.*
 import scala.util.chaining.*
 
-import viz.PlotTargets.desktopBrowser
-import viz.vegaFlavour
-import viz.Plottable.*
-import viz.Macros.Implicits.given_Writer_T
+import io.github.quafadas.plots.SetupVegaBrowser.{*, given}
+import io.circe.syntax.*
+
 import vecxt.all.*
 import vecxt.BoundsCheck.DoBoundsCheck.yes
 import vecxt.BoundsCheck
 import scala.reflect.ClassTag
+import vecxt_io.MatrixIO
+import vecxt_io.MatrixIO.*
+import vecxt_io.ArrayIO.*
+import vecxt.JvmIntMatrix./
+import scala.annotation.targetName
 
 // File can be dowloaded from Kaggle at:
 // https://www.kaggle.com/datasets/quangphota/mnist-csv/data?select=train.csv
@@ -17,62 +20,82 @@ import scala.reflect.ClassTag
 //
 
 @main def mnist =
-  def traindata = LazyList.from(os.read.lines(os.resource / "train.csv").iterator.drop(1).map { line =>
-    line.split(",")
-  })
+  val traindata: Matrix[Int] = MatrixIO.fromResource[Int]("train.csv", ',', dropRows = 1)
 
   val samplePlot = false
-  val trainSize = 60000
+  val shapeDiagnostic = true
 
-  val l1Size = 128
+  val trainSize = traindata.rows
+
+  val l1Size = 128 //
   val l2Size = 64
   val l3Size = 10 // output layer size, number of classes
   val imageWidth = 28
   val imageHeight = 28
 
-  val labels = traindata.map(_.head.toInt)
-  val others =
-    traindata
-      .map(_.tail.map(_.toDouble))
-      .map(_.toList.toArray.map(_.toDouble / 255.0)) // x data, normalised to [0, 1]
+  val labels: Array[Int] = traindata.col(0) // y data, the labels are in the first column
+  val pixelData: Matrix[Float] = traindata(::, 1 until traindata.cols).deepCopy / 255.0f
 
   if samplePlot then
-    (os.resource / "hist.vg.json").plot(
-      List { spec =>
-        spec("data")(0)("values") = upickle.default.writeJs(labels.map(i => (u = i)))
-      }
-    )
-  end if
-
-  if samplePlot then
-    others
-      .take(5)
-      .foreach(data =>
-        val d = dataToCoords(data)
-        (os.resource / "pixelPlot.vg.json").plot(
-          List(spec => spec("data")("values") = upickle.default.writeJs(d))
-        )
+    VegaPlot
+      .fromResource("hist.vg.json")
+      .plot(
+        _.data._0.values := labels.map(label => (u = label)).asJson
       )
   end if
 
+  val one_hot_Y = oneHotEncode[Float](labels)
+
+  if samplePlot then
+    val random = scala.util.Random
+
+    Iterator.continually(random.nextInt(trainSize)).take(5).foreach { idx =>
+      val data = pixelData.row(idx)
+      val pixelSize = 10
+      val d = dataToCoords(data, pixelSize)
+      VegaPlot
+        .fromResource("pixelPlot.vg.json")
+        .plot(
+          _.data.values := d.asJson,
+          _.mark.width := pixelSize,
+          _.mark.height := pixelSize,
+          _.width := imageWidth * pixelSize,
+          _.height := imageHeight * pixelSize,
+          _.title := s"Sample: $idx - Label ${labels(idx)}"
+        )
+      one_hot_Y
+        .row(idx)
+        .mkString(", ")
+        .tap(str => println(s"One hot encoding for sample $idx:, label ${labels(idx)}: $str"))
+    }
+
+  end if
+
+  val scale = 0.2f
+  val startBias = 0.0f
+
   val weight1 = Matrix(
-    Array.fill(imageHeight * imageWidth * l1Size)(scala.util.Random.nextDouble() * 0.2),
+    Array.fill(imageHeight * imageWidth * l1Size)(scala.util.Random.nextFloat() * scale),
     (imageWidth * imageHeight, l1Size)
   )
-  val bias1 = Array.fill(l1Size)(0.0)
-  val weight2 = Matrix(Array.fill(l1Size * l3Size)(scala.util.Random.nextDouble() * 0.2), (l1Size, l3Size))
-  val bias2 = Array.fill(l3Size)(0.0)
+  val bias1 = Array.fill(l1Size)(startBias)
+  val weight2 = Matrix(Array.fill(l1Size * l3Size)(scala.util.Random.nextFloat() * scale), (l1Size, l3Size))
+  val bias2 = Array.fill(l3Size)(startBias)
 
-  val x = Matrix.fromRows(others.toArray*)
-  println(s"x layout ${x.layout}")
+  if shapeDiagnostic then
+    println(
+      s"pixelData shape: ${pixelData.shape}, pixelData rows: ${pixelData.rows}, pixelData cols: ${pixelData.cols}, pixelData rowStride: ${pixelData.rowStride}, pixelData colStride: ${pixelData.colStride} pixelData offset: ${pixelData.offset}"
+    )
 
-  println(s"weight1 shape: ${weight1.shape}, weight1 rows: ${weight1.rows}, weight1 cols: ${weight1.cols}")
-  println(s"weight2 shape: ${weight2.shape}, weight2 rows: ${weight2.rows}, weight2 cols: ${weight2.cols}")
+    println(s"x layout ${pixelData.layout}")
+
+    println(s"weight1 shape: ${weight1.shape}, weight1 rows: ${weight1.rows}, weight1 cols: ${weight1.cols}")
+    println(s"weight2 shape: ${weight2.shape}, weight2 rows: ${weight2.rows}, weight2 cols: ${weight2.cols}")
+
+  end if
   // val i = x @@ weight1 // This is just to check that the matrix multiplication works
   // println(s"i shape: ${i.shape}, i rows: ${i.rows}, i cols: ${i.cols}")
   // println(labels)
-  val one_hot_Y = oneHotEncode(labels)
-
   // println(s"one_hot_Y shape: ${one_hot_Y.shape}, one_hot_Y rows: ${one_hot_Y.rows}, one_hot_Y cols: ${one_hot_Y.cols}")
   // println(one_hot_Y.printMat)
 
@@ -85,34 +108,46 @@ import scala.reflect.ClassTag
   // println(s"initial biases2: ${bias2.mkString(", ")}")
   // println(s"labels: ${labels.take(10).mkString(", ")}")
 
-  val arg = gradient_decent(
-    x = x,
+  gradient_descentf(
+    x = pixelData,
     y = one_hot_Y,
     labels = labels.toArray,
-    iterations = 10,
+    iterations = 5,
     batchSize = 120,
-    alpha = 0.05,
-    decayRate = 0.0125,
+    alpha = 0.05f,
+    decayRate = 0.0125f,
     w1 = weight1,
     b1 = bias1,
     w2 = weight2,
     b2 = bias2
   )
 
-  println(arg)
-
 end mnist
 
-def dataToCoords(data: Array[Double]): IndexedSeq[(x: Int, y: Int, opacity: Double)] =
+// Helper methods.
+
+def dataToCoords[A](data: Array[A], pixelSize: Int): IndexedSeq[(x: Int, y: Int, opacity: A)] =
   for i <- 0.until(28); j <- 0.until(28) yield
     val value = data(i * 28 + j)
-    (x = j, y = 28 - i, opacity = value)
+    (x = j * pixelSize, y = (28 - i) * pixelSize, opacity = value)
 
 // -- Below here is the neural network machinery
 
 inline def reluM(z: Matrix[Double]): Matrix[Double] = Matrix(z.raw.clampMin(0.0), z.shape)
 
+@targetName("reluMFloat")
+inline def reluM(z: Matrix[Float]): Matrix[Float] = Matrix(z.raw.clampMin(0.0), z.shape)
+
 inline def softmaxRows(z: Matrix[Double]): Matrix[Double] =
+  z.mapRows { row =>
+    row -= row.max
+    row.`exp!`
+    row /= row.sum
+    row
+  }
+
+@targetName("softmaxRowsFloat")
+inline def softmaxRows(z: Matrix[Float]): Matrix[Float] =
   z.mapRows { row =>
     row -= row.max
     row.`exp!`
@@ -129,6 +164,7 @@ def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: A
   // println(s"m:  ${x.layout}")
   // println(s"b: ${w1.layout}")
   val z1 = (x @@ w1)
+  // z1 += b1
   z1.mapRowsInPlace(r => r.tap(_ += b1))
   //  println(s"z1 shape: ${z1.shape}, z1 rows: ${z1.rows}, z1 cols: ${z1.cols}")
   //  println(s"z1 mean: ${z1.raw.mean}, min: ${z1.raw.minSIMD}, max: ${z1.raw.maxSIMD}")
@@ -146,6 +182,46 @@ def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: A
   // println("forward propagation done ----")
   (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
 end foward_prop
+
+// Float version
+def foward_prop(w1: Matrix[Float], b1: Array[Float], w2: Matrix[Float], b2: Array[Float], x: Matrix[Float]) =
+  val z1 = (x @@ w1)
+  z1.mapRowsInPlace(r => r.tap(_ += b1))
+  val a1 = reluM(z1) // get rid of negative values
+  val z2 = (a1 @@ w2)
+  z2.mapRowsInPlace(r => r.tap(_ += b2)) // results [(rows, 10) @ (10, 10)] = (rows, 10)
+  val a2 = softmaxRows(z2)
+  (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
+end foward_prop
+
+def back_prop(
+    w1: Matrix[Float],
+    b1: Array[Float],
+    w2: Matrix[Float],
+    b2: Array[Float],
+    z1: Matrix[Float],
+    a1: Matrix[Float],
+    z2: Matrix[Float],
+    a2: Matrix[Float],
+    X: Matrix[Float],
+    Y: Matrix[Float]
+) =
+  val m = Y.rows
+  val m_inv = 1.0f / m
+  val dz2 = a2 - Y
+  val dw2 = m_inv * (a1.transpose @@ dz2)
+
+  val db2 = dz2.mapColsToScalar(_.sum).raw
+  val dz1Check = (z1 > 0)
+  val dz1 = (dz2 @@ w2.transpose)
+  dz1 *:*= dz1Check
+
+  val dw1 = m_inv * (X.transpose @@ dz1)
+
+  val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
+  // println("back propagation (Float) done ----")
+  (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
+end back_prop
 
 def back_prop(
     w1: Matrix[Double],
@@ -192,14 +268,14 @@ inline def oneHot[T](int: Int, numClasses: Int)(using ct: ClassTag[T], f: Numeri
   arr
 end oneHot
 
-def oneHotEncode(labels: Seq[Int]): Matrix[Double] =
+def oneHotEncode[A](labels: Seq[Int])(using tc: Numeric[A], ct: ClassTag[A]): Matrix[A] =
   val n = labels.length
   val m = 10 // number of classes
-  val oneHot = Array.fill(n * m)(0.0)
+  val oneHot = Array.fill(n * m)(tc.zero)
   var i = 0
   // column major. Could also be done with Matrix.fromRows... but that would be less efficient
   while i < labels.length do
-    oneHot(i + n * labels(i)) = 1.0
+    oneHot(i + n * labels(i)) = tc.one
     i += 1
   end while
   println("One hot encoding done")
@@ -213,10 +289,116 @@ def mostLikely(weights: Matrix[Double]): Array[Int] =
     .raw // we can take advantage that our classes are 0-9 so argmax here returns the class label directly
 end mostLikely
 
+@targetName("mostLikelyFloat")
+def mostLikely(weights: Matrix[Float]): Array[Int] =
+  weights
+    .mapRowsToScalar[Int](_.argmax)
+    .raw // we can take advantage that our classes are 0-9 so argmax here returns the class label directly
+end mostLikely
+
 def loss(predicted: Array[Int], actual: Array[Int]) =
   (predicted =:= actual).trues.toDouble / predicted.length
 
-def gradient_decent(
+def gradient_descentf(
+    x: Matrix[Float],
+    y: Matrix[Float],
+    labels: Array[Int],
+    iterations: Int,
+    batchSize: Int,
+    alpha: Float,
+    decayRate: Float,
+    w1: Matrix[Float],
+    b1: Array[Float],
+    w2: Matrix[Float],
+    b2: Array[Float]
+) =
+  import BoundsCheck.DoBoundsCheck.yes
+  println("Starting gradient descent...")
+  println(s"alpha: $alpha, decay_rate: $decayRate, iterations: $iterations")
+  val numEpochs = x.rows / batchSize
+  var alpha_ = alpha
+  var w1_ = w1.deepCopy
+  var b1_ = b1.clone()
+  var w2_ = w2.deepCopy
+  var b2_ = b2.clone()
+
+  for i <- 1.until(iterations + 1) do
+    for j <- 0.until(numEpochs) do
+      // println(s"Epoch: $j, iteration: $i, alpha: $alpha_")
+      val start = j * batchSize
+      val end = start + batchSize
+      val range = start.until(end)
+      // println(range.toArray.mkString(", "))
+      val xBatch = x(range, ::)
+      val yBatch = y(range, ::)
+      // println(s"xBatch shape: ${xBatch.shape}, xBatch rows: ${xBatch.rows}, xBatch cols: ${xBatch.cols}")
+      // println(s"yBatch shape: ${yBatch.shape}, yBatch rows: ${yBatch.rows}, yBatch cols: ${yBatch.cols}")
+
+      // assert(xBatch.raw  == x.raw)
+      // println("xbatch.raw: " + xBatch.raw.length)
+
+      val (z1, a1, z2, a2) = foward_prop(w1_, b1_, w2_, b2_, xBatch)
+      val (dw1, db1, dw2, db2) = back_prop(w1_, b1_, w2_, b2_, z1, a1, z2, a2, xBatch, yBatch)
+      w1_ -= (dw1 * alpha_)
+      // println(s"dw1 shape: ${dw1.shape}, dw1 rows: ${dw1.rows}, dw1 cols: ${dw1.cols}")
+      // println(s"dw1: ${dw1(0 to 10, ::).printMat}")
+      // println(s"w1_: ${w1_(0 to 10, ::).printMat}")
+
+      b1_ -= (db1 * alpha_)
+      w2_ -= (dw2 * alpha_)
+      b2_ -= (db2 * alpha_)
+
+    end for
+    // decay the learning rate, can experiment with different rates here.
+    if (i + 1) % 25 == 0 then alpha_ = alpha_ - decayRate
+    end if
+
+    if i % 1 == 0 then
+      val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
+      val acc = loss(mostLikely(a2), labels)
+      println(s"Iteration: $i, alpha: $alpha_")
+      println(s"Accuracy : $acc")
+    end if
+  end for
+
+  val (_, _, _, a2) = foward_prop(w1_, b1_, w2_, b2_, x)
+  println(s"iterations: $iterations, alpha: $alpha_, samples: ${x.rows}, classes: ${w2_.cols}")
+  // println(s"w1_ shape: ${w1_.shape}, w1_ rows: ${w1_.rows}, w1_ cols: ${w1_.cols}, ${w1.raw.take(10).printArr}")
+  // println(s"b1_ shape: ${b1_.length}, b1_ values: ${b1_.mkString(", ")}")
+  // println(s"w2_ shape: ${w2_.shape}, w2_ rows: ${w2_.rows}, w2_ cols: ${w2_.cols}, ${w2.raw.take(10).printArr}")
+  // println(s"b2_ shape: ${b2_.length}, b2_ values: ${b2_.mkString(", ")}")
+  // println(s"a2 shape: ${a2.shape}, a2 rows: ${a2.rows}, a2 cols: ${a2.cols}")
+  // println(s"a2: ${a2(::, ::).printMat}")
+
+  // println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
+
+  // println(s"weights1 first row: ${w1(Array(0), ::).printMat}")
+  // println(s"weights1 shape: ${w1_.shape}")
+  // println(s"weights2: ${w2_.printMat}")
+
+  import java.io.PrintWriter
+  val w1_tmp = os.temp.dir() / "weights1.csv"
+  val w2_tmp = os.temp.dir() / "weights2.csv"
+  val b1_tmp = os.temp.dir() / "biases1.csv"
+  val b2_tmp = os.temp.dir() / "biases2.csv"
+
+  println(s"Saving weights to ${w1_tmp} and ${w2_tmp}")
+
+  w1_.write(w1_tmp)
+  w2_.write(w2_tmp)
+
+  b1_.write(b1_tmp)
+  b2_.write(b2_tmp)
+
+  println(s"Weights and biases saved to ${w1_tmp}, ${w2_tmp}, ${b1_tmp}, and ${b2_tmp}")
+
+  println("Gradient descent finished.")
+
+  (w1 = w1_, b1 = b1_, w2 = w2_, b2 = b2_)
+
+end gradient_descentf
+
+def gradient_descent(
     x: Matrix[Double],
     y: Matrix[Double],
     labels: Array[Int],
@@ -287,40 +469,29 @@ def gradient_decent(
   // println(s"a2 shape: ${a2.shape}, a2 rows: ${a2.rows}, a2 cols: ${a2.cols}")
   // println(s"a2: ${a2(::, ::).printMat}")
 
-  println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
+  // println(s"Final accuracy: ${loss(mostLikely(a2), labels)}")
 
-  println(s"weights1 first row: ${w1(Array(0), ::).printMat}")
-  println(s"weights1 shape: ${w1_.shape}")
-  println(s"weights2: ${w2_.printMat}")
+  // println(s"weights1 first row: ${w1(Array(0), ::).printMat}")
+  // println(s"weights1 shape: ${w1_.shape}")
+  // println(s"weights2: ${w2_.printMat}")
 
   import java.io.PrintWriter
+  val w1_tmp = os.temp.dir() / "weights1.csv"
+  val w2_tmp = os.temp.dir() / "weights2.csv"
+  val b1_tmp = os.temp.dir() / "biases1.csv"
+  val b2_tmp = os.temp.dir() / "biases2.csv"
 
-  def writeMatrixToFile(matrix: Matrix[Double], filename: String): Unit =
-    val pw = new PrintWriter(filename)
-    try
-      matrix.raw.grouped(matrix.rows).foreach { col =>
-        pw.println(col.mkString(","))
-      }
-    finally pw.close()
-    end try
-  end writeMatrixToFile
+  println(s"Saving weights to ${w1_tmp} and ${w2_tmp}")
 
-  writeMatrixToFile(w1_, "weights1.csv")
-  writeMatrixToFile(w2_, "weights2.csv")
-  def writeArrayToFile(array: Array[Double], filename: String): Unit =
-    val pw = new PrintWriter(filename)
-    try
-      pw.println(array.mkString(","))
-    finally pw.close()
-    end try
-  end writeArrayToFile
+  w1_.write(w1_tmp)
+  w2_.write(w2_tmp)
 
-  writeArrayToFile(b1_, "biases1.csv")
-  writeArrayToFile(b2_, "biases2.csv")
+  b1_.write(b1_tmp)
+  b2_.write(b2_tmp)
 
-  println("Weights and biases saved to weights1.csv and weights2.csv")
+  println(s"Weights and biases saved to ${w1_tmp}, ${w2_tmp}, ${b1_tmp}, and ${b2_tmp}")
 
   println("Gradient descent finished.")
 
   (w1 = w1_, b1 = b1_, w2 = w2_, b2 = b2_)
-end gradient_decent
+end gradient_descent
