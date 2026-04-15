@@ -998,7 +998,7 @@ object doublearrays:
     inline def >=(num: Double): Array[Boolean] =
       logicalIdx(VectorOperators.GE, num)
 
-    inline def logicalIdx(
+    private inline def logicalIdx(
         inline op: VectorOperators.Comparison,
         num: Double
     ): Array[Boolean] =

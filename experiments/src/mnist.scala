@@ -248,12 +248,8 @@ def back_prop(
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
   // println(s"dw2 shape: ${dw2.shape}, dw2 rows: ${dw2.rows}, dw2 cols: ${dw2.cols}")
   val db2 = dz2.mapColsToScalar(_.sum).raw
-  val dz1Check = (z1 > 0)
-  // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}\n")
-  // println(s"dz1Check: ${dz1Check.shape}, dz1Check rows: ${dz1Check.rows}, dz1Check cols: ${dz1Check.cols}\n"``)
-  // println(s"dz1Check: ${dz1Check(0 to 10, ::).printMat}\n")
   val dz1 = (dz2 @@ w2.transpose)
-  dz1 *:*= dz1Check // (10, 784)
+  dz1.raw.`zeroWhere!`(z1.raw, 0.0, ComparisonOp.LE) // (10, 784)
   // print(s"dz1 shape: ${dz1.shape}, dz1 rows: ${dz1.rows}, dz1 cols: ${dz1.cols}\n")
   val dw1 = m_inv * (X.transpose @@ dz1)
   val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw

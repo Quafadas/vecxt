@@ -58,10 +58,19 @@ object matrixUtil:
       import vecxt.BoundsCheck.DoBoundsCheck.no
       val newArr = Array.ofDim[B](m.rows)
       var i = 0
-      while i < m.rows do
-        newArr(i) = f(m.row(i))
-        i += 1
-      end while
+      if m.isDenseRowMajor then
+        while i < m.rows do
+          val rowArr = Array.ofDim[A](m.cols)
+          System.arraycopy(m.raw, i * m.cols, rowArr, 0, m.cols)
+          newArr(i) = f(rowArr)
+          i += 1
+        end while
+      else
+        while i < m.rows do
+          newArr(i) = f(m.row(i))
+          i += 1
+        end while
+      end if
       Matrix(newArr, (m.rows, 1))
     end mapRowsToScalar
 
@@ -99,10 +108,19 @@ object matrixUtil:
     )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
       val newArr = Array.ofDim[B](m.cols)
       var i = 0
-      while i < m.cols do
-        newArr(i) = f(m.col(i))
-        i += 1
-      end while
+      if m.isDenseColMajor then
+        while i < m.cols do
+          val colArr = Array.ofDim[A](m.rows)
+          System.arraycopy(m.raw, i * m.rows, colArr, 0, m.rows)
+          newArr(i) = f(colArr)
+          i += 1
+        end while
+      else
+        while i < m.cols do
+          newArr(i) = f(m.col(i))
+          i += 1
+        end while
+      end if
       Matrix[B](newArr, (1, m.cols))
     end mapColsToScalar
 
