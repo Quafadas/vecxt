@@ -689,6 +689,26 @@ object floatarrays:
       out
     end *
 
+    // inline def *=(d: Float): Unit =
+    //   var i = 0
+    //   while i < spf.loopBound(vec.length) do
+    //     FloatVector
+    //       .fromArray(spf, vec, i)
+    //       .mul(d)
+    //       .intoArray(vec, i)
+    //     i += spfl
+    //   end while
+
+    //   while i < vec.length do
+    //     vec(i) = vec(i) * d
+    //     i = i + 1
+    //   end while
+    // end *=
+
+    // inline def *(d: Float): Unit =
+    //   vec.clone().tap(_ *= d)
+    // end *
+
     inline def *=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
       dimCheck(vec, d)
       var i = 0

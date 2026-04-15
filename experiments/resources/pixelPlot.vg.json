@@ -1,26 +1,28 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "description": "Plot a single pixel at (x, y) with opacity c (0=transparent, 255=opaque).",
+  "description": "Plot a single pixel at (x, y) with opacity c (0=transparent, 1=opaque).",
   "data": {
     "values": [
-      {"x": 50, "y": 30, "opacity": 255}
+      {"x": 50, "y": 30, "opacity": 1}
     ]
   },
   "mark": {
     "type": "rect",
-    "width": 1,
-    "height": 1,
+    "width": 10,
+    "height": 10,
     "color": "black"
   },
   "encoding": {
-    "x": {"field": "x", "type": "quantitative"},
-    "y": {"field": "y", "type": "quantitative"},
+    "x": {"field": "x", "type": "quantitative", "axis": {"ticks": false, "labels": false, "title": null}},
+    "y": {"field": "y", "type": "quantitative", "axis": {"ticks": false, "labels": false, "title": null}},
     "opacity": {
       "field": "opacity",
       "type": "quantitative",
-      "scale": {"domain": [0, 255], "range": [0, 1]}
+      "scale": {"domain": [0, 1], "range": [0, 1]},
+      "legend": null
     }
   },
   "width": 28,
-  "height": 28
+  "height": 28,
+  "title": "A Random Pixel Plot"
 }
