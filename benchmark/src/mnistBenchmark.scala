@@ -9,9 +9,8 @@ import scala.compiletime.uninitialized
 
 import java.util.concurrent.TimeUnit
 
-/** Breaks down the MNIST forward + backward pass into individual operations
-  * to identify where time is spent. Uses realistic dimensions from the MNIST
-  * training loop: batchSize x 784 input, 784x128 hidden, 128x10 output.
+/** Breaks down the MNIST forward + backward pass into individual operations to identify where time is spent. Uses
+  * realistic dimensions from the MNIST training loop: batchSize x 784 input, 784x128 hidden, 128x10 output.
   */
 
 // ./mill benchmark.runJmh "vecxt.benchmark.MnistBenchmark" -jvmArgs "--add-modules=jdk.incubator.vector"
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit
 class MnistBenchmark extends BLASBenchmark:
 
   // MNIST network dimensions
-  val imageSize = 784  // 28*28
+  val imageSize = 784 // 28*28
   val hiddenSize = 128
   val outputSize = 10
 
@@ -29,26 +28,26 @@ class MnistBenchmark extends BLASBenchmark:
   var bs: Int = uninitialized
 
   // Forward pass inputs
-  var xBatch: Matrix[Float] = uninitialized   // (bs, 784)
-  var w1: Matrix[Float] = uninitialized        // (784, 128)
-  var b1: Array[Float] = uninitialized         // (128)
-  var w2: Matrix[Float] = uninitialized        // (128, 10)
-  var b2: Array[Float] = uninitialized         // (10)
+  var xBatch: Matrix[Float] = uninitialized // (bs, 784)
+  var w1: Matrix[Float] = uninitialized // (784, 128)
+  var b1: Array[Float] = uninitialized // (128)
+  var w2: Matrix[Float] = uninitialized // (128, 10)
+  var b2: Array[Float] = uninitialized // (10)
 
   // Forward pass intermediates (for backward benchmarks)
-  var z1: Matrix[Float] = uninitialized        // (bs, 128)
-  var a1: Matrix[Float] = uninitialized        // (bs, 128)
-  var z2: Matrix[Float] = uninitialized        // (bs, 10)
-  var a2: Matrix[Float] = uninitialized        // (bs, 10)
-  var yBatch: Matrix[Float] = uninitialized    // (bs, 10) one-hot
+  var z1: Matrix[Float] = uninitialized // (bs, 128)
+  var a1: Matrix[Float] = uninitialized // (bs, 128)
+  var z2: Matrix[Float] = uninitialized // (bs, 10)
+  var a2: Matrix[Float] = uninitialized // (bs, 10)
+  var yBatch: Matrix[Float] = uninitialized // (bs, 10) one-hot
 
   // Backward intermediates
-  var dz2: Matrix[Float] = uninitialized       // (bs, 10)
-  var dz1: Matrix[Float] = uninitialized       // (bs, 128)
+  var dz2: Matrix[Float] = uninitialized // (bs, 10)
+  var dz1: Matrix[Float] = uninitialized // (bs, 128)
   var dz1Check: Matrix[Boolean] = uninitialized
-  var a1T: Matrix[Float] = uninitialized       // (128, bs)
-  var xT: Matrix[Float] = uninitialized        // (784, bs)
-  var w2T: Matrix[Float] = uninitialized       // (10, 128)
+  var a1T: Matrix[Float] = uninitialized // (128, bs)
+  var xT: Matrix[Float] = uninitialized // (784, bs)
+  var w2T: Matrix[Float] = uninitialized // (10, 128)
 
   // Weight update intermediates
   var dw1: Matrix[Float] = uninitialized
@@ -78,10 +77,10 @@ class MnistBenchmark extends BLASBenchmark:
 
     // Pre-compute forward pass intermediates for backward benchmarks
     z1 = xBatch @@ w1
-    z1.mapRowsInPlace(r => { r += b1; r })
+    z1.mapRowsInPlace { r => r += b1; r }
     a1 = Matrix(z1.raw.clampMin(0.0f), z1.shape)
     z2 = a1 @@ w2
-    z2.mapRowsInPlace(r => { r += b2; r })
+    z2.mapRowsInPlace { r => r += b2; r }
     a2 = softmaxRowsBench(z2.deepCopy)
 
     dz2 = a2 - yBatch
@@ -113,8 +112,9 @@ class MnistBenchmark extends BLASBenchmark:
   @Benchmark
   def fwd_02_bias_add_b1(bh: Blackhole): Unit =
     val z = z1.deepCopy
-    z.mapRowsInPlace(r => { r += b1; r })
+    z.mapRowsInPlace { r => r += b1; r }
     bh.consume(z)
+  end fwd_02_bias_add_b1
 
   @Benchmark
   def fwd_03_relu(bh: Blackhole): Unit =
@@ -128,8 +128,9 @@ class MnistBenchmark extends BLASBenchmark:
   @Benchmark
   def fwd_05_bias_add_b2(bh: Blackhole): Unit =
     val z = z2.deepCopy
-    z.mapRowsInPlace(r => { r += b2; r })
+    z.mapRowsInPlace { r => r += b2; r }
     bh.consume(z)
+  end fwd_05_bias_add_b2
 
   @Benchmark
   def fwd_06_softmax(bh: Blackhole): Unit =
@@ -138,12 +139,13 @@ class MnistBenchmark extends BLASBenchmark:
   @Benchmark
   def fwd_full_forward(bh: Blackhole): Unit =
     val z1_ = xBatch @@ w1
-    z1_.mapRowsInPlace(r => { r += b1; r })
+    z1_.mapRowsInPlace { r => r += b1; r }
     val a1_ = Matrix(z1_.raw.clampMin(0.0f), z1_.shape)
     val z2_ = a1_ @@ w2
-    z2_.mapRowsInPlace(r => { r += b2; r })
+    z2_.mapRowsInPlace { r => r += b2; r }
     val a2_ = softmaxRowsBench(z2_)
     bh.consume(a2_)
+  end fwd_full_forward
 
   // ============================================================
   // BACKWARD PASS — individual operations
@@ -171,6 +173,7 @@ class MnistBenchmark extends BLASBenchmark:
     val result = z1 > 0
     bh.consume(result)
     result
+  end bwd_05_relu_mask
 
   @Benchmark
   def bwd_06_matmul_dz2_w2T(bh: Blackhole): Unit =
@@ -182,6 +185,7 @@ class MnistBenchmark extends BLASBenchmark:
     val dz = (dz2 @@ w2T)
     dz *:*= dz1Check
     bh.consume(dz)
+  end bwd_07_mask_multiply
 
   @Benchmark
   def bwd_07b_zeroWhere(bh: Blackhole): Unit =
@@ -189,6 +193,7 @@ class MnistBenchmark extends BLASBenchmark:
     val dz = (dz2 @@ w2T)
     dz.raw.`zeroWhere!`(z1.raw, 0.0f, ComparisonOp.LE)
     bh.consume(dz)
+  end bwd_07b_zeroWhere
 
   @Benchmark
   def bwd_08_matmul_xT_dz1(bh: Blackhole): Unit =
@@ -199,6 +204,7 @@ class MnistBenchmark extends BLASBenchmark:
   def bwd_09_db1_col_sum(bh: Blackhole): Unit =
     val m_inv = 1.0f / bs
     bh.consume(dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw)
+  end bwd_09_db1_col_sum
 
   @Benchmark
   def bwd_full_backward(bh: Blackhole): Unit =
@@ -211,6 +217,7 @@ class MnistBenchmark extends BLASBenchmark:
     val dw1_ = m_inv * (xT @@ dz1_)
     val db1_ = dz1_.mapColsToScalar(r => r.sumSIMD * m_inv).raw
     bh.consume(dw1_)
+  end bwd_full_backward
 
   // ============================================================
   // WEIGHT UPDATE
@@ -246,10 +253,10 @@ class MnistBenchmark extends BLASBenchmark:
     val m_inv = 1.0f / bs
     // Forward
     val z1_ = xBatch @@ w1
-    z1_.mapRowsInPlace(r => { r += b1; r })
+    z1_.mapRowsInPlace { r => r += b1; r }
     val a1_ = Matrix(z1_.raw.clampMin(0.0f), z1_.shape)
     val z2_ = a1_ @@ w2
-    z2_.mapRowsInPlace(r => { r += b2; r })
+    z2_.mapRowsInPlace { r => r += b2; r }
     val a2_ = softmaxRowsBench(z2_)
     // Backward
     val dz2_ = a2_ - yBatch
@@ -264,6 +271,7 @@ class MnistBenchmark extends BLASBenchmark:
     bh.consume(dw2_)
     bh.consume(db1_)
     bh.consume(db2_)
+  end full_training_step
 
   private def softmaxRowsBench(z: Matrix[Float]): Matrix[Float] =
     z.mapRows { row =>
