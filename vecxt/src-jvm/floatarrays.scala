@@ -12,6 +12,7 @@ import jdk.incubator.vector.FloatVector
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorMask
 import jdk.incubator.vector.VectorOperators
+import jdk.incubator.vector.VectorSpecies
 
 /** Cross compilation shim
   */
@@ -19,12 +20,12 @@ object JsNativeFloatArrays
 
 object floatarrays:
 
-  private final val spi = IntVector.SPECIES_PREFERRED
-  private final val spf = FloatVector.SPECIES_PREFERRED
-  private final val spb = ByteVector.SPECIES_PREFERRED
-  private final val spfl = spf.length()
-  private final val spbl = spb.length()
-  private final val spil = spi.length()
+  private final val spi: VectorSpecies[Integer] = IntVector.SPECIES_PREFERRED
+  private final val spf: VectorSpecies[java.lang.Float] = FloatVector.SPECIES_PREFERRED
+  private final val spb: VectorSpecies[java.lang.Byte] = ByteVector.SPECIES_PREFERRED
+  private final val spfl: Int = spf.length()
+  private final val spbl: Int = spb.length()
+  private final val spil: Int = spi.length()
 
   extension (vec: Array[Array[Double]])
     inline def horizontalSum: Array[Double] =
@@ -772,7 +773,7 @@ object floatarrays:
     inline def >=(num: Float): Array[Boolean] =
       logicalFloatIdx(VectorOperators.GE, num)
 
-    inline def logicalFloatIdx(
+    private inline def logicalFloatIdx(
         inline op: VectorOperators.Comparison,
         num: Float
     ): Array[Boolean] =

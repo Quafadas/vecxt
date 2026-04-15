@@ -147,6 +147,46 @@ def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: A
   (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
 end foward_prop
 
+// Float version
+def foward_prop(w1: Matrix[Float], b1: Array[Float], w2: Matrix[Float], b2: Array[Float], x: Matrix[Float]) =
+  val z1 = (x @@ w1)
+  z1.mapRowsInPlace(r => r.tap(_ += b1))
+  val a1 = reluM(z1) // get rid of negative values
+  val z2 = (a1 @@ w2)
+  z2.mapRowsInPlace(r => r.tap(_ += b2)) // results [(rows, 10) @ (10, 10)] = (rows, 10)
+  val a2 = softmaxRows(z2)
+  (z1 = z1, a1 = a1, z2 = z2, a2 = a2)
+end foward_prop
+
+def back_prop(
+    w1: Matrix[Float],
+    b1: Array[Float],
+    w2: Matrix[Float],
+    b2: Array[Float],
+    z1: Matrix[Float],
+    a1: Matrix[Float],
+    z2: Matrix[Float],
+    a2: Matrix[Float],
+    X: Matrix[Float],
+    Y: Matrix[Float]
+) =
+  val m = Y.rows
+  val m_inv = 1.0f / m
+  val dz2 = a2 - Y
+  val dw2 = m_inv * (a1.transpose @@ dz2)
+
+  val db2 = dz2.mapColsToScalar(_.sum).raw
+  val dz1Check = (z1 > 0)
+  val dz1 = (dz2 @@ w2.transpose)
+  dz1 *:*= dz1Check
+
+  val dw1 = m_inv * (X.transpose @@ dz1)
+
+  val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
+  // println("back propagation (Float) done ----")
+  (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
+end back_prop
+
 def back_prop(
     w1: Matrix[Double],
     b1: Array[Double],
@@ -172,12 +212,8 @@ def back_prop(
   // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}")
   // println(s"dw2 shape: ${dw2.shape}, dw2 rows: ${dw2.rows}, dw2 cols: ${dw2.cols}")
   val db2 = dz2.mapColsToScalar(_.sum).raw
-  val dz1Check = (z1 > 0)
-  // println(s"dz2 shape: ${dz2.shape}, dz2 rows: ${dz2.rows}, dz2 cols: ${dz2.cols}\n")
-  // println(s"dz1Check: ${dz1Check.shape}, dz1Check rows: ${dz1Check.rows}, dz1Check cols: ${dz1Check.cols}\n"``)
-  // println(s"dz1Check: ${dz1Check(0 to 10, ::).printMat}\n")
   val dz1 = (dz2 @@ w2.transpose)
-  dz1 *:*= dz1Check // (10, 784)
+  dz1.raw.`zeroWhere!`(z1.raw, 0.0, ComparisonOp.LE) // (10, 784)
   // print(s"dz1 shape: ${dz1.shape}, dz1 rows: ${dz1.rows}, dz1 cols: ${dz1.cols}\n")
   val dw1 = m_inv * (X.transpose @@ dz1)
   val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
