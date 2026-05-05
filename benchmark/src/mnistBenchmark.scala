@@ -169,6 +169,7 @@ class MnistBenchmark extends BLASBenchmark:
     val result = dz2.colSums
     bh.consume(result)
     result
+  end bwd_04_db2_col_sum
 
   @Benchmark
   def bwd_05_relu_mask(bh: Blackhole): Matrix[Boolean] =

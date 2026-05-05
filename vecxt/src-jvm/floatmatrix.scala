@@ -598,8 +598,8 @@ object JvmFloatMatrix:
 
     /** Returns the sum of each column as a flat Array[Float].
       *
-      * For dense column-major matrices the SIMD reduction runs directly on the backing array at each
-      * column's base offset — no intermediate array is allocated per column.
+      * For dense column-major matrices the SIMD reduction runs directly on the backing array at each column's base
+      * offset — no intermediate array is allocated per column.
       */
     inline def colSums: Array[Float] =
       val result = Array.ofDim[Float](m.cols)

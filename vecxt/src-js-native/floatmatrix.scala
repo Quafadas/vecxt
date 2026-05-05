@@ -9,8 +9,8 @@ object JvmFloatMatrix:
   extension (m: Matrix[Float])
     /** Returns the sum of each column as a flat Array[Float].
       *
-      * For dense column-major matrices iterates directly on the backing array at each column's base
-      * offset — no intermediate array is allocated per column.
+      * For dense column-major matrices iterates directly on the backing array at each column's base offset — no
+      * intermediate array is allocated per column.
       */
     inline def colSums: Array[Float] =
       val result = Array.ofDim[Float](m.cols)
