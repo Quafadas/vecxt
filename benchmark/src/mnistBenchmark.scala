@@ -95,8 +95,8 @@ class MnistBenchmark extends BLASBenchmark:
     val m_inv = 1.0f / bs
     dw1 = m_inv * (xT @@ dz1)
     dw2 = m_inv * (a1T @@ dz2)
-    db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
-    db2 = dz2.mapColsToScalar(_.sum).raw
+    db1 = dz1.colSums.tap(_ *= m_inv)
+    db2 = dz2.colSums
     ()
   end setup
 
@@ -165,8 +165,10 @@ class MnistBenchmark extends BLASBenchmark:
     bh.consume(a1.transpose)
 
   @Benchmark
-  def bwd_04_db2_col_sum(bh: Blackhole): Unit =
-    bh.consume(dz2.mapColsToScalar(_.sum).raw)
+  def bwd_04_db2_col_sum(bh: Blackhole): Array[Float] =
+    val result = dz2.colSums
+    bh.consume(result)
+    result
 
   @Benchmark
   def bwd_05_relu_mask(bh: Blackhole): Matrix[Boolean] =
@@ -201,9 +203,11 @@ class MnistBenchmark extends BLASBenchmark:
     bh.consume(xT @@ dz1)
 
   @Benchmark
-  def bwd_09_db1_col_sum(bh: Blackhole): Unit =
-    val m_inv = 1.0f / bs
-    bh.consume(dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw)
+  def bwd_09_db1_col_sum(bh: Blackhole): Array[Float] =
+    val result = dz1.colSums
+    result *= (1.0f / bs)
+    bh.consume(result)
+    result
   end bwd_09_db1_col_sum
 
   @Benchmark
@@ -211,11 +215,11 @@ class MnistBenchmark extends BLASBenchmark:
     val m_inv = 1.0f / bs
     val dz2_ = a2 - yBatch
     val dw2_ = m_inv * (a1T @@ dz2_)
-    val db2_ = dz2_.mapColsToScalar(_.sum).raw
+    val db2_ = dz2_.colSums
     val dz1_ = (dz2_ @@ w2T)
     dz1_.raw.`zeroWhere!`(z1.raw, 0.0f, ComparisonOp.LE)
     val dw1_ = m_inv * (xT @@ dz1_)
-    val db1_ = dz1_.mapColsToScalar(r => r.sumSIMD * m_inv).raw
+    val db1_ = dz1_.colSums.tap(_ *= m_inv)
     bh.consume(dw1_)
   end bwd_full_backward
 
@@ -261,11 +265,11 @@ class MnistBenchmark extends BLASBenchmark:
     // Backward
     val dz2_ = a2_ - yBatch
     val dw2_ = m_inv * (a1_.transpose @@ dz2_)
-    val db2_ = dz2_.mapColsToScalar(_.sum).raw
+    val db2_ = dz2_.colSums
     val dz1_ = dz2_ @@ w2.transpose
     dz1_.raw.`zeroWhere!`(z1_.raw, 0.0f, ComparisonOp.LE)
     val dw1_ = m_inv * (xBatch.transpose @@ dz1_)
-    val db1_ = dz1_.mapColsToScalar(r => r.sumSIMD * m_inv).raw
+    val db1_ = dz1_.colSums.tap(_ *= m_inv)
     // Update (consume results)
     bh.consume(dw1_)
     bh.consume(dw2_)

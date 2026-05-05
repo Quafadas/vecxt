@@ -211,14 +211,14 @@ def back_prop(
   val dz2 = a2 - Y
   val dw2 = m_inv * (a1.transpose @@ dz2)
 
-  val db2 = dz2.mapColsToScalar(_.sum).raw
-  val dz1Check = (z1 > 0)
+  val db2 = dz2.sum(0).raw
+  // val dz1Check = (z1 > 0)
   val dz1 = (dz2 @@ w2.transpose)
-  dz1 *:*= dz1Check
+  dz1.raw.`zeroWhere!`(z1.raw, 0.0, ComparisonOp.LE)
 
   val dw1 = m_inv * (X.transpose @@ dz1)
 
-  val db1 = dz1.mapColsToScalar(r => r.sumSIMD * m_inv).raw
+  val db1 = dz1.sum(0).raw * m_inv
   // println("back propagation (Float) done ----")
   (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
 end back_prop

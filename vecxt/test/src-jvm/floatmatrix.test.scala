@@ -596,4 +596,54 @@ class FloatMatrixJvmSuite extends FunSuite:
       )
     )
 
+  test("sum(dim=0) reduces each column to a row-sum"):
+    // 3×2 col-major matrix: rows [1,2], [3,4], [5,6]
+    val mat = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f),
+      Array[Float](3.0f, 4.0f),
+      Array[Float](5.0f, 6.0f)
+    )
+    // dim=0 → one value per row → shape (3,1)
+    val result = mat.sum(0)
+    assertEquals(result.rows, 3)
+    assertEquals(result.cols, 1)
+    assertFloatMatrixEquals(result, Matrix(Array[Float](3.0f, 7.0f, 11.0f), (3, 1)))
+
+  test("sum(dim=1) reduces each row to a column-sum"):
+    val mat = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f),
+      Array[Float](3.0f, 4.0f),
+      Array[Float](5.0f, 6.0f)
+    )
+    // dim=1 → one value per column → shape (1,2)
+    val result = mat.sum(1)
+    assertEquals(result.rows, 1)
+    assertEquals(result.cols, 2)
+    assertFloatMatrixEquals(result, Matrix(Array[Float](9.0f, 12.0f), (1, 2)))
+
+  test("max(dim=0) returns row-wise maxima"):
+    val mat = Matrix.fromRows[Float](
+      Array[Float](1.0f, 5.0f),
+      Array[Float](3.0f, 2.0f)
+    )
+    // dim=0 → one value per row → max(1,5)=5 for row 0, max(3,2)=3 for row 1
+    val result = mat.max(0)
+    assertFloatMatrixEquals(result, Matrix(Array[Float](5.0f, 3.0f), (2, 1)))
+
+  test("min(dim=1) returns column-wise minima"):
+    val mat = Matrix.fromRows[Float](
+      Array[Float](1.0f, 5.0f),
+      Array[Float](3.0f, 2.0f)
+    )
+    val result = mat.min(1)
+    assertFloatMatrixEquals(result, Matrix(Array[Float](1.0f, 2.0f), (1, 2)))
+
+  test("product(dim=1) returns column-wise products"):
+    val mat = Matrix.fromRows[Float](
+      Array[Float](2.0f, 3.0f),
+      Array[Float](4.0f, 5.0f)
+    )
+    val result = mat.product(1)
+    assertFloatMatrixEquals(result, Matrix(Array[Float](8.0f, 15.0f), (1, 2)))
+
 end FloatMatrixJvmSuite
