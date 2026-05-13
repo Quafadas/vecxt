@@ -45,6 +45,7 @@ object V:
   val catsVersion = "2.13.0"
   val disciplineVersion = "2.0.0"
   val scalacheckVersion = "1.17.0"
+  val scoverageVersion = "2.5.2"
   val jsBSP = false
   val nativeBSP = false
   val jvmBSP = true
