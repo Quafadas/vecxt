@@ -108,7 +108,9 @@ final class GraphBuilder:
     /** Lift a live `NDArray[A]` into the graph.
       *
       * The shape is derived from the array's runtime shape. Each call produces a **distinct** `Lift` node even if the
-      * same array is passed multiple times.
+      * same array is passed multiple times. This deliberately bypasses hash-consing: two separate `lift` calls over the
+      * same array always produce distinct nodes so that the graph correctly reflects the number of distinct source
+      * arrays.
       */
     def lift[A: DTypeOf](nd: NDArray[A]): Expr[A] =
       val dims: Array[Dim] = nd.shape.map(n => Dim.Known(n))
