@@ -5,21 +5,21 @@ description: Look up the public API of any JVM dependency (Scala 3, Scala 2, Jav
 
 # Cellar
 
-Use cellar to look up the API of JVM dependencies instead of guessing or hallucinating signatures. You find the executable in `scripts/cellar`. e.g.
+Use cellar to look up the API of JVM dependencies instead of guessing or hallucinating signatures. You find the executable in `cellar`. e.g.
 
 ```sh
 # Look up a Scala 3 trait
-scripts/cellar get-external org.typelevel:cats-core_3:2.10.0 cats.Monad
+cellar get-external org.typelevel:cats-core_3:2.10.0 cats.Monad
 ```
-Translate the examples below to this pattern, calls `scripts/cellar` instead of `cellar`.
+Translate the examples below to this pattern, calls `cellar` instead of `cellar`.
 
 ## Project-aware commands (run from project root)
 
 Query the current project's code and all its dependencies. Cellar auto-detects the build tool (Mill, sbt, scala-cli).
 
-    scripts/cellar get [--module <name>] <fqn>       # single symbol (signature, members, docs)
-    scripts/cellar list [--module <name>] <package>  # list symbols in a package or class
-    scripts/cellar search [--module <name>] <query>  # case-insensitive substring search
+    cellar get [--module <name>] <fqn>       # single symbol (signature, members, docs)
+    cellar list [--module <name>] <package>  # list symbols in a package or class
+    cellar search [--module <name>] <query>  # case-insensitive substring search
 
 - Mill/sbt projects: `--module` is required (e.g. `--module lib`, `--module core`)
 - scala-cli projects: omit `--module`

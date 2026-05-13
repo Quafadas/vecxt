@@ -1,0 +1,66 @@
+package build.vecxt_fusion
+
+import mill.*, scalalib.*, scalajslib.*, publish.*
+import mill.scalajslib.api.ModuleKind
+import com.goyeau.mill.scalafix.ScalafixModule
+import mill.api.Task.Simple
+
+import mill.contrib.scoverage.ScoverageModule
+
+object `package` extends Module:
+  trait VecxtFusionModule extends PlatformScalaModule with build.VecxtPublishModule:
+
+    trait VecxtFusionTest extends ScalaTests, TestModule.Munit:
+      def mvnDeps = super.mvnDeps() ++ Seq(
+        mvn"org.scalameta::munit::${build.V.munitVersion}"
+      )
+      override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+    end VecxtFusionTest
+  end VecxtFusionModule
+
+  private def jsNativeSharedSources = Task.Sources {
+    (os.sub / "src-js-native")
+  }
+
+  private def jvmNativeSharedSources = Task.Sources {
+    (os.sub / "src-jvm-native")
+  }
+
+  object jvm extends VecxtFusionModule with ScoverageModule:
+    override def scalaVersion = build.V.scalaVersion
+    def scoverageVersion = build.V.scoverageVersion
+    override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
+    override def enableBsp = build.V.jvmBSP
+    def moduleDeps = Seq(build.vecxt.jvm)
+    def sources = Task(super.sources() ++ jvmNativeSharedSources())
+
+    object test extends VecxtFusionTest, ScalaTests, ScoverageTests:
+      def moduleDeps = Seq(jvm)
+      override def forkArgs: Simple[Seq[String]] = super.forkArgs() ++ build.vecIncubatorFlag
+      override def enableBsp = build.V.jvmBSP
+    end test
+  end jvm
+  object js extends VecxtFusionModule with build.CommonJS:
+    override def mvnDeps = super.mvnDeps()
+    def moduleKind = ModuleKind.ESModule
+    def sources = Task(super.sources() ++ jsNativeSharedSources())
+    object test extends VecxtFusionTest, ScalaJSTests:
+      def moduleDeps = Seq(js)
+      def moduleKind = ModuleKind.CommonJSModule
+      override def enableBsp = build.V.jsBSP
+    end test
+    override def enableBsp = build.V.jsBSP
+  end js
+  object native extends VecxtFusionModule with build.CommonNative:
+    override def mvnDeps = super.mvnDeps()
+
+    def sources = Task(super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources())
+    override def enableBsp = build.V.nativeBSP
+
+    object test extends ScalaNativeTests, VecxtFusionTest:
+      override def moduleDeps = Seq(native)
+      override def enableBsp = build.V.nativeBSP
+    end test
+
+  end native
+end `package`
