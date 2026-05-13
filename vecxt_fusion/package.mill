@@ -42,6 +42,7 @@ object `package` extends Module:
   end jvm
   object js extends VecxtFusionModule with build.CommonJS:
     override def mvnDeps = super.mvnDeps()
+    def moduleDeps = Seq(build.vecxt.js)
     def moduleKind = ModuleKind.ESModule
     def sources = Task(super.sources() ++ jsNativeSharedSources())
     object test extends VecxtFusionTest, ScalaJSTests:
@@ -53,6 +54,7 @@ object `package` extends Module:
   end js
   object native extends VecxtFusionModule with build.CommonNative:
     override def mvnDeps = super.mvnDeps()
+    def moduleDeps = Seq(build.vecxt.native)
 
     def sources = Task(super.sources() ++ jsNativeSharedSources() ++ jvmNativeSharedSources())
     override def enableBsp = build.V.nativeBSP
