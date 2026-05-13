@@ -30,7 +30,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup NodeJS v18 LTS
+      - name: Setup NodeJS
         uses: actions/setup-node@v3
         with:
           node-version: 22

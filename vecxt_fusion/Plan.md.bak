@@ -1,0 +1,235 @@
+`MathExpr.scala` itself become kernel-fusion-ready. I’d keep it as the presentation/source AST and add a **next-layer semantic tensor AST**, then later lower that into a more execution-shaped **fusion/kernel IR**.
+
+**Proposed Shape**
+```text
+MathExpr
+  presentation/source AST
+  keeps notation: Fraction, Superscript, BracketGroup, ExprSeq, Color, etc.
+
+      ↓ normalize / desugar / typecheck
+
+TensorExpr
+  semantic computational AST
+  knows scalar ops, tensors, shapes, axes, indexing, reductions
+
+      ↓ fusion planning / scheduling
+
+KernelIR
+  execution AST
+  knows loops, buffers, load/store, layout, generated temporaries
+```
+
+For the kernel-fusion branch, I’d implement `TensorExpr` first. That is the “next layer down” that makes the current AST useful without prematurely committing to codegen details.
+
+**Phase 1: Add A Typed Semantic AST**
+
+Create a new package, probably something like `mathlify.ir` or `mathlify.fusion`.
+
+Core types:
+
+```scala
+sealed trait DType
+object DType:
+  case object F64 extends DType
+  case object F32 extends DType
+  case object I32 extends DType
+  case object Bool extends DType
+
+sealed trait Shape
+object Shape:
+  case object Scalar extends Shape
+  case class Tensor(dims: Vector[Dim]) extends Shape
+
+sealed trait Dim
+object Dim:
+  case class Known(value: Int) extends Dim
+  case class Named(name: String) extends Dim
+  case object Unknown extends Dim
+
+case class Type(dtype: DType, shape: Shape)
+```
+
+Then a semantic expression AST:
+
+```scala
+sealed trait TensorExpr:
+  def tpe: Type
+
+case class Const(value: Double, tpe: Type) extends TensorExpr
+case class Var(name: String, tpe: Type) extends TensorExpr
+
+case class Unary(op: UnaryOp, arg: TensorExpr, tpe: Type) extends TensorExpr
+case class Binary(op: BinaryOp, lhs: TensorExpr, rhs: TensorExpr, tpe: Type) extends TensorExpr
+
+case class Let(name: String, value: TensorExpr, body: TensorExpr, tpe: Type) extends TensorExpr
+
+case class TensorLiteral(elements: Vector[TensorExpr], shape: Shape, tpe: Type) extends TensorExpr
+case class Index(tensor: TensorExpr, indices: Vector[IndexExpr], tpe: Type) extends TensorExpr
+case class Broadcast(value: TensorExpr, to: Shape, tpe: Type) extends TensorExpr
+case class MapExpr(op: TensorExpr, axes: Vector[Axis], tpe: Type) extends TensorExpr
+case class Reduce(op: ReduceOp, input: TensorExpr, axes: Vector[Axis], tpe: Type) extends TensorExpr
+```
+
+The key design choice: `TensorExpr` should be **semantic and normalized**, not source-faithful. So there should be no `Fraction`, `Superscript`, `BracketGroup`, `Color`, `TextNode`, or arbitrary `Operator`. Those belong above this layer.
+
+**Phase 2: Define Primitive Ops As Data**
+
+Do not use stringly typed `FunctionCall("sin", ...)` at this layer. Use closed operation enums:
+
+```scala
+enum UnaryOp:
+  case Neg, Sin, Cos, Tan, Exp, Log, Sqrt, Abs
+
+enum BinaryOp:
+  case Add, Sub, Mul, Div, Pow, Min, Max
+  case Eq, Neq, Lt, Lte, Gt, Gte
+
+enum ReduceOp:
+  case Sum, Product, Min, Max, All, Any
+```
+
+This gives fusion and potentially AD a shared contract: every op has known arity, dtype rules, shape rules, purity, and maybe derivative rules later.
+
+**Phase 3: Lower From MathExpr Into TensorExpr**
+
+Implement a lowering pass:
+
+```scala
+object TensorLowering:
+  def lower(expr: MathExpr[Double], env: TypeEnv): Either[LoweringError, TensorExpr]
+```
+
+Initial mappings:
+
+```text
+Number(v)                  -> Const(v, scalar F64)
+Symbol(name)               -> Var(name, env(name))
+Add/Sub/Mul/Div/Pow        -> Binary(...)
+Neg                        -> Unary(Neg, ...)
+FunctionCall("sin", [x])   -> Unary(Sin, x)
+FunctionCall("exp", [x])   -> Unary(Exp, x)
+Fraction(a, b)             -> Binary(Div, a, b)
+Superscript(a, b)          -> Binary(Pow, a, b), if semantically allowed
+MathVector(elements)       -> TensorLiteral(..., rank 1)
+Matrix(elements, r, c,...) -> TensorLiteral(..., rank 2) or StridedView
+```
+
+Things like `Color`, `Style`, `Group`, `BracketGroup` either disappear or lower through to their content. Things like `Sum` should not blindly become a scalar summation unless its binding/index semantics are made explicit first.
+
+**Phase 4: Add Shape And Type Inference**
+
+This is where the layer becomes valuable for fusion.
+
+Add:
+
+```scala
+object TypeCheck:
+  def infer(expr: UntypedTensorExpr, env: TypeEnv): Either[TypeError, TensorExpr]
+```
+
+Rules to support first:
+
+- scalar-scalar arithmetic
+- scalar-tensor arithmetic via explicit `Broadcast`
+- tensor-tensor elementwise arithmetic with identical shape
+- rank-1 and rank-2 literals
+- simple reductions over named axes
+- errors for unknown symbols, invalid shapes, invalid dtypes
+
+I would make broadcasting explicit in the AST after typechecking. Fusion loves explicitness.
+
+**Phase 5: Normalize For Fusion**
+
+Add rewrites that produce predictable forms:
+
+```text
+Fraction(a,b) style input  -> Div(a,b)
+x - y                      -> Add(x, Neg(y)) maybe
+a / b                      -> Mul(a, Reciprocal(b)) maybe, later
+nested elementwise ops     -> canonical DAG / lets
+constants                  -> folded
+presentation wrappers      -> removed
+```
+
+This pass should also introduce sharing:
+
+```scala
+case class Let(name: String, value: TensorExpr, body: TensorExpr, tpe: Type)
+```
+
+or, better for fusion, a graph representation:
+
+```scala
+case class NodeId(value: Int)
+case class TensorGraph(nodes: Vector[Node], output: NodeId)
+```
+
+Tree ASTs are pleasant to build. Fusion usually wants a DAG.
+
+**Phase 6: Lower TensorExpr To Fusion IR**
+
+Only after the semantic layer works, add a kernel-oriented IR:
+
+```scala
+sealed trait KernelStmt
+case class For(axis: Axis, extent: Dim, body: Vector[KernelStmt]) extends KernelStmt
+case class Assign(dst: BufferRef, index: Vector[IndexExpr], value: ScalarExpr) extends KernelStmt
+case class Allocate(name: String, tpe: Type, layout: Layout) extends KernelStmt
+
+sealed trait ScalarExpr
+case class Load(buffer: BufferRef, index: Vector[IndexExpr]) extends ScalarExpr
+case class ScalarUnary(op: UnaryOp, arg: ScalarExpr) extends ScalarExpr
+case class ScalarBinary(op: BinaryOp, lhs: ScalarExpr, rhs: ScalarExpr) extends ScalarExpr
+```
+
+This is the layer where buffers, layouts, loop nests, indexing, temporary allocation, and reduction accumulators belong. I would not put those concerns into `TensorExpr`.
+
+**Phase 7: Fusion Planning**
+
+Implement fusion as a pass over typed `TensorExpr` or `TensorGraph`:
+
+```scala
+object FusionPlanner:
+  def plan(expr: TensorExpr): FusionPlan
+```
+
+Start with conservative fusion groups:
+
+- fuse chains of elementwise ops
+- fuse scalar constants into elementwise kernels
+- allow one terminal reduction later
+- do not fuse across shape-changing ops initially
+- do not fuse across unknown effects, indexing, or unsupported ops
+
+Output:
+
+```scala
+case class FusionGroup(inputs: Vector[Var], output: TensorExpr)
+case class FusionPlan(groups: Vector[FusionGroup])
+```
+
+**Phase 8: Tests First, Narrow Scope**
+
+I’d test this with a small golden set:
+
+```text
+x + y
+sin(x) + 2
+x * y + z
+Matrix literal + scalar
+sum over axis 0
+presentation Fraction(x,y) lowers to semantic Div(x,y)
+Color(red, x + y) lowers to x + y
+Superscript(x, 2) lowers to Pow(x, 2)
+```
+
+The important tests are not numerical evaluation at first. They are AST-shape tests: “does source notation lower into the semantic form we expect?”
+
+**Recommendation**
+
+I’d implement **two ASTs** for the kernel-fusion branch:
+
+1. `TensorExpr`: typed, semantic, pure, shape-aware expression IR.
+2. `KernelIR`: lower-level execution IR with loops, buffers, indexing, and layouts.
+
+Do not skip straight from `MathExpr` to `KernelIR`. The middle `TensorExpr` layer is where the system becomes understandable: it is also the layer that could later be shared with AD. Kernel fusion and AD would then branch from the same typed semantic core instead of each trying to interpret presentation notation independently.
