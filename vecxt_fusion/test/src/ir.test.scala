@@ -4,6 +4,7 @@ import munit.FunSuite
 
 class MatrixAdditionTest extends FunSuite:
 
-  test("placeholder"){
+  test("placeholder") {
     assertEquals(1, 1)
   }
+end MatrixAdditionTest

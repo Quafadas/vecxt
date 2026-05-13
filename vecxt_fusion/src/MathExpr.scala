@@ -21,7 +21,8 @@ object MathExpr:
   case class Fraction[A](numerator: MathExpr[A], denominator: MathExpr[A]) extends MathExpr[A]
   case class Root[A](degree: Option[MathExpr[A]], radicand: MathExpr[A]) extends MathExpr[A]
   case class Sum[A](index: MathExpr[A], lower: MathExpr[A], upper: MathExpr[A], body: MathExpr[A]) extends MathExpr[A]
-  case class Integral[A](variable: MathExpr[A], lower: MathExpr[A], upper: MathExpr[A], body: MathExpr[A]) extends MathExpr[A]
+  case class Integral[A](variable: MathExpr[A], lower: MathExpr[A], upper: MathExpr[A], body: MathExpr[A])
+      extends MathExpr[A]
   case class Group[A](expr: MathExpr[A]) extends MathExpr[A]
 
   // Collections
