@@ -10,7 +10,7 @@ class BuilderPhase2Test extends FunSuite:
   /** Retrieve a node by index from a graph and cast to the expected type. */
   def nodeAt[T <: TensorExpr](g: TensorGraph, i: Int)(using scala.reflect.ClassTag[T]): T =
     g.nodes(i) match
-      case t: T => t
+      case t: T  => t
       case other => fail(s"expected ${scala.reflect.classTag[T].runtimeClass.getSimpleName} at index $i, got $other")
 
   // ─── hash-consing: x + x shares the Param node ───────────────────────────
@@ -347,35 +347,45 @@ class BuilderPhase2Test extends FunSuite:
 
   test("type-level: Expr[Double] + Expr[Int] does not compile") {
     assert(
-      !typeChecks("val b = new vecxt.fusion.GraphBuilder(); import b.*; val x = b.Expr.param[Double](\"x\"); val y = b.Expr.param[Int](\"y\"); x + y"),
+      !typeChecks(
+        "val b = new vecxt.fusion.GraphBuilder(); import b.*; val x = b.Expr.param[Double](\"x\"); val y = b.Expr.param[Int](\"y\"); x + y"
+      ),
       "expected Expr[Double] + Expr[Int] to be a compile error"
     )
   }
 
   test("type-level: Expr[Double] < Expr[Double] compiles and returns Expr[Boolean]") {
     assert(
-      typeChecks("val b = new vecxt.fusion.GraphBuilder(); import b.*; val x = b.Expr.param[Double](\"x\"); val y = b.Expr.param[Double](\"y\"); val r: b.Expr[Boolean] = x < y"),
+      typeChecks(
+        "val b = new vecxt.fusion.GraphBuilder(); import b.*; val x = b.Expr.param[Double](\"x\"); val y = b.Expr.param[Double](\"y\"); val r: b.Expr[Boolean] = x < y"
+      ),
       "expected Expr[Double] < Expr[Double]: Expr[Boolean] to compile"
     )
   }
 
   test("type-level: Expr[Boolean] has no numeric + operator") {
     assert(
-      !typeChecks("val b = new vecxt.fusion.GraphBuilder(); import b.*; val p = b.Expr.param[Boolean](\"p\"); val q = b.Expr.param[Boolean](\"q\"); p + q"),
+      !typeChecks(
+        "val b = new vecxt.fusion.GraphBuilder(); import b.*; val p = b.Expr.param[Boolean](\"p\"); val q = b.Expr.param[Boolean](\"q\"); p + q"
+      ),
       "expected Expr[Boolean] + Expr[Boolean] to be a compile error"
     )
   }
 
   test("type-level: Expr[Boolean] supports && operator") {
     assert(
-      typeChecks("val b = new vecxt.fusion.GraphBuilder(); import b.*; val p = b.Expr.param[Boolean](\"p\"); val q = b.Expr.param[Boolean](\"q\"); val r: b.Expr[Boolean] = p && q"),
+      typeChecks(
+        "val b = new vecxt.fusion.GraphBuilder(); import b.*; val p = b.Expr.param[Boolean](\"p\"); val q = b.Expr.param[Boolean](\"q\"); val r: b.Expr[Boolean] = p && q"
+      ),
       "expected Expr[Boolean] && Expr[Boolean]: Expr[Boolean] to compile"
     )
   }
 
   test("type-level: Float params support numeric operations") {
     assert(
-      typeChecks("val b = new vecxt.fusion.GraphBuilder(); import b.*; val x = b.Expr.param[Float](\"x\"); val y = b.Expr.param[Float](\"y\"); val r: b.Expr[Float] = x + y"),
+      typeChecks(
+        "val b = new vecxt.fusion.GraphBuilder(); import b.*; val x = b.Expr.param[Float](\"x\"); val y = b.Expr.param[Float](\"y\"); val r: b.Expr[Float] = x + y"
+      ),
       "expected Float numeric ops to compile"
     )
   }
