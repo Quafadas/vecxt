@@ -4,21 +4,22 @@ import munit.FunSuite
 
 class NormalizePhase5Test extends FunSuite:
 
-  val f64s  = TType(DType.F64, Shape.scalar)
+  val f64s = TType(DType.F64, Shape.scalar)
   val bools = TType(DType.Bool, Shape.scalar)
 
   // Build a tiny hand-crafted graph with two nodes: Const(v) and output
   def constGraph(v: Double): TensorGraph =
     val c = TensorExpr.Const(v, f64s)
     TensorGraph(Vector(c), NodeId(0))
+  end constGraph
 
   // Build a graph with nodes `nodes` and output = last node
   def g(nodes: TensorExpr*): TensorGraph =
     TensorGraph(nodes.toVector, NodeId(nodes.length - 1))
 
-  def p(name: String, tpe: TType = f64s): TensorExpr  = TensorExpr.Param(name, tpe)
-  def c(v: Double): TensorExpr                         = TensorExpr.Const(v, f64s)
-  def cb(v: Boolean): TensorExpr                       = TensorExpr.Const(v, bools)
+  def p(name: String, tpe: TType = f64s): TensorExpr = TensorExpr.Param(name, tpe)
+  def c(v: Double): TensorExpr = TensorExpr.Const(v, f64s)
+  def cb(v: Boolean): TensorExpr = TensorExpr.Const(v, bools)
 
   // 0 = Param(x), 1 = Const(k), 2 = Binary(op, 0, 1)
   def paramOpConst(op: BinaryOp, k: Double): TensorGraph =
@@ -32,6 +33,7 @@ class NormalizePhase5Test extends FunSuite:
   def normalizedOutput(graph: TensorGraph): TensorExpr =
     val g2 = Normalize.run(graph)
     g2(g2.output)
+  end normalizedOutput
 
   // ══════════════════════════════════════════════════════════════════════════
   // Constant folding — Unary F64
@@ -42,6 +44,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, -2.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Unary(Sin, Const(0.0)) → Const(0.0)") {
@@ -49,6 +52,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 0.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Unary(Cos, Const(0.0)) → Const(1.0)") {
@@ -56,6 +60,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 1.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Unary(Exp, Const(0.0)) → Const(1.0)") {
@@ -63,6 +68,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 1.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Unary(Sqrt, Const(4.0)) → Const(2.0)") {
@@ -70,6 +76,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 2.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Unary(Abs, Const(-3.0)) → Const(3.0)") {
@@ -77,6 +84,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 3.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Unary(Reciprocal, Const(4.0)) → Const(0.25)") {
@@ -84,6 +92,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 0.25, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Unary(Not, Const(true)) → Const(false)") {
@@ -91,6 +100,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Boolean, _) => assertEquals(v, false)
       case other                           => fail(s"expected Const(Bool), got $other")
+    end match
   }
 
   test("normalize: Unary(Not, Param(x)) is not folded (not a const)") {
@@ -107,6 +117,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 5.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Const(6.0) / Const(3.0) → Const(2.0)") {
@@ -114,6 +125,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 2.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Const(2.0) ^ Const(3.0) → Const(8.0)") {
@@ -121,14 +133,16 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Double, _) => assertEqualsDouble(v, 8.0, 1e-15)
       case other                          => fail(s"expected Const, got $other")
+    end match
   }
 
   test("normalize: Const(2.0) < Const(3.0) → Const(true) [Bool result]") {
-    val tpe   = TType(DType.Bool, Shape.scalar)
+    val tpe = TType(DType.Bool, Shape.scalar)
     val graph = g(c(2.0), c(3.0), TensorExpr.Binary(BinaryOp.Lt, NodeId(0), NodeId(1), tpe))
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Boolean, _) => assertEquals(v, true)
       case other                           => fail(s"expected Const(Bool), got $other")
+    end match
   }
 
   test("normalize: Const(true) && Const(false) → Const(false)") {
@@ -136,6 +150,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(v: Boolean, _) => assertEquals(v, false)
       case other                           => fail(s"expected Const(Bool), got $other")
+    end match
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -147,6 +162,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   test("normalize: 0 + x → x (left-zero identity)") {
@@ -154,6 +170,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   test("normalize: x - 0 → x") {
@@ -161,6 +178,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   test("normalize: x * 1 → x (right-one identity)") {
@@ -168,6 +186,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   test("normalize: 1 * x → x (left-one identity)") {
@@ -175,6 +194,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   test("normalize: x / 1 → x") {
@@ -182,6 +202,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   test("normalize: pow(x, 1) → x") {
@@ -189,6 +210,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -200,6 +222,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Const(0.0, _) => ()
       case other                    => fail(s"expected Const(0.0), got $other")
+    end match
   }
 
   test("normalize: 0 * x → 0 (left annihilator)") {
@@ -207,6 +230,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Const(0.0, _) => ()
       case other                    => fail(s"expected Const(0.0), got $other")
+    end match
   }
 
   test("normalize: 0 / Const(5.0) → 0 (numerator annihilator for non-zero denom)") {
@@ -215,6 +239,7 @@ class NormalizePhase5Test extends FunSuite:
     normalizedOutput(graph) match
       case TensorExpr.Const(0.0, _) => ()
       case other                    => fail(s"expected Const(0.0), got $other")
+    end match
   }
 
   test("normalize: 0 / 0 folds to NaN (IEEE semantics; annihilator rule skipped for zero denom)") {
@@ -226,7 +251,7 @@ class NormalizePhase5Test extends FunSuite:
     // constant folding: 0.0 / 0.0 → NaN (IEEE), so it IS folded to Const(NaN)
     // The invariant: 0/0 must NOT be rewritten by the simplifyBinary annihilator rule,
     // but constant folding (which gives the correct IEEE result) is still applied.
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     g2(g2.output) match
       case TensorExpr.Const(v: Double, _) =>
         // IEEE 0/0 = NaN — folding is correct
@@ -234,6 +259,7 @@ class NormalizePhase5Test extends FunSuite:
       case TensorExpr.Binary(BinaryOp.Div, _, _, _) =>
         () // also acceptable: left as-is if x is Param (but here it's Const, so should fold)
       case other => fail(s"unexpected: $other")
+    end match
   }
 
   test("normalize: pow(x, 0) → 1") {
@@ -241,6 +267,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Const(1.0, _) => ()
       case other                    => fail(s"expected Const(1.0), got $other")
+    end match
   }
 
   test("normalize: pow(1, x) → 1") {
@@ -248,6 +275,7 @@ class NormalizePhase5Test extends FunSuite:
     g2(g2.output) match
       case TensorExpr.Const(1.0, _) => ()
       case other                    => fail(s"expected Const(1.0), got $other")
+    end match
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -263,10 +291,11 @@ class NormalizePhase5Test extends FunSuite:
       TensorExpr.Where(NodeId(0), NodeId(1), NodeId(2), f64s)
     )
     val graph = TensorGraph(nodes, NodeId(3))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   test("normalize: where(false, x, y) → y") {
@@ -277,10 +306,11 @@ class NormalizePhase5Test extends FunSuite:
       TensorExpr.Where(NodeId(0), NodeId(1), NodeId(2), f64s)
     )
     val graph = TensorGraph(nodes, NodeId(3))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     g2(g2.output) match
       case TensorExpr.Param("y", _) => ()
       case other                    => fail(s"expected Param(y), got $other")
+    end match
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -293,10 +323,11 @@ class NormalizePhase5Test extends FunSuite:
       TensorExpr.Cast(DType.F64, NodeId(0), f64s)
     )
     val graph = TensorGraph(nodes, NodeId(1))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     g2(g2.output) match
       case TensorExpr.Param("x", _) => ()
       case other                    => fail(s"expected Param(x), got $other")
+    end match
   }
 
   test("normalize: Cast(Bool, x: f64) is NOT elided (different dtype)") {
@@ -305,7 +336,7 @@ class NormalizePhase5Test extends FunSuite:
       TensorExpr.Cast(DType.Bool, NodeId(0), bools)
     )
     val graph = TensorGraph(nodes, NodeId(1))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     assert(g2(g2.output).isInstanceOf[TensorExpr.Cast])
   }
 
@@ -321,18 +352,21 @@ class NormalizePhase5Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Neg, NodeId(1), f64s)
     )
     val graph = TensorGraph(nodes, NodeId(2))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     // Only Param(live) and Unary(Neg) survive → size = 2
     assertEquals(g2.size, 2)
-    assert(g2.nodes.forall {
-      case TensorExpr.Param("dead", _) => false
-      case _                           => true
-    }, "dead node should have been pruned")
+    assert(
+      g2.nodes.forall {
+        case TensorExpr.Param("dead", _) => false
+        case _                           => true
+      },
+      "dead node should have been pruned"
+    )
   }
 
   test("normalize: all nodes live when all reachable from output") {
     val graph = paramOpConst(BinaryOp.Sub, 5.0)
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     // no identities: x - 5 stays; 3 nodes remain
     assertEquals(g2.size, 3)
   }
@@ -373,7 +407,7 @@ class NormalizePhase5Test extends FunSuite:
       TensorExpr.Binary(BinaryOp.Sub, NodeId(2), NodeId(2), f64s)
     )
     val graph = TensorGraph(nodes, NodeId(3))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     // x, y are params; sub(add(x,y), add(x,y)) should share the Add node → 4 nodes total
     assertEquals(g2.size, 4) // x, y, Add(x,y), Sub(add,add)
     val sub = g2(g2.output).asInstanceOf[TensorExpr.Binary]
@@ -388,6 +422,7 @@ class NormalizePhase5Test extends FunSuite:
     val g1 = Normalize.run(graph)
     val g2 = Normalize.run(g1)
     g1 == g2
+  end idempotent
 
   test("idempotence: x + 0 (after first normalize, second is no-op)") {
     assert(idempotent(paramOpConst(BinaryOp.Add, 0.0)))
@@ -437,7 +472,7 @@ class NormalizePhase5Test extends FunSuite:
 
   test("normalize + TypeCheck: sin(x) passes TypeCheck") {
     val graph = g(p("x"), TensorExpr.Unary(UnaryOp.Sin, NodeId(0), f64s))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     assertEquals(TypeCheck.infer(g2), Right(g2))
   }
 
@@ -448,7 +483,7 @@ class NormalizePhase5Test extends FunSuite:
 
   test("normalize + TypeCheck: Const(2.0) + Const(3.0) → Const(5.0); TypeCheck passes") {
     val graph = g(c(2.0), c(3.0), TensorExpr.Binary(BinaryOp.Add, NodeId(0), NodeId(1), f64s))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     assertEquals(TypeCheck.infer(g2), Right(g2))
   }
 
@@ -458,7 +493,7 @@ class NormalizePhase5Test extends FunSuite:
 
   test("normalize: x + y (no identities, survives as Binary)") {
     val graph = g(p("x"), p("y"), TensorExpr.Binary(BinaryOp.Add, NodeId(0), NodeId(1), f64s))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     assert(g2(g2.output).isInstanceOf[TensorExpr.Binary])
     assertEquals(g2.size, 3)
   }
@@ -471,7 +506,7 @@ class NormalizePhase5Test extends FunSuite:
   test("normalize: 0 / Param(x) — x is not a const, annihilator NOT applied") {
     // 0=Const(0.0), 1=Param(x), 2=Div(0,1)
     val graph = g(c(0.0), p("x"), TensorExpr.Binary(BinaryOp.Div, NodeId(0), NodeId(1), f64s))
-    val g2    = Normalize.run(graph)
+    val g2 = Normalize.run(graph)
     // x is Param, not Const — so annihilator rule does NOT fire
     assert(g2(g2.output).isInstanceOf[TensorExpr.Binary])
   }

@@ -17,8 +17,8 @@ import scala.collection.mutable
   *     stored in ascending `NodeId` order so that `x + y` and `y + x` produce the same node after hash-consing.
   *   - **Dead-node pruning** — nodes not reachable from `output` are dropped.
   *
-  * **NaN note:** `x * 0 → 0` is applied even when `x` may be NaN or infinite at runtime, which is not strictly
-  * IEEE-754 compliant. If strict NaN propagation is required, guard this rewrite at the call site.
+  * **NaN note:** `x * 0 → 0` is applied even when `x` may be NaN or infinite at runtime, which is not strictly IEEE-754
+  * compliant. If strict NaN propagation is required, guard this rewrite at the call site.
   *
   * The pass is **idempotent**: `run(run(g))` produces a graph that is structurally equal to `run(g)`.
   */
@@ -35,7 +35,7 @@ object Normalize:
   def run(graph: TensorGraph): TensorGraph =
 
     // ── 1. Collect live nodes in topological order (post-order DFS) ────────
-    val visited   = new Array[Boolean](graph.size)
+    val visited = new Array[Boolean](graph.size)
     val topoOrder = mutable.ArrayBuffer[NodeId]()
 
     def dfs(id: NodeId): Unit =
@@ -49,6 +49,7 @@ object Normalize:
           case TensorExpr.Reduce(_, a, _, _) => dfs(a)
           case TensorExpr.Where(c, x, y, _)  => dfs(c); dfs(x); dfs(y)
           case _                             => () // Const, Param, Lift — leaves
+        end match
         topoOrder += id
     end dfs
     dfs(graph.output)
@@ -56,7 +57,7 @@ object Normalize:
     // ── 2. Rebuild with hash-consing, applying rewrites ────────────────────
     val newNodes = mutable.ArrayBuffer[TensorExpr]()
     val indexMap = mutable.HashMap[TensorExpr, NodeId]()
-    val remap    = new Array[NodeId](graph.size) // old NodeId → new NodeId
+    val remap = new Array[NodeId](graph.size) // old NodeId → new NodeId
 
     def intern(node: TensorExpr): NodeId =
       indexMap.getOrElse(
@@ -74,14 +75,14 @@ object Normalize:
 
     def f64Val(newId: NodeId): Option[Double] = newNode(newId) match
       case TensorExpr.Const(v: Double, TType(DType.F64, s)) if s.isScalar => Some(v)
-      case _                                                                => None
+      case _                                                              => None
 
     def boolVal(newId: NodeId): Option[Boolean] = newNode(newId) match
       case TensorExpr.Const(v: Boolean, TType(DType.Bool, s)) if s.isScalar => Some(v)
-      case _                                                                  => None
+      case _                                                                => None
 
     def isF64Zero(newId: NodeId): Boolean = f64Val(newId).contains(0.0)
-    def isF64One(newId: NodeId): Boolean  = f64Val(newId).contains(1.0)
+    def isF64One(newId: NodeId): Boolean = f64Val(newId).contains(1.0)
 
     // ── Constant folding for Unary (F64 or Bool) ───────────────────────────
     def foldUnary(op: UnaryOp, na: NodeId, tpe: TType): Option[NodeId] =
@@ -132,7 +133,8 @@ object Normalize:
             case Gt  => Some(va > vb)
             case Gte => Some(va >= vb)
             case _   => None
-          numR.map(d => intern(TensorExpr.Const(d, tpe)))
+          numR
+            .map(d => intern(TensorExpr.Const(d, tpe)))
             .orElse(cmpR.map(b => intern(TensorExpr.Const(b, tpe))))
         }
         .orElse(
@@ -175,7 +177,8 @@ object Normalize:
         case Pow if isF64Zero(nb) => Some(intern(TensorExpr.Const(1.0, tpe)))
         // pow(1, x) → 1
         case Pow if isF64One(na) => Some(intern(TensorExpr.Const(1.0, tpe)))
-        case _ => None
+        case _                   => None
+      end match
     end simplifyBinary
 
     // ── Main walk ──────────────────────────────────────────────────────────
@@ -205,6 +208,7 @@ object Normalize:
           val na = remap(a.i)
           if newNode(na).tpe.dtype == to then na
           else intern(TensorExpr.Cast(to, na, tpe))
+          end if
 
         case TensorExpr.BCast(a, to, tpe) =>
           intern(TensorExpr.BCast(remap(a.i), to, tpe))
@@ -222,17 +226,16 @@ object Normalize:
       end match
     end processNode
 
-    for oldId <- topoOrder do
-      remap(oldId.i) = processNode(graph(oldId))
+    for oldId <- topoOrder do remap(oldId.i) = processNode(graph(oldId))
     end for
 
     // ── 3. Compact: prune nodes that became dead after simplification ───────
     // Simplification can make previously-live nodes unreachable (e.g., Const(0)
     // after x+0→x). A second DFS on the rebuilt buffer ensures the final graph
     // has no dead nodes — which is required for idempotence.
-    val rawOutput   = remap(graph.output.i)
-    val live2       = new Array[Boolean](newNodes.size)
-    val liveOrder   = mutable.ArrayBuffer[NodeId]()
+    val rawOutput = remap(graph.output.i)
+    val live2 = new Array[Boolean](newNodes.size)
+    val liveOrder = mutable.ArrayBuffer[NodeId]()
 
     def dfs2(id: NodeId): Unit =
       if !live2(id.i) then
@@ -245,12 +248,13 @@ object Normalize:
           case TensorExpr.Reduce(_, a, _, _) => dfs2(a)
           case TensorExpr.Where(c, x, y, _)  => dfs2(c); dfs2(x); dfs2(y)
           case _                             => ()
+        end match
         liveOrder += id
     end dfs2
     dfs2(rawOutput)
 
-    val compactNodes  = mutable.ArrayBuffer[TensorExpr]()
-    val compactRemap  = new Array[NodeId](newNodes.size)
+    val compactNodes = mutable.ArrayBuffer[TensorExpr]()
+    val compactRemap = new Array[NodeId](newNodes.size)
     for id <- liveOrder do
       val newId = NodeId(compactNodes.size)
       compactNodes += rewriteChildIds(newNodes(id.i), compactRemap)
@@ -263,12 +267,12 @@ object Normalize:
   /** Rewrite child `NodeId` references in a node using the given mapping. */
   private def rewriteChildIds(node: TensorExpr, m: Array[NodeId]): TensorExpr =
     node match
-      case TensorExpr.Unary(op, a, tpe)     => TensorExpr.Unary(op, m(a.i), tpe)
-      case TensorExpr.Binary(op, a, b, tpe) => TensorExpr.Binary(op, m(a.i), m(b.i), tpe)
-      case TensorExpr.Cast(to, a, tpe)      => TensorExpr.Cast(to, m(a.i), tpe)
-      case TensorExpr.BCast(a, to, tpe)     => TensorExpr.BCast(m(a.i), to, tpe)
+      case TensorExpr.Unary(op, a, tpe)      => TensorExpr.Unary(op, m(a.i), tpe)
+      case TensorExpr.Binary(op, a, b, tpe)  => TensorExpr.Binary(op, m(a.i), m(b.i), tpe)
+      case TensorExpr.Cast(to, a, tpe)       => TensorExpr.Cast(to, m(a.i), tpe)
+      case TensorExpr.BCast(a, to, tpe)      => TensorExpr.BCast(m(a.i), to, tpe)
       case TensorExpr.Reduce(op, a, ax, tpe) => TensorExpr.Reduce(op, m(a.i), ax, tpe)
-      case TensorExpr.Where(c, x, y, tpe)   => TensorExpr.Where(m(c.i), m(x.i), m(y.i), tpe)
-      case leaf                             => leaf
+      case TensorExpr.Where(c, x, y, tpe)    => TensorExpr.Where(m(c.i), m(x.i), m(y.i), tpe)
+      case leaf                              => leaf
 
 end Normalize
