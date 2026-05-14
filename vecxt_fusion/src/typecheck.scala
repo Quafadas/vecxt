@@ -8,6 +8,7 @@ package vecxt.fusion
 sealed trait TypeError:
   def at: NodeId
   def message: String
+end TypeError
 
 object TypeError:
 
@@ -47,7 +48,9 @@ object TypeCheck:
       checkNode(nodeId, graph.nodes(i), inferred) match
         case Left(err)  => result = Left(err)
         case Right(tpe) => inferred(i) = tpe
+      end match
       i += 1
+    end while
     result
   end infer
 
@@ -75,6 +78,7 @@ object TypeCheck:
               return Left(
                 TypeError.DTypeMismatch(nodeId, s"Not requires Bool input, got ${aTpe.dtype}")
               )
+            end if
             DType.Bool
           case _ => aTpe.dtype
         val inferredTpe = TType(resultDtype, aTpe.shape)
@@ -91,12 +95,11 @@ object TypeCheck:
               s"Binary $op: operand shapes ${aTpe.shape} and ${bTpe.shape} differ; a BCast node is required"
             )
           )
+        end if
         val (resultDtype, dtypeOk) = op match
-          case BinaryOp.Add | BinaryOp.Sub | BinaryOp.Mul | BinaryOp.Div |
-              BinaryOp.Pow | BinaryOp.Min | BinaryOp.Max =>
+          case BinaryOp.Add | BinaryOp.Sub | BinaryOp.Mul | BinaryOp.Div | BinaryOp.Pow | BinaryOp.Min | BinaryOp.Max =>
             (aTpe.dtype, aTpe.dtype == bTpe.dtype)
-          case BinaryOp.Eq | BinaryOp.Neq | BinaryOp.Lt | BinaryOp.Lte |
-              BinaryOp.Gt | BinaryOp.Gte =>
+          case BinaryOp.Eq | BinaryOp.Neq | BinaryOp.Lt | BinaryOp.Lte | BinaryOp.Gt | BinaryOp.Gte =>
             (DType.Bool, aTpe.dtype == bTpe.dtype)
           case BinaryOp.And | BinaryOp.Or =>
             (DType.Bool, aTpe.dtype == DType.Bool && bTpe.dtype == DType.Bool)
@@ -107,6 +110,7 @@ object TypeCheck:
               s"Binary $op: incompatible dtypes ${aTpe.dtype} and ${bTpe.dtype}"
             )
           )
+        end if
         val inferredTpe = TType(resultDtype, aTpe.shape)
         checkStored(nodeId, inferredTpe, tpe)
 
@@ -138,6 +142,7 @@ object TypeCheck:
             else
               val inferredTpe = TType(aTpe.dtype, targetShape)
               checkStored(nodeId, inferredTpe, tpe)
+        end match
 
       // ── Reduce ─────────────────────────────────────────────────────────────
       case Reduce(op, a, axes, tpe) =>
@@ -149,6 +154,7 @@ object TypeCheck:
               TypeError.InvalidAxes(nodeId, s"Reduce: axis $ax out of range for rank-$rank input")
             )
           case None => ()
+        end match
         val axisSet = axes.toSet
         val outputDims = aTpe.shape.dims.zipWithIndex.collect { case (d, i) if !axisSet.contains(i) => d }
         val outputShape = new Shape(outputDims)
@@ -168,6 +174,7 @@ object TypeCheck:
           return Left(
             TypeError.DTypeMismatch(nodeId, s"Where: condition must be Bool, got ${cTpe.dtype}")
           )
+        end if
         if xTpe.shape != yTpe.shape then
           return Left(
             TypeError.ShapeMismatch(
@@ -175,6 +182,7 @@ object TypeCheck:
               s"Where: branch shapes differ: ${xTpe.shape} vs ${yTpe.shape}"
             )
           )
+        end if
         if xTpe.dtype != yTpe.dtype then
           return Left(
             TypeError.DTypeMismatch(
@@ -182,7 +190,9 @@ object TypeCheck:
               s"Where: branch dtypes differ: ${xTpe.dtype} vs ${yTpe.dtype}"
             )
           )
+        end if
         checkStored(nodeId, xTpe, tpe)
+    end match
 
   end checkNode
 

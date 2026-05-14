@@ -85,35 +85,21 @@ final class GraphBuilder:
   /** Look up the `TType` of the node at `id`. */
   private def tpeOf(id: NodeId): TType = _nodes(id.i).tpe
 
-  /** Align two nodes for a binary operation, inserting `BCast` nodes as needed.
+  /** Require that two nodes have the same shape for a binary operation.
     *
-    * If both nodes already have the same shape, they are returned unchanged. Otherwise, NumPy-style broadcasting is
-    * attempted via `Shape.broadcast`. Each operand whose shape differs from the broadcast result is wrapped in a
-    * `BCast` node (hash-consed as usual). Throws `IllegalArgumentException` if the shapes are incompatible.
-    *
-    * @return
-    *   `(alignedA, alignedB, resultShape)`
+    * Throws `IllegalArgumentException` if the shapes differ. The user must call `.broadcastTo` explicitly before
+    * combining nodes of different shapes.
     */
-  private def align(a: NodeId, b: NodeId): (NodeId, NodeId, Shape) =
-    val aTpe = tpeOf(a)
-    val bTpe = tpeOf(b)
-    if aTpe.shape == bTpe.shape then (a, b, aTpe.shape)
-    else
-      Shape.broadcast(aTpe.shape, bTpe.shape) match
-        case Left(err) =>
-          throw IllegalArgumentException(
-            s"Cannot broadcast shapes ${aTpe.shape} and ${bTpe.shape}: ${err.message}"
-          )
-        case Right(broadcastShape) =>
-          val newA =
-            if aTpe.shape == broadcastShape then a
-            else intern(TensorExpr.BCast(a, broadcastShape, TType(aTpe.dtype, broadcastShape)))
-          val newB =
-            if bTpe.shape == broadcastShape then b
-            else intern(TensorExpr.BCast(b, broadcastShape, TType(bTpe.dtype, broadcastShape)))
-          (newA, newB, broadcastShape)
+  private def requireSameShape(a: NodeId, b: NodeId): Shape =
+    val as = tpeOf(a).shape
+    val bs = tpeOf(b).shape
+    if as != bs then
+      throw IllegalArgumentException(
+        s"Shape mismatch: ${as} vs ${bs}. Use .broadcastTo(shape) to align shapes explicitly before combining."
+      )
     end if
-  end align
+    as
+  end requireSameShape
 
   /** Compute the output shape of a reduction over the given axes.
     *
@@ -179,20 +165,20 @@ final class GraphBuilder:
 
   extension [A: DTypeOf](e: Expr[A])(using IsNumeric[A])
     def +(o: Expr[A]): Expr[A] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Add, ae, oe, TType(tpeOf(e).dtype, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Add, e, o, TType(tpeOf(e).dtype, shape)))
     end +
     def -(o: Expr[A]): Expr[A] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Sub, ae, oe, TType(tpeOf(e).dtype, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Sub, e, o, TType(tpeOf(e).dtype, shape)))
     end -
     def *(o: Expr[A]): Expr[A] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Mul, ae, oe, TType(tpeOf(e).dtype, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Mul, e, o, TType(tpeOf(e).dtype, shape)))
     end *
     def /(o: Expr[A]): Expr[A] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Div, ae, oe, TType(tpeOf(e).dtype, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Div, e, o, TType(tpeOf(e).dtype, shape)))
     end /
     def unary_- : Expr[A] = intern(TensorExpr.Unary(UnaryOp.Neg, e, tpeOf(e)))
   end extension
@@ -201,32 +187,32 @@ final class GraphBuilder:
 
   extension [A: DTypeOf](e: Expr[A])
     def <(o: Expr[A]): Expr[Boolean] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Lt, ae, oe, TType(DType.Bool, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Lt, e, o, TType(DType.Bool, shape)))
     end <
     def <=(o: Expr[A]): Expr[Boolean] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Lte, ae, oe, TType(DType.Bool, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Lte, e, o, TType(DType.Bool, shape)))
     end <=
     def >(o: Expr[A]): Expr[Boolean] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Gt, ae, oe, TType(DType.Bool, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Gt, e, o, TType(DType.Bool, shape)))
     end >
     def >=(o: Expr[A]): Expr[Boolean] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Gte, ae, oe, TType(DType.Bool, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Gte, e, o, TType(DType.Bool, shape)))
     end >=
     def ===(o: Expr[A]): Expr[Boolean] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Eq, ae, oe, TType(DType.Bool, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Eq, e, o, TType(DType.Bool, shape)))
     end ===
     def =!=(o: Expr[A]): Expr[Boolean] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Neq, ae, oe, TType(DType.Bool, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Neq, e, o, TType(DType.Bool, shape)))
     end =!=
   end extension
 
-  // ─── Unary math operations ────────────────────────────────────────────────
+  // ─── Unary math operations + explicit broadcast ───────────────────────────
 
   extension [A: DTypeOf](e: Expr[A])
     def sin: Expr[A] = intern(TensorExpr.Unary(UnaryOp.Sin, e, tpeOf(e)))
@@ -237,18 +223,45 @@ final class GraphBuilder:
     def sqrt: Expr[A] = intern(TensorExpr.Unary(UnaryOp.Sqrt, e, tpeOf(e)))
     def abs: Expr[A] = intern(TensorExpr.Unary(UnaryOp.Abs, e, tpeOf(e)))
     def reciprocal: Expr[A] = intern(TensorExpr.Unary(UnaryOp.Reciprocal, e, tpeOf(e)))
+
+    /** Broadcast this expression to `targetShape`.
+      *
+      * The source shape must be broadcast-compatible with `targetShape` per NumPy rules (computed via
+      * `Shape.broadcast`). Throws `IllegalArgumentException` if the shapes are incompatible.
+      *
+      * Broadcasting is **never** inserted automatically by the builder — call this method explicitly before combining
+      * tensors of different shapes.
+      */
+    def broadcastTo(targetShape: Shape): Expr[A] =
+      val srcShape = tpeOf(e).shape
+      if srcShape == targetShape then e
+      else
+        Shape.broadcast(srcShape, targetShape) match
+          case Left(err) =>
+            throw IllegalArgumentException(
+              s"Cannot broadcast $srcShape to $targetShape: ${err.message}"
+            )
+          case Right(result) if result != targetShape =>
+            throw IllegalArgumentException(
+              s"Broadcasting $srcShape yields $result, not the requested $targetShape"
+            )
+          case Right(_) =>
+            intern(TensorExpr.BCast(e, targetShape, TType(tpeOf(e).dtype, targetShape)))
+      end if
+    end broadcastTo
+
   end extension
 
   // ─── Boolean operations ───────────────────────────────────────────────────
 
   extension (e: Expr[Boolean])
     def &&(o: Expr[Boolean]): Expr[Boolean] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.And, ae, oe, TType(DType.Bool, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.And, e, o, TType(DType.Bool, shape)))
     end &&
     def ||(o: Expr[Boolean]): Expr[Boolean] =
-      val (ae, oe, shape) = align(e, o)
-      intern(TensorExpr.Binary(BinaryOp.Or, ae, oe, TType(DType.Bool, shape)))
+      val shape = requireSameShape(e, o)
+      intern(TensorExpr.Binary(BinaryOp.Or, e, o, TType(DType.Bool, shape)))
     end ||
     def unary_! : Expr[Boolean] =
       intern(TensorExpr.Unary(UnaryOp.Not, e, tpeOf(e)))
@@ -325,15 +338,13 @@ final class GraphBuilder:
 
   /** Element-wise conditional: selects `thenE` where `cond` is true, `elseE` elsewhere.
     *
-    * `thenE` and `elseE` must have the same dtype and shape. `cond` is broadcast to that shape if needed.
+    * All three operands (`cond`, `thenE`, `elseE`) must have identical shapes — no implicit broadcasting is inserted.
+    * Use `.broadcastTo(shape)` on each operand before calling `where` if their shapes differ.
     */
   def where[A: DTypeOf](cond: Expr[Boolean], thenE: Expr[A], elseE: Expr[A]): Expr[A] =
-    val xTpe = tpeOf(thenE)
-    val (ae, be, shape) = align(thenE, elseE)
-    val alignedCond =
-      if tpeOf(cond).shape == shape then cond
-      else intern(TensorExpr.BCast(cond, shape, TType(DType.Bool, shape)))
-    intern(TensorExpr.Where(alignedCond, ae, be, TType(xTpe.dtype, shape)))
+    requireSameShape(thenE, elseE)
+    requireSameShape(cond, thenE)
+    intern(TensorExpr.Where(cond, thenE, elseE, tpeOf(thenE)))
   end where
 
   // ─── Finaliser ────────────────────────────────────────────────────────────

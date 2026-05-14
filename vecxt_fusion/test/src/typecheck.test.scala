@@ -6,15 +6,15 @@ class TypeCheckPhase3Test extends FunSuite:
 
   // ─── helpers ────────────────────────────────────────────────────────────────
 
-  val f64Scalar  = TType(DType.F64, Shape.scalar)
+  val f64Scalar = TType(DType.F64, Shape.scalar)
   val boolScalar = TType(DType.Bool, Shape.scalar)
-  val f64_3x4    = TType(DType.F64, Shape(Dim.Known(3), Dim.Known(4)))
-  val f64_4      = TType(DType.F64, Shape(Dim.Known(4)))
-  val bool_3x4   = TType(DType.Bool, Shape(Dim.Known(3), Dim.Known(4)))
+  val f64_3x4 = TType(DType.F64, Shape(Dim.Known(3), Dim.Known(4)))
+  val f64_4 = TType(DType.F64, Shape(Dim.Known(4)))
+  val bool_3x4 = TType(DType.Bool, Shape(Dim.Known(3), Dim.Known(4)))
 
   def nodeAt[T <: TensorExpr](g: TensorGraph, i: Int)(using scala.reflect.ClassTag[T]): T =
     g.nodes(i) match
-      case t: T => t
+      case t: T  => t
       case other =>
         fail(s"expected ${scala.reflect.classTag[T].runtimeClass.getSimpleName} at index $i, got $other")
 
@@ -72,15 +72,16 @@ class TypeCheckPhase3Test extends FunSuite:
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // Builder: BCast auto-insertion
+  // Builder: explicit BCast via .broadcastTo
   // ══════════════════════════════════════════════════════════════════════════
 
-  test("builder BCast: tensor[3,4] + scalar → BCast(scalar,[3,4]) inserted") {
+  test("builder broadcastTo: scalar .broadcastTo([3,4]) inserts BCast node") {
     val b = new GraphBuilder()
     import b.*
     val x = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
     val s = b.Expr.const[Double](1.0)
-    val result = x + s
+    val sBig = s.broadcastTo(Shape(Dim.Known(3), Dim.Known(4)))
+    val result = x + sBig
     val g = b.build(result)
     // Nodes: x=0, s=1, BCast(s,[3,4])=2, Binary(Add,0,2)=3
     assertEquals(g.size, 4)
@@ -95,7 +96,49 @@ class TypeCheckPhase3Test extends FunSuite:
     assertEquals(add.tpe.shape, Shape(Dim.Known(3), Dim.Known(4)))
   }
 
-  test("builder BCast: equal shapes, no BCast inserted") {
+  test("builder broadcastTo: same shape returns same Expr (no BCast node)") {
+    val b = new GraphBuilder()
+    import b.*
+    val x = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
+    val y = x.broadcastTo(Shape(Dim.Known(3), Dim.Known(4))) // no-op
+    val g = b.build(y)
+    assertEquals(g.size, 1) // only the Param node
+    assert(!g.nodes.exists(_.isInstanceOf[TensorExpr.BCast]))
+  }
+
+  test("builder broadcastTo: [1,4] → [3,4] inserts BCast node") {
+    val b = new GraphBuilder()
+    import b.*
+    val bias = b.Expr.param[Double]("bias", Shape(Dim.Known(1), Dim.Known(4)))
+    val x = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
+    val biasBig = bias.broadcastTo(Shape(Dim.Known(3), Dim.Known(4)))
+    val result = x + biasBig
+    val g = b.build(result)
+    assert(g.nodes.exists(_.isInstanceOf[TensorExpr.BCast]), "expected a BCast node")
+    val bcast = g.nodes.collectFirst { case b: TensorExpr.BCast => b }.get
+    assertEquals(bcast.to, Shape(Dim.Known(3), Dim.Known(4)))
+  }
+
+  test("builder broadcastTo: incompatible target shape throws IllegalArgumentException") {
+    val b = new GraphBuilder()
+    import b.*
+    val x = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
+    intercept[IllegalArgumentException] {
+      x.broadcastTo(Shape(Dim.Known(5), Dim.Known(4)))
+    }
+  }
+
+  test("builder binary: different shapes (no explicit broadcast) throws IllegalArgumentException") {
+    val b = new GraphBuilder()
+    import b.*
+    val x = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
+    val y = b.Expr.param[Double]("y", Shape(Dim.Known(5), Dim.Known(4)))
+    intercept[IllegalArgumentException] {
+      x + y
+    }
+  }
+
+  test("builder binary: equal shapes, no BCast inserted") {
     val b = new GraphBuilder()
     import b.*
     val x = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
@@ -105,28 +148,6 @@ class TypeCheckPhase3Test extends FunSuite:
     // Nodes: x=0, y=1, Binary(Add,0,1)=2
     assertEquals(g.size, 3)
     assert(!g.nodes.exists(_.isInstanceOf[TensorExpr.BCast]), "no BCast expected when shapes match")
-  }
-
-  test("builder BCast: [1,4] tensor broadcast to [3,4] tensor") {
-    val b = new GraphBuilder()
-    import b.*
-    val bias = b.Expr.param[Double]("bias", Shape(Dim.Known(1), Dim.Known(4)))
-    val x    = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
-    val result = x + bias
-    val g = b.build(result)
-    assert(g.nodes.exists(_.isInstanceOf[TensorExpr.BCast]), "expected a BCast node")
-    val bcast = g.nodes.collectFirst { case b: TensorExpr.BCast => b }.get
-    assertEquals(bcast.to, Shape(Dim.Known(3), Dim.Known(4)))
-  }
-
-  test("builder BCast: incompatible shapes throw IllegalArgumentException") {
-    val b = new GraphBuilder()
-    import b.*
-    val x = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
-    val y = b.Expr.param[Double]("y", Shape(Dim.Known(5), Dim.Known(4)))
-    intercept[IllegalArgumentException] {
-      x + y
-    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -193,9 +214,9 @@ class TypeCheckPhase3Test extends FunSuite:
 
   test("TypeCheck: Cast round-trip F64 → Bool → F64 is allowed") {
     val nodes = Vector(
-      TensorExpr.Param("x", f64Scalar),          // 0
+      TensorExpr.Param("x", f64Scalar), // 0
       TensorExpr.Cast(DType.Bool, NodeId(0), boolScalar), // 1
-      TensorExpr.Cast(DType.F64, NodeId(1), f64Scalar)    // 2
+      TensorExpr.Cast(DType.F64, NodeId(1), f64Scalar) // 2
     )
     val g = TensorGraph(nodes, NodeId(2))
     assertEquals(TypeCheck.infer(g), Right(g))
@@ -270,8 +291,8 @@ class TypeCheckPhase3Test extends FunSuite:
   test("TypeCheck negative: Binary shape mismatch → ShapeMismatch at offending node") {
     val f64_5 = TType(DType.F64, Shape(Dim.Known(5)))
     val nodes = Vector(
-      TensorExpr.Param("x", f64_4),   // [4]
-      TensorExpr.Param("y", f64_5),   // [5]  — different shape, no BCast
+      TensorExpr.Param("x", f64_4), // [4]
+      TensorExpr.Param("y", f64_5), // [5]  — different shape, no BCast
       TensorExpr.Binary(BinaryOp.Add, NodeId(0), NodeId(1), f64_4)
     )
     val g = TensorGraph(nodes, NodeId(2))
@@ -280,6 +301,7 @@ class TypeCheckPhase3Test extends FunSuite:
         assertEquals(e.at, NodeId(2))
         assert(e.message.nonEmpty)
       case other => fail(s"expected ShapeMismatch, got $other")
+    end match
   }
 
   test("TypeCheck negative: Not(f64) → DTypeMismatch") {
@@ -292,6 +314,7 @@ class TypeCheckPhase3Test extends FunSuite:
       case Left(e: TypeError.DTypeMismatch) =>
         assertEquals(e.at, NodeId(1))
       case other => fail(s"expected DTypeMismatch, got $other")
+    end match
   }
 
   test("TypeCheck negative: And(f64, f64) → DTypeMismatch (must be Bool)") {
@@ -305,18 +328,20 @@ class TypeCheckPhase3Test extends FunSuite:
       case Left(e: TypeError.DTypeMismatch) =>
         assertEquals(e.at, NodeId(2))
       case other => fail(s"expected DTypeMismatch, got $other")
+    end match
   }
 
   test("TypeCheck negative: Reduce axis out of rank → InvalidAxes") {
     val nodes = Vector(
-      TensorExpr.Param("x", f64_4),  // rank 1
-      TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector(2), f64Scalar)  // axis 2 out of range
+      TensorExpr.Param("x", f64_4), // rank 1
+      TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector(2), f64Scalar) // axis 2 out of range
     )
     val g = TensorGraph(nodes, NodeId(1))
     TypeCheck.infer(g) match
       case Left(e: TypeError.InvalidAxes) =>
         assertEquals(e.at, NodeId(1))
       case other => fail(s"expected InvalidAxes, got $other")
+    end match
   }
 
   test("TypeCheck negative: Where condition not Bool → DTypeMismatch") {
@@ -331,6 +356,7 @@ class TypeCheckPhase3Test extends FunSuite:
       case Left(e: TypeError.DTypeMismatch) =>
         assertEquals(e.at, NodeId(3))
       case other => fail(s"expected DTypeMismatch, got $other")
+    end match
   }
 
   test("TypeCheck negative: Where branches with different shapes → ShapeMismatch") {
@@ -346,6 +372,7 @@ class TypeCheckPhase3Test extends FunSuite:
       case Left(e: TypeError.ShapeMismatch) =>
         assertEquals(e.at, NodeId(3))
       case other => fail(s"expected ShapeMismatch, got $other")
+    end match
   }
 
   test("TypeCheck negative: stored type disagrees with inferred → DTypeMismatch") {
@@ -361,6 +388,7 @@ class TypeCheckPhase3Test extends FunSuite:
       case Left(e: TypeError.DTypeMismatch) =>
         assertEquals(e.at, NodeId(2))
       case other => fail(s"expected DTypeMismatch, got $other")
+    end match
   }
 
   test("TypeCheck negative: BCast to incompatible shape → ShapeMismatch") {
@@ -373,7 +401,8 @@ class TypeCheckPhase3Test extends FunSuite:
     val g = TensorGraph(nodes, NodeId(1))
     TypeCheck.infer(g) match
       case Left(_: TypeError.ShapeMismatch) => () // expected
-      case other => fail(s"expected ShapeMismatch, got $other")
+      case other                            => fail(s"expected ShapeMismatch, got $other")
+    end match
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -415,20 +444,21 @@ class TypeCheckPhase3Test extends FunSuite:
     val b = new GraphBuilder()
     import b.*
     val cond = b.Expr.param[Boolean]("cond", Shape(Dim.Known(4)))
-    val x    = b.Expr.param[Double]("x", Shape(Dim.Known(4)))
-    val y    = b.Expr.param[Double]("y", Shape(Dim.Known(4)))
-    val out  = b.where(cond, x, y)
+    val x = b.Expr.param[Double]("x", Shape(Dim.Known(4)))
+    val y = b.Expr.param[Double]("y", Shape(Dim.Known(4)))
+    val out = b.where(cond, x, y)
     val g = b.build(out)
     assertEquals(TypeCheck.infer(g), Right(g))
     assertEquals(g(g.output).tpe, TType(DType.F64, Shape(Dim.Known(4))))
   }
 
-  test("builder: full graph TypeCheck after tensor+scalar broadcast") {
+  test("builder: full graph TypeCheck after explicit tensor+scalar broadcast") {
     val b = new GraphBuilder()
     import b.*
     val x = b.Expr.param[Double]("x", Shape(Dim.Known(3), Dim.Known(4)))
     val s = b.Expr.const[Double](2.0)
-    val result = (x + s).sin
+    val sBig = s.broadcastTo(Shape(Dim.Known(3), Dim.Known(4)))
+    val result = (x + sBig).sin
     val g = b.build(result)
     assertEquals(TypeCheck.infer(g), Right(g))
   }
