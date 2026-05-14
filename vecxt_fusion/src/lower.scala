@@ -43,8 +43,8 @@ end LowerError
 
 /** Phase-4 lowering: translates a `MathExpr[Double]` into a `TensorGraph`.
   *
-  * The lowering is structural (AST-shape): it transforms `MathExpr` constructors one-to-one into `TensorExpr` nodes.
-  * No constant folding, no normalisation, and no implicit broadcasting are performed here.
+  * The lowering is structural (AST-shape): it transforms `MathExpr` constructors one-to-one into `TensorExpr` nodes. No
+  * constant folding, no normalisation, and no implicit broadcasting are performed here.
   *
   * Type information for `Param` nodes comes from `env`. Result types for all other nodes are derived from their child
   * nodes (the left child's type is used for binary arithmetic; TypeCheck can verify correctness afterwards).
@@ -105,31 +105,33 @@ object Lower:
 
         // ── Arithmetic binary ops ───────────────────────────────────────────
 
-        case Add(lhs, rhs)        => binaryArith(BinaryOp.Add, lhs, rhs)
-        case Sub(lhs, rhs)        => binaryArith(BinaryOp.Sub, lhs, rhs)
-        case Mul(lhs, rhs)        => binaryArith(BinaryOp.Mul, lhs, rhs)
-        case Div(lhs, rhs)        => binaryArith(BinaryOp.Div, lhs, rhs)
-        case Pow(base, exponent)  => binaryArith(BinaryOp.Pow, base, exponent)
+        case Add(lhs, rhs)       => binaryArith(BinaryOp.Add, lhs, rhs)
+        case Sub(lhs, rhs)       => binaryArith(BinaryOp.Sub, lhs, rhs)
+        case Mul(lhs, rhs)       => binaryArith(BinaryOp.Mul, lhs, rhs)
+        case Div(lhs, rhs)       => binaryArith(BinaryOp.Div, lhs, rhs)
+        case Pow(base, exponent) => binaryArith(BinaryOp.Pow, base, exponent)
 
         case Neg(inner) =>
           go(inner).map(a => intern(TensorExpr.Unary(UnaryOp.Neg, a, tpeOf(a))))
 
         // ── Structural equivalences (transparent wrappers) ──────────────────
 
-        case Fraction(num, den)          => binaryArith(BinaryOp.Div, num, den)
-        case Group(inner)                => go(inner)
-        case BracketGroup(_, _, inner)   => go(inner)
-        case Color(_, inner)             => go(inner)
-        case Style(_, inner)             => go(inner)
-        case Enclose(_, inner)           => go(inner)
+        case Fraction(num, den)        => binaryArith(BinaryOp.Div, num, den)
+        case Group(inner)              => go(inner)
+        case BracketGroup(_, _, inner) => go(inner)
+        case Color(_, inner)           => go(inner)
+        case Style(_, inner)           => go(inner)
+        case Enclose(_, inner)         => go(inner)
 
         case Root(None, radicand) =>
           go(radicand).map(a => intern(TensorExpr.Unary(UnaryOp.Sqrt, a, tpeOf(a))))
 
         case Root(Some(_), _) =>
-          Left(LowerError.UnsupportedNode(
-            "Root with explicit degree — use Pow(radicand, Fraction(Number(1), degree)) instead"
-          ))
+          Left(
+            LowerError.UnsupportedNode(
+              "Root with explicit degree — use Pow(radicand, Fraction(Number(1), degree)) instead"
+            )
+          )
 
         // ── Superscript: only literal-number exponents ──────────────────────
 
@@ -146,17 +148,18 @@ object Lower:
 
         case FunctionCall(name, List(arg)) =>
           val opOpt: Option[UnaryOp] = name match
-            case "sin"       => Some(UnaryOp.Sin)
-            case "cos"       => Some(UnaryOp.Cos)
-            case "tan"       => Some(UnaryOp.Tan)
-            case "exp"       => Some(UnaryOp.Exp)
+            case "sin"        => Some(UnaryOp.Sin)
+            case "cos"        => Some(UnaryOp.Cos)
+            case "tan"        => Some(UnaryOp.Tan)
+            case "exp"        => Some(UnaryOp.Exp)
             case "log" | "ln" => Some(UnaryOp.Log)
-            case "sqrt"      => Some(UnaryOp.Sqrt)
-            case "abs"       => Some(UnaryOp.Abs)
-            case _           => None
+            case "sqrt"       => Some(UnaryOp.Sqrt)
+            case "abs"        => Some(UnaryOp.Abs)
+            case _            => None
           opOpt match
             case Some(op) => go(arg).map(a => intern(TensorExpr.Unary(op, a, tpeOf(a))))
             case None     => Left(LowerError.UnknownFunction(name, 1))
+          end match
 
         case FunctionCall(name, args) =>
           Left(LowerError.UnknownFunction(name, args.length))
@@ -170,12 +173,12 @@ object Lower:
 
         // ── Binders — not yet supported ─────────────────────────────────────
 
-        case _: Sum[?]      => Left(LowerError.UnsupportedBinder("Sum"))
-        case _: Integral[?] => Left(LowerError.UnsupportedBinder("Integral"))
+        case _: Sum[?]       => Left(LowerError.UnsupportedBinder("Sum"))
+        case _: Integral[?]  => Left(LowerError.UnsupportedBinder("Integral"))
         case _: Subscript[?] => Left(LowerError.UnsupportedBinder("Subscript"))
-        case _: Over[?]     => Left(LowerError.UnsupportedBinder("Over"))
-        case _: Under[?]    => Left(LowerError.UnsupportedBinder("Under"))
-        case _: SubSup[?]   => Left(LowerError.UnsupportedBinder("SubSup"))
+        case _: Over[?]      => Left(LowerError.UnsupportedBinder("Over"))
+        case _: Under[?]     => Left(LowerError.UnsupportedBinder("Under"))
+        case _: SubSup[?]    => Left(LowerError.UnsupportedBinder("SubSup"))
 
         // ── Leaf nodes with no lowerable content ────────────────────────────
 

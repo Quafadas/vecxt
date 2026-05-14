@@ -7,7 +7,7 @@ class LowerPhase4Test extends FunSuite:
   // ─── helpers ────────────────────────────────────────────────────────────────
 
   val f64Scalar = TType(DType.F64, Shape.scalar)
-  val f64_3x4   = TType(DType.F64, Shape(Dim.Known(3), Dim.Known(4)))
+  val f64_3x4 = TType(DType.F64, Shape(Dim.Known(3), Dim.Known(4)))
 
   /** Scalar env: x, y, z are f64 scalars. */
   val scalarEnv: TypeEnv = Map("x" -> f64Scalar, "y" -> f64Scalar, "z" -> f64Scalar)
@@ -49,7 +49,7 @@ class LowerPhase4Test extends FunSuite:
 
   test("lower: Constant(pi) resolved from env → Param(pi)") {
     val env = scalarEnv + ("pi" -> f64Scalar)
-    val g   = assertRight(Lower.lower(Constant("pi"), env))
+    val g = assertRight(Lower.lower(Constant("pi"), env))
     assertEquals(g(g.output).asInstanceOf[TensorExpr.Param].name, "pi")
   }
 
@@ -64,7 +64,7 @@ class LowerPhase4Test extends FunSuite:
   // ══════════════════════════════════════════════════════════════════════════
 
   test("lower: x + y → Binary(Add, Param(x), Param(y))") {
-    val g   = assertRight(Lower.lower(Add(Symbol("x"), Symbol("y")), scalarEnv))
+    val g = assertRight(Lower.lower(Add(Symbol("x"), Symbol("y")), scalarEnv))
     assertEquals(g.size, 3) // x, y, Binary
     val add = g(g.output).asInstanceOf[TensorExpr.Binary]
     assertEquals(add.op, BinaryOp.Add)
@@ -94,7 +94,7 @@ class LowerPhase4Test extends FunSuite:
   }
 
   test("lower: Neg(x) → Unary(Neg, Param(x))") {
-    val g   = assertRight(Lower.lower(Neg(Symbol("x")), scalarEnv))
+    val g = assertRight(Lower.lower(Neg(Symbol("x")), scalarEnv))
     assertEquals(g.size, 2)
     val neg = g(g.output).asInstanceOf[TensorExpr.Unary]
     assertEquals(neg.op, UnaryOp.Neg)
@@ -138,8 +138,8 @@ class LowerPhase4Test extends FunSuite:
   }
 
   test("lower: Root(None, x) → Unary(Sqrt, ...)") {
-    val g   = assertRight(Lower.lower(Root(None, Symbol("x")), scalarEnv))
-    val sq  = g(g.output).asInstanceOf[TensorExpr.Unary]
+    val g = assertRight(Lower.lower(Root(None, Symbol("x")), scalarEnv))
+    val sq = g(g.output).asInstanceOf[TensorExpr.Unary]
     assertEquals(sq.op, UnaryOp.Sqrt)
     assertEquals(g(sq.a).asInstanceOf[TensorExpr.Param].name, "x")
   }
@@ -155,7 +155,7 @@ class LowerPhase4Test extends FunSuite:
   // ══════════════════════════════════════════════════════════════════════════
 
   test("lower: Superscript(x, Number(2)) → Binary(Pow, Param(x), Const(2))") {
-    val g   = assertRight(Lower.lower(Superscript(Symbol("x"), Number(2.0)), scalarEnv))
+    val g = assertRight(Lower.lower(Superscript(Symbol("x"), Number(2.0)), scalarEnv))
     val pow = g(g.output).asInstanceOf[TensorExpr.Binary]
     assertEquals(pow.op, BinaryOp.Pow)
     assertEquals(g(pow.a).asInstanceOf[TensorExpr.Param].name, "x")
@@ -165,7 +165,7 @@ class LowerPhase4Test extends FunSuite:
   test("lower: Superscript(x, Symbol(y)) → NonSemanticSuperscript error") {
     Lower.lower(Superscript(Symbol("x"), Symbol("y")), scalarEnv) match
       case Left(_: LowerError.NonSemanticSuperscript) => ()
-      case other => fail(s"expected NonSemanticSuperscript, got $other")
+      case other                                      => fail(s"expected NonSemanticSuperscript, got $other")
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -173,7 +173,7 @@ class LowerPhase4Test extends FunSuite:
   // ══════════════════════════════════════════════════════════════════════════
 
   test("lower: FunctionCall(sin, [x]) → Unary(Sin, Param(x))") {
-    val g   = assertRight(Lower.lower(FunctionCall("sin", List(Symbol("x"))), scalarEnv))
+    val g = assertRight(Lower.lower(FunctionCall("sin", List(Symbol("x"))), scalarEnv))
     val sin = g(g.output).asInstanceOf[TensorExpr.Unary]
     assertEquals(sin.op, UnaryOp.Sin)
     assertEquals(g(sin.a).asInstanceOf[TensorExpr.Param].name, "x")
@@ -240,7 +240,7 @@ class LowerPhase4Test extends FunSuite:
   test("lower: Subscript(...) → UnsupportedBinder error") {
     Lower.lower(Subscript(Symbol("x"), Number(0.0)), scalarEnv) match
       case Left(_: LowerError.UnsupportedBinder) => ()
-      case other                                  => fail(s"expected UnsupportedBinder, got $other")
+      case other                                 => fail(s"expected UnsupportedBinder, got $other")
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -248,7 +248,7 @@ class LowerPhase4Test extends FunSuite:
   // ══════════════════════════════════════════════════════════════════════════
 
   test("lower: x + x shares Param node (hash-consing)") {
-    val g   = assertRight(Lower.lower(Add(Symbol("x"), Symbol("x")), scalarEnv))
+    val g = assertRight(Lower.lower(Add(Symbol("x"), Symbol("x")), scalarEnv))
     // Param(x) + Param(x) → 2 nodes: one Param, one Binary
     assertEquals(g.size, 2)
     val add = g(g.output).asInstanceOf[TensorExpr.Binary]
@@ -257,7 +257,7 @@ class LowerPhase4Test extends FunSuite:
 
   test("lower: (x + y) + (x + y) shares the Add subexpression") {
     val inner = Add(Symbol("x"), Symbol("y"))
-    val g     = assertRight(Lower.lower(Add(inner, inner), scalarEnv))
+    val g = assertRight(Lower.lower(Add(inner, inner), scalarEnv))
     // Param(x), Param(y), Binary(Add,0,1), Binary(Add,2,2)
     assertEquals(g.size, 4)
     val outer = g(g.output).asInstanceOf[TensorExpr.Binary]
@@ -290,8 +290,8 @@ class LowerPhase4Test extends FunSuite:
 
   test("lower + TypeCheck: deeply nested Color/Group/BracketGroup passes TypeCheck") {
     val expr = Color("blue", Group(BracketGroup("(", ")", Neg(Symbol("x")))))
-    val g    = assertRight(Lower.lower(expr, scalarEnv))
-    val neg  = g(g.output).asInstanceOf[TensorExpr.Unary]
+    val g = assertRight(Lower.lower(expr, scalarEnv))
+    val neg = g(g.output).asInstanceOf[TensorExpr.Unary]
     assertEquals(neg.op, UnaryOp.Neg)
     assertEquals(g(neg.a).asInstanceOf[TensorExpr.Param].name, "x")
     assertEquals(TypeCheck.infer(g), Right(g))
