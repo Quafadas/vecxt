@@ -217,7 +217,7 @@ class NormalizePhase5Test extends FunSuite:
       case other                    => fail(s"expected Const(0.0), got $other")
   }
 
-  test("normalize: 0 / 0 is left as-is (NaN semantics preserved)") {
+  test("normalize: 0 / 0 folds to NaN (IEEE semantics; annihilator rule skipped for zero denom)") {
     // nodes: Const(0.0), Const(0.0), Div(0,1) — BUT hash-consing means two Const(0.0) share one id
     // Build without sharing to force the pattern:
     val n0 = TensorExpr.Const(0.0, f64s)
@@ -374,8 +374,7 @@ class NormalizePhase5Test extends FunSuite:
     )
     val graph = TensorGraph(nodes, NodeId(3))
     val g2    = Normalize.run(graph)
-    // After normalize: x+x → Const? No: x,y are params.
-    // sub(add(x,y), add(x,y)): the inner add should be shared → 3 nodes total
+    // x, y are params; sub(add(x,y), add(x,y)) should share the Add node → 4 nodes total
     assertEquals(g2.size, 4) // x, y, Add(x,y), Sub(add,add)
     val sub = g2(g2.output).asInstanceOf[TensorExpr.Binary]
     assertEquals(sub.a, sub.b, "both operands of Sub should be the same (shared) Add node")
