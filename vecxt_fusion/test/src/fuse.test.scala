@@ -5,16 +5,16 @@ import munit.FunSuite
 class FusionPlannerPhase6Test extends FunSuite:
 
   // ── Shared type aliases ───────────────────────────────────────────────────
-  val f64s  = TType(DType.F64, Shape.scalar)
+  val f64s = TType(DType.F64, Shape.scalar)
   val bools = TType(DType.Bool, Shape.scalar)
   val f64v4 = TType(DType.F64, Shape(Dim.Known(4)))
-  val f64m  = TType(DType.F64, Shape(Dim.Known(3), Dim.Known(4)))
+  val f64m = TType(DType.F64, Shape(Dim.Known(3), Dim.Known(4)))
 
   // ── Graph-builder helpers ─────────────────────────────────────────────────
 
   def param(name: String, tpe: TType = f64v4): TensorExpr = TensorExpr.Param(name, tpe)
-  def c(v: Double, tpe: TType = f64s): TensorExpr         = TensorExpr.Const(v, tpe)
-  def g(nodes: TensorExpr*): TensorGraph                   = TensorGraph(nodes.toVector, NodeId(nodes.length - 1))
+  def c(v: Double, tpe: TType = f64s): TensorExpr = TensorExpr.Const(v, tpe)
+  def g(nodes: TensorExpr*): TensorGraph = TensorGraph(nodes.toVector, NodeId(nodes.length - 1))
 
   // ══════════════════════════════════════════════════════════════════════════
   // Group count and basic structure
@@ -22,7 +22,7 @@ class FusionPlannerPhase6Test extends FunSuite:
 
   test("fuse: single Param leaf → no groups") {
     val graph = g(param("x"))
-    val plan  = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     assertEquals(plan.groups.size, 0)
     assertEquals(plan.assignment.size, 0)
   }
@@ -30,7 +30,7 @@ class FusionPlannerPhase6Test extends FunSuite:
   test("fuse: single Unary(Sin) → one group") {
     // 0=Param(x), 1=Sin(0)
     val graph = g(param("x"), TensorExpr.Unary(UnaryOp.Sin, NodeId(0), f64v4))
-    val plan  = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     assertEquals(plan.groups.size, 1)
     assertEquals(plan.groups(0).nodeIds, Vector(NodeId(1)))
   }
@@ -74,6 +74,7 @@ class FusionPlannerPhase6Test extends FunSuite:
     )
     val plan = FusionPlanner.plan(graph)
     assertEquals(plan.groups.size, 1)
+    assertEquals(plan.groups(0).inputs.size, 2)
     assertEquals(plan.groups(0).inputs.toSet, Set(NodeId(0), NodeId(1)))
   }
 
@@ -124,7 +125,7 @@ class FusionPlannerPhase6Test extends FunSuite:
   test("fuse: standalone reduce → singleton reduce group") {
     // 0=Param(x), 1=Reduce(Sum,0)
     val graph = g(param("x"), TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector(0), f64s))
-    val plan  = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     assertEquals(plan.groups.size, 1)
     assertEquals(plan.groups(0).nodeIds, Vector(NodeId(1)))
     assertEquals(plan.groups(0).inputs, Vector(NodeId(0)))
@@ -142,7 +143,7 @@ class FusionPlannerPhase6Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Cos, NodeId(0), f64v4),
       TensorExpr.Binary(BinaryOp.Add, NodeId(1), NodeId(2), f64v4)
     )
-    val plan     = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     val nonLeafs = Set(NodeId(1), NodeId(2), NodeId(3))
     assertEquals(plan.assignment.keySet, nonLeafs)
   }
@@ -167,7 +168,7 @@ class FusionPlannerPhase6Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Exp, NodeId(1), f64v4),
       TensorExpr.Binary(BinaryOp.Add, NodeId(1), NodeId(2), f64v4)
     )
-    val plan   = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     val allIds = plan.groups.flatMap(_.nodeIds)
     assertEquals(allIds.size, allIds.distinct.size)
   }
@@ -180,7 +181,7 @@ class FusionPlannerPhase6Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Exp, NodeId(1), f64v4),
       TensorExpr.Binary(BinaryOp.Add, NodeId(1), NodeId(2), f64v4)
     )
-    val plan       = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     val fromGroups = plan.groups.flatMap(_.nodeIds).toSet
     val fromAssign = plan.assignment.keySet
     assertEquals(fromGroups, fromAssign)
@@ -198,7 +199,7 @@ class FusionPlannerPhase6Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Exp, NodeId(1), f64v4),
       TensorExpr.Binary(BinaryOp.Add, NodeId(1), NodeId(2), f64v4)
     )
-    val plan    = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     val outputs = plan.groups.map(_.output.i)
     assertEquals(outputs, outputs.sorted)
   }
@@ -259,7 +260,7 @@ class FusionPlannerPhase6Test extends FunSuite:
     )
     val plan = FusionPlanner.plan(graph)
     plan.groups.foreach { grp =>
-      val nodeSet  = grp.nodeIds.toSet
+      val nodeSet = grp.nodeIds.toSet
       val inputSet = grp.inputs.toSet
       assert(nodeSet.intersect(inputSet).isEmpty, s"group ${grp.output} has overlap")
     }
@@ -283,13 +284,13 @@ class FusionPlannerPhase6Test extends FunSuite:
 
   test("fuse: groupOf returns None for a leaf") {
     val graph = g(param("x"), TensorExpr.Unary(UnaryOp.Sin, NodeId(0), f64v4))
-    val plan  = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     assertEquals(plan.groupOf(NodeId(0)), None)
   }
 
   test("fuse: groupOf returns Some for a non-leaf") {
     val graph = g(param("x"), TensorExpr.Unary(UnaryOp.Sin, NodeId(0), f64v4))
-    val plan  = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     assertEquals(plan.groupOf(NodeId(1)), Some(GroupId(0)))
   }
 
@@ -366,7 +367,7 @@ class FusionPlannerPhase6Test extends FunSuite:
     val plan = FusionPlanner.plan(graph)
     // Sin's group cannot absorb the Reduce; two groups expected
     assertEquals(plan.groups.size, 2)
-    val sinGid    = plan.groupOf(NodeId(2)).get
+    val sinGid = plan.groupOf(NodeId(2)).get
     val reduceGid = plan.groupOf(NodeId(1)).get
     assertNotEquals(sinGid, reduceGid)
   }
@@ -442,8 +443,8 @@ class FusionPlannerPhase6Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Cos, NodeId(0), f64v4),
       TensorExpr.Binary(BinaryOp.Add, NodeId(1), NodeId(2), f64v4)
     )
-    val plan  = FusionPlanner.plan(graph)
-    val grp   = plan.groups(0)
+    val plan = FusionPlanner.plan(graph)
+    val grp = plan.groups(0)
     val flops = CostModel.estimatedFlops(grp, graph)
     assertEquals(flops, 164L)
   }
@@ -451,8 +452,8 @@ class FusionPlannerPhase6Test extends FunSuite:
   test("costmodel: estimatedBytesRead for group with 1 input of size 4") {
     // Group: Unary(Sin, param), input = 1 × 4 elements × 8 bytes = 32
     val graph = g(param("x"), TensorExpr.Unary(UnaryOp.Sin, NodeId(0), f64v4))
-    val plan  = FusionPlanner.plan(graph)
-    val grp   = plan.groups(0)
+    val plan = FusionPlanner.plan(graph)
+    val grp = plan.groups(0)
     assertEquals(CostModel.estimatedBytesRead(grp, graph), 32L)
   }
 
@@ -466,8 +467,8 @@ class FusionPlannerPhase6Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Cos, NodeId(1), f64v4),
       TensorExpr.Binary(BinaryOp.Add, NodeId(2), NodeId(3), f64v4)
     )
-    val plan  = FusionPlanner.plan(graph)
-    val grp   = plan.groups(0)
+    val plan = FusionPlanner.plan(graph)
+    val grp = plan.groups(0)
     // 2 inputs × 4 elements × 8 bytes = 64
     assertEquals(CostModel.estimatedBytesRead(grp, graph), 64L)
   }
@@ -485,7 +486,7 @@ class FusionPlannerPhase6Test extends FunSuite:
       TensorExpr.Binary(BinaryOp.Add, NodeId(1), NodeId(2), f64v4)
     )
     val normalised = Normalize.run(raw)
-    val plan       = FusionPlanner.plan(normalised)
+    val plan = FusionPlanner.plan(normalised)
     assertEquals(plan.groups.size, 1)
   }
 
@@ -535,7 +536,7 @@ class FusionPlannerPhase6Test extends FunSuite:
 
   test("fuse: FusionPlan holds a reference to the original graph") {
     val graph = g(param("x"), TensorExpr.Unary(UnaryOp.Sin, NodeId(0), f64v4))
-    val plan  = FusionPlanner.plan(graph)
+    val plan = FusionPlanner.plan(graph)
     assertEquals(plan.graph, graph)
   }
 
