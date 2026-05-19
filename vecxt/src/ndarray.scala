@@ -100,6 +100,14 @@ object ndarray:
     inline def scalar[A](value: A)(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
       new NDArray(Array(value), Array.emptyIntArray, Array.emptyIntArray, 0)
 
+    /** Create an NDArray from pre-validated raw components without bounds checking.
+      *
+      * The caller is responsible for ensuring that `data`, `shape`, `strides` and `offset` are mutually consistent.
+      * Intended for use by cross-module code (e.g. `vecxt.fusion`) that cannot call the `inline` constructors.
+      */
+    def wrap[A](data: Array[A], shape: Array[Int], strides: Array[Int], offset: Int = 0): NDArray[A] =
+      new NDArray(data, shape, strides, offset)
+
     inline def zeros[A](
         shape: Array[Int]
     )(using inline boundsCheck: BoundsCheck, oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
