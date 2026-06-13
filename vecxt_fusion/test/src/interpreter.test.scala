@@ -23,6 +23,7 @@ class InterpreterPhase7Test extends FunSuite:
         while i < expected.length do
           assertClose(data(i), expected(i))
           i += 1
+        end while
       case other => fail(s"expected IVal.F64, got $other")
 
   private def assertBoolEq(result: IVal, expected: Array[Boolean])(using munit.Location): Unit =
@@ -95,38 +96,38 @@ class InterpreterPhase7Test extends FunSuite:
   }
 
   test("unary: sin of vector param") {
-    val b    = new GraphBuilder()
-    val s4   = Shape(Dim.Known(4))
-    val x    = b.Expr.param[Double]("x", s4)
-    val g    = b.build(x.sin)
+    val b = new GraphBuilder()
+    val s4 = Shape(Dim.Known(4))
+    val x = b.Expr.param[Double]("x", s4)
+    val g = b.build(x.sin)
     val data = Array(0.0, math.Pi / 2, math.Pi, 3 * math.Pi / 2)
-    val r    = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(data, Array(4))))
+    val r = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(data, Array(4))))
     assertShape(r, Array(4))
     assertF64Close(r, data.map(math.sin))
   }
 
   test("unary: sqrt") {
-    val b  = new GraphBuilder()
+    val b = new GraphBuilder()
     val s3 = Shape(Dim.Known(3))
-    val x  = b.Expr.param[Double]("x", s3)
-    val g  = b.build(x.sqrt)
-    val r  = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(1.0, 4.0, 9.0), Array(3))))
+    val x = b.Expr.param[Double]("x", s3)
+    val g = b.build(x.sqrt)
+    val r = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(1.0, 4.0, 9.0), Array(3))))
     assertF64Close(r, Array(1.0, 2.0, 3.0))
   }
 
   test("unary: not on Bool") {
-    val b  = new GraphBuilder()
+    val b = new GraphBuilder()
     val s3 = Shape(Dim.Known(3))
-    val x  = b.Expr.param[Boolean]("x", s3)
-    val g  = b.build(!x)
-    val r  = Interpreter.eval(g, params = Map("x" -> IVal.boolcm(Array(true, false, true), Array(3))))
+    val x = b.Expr.param[Boolean]("x", s3)
+    val g = b.build(!x)
+    val r = Interpreter.eval(g, params = Map("x" -> IVal.boolcm(Array(true, false, true), Array(3))))
     assertBoolEq(r, Array(false, true, false))
   }
 
   // ── binary ops ───────────────────────────────────────────────────────────
 
   test("binary: vector elementwise mul") {
-    val b  = new GraphBuilder()
+    val b = new GraphBuilder()
     val s4 = Shape(Dim.Known(4))
     import b.*
     val x = b.Expr.param[Double]("x", s4)
@@ -143,11 +144,11 @@ class InterpreterPhase7Test extends FunSuite:
   }
 
   test("binary: comparison produces Bool") {
-    val b  = new GraphBuilder()
+    val b = new GraphBuilder()
     val s4 = Shape(Dim.Known(4))
-    val x  = b.Expr.param[Double]("x", s4)
-    val y  = b.Expr.param[Double]("y", s4)
-    val g  = b.build(x < y)
+    val x = b.Expr.param[Double]("x", s4)
+    val y = b.Expr.param[Double]("y", s4)
+    val g = b.build(x < y)
     val r = Interpreter.eval(
       g,
       params = Map(
@@ -159,11 +160,11 @@ class InterpreterPhase7Test extends FunSuite:
   }
 
   test("binary: pow (elementwise x^y)") {
-    val s3     = Shape(Dim.Known(3))
+    val s3 = Shape(Dim.Known(3))
     val paramX = TensorExpr.Param("x", TType(DType.F64, s3))
     val paramY = TensorExpr.Param("y", TType(DType.F64, s3))
-    val powN   = TensorExpr.Binary(BinaryOp.Pow, NodeId(0), NodeId(1), TType(DType.F64, s3))
-    val g      = TensorGraph(Vector(paramX, paramY, powN), NodeId(2))
+    val powN = TensorExpr.Binary(BinaryOp.Pow, NodeId(0), NodeId(1), TType(DType.F64, s3))
+    val g = TensorGraph(Vector(paramX, paramY, powN), NodeId(2))
     val r = Interpreter.eval(
       g,
       params = Map(
@@ -178,46 +179,46 @@ class InterpreterPhase7Test extends FunSuite:
 
   test("cast: F64 → I64") {
     val paramX = TensorExpr.Param("x", TType(DType.F64, Shape.scalar))
-    val castN  = TensorExpr.Cast(DType.I64, NodeId(0), TType(DType.I64, Shape.scalar))
-    val g      = TensorGraph(Vector(paramX, castN), NodeId(1))
-    val r      = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(3.7), Array())))
+    val castN = TensorExpr.Cast(DType.I64, NodeId(0), TType(DType.I64, Shape.scalar))
+    val g = TensorGraph(Vector(paramX, castN), NodeId(1))
+    val r = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(3.7), Array())))
     assertI64Eq(r, Array(3L))
   }
 
   test("cast: Bool → F64") {
-    val s3     = Shape(Dim.Known(3))
+    val s3 = Shape(Dim.Known(3))
     val paramX = TensorExpr.Param("x", TType(DType.Bool, s3))
-    val castN  = TensorExpr.Cast(DType.F64, NodeId(0), TType(DType.F64, s3))
-    val g      = TensorGraph(Vector(paramX, castN), NodeId(1))
-    val r      = Interpreter.eval(g, params = Map("x" -> IVal.boolcm(Array(true, false, true), Array(3))))
+    val castN = TensorExpr.Cast(DType.F64, NodeId(0), TType(DType.F64, s3))
+    val g = TensorGraph(Vector(paramX, castN), NodeId(1))
+    val r = Interpreter.eval(g, params = Map("x" -> IVal.boolcm(Array(true, false, true), Array(3))))
     assertF64Close(r, Array(1.0, 0.0, 1.0))
   }
 
   // ── BCast ─────────────────────────────────────────────────────────────────
 
   test("bcast: scalar → 1-D vector") {
-    val b       = new GraphBuilder()
-    val s4      = Shape(Dim.Known(4))
+    val b = new GraphBuilder()
+    val s4 = Shape(Dim.Known(4))
     val scShape = Shape.scalar
-    val x       = b.Expr.param[Double]("x", scShape)
+    val x = b.Expr.param[Double]("x", scShape)
     // Wire a BCast node manually on top of the Param
-    val baseG   = b.build(x)
-    val bcastN  = TensorExpr.BCast(NodeId(0), s4, TType(DType.F64, s4))
-    val g       = TensorGraph(baseG.nodes :+ bcastN, NodeId(baseG.size))
-    val r       = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(5.0), Array())))
+    val baseG = b.build(x)
+    val bcastN = TensorExpr.BCast(NodeId(0), s4, TType(DType.F64, s4))
+    val g = TensorGraph(baseG.nodes :+ bcastN, NodeId(baseG.size))
+    val r = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(5.0), Array())))
     assertShape(r, Array(4))
     assertF64Close(r, Array(5.0, 5.0, 5.0, 5.0))
   }
 
   test("bcast: 1-D [1] → [2,3] 2-D") {
-    val b      = new GraphBuilder()
-    val s1     = Shape(Dim.Known(1))
-    val s23    = Shape(Dim.Known(2), Dim.Known(3))
-    val x      = b.Expr.param[Double]("x", s1)
-    val baseG  = b.build(x)
+    val b = new GraphBuilder()
+    val s1 = Shape(Dim.Known(1))
+    val s23 = Shape(Dim.Known(2), Dim.Known(3))
+    val x = b.Expr.param[Double]("x", s1)
+    val baseG = b.build(x)
     val bcastN = TensorExpr.BCast(NodeId(0), s23, TType(DType.F64, s23))
-    val g      = TensorGraph(baseG.nodes :+ bcastN, NodeId(baseG.size))
-    val r      = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(7.0), Array(1))))
+    val g = TensorGraph(baseG.nodes :+ bcastN, NodeId(baseG.size))
+    val r = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(7.0), Array(1))))
     assertShape(r, Array(2, 3))
     // col-major [2,3]: indices [0..5] → all 7.0
     assertF64Close(r, Array.fill(6)(7.0))
@@ -226,26 +227,26 @@ class InterpreterPhase7Test extends FunSuite:
   // ── reduce ───────────────────────────────────────────────────────────────
 
   test("reduce: sum over all axis of 1-D vector") {
-    val b    = new GraphBuilder()
-    val s4   = Shape(Dim.Known(4))
+    val b = new GraphBuilder()
+    val s4 = Shape(Dim.Known(4))
     val sOut = Shape.scalar
-    val x    = b.Expr.param[Double]("x", s4)
+    val x = b.Expr.param[Double]("x", s4)
     val baseG = b.build(x)
-    val redN  = TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector(0), TType(DType.F64, sOut))
-    val g     = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
+    val redN = TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector(0), TType(DType.F64, sOut))
+    val g = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
     val r = Interpreter.eval(g, params = Map("x" -> IVal.f64cm(Array(1.0, 2.0, 3.0, 4.0), Array(4))))
     assertShape(r, Array())
     assertF64Close(r, Array(10.0))
   }
 
   test("reduce: sum along axis 0 of 2-D [2,3] → [3]") {
-    val b   = new GraphBuilder()
+    val b = new GraphBuilder()
     val s23 = Shape(Dim.Known(2), Dim.Known(3))
-    val s3  = Shape(Dim.Known(3))
-    val x   = b.Expr.param[Double]("x", s23)
+    val s3 = Shape(Dim.Known(3))
+    val x = b.Expr.param[Double]("x", s23)
     val baseG = b.build(x)
-    val redN  = TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector(0), TType(DType.F64, s3))
-    val g     = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
+    val redN = TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector(0), TType(DType.F64, s3))
+    val g = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
     // col-major [2,3]: data(0)=(0,0), data(1)=(1,0), data(2)=(0,1), data(3)=(1,1), data(4)=(0,2), data(5)=(1,2)
     // sum along axis 0 (row axis): out(j) = data(0,j) + data(1,j)
     // out(0) = 1+2=3, out(1) = 3+4=7, out(2) = 5+6=11
@@ -258,13 +259,13 @@ class InterpreterPhase7Test extends FunSuite:
   }
 
   test("reduce: max along axis 1 of 2-D [2,3] → [2]") {
-    val b   = new GraphBuilder()
+    val b = new GraphBuilder()
     val s23 = Shape(Dim.Known(2), Dim.Known(3))
-    val s2  = Shape(Dim.Known(2))
-    val x   = b.Expr.param[Double]("x", s23)
+    val s2 = Shape(Dim.Known(2))
+    val x = b.Expr.param[Double]("x", s23)
     val baseG = b.build(x)
-    val redN  = TensorExpr.Reduce(ReduceOp.Max, NodeId(0), Vector(1), TType(DType.F64, s2))
-    val g     = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
+    val redN = TensorExpr.Reduce(ReduceOp.Max, NodeId(0), Vector(1), TType(DType.F64, s2))
+    val g = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
     // col-major [2,3]: row0=[1,3,5], row1=[2,4,6]
     // max along axis 1 (col axis): out(0)=max(1,3,5)=5, out(1)=max(2,4,6)=6
     val r = Interpreter.eval(
@@ -276,38 +277,38 @@ class InterpreterPhase7Test extends FunSuite:
   }
 
   test("reduce: empty axes is identity") {
-    val b  = new GraphBuilder()
+    val b = new GraphBuilder()
     val s3 = Shape(Dim.Known(3))
-    val x  = b.Expr.param[Double]("x", s3)
+    val x = b.Expr.param[Double]("x", s3)
     val baseG = b.build(x)
-    val redN  = TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector.empty, TType(DType.F64, s3))
-    val g     = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
-    val inp   = IVal.f64cm(Array(1.0, 2.0, 3.0), Array(3))
-    val r     = Interpreter.eval(g, params = Map("x" -> inp))
+    val redN = TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector.empty, TType(DType.F64, s3))
+    val g = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
+    val inp = IVal.f64cm(Array(1.0, 2.0, 3.0), Array(3))
+    val r = Interpreter.eval(g, params = Map("x" -> inp))
     assertF64Close(r, Array(1.0, 2.0, 3.0))
   }
 
   test("reduce: all on Bool vector") {
-    val b  = new GraphBuilder()
+    val b = new GraphBuilder()
     val s3 = Shape(Dim.Known(3))
-    val x  = b.Expr.param[Boolean]("x", s3)
+    val x = b.Expr.param[Boolean]("x", s3)
     val baseG = b.build(x)
-    val redN  = TensorExpr.Reduce(ReduceOp.All, NodeId(0), Vector(0), TType(DType.Bool, Shape.scalar))
-    val g     = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
-    val r1    = Interpreter.eval(g, params = Map("x" -> IVal.boolcm(Array(true, true, true), Array(3))))
+    val redN = TensorExpr.Reduce(ReduceOp.All, NodeId(0), Vector(0), TType(DType.Bool, Shape.scalar))
+    val g = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
+    val r1 = Interpreter.eval(g, params = Map("x" -> IVal.boolcm(Array(true, true, true), Array(3))))
     assertBoolEq(r1, Array(true))
     val r2 = Interpreter.eval(g, params = Map("x" -> IVal.boolcm(Array(true, false, true), Array(3))))
     assertBoolEq(r2, Array(false))
   }
 
   test("reduce: argmax along axis 0 of 1-D") {
-    val b    = new GraphBuilder()
-    val s4   = Shape(Dim.Known(4))
+    val b = new GraphBuilder()
+    val s4 = Shape(Dim.Known(4))
     val sOut = Shape.scalar
-    val x    = b.Expr.param[Double]("x", s4)
+    val x = b.Expr.param[Double]("x", s4)
     val baseG = b.build(x)
-    val redN  = TensorExpr.Reduce(ReduceOp.ArgMax, NodeId(0), Vector(0), TType(DType.I64, sOut))
-    val g     = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
+    val redN = TensorExpr.Reduce(ReduceOp.ArgMax, NodeId(0), Vector(0), TType(DType.I64, sOut))
+    val g = TensorGraph(baseG.nodes :+ redN, NodeId(baseG.size))
     val r = Interpreter.eval(
       g,
       params = Map("x" -> IVal.f64cm(Array(1.0, 5.0, 3.0, 2.0), Array(4)))
@@ -318,12 +319,12 @@ class InterpreterPhase7Test extends FunSuite:
   // ── where ─────────────────────────────────────────────────────────────────
 
   test("where: elementwise select on F64") {
-    val s4        = Shape(Dim.Known(4))
-    val paramC    = TensorExpr.Param("c", TType(DType.Bool, s4))
-    val paramX    = TensorExpr.Param("x", TType(DType.F64, s4))
-    val paramY    = TensorExpr.Param("y", TType(DType.F64, s4))
+    val s4 = Shape(Dim.Known(4))
+    val paramC = TensorExpr.Param("c", TType(DType.Bool, s4))
+    val paramX = TensorExpr.Param("x", TType(DType.F64, s4))
+    val paramY = TensorExpr.Param("y", TType(DType.F64, s4))
     val whereNode = TensorExpr.Where(NodeId(0), NodeId(1), NodeId(2), TType(DType.F64, s4))
-    val g         = TensorGraph(Vector(paramC, paramX, paramY, whereNode), NodeId(3))
+    val g = TensorGraph(Vector(paramC, paramX, paramY, whereNode), NodeId(3))
     val r = Interpreter.eval(
       g,
       params = Map(
@@ -341,14 +342,14 @@ class InterpreterPhase7Test extends FunSuite:
     // Use scalar shapes so const(0.0) and param("x") share the same shape
     val b = new GraphBuilder()
     import b.*
-    val x      = b.Expr.param[Double]("x") // scalar
-    val zero   = b.Expr.const[Double](0.0) // scalar
-    val sum    = x + zero
-    val g      = b.build(sum)
-    val gNorm  = Normalize.run(g)
+    val x = b.Expr.param[Double]("x") // scalar
+    val zero = b.Expr.const[Double](0.0) // scalar
+    val sum = x + zero
+    val g = b.build(sum)
+    val gNorm = Normalize.run(g)
     val params = Map("x" -> IVal.f64cm(Array(5.0), Array()))
-    val r1     = Interpreter.eval(g, params)
-    val r2     = Interpreter.eval(gNorm, params)
+    val r1 = Interpreter.eval(g, params)
+    val r2 = Interpreter.eval(gNorm, params)
     assertF64Close(r1, Array(5.0))
     assertF64Close(r2, Array(5.0))
   }
@@ -356,15 +357,18 @@ class InterpreterPhase7Test extends FunSuite:
   // ── round-trip via FusionPlanner ──────────────────────────────────────────
 
   test("round-trip FusionPlanner: graph unchanged by plan") {
-    val b  = new GraphBuilder()
+    val b = new GraphBuilder()
     val s4 = Shape(Dim.Known(4))
     import b.*
-    val x      = b.Expr.param[Double]("x", s4)
-    val y      = b.Expr.param[Double]("y", s4)
+    val x = b.Expr.param[Double]("x", s4)
+    val y = b.Expr.param[Double]("y", s4)
     val result = (x + y).exp
-    val g      = b.build(result)
-    val plan   = FusionPlanner.plan(g)
-    val inp    = Map("x" -> IVal.f64cm(Array(1.0, 0.0, -1.0, 2.0), Array(4)), "y" -> IVal.f64cm(Array(0.0, 1.0, 1.0, -2.0), Array(4)))
+    val g = b.build(result)
+    val plan = FusionPlanner.plan(g)
+    val inp = Map(
+      "x" -> IVal.f64cm(Array(1.0, 0.0, -1.0, 2.0), Array(4)),
+      "y" -> IVal.f64cm(Array(0.0, 1.0, 1.0, -2.0), Array(4))
+    )
     // The plan's graph should evaluate to the same result
     val r1 = Interpreter.eval(g, inp)
     val r2 = Interpreter.eval(plan.graph, inp)
@@ -377,26 +381,26 @@ class InterpreterPhase7Test extends FunSuite:
   test("lift: read scalar NDArray via handle ID") {
     import vecxt.BoundsCheck.DoBoundsCheck.yes
     import vecxt.ndarray.*
-    val nd    = NDArray.scalar[Double](42.0)
-    val b     = new GraphBuilder()
+    val nd = NDArray.scalar[Double](42.0)
+    val b = new GraphBuilder()
     val lifted = b.Expr.lift[Double](nd) // handle ID 0
-    val g     = b.build(lifted)
-    val ival  = IVal.fromNDArray(nd)
-    val r     = Interpreter.eval(g, lifts = Map(0 -> ival))
+    val g = b.build(lifted)
+    val ival = IVal.fromNDArray(nd)
+    val r = Interpreter.eval(g, lifts = Map(0 -> ival))
     assertF64Close(r, Array(42.0))
   }
 
   test("lift: 1-D NDArray via handle ID + elementwise op") {
     import vecxt.BoundsCheck.DoBoundsCheck.yes
     import vecxt.ndarray.*
-    val data  = Array(1.0, 2.0, 3.0)
-    val nd    = NDArray.fromArray(data)
-    val b     = new GraphBuilder()
+    val data = Array(1.0, 2.0, 3.0)
+    val nd = NDArray.fromArray(data)
+    val b = new GraphBuilder()
     import b.*
-    val x    = b.Expr.lift[Double](nd) // handle ID 0
-    val g    = b.build(x.exp)
+    val x = b.Expr.lift[Double](nd) // handle ID 0
+    val g = b.build(x.exp)
     val ival = IVal.fromNDArray(nd)
-    val r    = Interpreter.eval(g, lifts = Map(0 -> ival))
+    val r = Interpreter.eval(g, lifts = Map(0 -> ival))
     assertF64Close(r, data.map(math.exp))
   }
 

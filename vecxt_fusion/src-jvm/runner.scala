@@ -14,30 +14,35 @@ object FusedRunner:
 
   /** Evaluate `graph` through the full fusion pipeline and return the output buffer.
     *
-    * @param graph  the tensor graph to evaluate (normalised internally).
-    * @param params values for `TensorExpr.Param` nodes, keyed by parameter name.  Each value is a flat, contiguous,
-    *               column-major `Array[Double]` of `prod(shape)` elements.
-    * @param lifts  values for `TensorExpr.Lift` nodes, keyed by `NDArrayHandle.id`. Same array convention as `params`.
-    * @return `Right(buf)` — the flat output buffer — or `Left(err)` if any group could not be scheduled.
+    * @param graph
+    *   the tensor graph to evaluate (normalised internally).
+    * @param params
+    *   values for `TensorExpr.Param` nodes, keyed by parameter name. Each value is a flat, contiguous, column-major
+    *   `Array[Double]` of `prod(shape)` elements.
+    * @param lifts
+    *   values for `TensorExpr.Lift` nodes, keyed by `NDArrayHandle.id`. Same array convention as `params`.
+    * @return
+    *   `Right(buf)` — the flat output buffer — or `Left(err)` if any group could not be scheduled.
     */
   def eval(
-      graph:  TensorGraph,
+      graph: TensorGraph,
       params: Map[String, Array[Double]],
-      lifts:  Map[Int, Array[Double]] = Map.empty
+      lifts: Map[Int, Array[Double]] = Map.empty
   ): Either[Schedule.ScheduleError, Array[Double]] =
     val normalized = Normalize.run(graph)
-    val plan       = FusionPlanner.plan(normalized)
+    val plan = FusionPlanner.plan(normalized)
 
     Schedule.lower(plan).map { kernels =>
       // ── 1. Materialise all leaf nodes ──────────────────────────────────────
       val bufs = new Array[Array[Double]](normalized.size)
-      var i    = 0
+      var i = 0
       while i < normalized.size do
         normalized(NodeId(i)) match
           case TensorExpr.Param(name, _) =>
             bufs(i) = params.getOrElse(name, throw RuntimeException(s"FusedRunner: missing param '$name'"))
           case TensorExpr.Lift(handle, _) =>
-            bufs(i) = lifts.getOrElse(handle.id, throw RuntimeException(s"FusedRunner: missing lift handle ${handle.id}"))
+            bufs(i) =
+              lifts.getOrElse(handle.id, throw RuntimeException(s"FusedRunner: missing lift handle ${handle.id}"))
           case TensorExpr.Const(v, _) =>
             // Consts are inlined as Lit nodes in the scalar expr by the scheduler; however a Const that is
             // a group boundary input (e.g. shared across groups) needs a real buffer entry.

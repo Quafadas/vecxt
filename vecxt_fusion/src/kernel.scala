@@ -21,11 +21,13 @@ object ScalarExpr:
   /** Load element `i % numel` from input buffer `buf`.
     *
     * Using `i % numel` rather than plain `i` makes broadcast transparent: if the source buffer has fewer elements than
-    * the output (because it was broadcast), the modulo wraps the index correctly. When `numel == outNumel` the modulo is
-    * free for the JIT to eliminate.
+    * the output (because it was broadcast), the modulo wraps the index correctly. When `numel == outNumel` the modulo
+    * is free for the JIT to eliminate.
     *
-    * @param buf   the input buffer to read from
-    * @param numel total elements in the source buffer
+    * @param buf
+    *   the input buffer to read from
+    * @param numel
+    *   total elements in the source buffer
     */
   final case class Load(buf: BufRef.Input, numel: Int) extends ScalarExpr
 
@@ -58,10 +60,13 @@ object KernelIR:
   /** Elementwise kernel: computes `out[i] = expr(inputs[0][i % n0], inputs[1][i % n1], …)` for `i` in
     * `0 until outNumel`.
     *
-    * @param outShape   shape of the output tensor; determines the loop bound `outNumel = product(outShape)`.
-    * @param inputNumel number of elements in each input buffer, in the same order as `CompiledKernel.inputNodes`.
-    *                   Used for broadcast-safe index wrapping inside `ScalarExpr.Load`.
-    * @param expr       the per-element scalar computation tree.
+    * @param outShape
+    *   shape of the output tensor; determines the loop bound `outNumel = product(outShape)`.
+    * @param inputNumel
+    *   number of elements in each input buffer, in the same order as `CompiledKernel.inputNodes`. Used for
+    *   broadcast-safe index wrapping inside `ScalarExpr.Load`.
+    * @param expr
+    *   the per-element scalar computation tree.
     */
   final case class Elementwise(
       outShape: Array[Int],
@@ -71,16 +76,20 @@ object KernelIR:
     def inputCount: Int = inputNumel.length
   end Elementwise
 
-  /** Full-tensor reduction: reduces `bodyExpr(inputs, i)` for every `i` in `0 until inNumel` into a single scalar
-    * using `op`.
+  /** Full-tensor reduction: reduces `bodyExpr(inputs, i)` for every `i` in `0 until inNumel` into a single scalar using
+    * `op`.
     *
-    * Only full reductions (all axes, scalar output) are supported in Phase 8. Partial-axis reductions will be added in a
-    * later phase.
+    * Only full reductions (all axes, scalar output) are supported in Phase 8. Partial-axis reductions will be added in
+    * a later phase.
     *
-    * @param inNumel    number of elements to iterate over (= product of input shape).
-    * @param inputNumel element counts for each input buffer (for broadcast-safe `Load`).
-    * @param op         the reduction operation.
-    * @param bodyExpr   per-element scalar expression that computes the value to fold.
+    * @param inNumel
+    *   number of elements to iterate over (= product of input shape).
+    * @param inputNumel
+    *   element counts for each input buffer (for broadcast-safe `Load`).
+    * @param op
+    *   the reduction operation.
+    * @param bodyExpr
+    *   per-element scalar expression that computes the value to fold.
     */
   final case class FullReduce(
       inNumel: Int,
@@ -95,11 +104,13 @@ end KernelIR
 
 /** A fully scheduled, executable kernel with its input wiring.
   *
-  * @param ir          the computation to perform.
-  * @param inputNodes  the `NodeId`s (in the original normalised `TensorGraph`) that supply each input buffer, in the
-  *                    same order as `ir.inputNumel` / `BufRef.Input(k)`. An executor resolves these to actual arrays at
-  *                    run time.
-  * @param outputNode  the `NodeId` whose value this kernel produces. An executor stores its result under this id.
+  * @param ir
+  *   the computation to perform.
+  * @param inputNodes
+  *   the `NodeId`s (in the original normalised `TensorGraph`) that supply each input buffer, in the same order as
+  *   `ir.inputNumel` / `BufRef.Input(k)`. An executor resolves these to actual arrays at run time.
+  * @param outputNode
+  *   the `NodeId` whose value this kernel produces. An executor stores its result under this id.
   */
 final case class CompiledKernel(
     ir: KernelIR,

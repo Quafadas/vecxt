@@ -8,7 +8,7 @@ import scala.math
   * supported. The second cut (SIMD via `jdk.incubator.vector`) will replace the inner loop for elementwise groups in a
   * later phase.
   *
-  * === Scalar encoding conventions ===
+  * ===Scalar encoding conventions===
   *
   *   - Boolean values are represented as `Double`: `0.0` = false, any other value = true.
   *   - `ArgMax`/`ArgMin` return the flat index as a `Double` in a length-1 output array.
@@ -17,10 +17,13 @@ object KernelExecutor:
 
   /** Execute `kernel` given pre-materialised F64 input arrays and return the output buffer.
     *
-    * @param kernel the compiled kernel to execute
-    * @param inputs one flat `Array[Double]` per `kernel.inputNodes` entry, in the same order. Each array must have at
-    *               least `kernel.ir.inputNumel(k)` elements.
-    * @return the output buffer as a flat, contiguous, column-major `Array[Double]`
+    * @param kernel
+    *   the compiled kernel to execute
+    * @param inputs
+    *   one flat `Array[Double]` per `kernel.inputNodes` entry, in the same order. Each array must have at least
+    *   `kernel.ir.inputNumel(k)` elements.
+    * @return
+    *   the output buffer as a flat, contiguous, column-major `Array[Double]`
     */
   def run(kernel: CompiledKernel, inputs: Array[Array[Double]]): Array[Double] =
     kernel.ir match
@@ -31,9 +34,9 @@ object KernelExecutor:
   // ── Elementwise ─────────────────────────────────────────────────────────────
 
   private def runElementwise(ir: KernelIR.Elementwise, inputs: Array[Array[Double]]): Array[Double] =
-    val n   = ir.outShape.foldLeft(1)(_ * _)
+    val n = ir.outShape.foldLeft(1)(_ * _)
     val out = new Array[Double](n)
-    var i   = 0
+    var i = 0
     while i < n do
       out(i) = evalScalar(ir.expr, i, inputs)
       i += 1
@@ -50,7 +53,7 @@ object KernelExecutor:
 
       case Sum =>
         var acc = 0.0
-        var i   = 0
+        var i = 0
         while i < n do
           acc += evalScalar(ir.bodyExpr, i, inputs)
           i += 1
@@ -59,7 +62,7 @@ object KernelExecutor:
 
       case Product =>
         var acc = 1.0
-        var i   = 0
+        var i = 0
         while i < n do
           acc *= evalScalar(ir.bodyExpr, i, inputs)
           i += 1
@@ -68,27 +71,29 @@ object KernelExecutor:
 
       case Min =>
         var acc = Double.PositiveInfinity
-        var i   = 0
+        var i = 0
         while i < n do
           val v = evalScalar(ir.bodyExpr, i, inputs)
           if v < acc then acc = v
+          end if
           i += 1
         end while
         Array(acc)
 
       case Max =>
         var acc = Double.NegativeInfinity
-        var i   = 0
+        var i = 0
         while i < n do
           val v = evalScalar(ir.bodyExpr, i, inputs)
           if v > acc then acc = v
+          end if
           i += 1
         end while
         Array(acc)
 
       case All =>
         var acc = true
-        var i   = 0
+        var i = 0
         while i < n && acc do
           acc = evalScalar(ir.bodyExpr, i, inputs) != 0.0
           i += 1
@@ -97,7 +102,7 @@ object KernelExecutor:
 
       case Any =>
         var acc = false
-        var i   = 0
+        var i = 0
         while i < n && !acc do
           acc = evalScalar(ir.bodyExpr, i, inputs) != 0.0
           i += 1
@@ -105,9 +110,9 @@ object KernelExecutor:
         Array(if acc then 1.0 else 0.0)
 
       case ArgMax =>
-        var best    = Double.NegativeInfinity
+        var best = Double.NegativeInfinity
         var bestIdx = 0
-        var i       = 0
+        var i = 0
         while i < n do
           val v = evalScalar(ir.bodyExpr, i, inputs)
           if v > best then
@@ -119,9 +124,9 @@ object KernelExecutor:
         Array(bestIdx.toDouble)
 
       case ArgMin =>
-        var best    = Double.PositiveInfinity
+        var best = Double.PositiveInfinity
         var bestIdx = 0
-        var i       = 0
+        var i = 0
         while i < n do
           val v = evalScalar(ir.bodyExpr, i, inputs)
           if v < best then
@@ -173,6 +178,7 @@ object KernelExecutor:
       case Abs        => math.abs(a)
       case Not        => if a != 0.0 then 0.0 else 1.0
       case Reciprocal => 1.0 / a
+    end match
   end applyUnary
 
   private def applyBinary(op: BinaryOp, a: Double, b: Double): Double =
@@ -193,6 +199,7 @@ object KernelExecutor:
       case Gte => if a >= b then 1.0 else 0.0
       case And => if a != 0.0 && b != 0.0 then 1.0 else 0.0
       case Or  => if a != 0.0 || b != 0.0 then 1.0 else 0.0
+    end match
   end applyBinary
 
 end KernelExecutor

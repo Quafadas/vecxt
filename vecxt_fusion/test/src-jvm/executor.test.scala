@@ -30,13 +30,13 @@ class ExecutorPhase8Test extends FunSuite:
 
   /** Run graph through FusedRunner and the reference Interpreter, assert they agree element-wise. */
   private def assertFusedMatchesInterp(
-      graph:  TensorGraph,
+      graph: TensorGraph,
       params: Map[String, Array[Double]]
   )(using munit.Location): Unit =
     val interpParams: Map[String, IVal] = params.map { (name, arr) =>
-      val shape    = graph.nodes.collectFirst { case TensorExpr.Param(`name`, tpe) => tpe.shape }.getOrElse(Shape.scalar)
+      val shape = graph.nodes.collectFirst { case TensorExpr.Param(`name`, tpe) => tpe.shape }.getOrElse(Shape.scalar)
       val intShape = Schedule.knownShape(shape)
-      val strides  = IVal.cmStrides(intShape)
+      val strides = IVal.cmStrides(intShape)
       name -> IVal.F64(vecxt.ndarray.NDArray.wrap(arr, intShape, strides))
     }
     val interpResult = Interpreter.eval(graph, interpParams)
@@ -47,6 +47,7 @@ class ExecutorPhase8Test extends FunSuite:
     FusedRunner.eval(graph, params) match
       case Left(err)   => fail(s"FusedRunner failed: ${err.message}")
       case Right(data) => assertArrayClose(data, interpData)
+    end match
   end assertFusedMatchesInterp
 
   // ── Elementwise parity ────────────────────────────────────────────────────
@@ -64,15 +65,13 @@ class ExecutorPhase8Test extends FunSuite:
     FusedRunner.eval(g, Map("x" -> xd, "y" -> yd)) match
       case Left(err)   => fail(err.message)
       case Right(data) => assertArrayClose(data, Array(11.0, 22.0, 33.0, 44.0))
+    end match
 
-    /**
-      * Ideally
+    /** Ideally
       *
-      * val x = NArray(1.0, 2.0, 3.0, 4.0)
-      * val y = NArray(5.0, 6.0, 7.0, 8.0)
+      * val x = NArray(1.0, 2.0, 3.0, 4.0) val y = NArray(5.0, 6.0, 7.0, 8.0)
       *
-      * val expected = x + y
-      * assertArrayClose(data, expected.data)
+      * val expected = x + y assertArrayClose(data, expected.data)
       */
   }
 
@@ -86,6 +85,7 @@ class ExecutorPhase8Test extends FunSuite:
     FusedRunner.eval(g, Map("x" -> xd)) match
       case Left(err)   => fail(err.message)
       case Right(data) => assertArrayClose(data, xd.map(math.sin))
+    end match
   }
 
   test("parity: sin(x) + cos(x) — single fused group") {
@@ -99,22 +99,24 @@ class ExecutorPhase8Test extends FunSuite:
     FusedRunner.eval(g, Map("x" -> xd)) match
       case Left(err)   => fail(err.message)
       case Right(data) => assertArrayClose(data, xd.map(v => math.sin(v) + math.cos(v)))
+    end match
   }
 
   test("parity: x * 2.0 + 1.0 — fused with constants") {
-    val xd    = Array(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
+    val xd = Array(0.0, 1.0, 2.0, 3.0, 4.0, 5.0)
     val xShape = Shape(Dim.Known(xd.length))
 
     val b = new GraphBuilder()
     import b.*
-    val x   = b.Expr.param[Double]("x", xShape)
+    val x = b.Expr.param[Double]("x", xShape)
     val two = b.Expr.const[Double](2.0).broadcastTo(xShape)
     val one = b.Expr.const[Double](1.0).broadcastTo(xShape)
-    val g   = b.build(x * two + one)
+    val g = b.build(x * two + one)
 
     FusedRunner.eval(g, Map("x" -> xd)) match
       case Left(err)   => fail(err.message)
       case Right(data) => assertArrayClose(data, xd.map(_ * 2.0 + 1.0))
+    end match
   }
 
   test("parity: two-group — y=sin(x) materialised, z=exp(y)+y") {
@@ -123,20 +125,23 @@ class ExecutorPhase8Test extends FunSuite:
     val b = new GraphBuilder()
     import b.*
     val x = b.Expr.param[Double]("x", Shape(Dim.Known(xd.length)))
-    val y = x.sin         // refCount=2 => planner materialises y between groups
+    val y = x.sin // refCount=2 => planner materialises y between groups
     val z = y.exp + y
     val g = b.build(z)
 
     FusedRunner.eval(g, Map("x" -> xd)) match
       case Left(err)   => fail(err.message)
       case Right(data) =>
-        val expected = xd.map { v => val s = math.sin(v); math.exp(s) + s }
+        val expected = xd.map { v =>
+          val s = math.sin(v); math.exp(s) + s
+        }
         assertArrayClose(data, expected)
+    end match
   }
 
   test("parity: matches Interpreter — exp(x) * sin(x)") {
     val xd = Array(0.5, 1.0, 1.5, 2.0)
-    val b  = new GraphBuilder()
+    val b = new GraphBuilder()
     import b.*
     val x = b.Expr.param[Double]("x", Shape(Dim.Known(xd.length)))
     val g = b.build(x.exp * x.sin)
@@ -158,18 +163,19 @@ class ExecutorPhase8Test extends FunSuite:
       case Right(data) =>
         assertEquals(data.length, 1)
         assertClose(data(0), 15.0)
+    end match
   }
 
   test("parity: sum(sin(x) + 1) — elementwise fused into reduce group") {
-    val n  = 8
+    val n = 8
     val xd = Array.tabulate(n)(i => i.toDouble * 0.5)
 
-    val b      = new GraphBuilder()
+    val b = new GraphBuilder()
     import b.*
     val xShape = Shape(Dim.Known(n))
-    val x      = b.Expr.param[Double]("x", xShape)
-    val one    = b.Expr.const[Double](1.0).broadcastTo(xShape)
-    val g      = b.build((x.sin + one).reduceSum(0))
+    val x = b.Expr.param[Double]("x", xShape)
+    val one = b.Expr.const[Double](1.0).broadcastTo(xShape)
+    val g = b.build((x.sin + one).reduceSum(0))
 
     val expected = xd.map(v => math.sin(v) + 1.0).sum
 
@@ -178,6 +184,7 @@ class ExecutorPhase8Test extends FunSuite:
       case Right(data) =>
         assertEquals(data.length, 1)
         assertClose(data(0), expected)
+    end match
   }
 
   test("parity: reduceProduct(0)") {
@@ -192,6 +199,7 @@ class ExecutorPhase8Test extends FunSuite:
       case Right(data) =>
         assertEquals(data.length, 1)
         assertClose(data(0), 24.0)
+    end match
   }
 
   test("parity: reduceMin and reduceMax") {
@@ -206,10 +214,12 @@ class ExecutorPhase8Test extends FunSuite:
     FusedRunner.eval(gMin, Map("x" -> xd)) match
       case Left(err)   => fail(s"min: ${err.message}")
       case Right(data) => assertClose(data(0), 1.0)
+    end match
 
     FusedRunner.eval(gMax, Map("x" -> xd)) match
       case Left(err)   => fail(s"max: ${err.message}")
       case Right(data) => assertClose(data(0), 9.0)
+    end match
   }
 
   test("parity: argMax(0) returns correct flat index") {
@@ -224,23 +234,25 @@ class ExecutorPhase8Test extends FunSuite:
       case Right(data) =>
         assertEquals(data.length, 1)
         assertEquals(data(0), 1.0) // index 1 has value 5.0
+    end match
   }
 
   // ── Normalisation round-trips ─────────────────────────────────────────────
 
   test("parity: x + 0 normalised away — result equals x") {
-    val xd     = Array(1.0, 2.0, 3.0, 4.0)
+    val xd = Array(1.0, 2.0, 3.0, 4.0)
     val xShape = Shape(Dim.Known(xd.length))
 
     val b = new GraphBuilder()
     import b.*
-    val x    = b.Expr.param[Double]("x", xShape)
+    val x = b.Expr.param[Double]("x", xShape)
     val zero = b.Expr.const[Double](0.0).broadcastTo(xShape)
-    val g    = b.build(x + zero)
+    val g = b.build(x + zero)
 
     FusedRunner.eval(g, Map("x" -> xd)) match
       case Left(err)   => fail(err.message)
       case Right(data) => assertArrayClose(data, xd)
+    end match
   }
 
   test("parity: constant folding — const-only graph") {
@@ -248,23 +260,24 @@ class ExecutorPhase8Test extends FunSuite:
     import b.*
     val c1 = b.Expr.const[Double](3.0)
     val c2 = b.Expr.const[Double](4.0)
-    val g  = b.build(c1 + c2)
+    val g = b.build(c1 + c2)
 
     FusedRunner.eval(g, Map.empty) match
       case Left(err)   => fail(err.message)
       case Right(data) =>
         assertEquals(data.length, 1)
         assertClose(data(0), 7.0)
+    end match
   }
 
   test("parity: matches Interpreter — sum(exp(x) * 2)") {
     val xd = Array(0.0, 0.5, 1.0, 1.5, 2.0)
-    val b      = new GraphBuilder()
+    val b = new GraphBuilder()
     import b.*
     val xShape = Shape(Dim.Known(xd.length))
-    val x      = b.Expr.param[Double]("x", xShape)
-    val two    = b.Expr.const[Double](2.0).broadcastTo(xShape)
-    val g      = b.build((x.exp * two).reduceSum(0))
+    val x = b.Expr.param[Double]("x", xShape)
+    val two = b.Expr.const[Double](2.0).broadcastTo(xShape)
+    val g = b.build((x.exp * two).reduceSum(0))
 
     assertFusedMatchesInterp(g, Map("x" -> xd))
   }

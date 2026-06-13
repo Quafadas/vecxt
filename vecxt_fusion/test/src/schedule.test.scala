@@ -6,10 +6,10 @@ class SchedulePhase8Test extends FunSuite:
 
   // ── shared type aliases ──────────────────────────────────────────────────
 
-  private val f64s  = TType(DType.F64, Shape.scalar)
+  private val f64s = TType(DType.F64, Shape.scalar)
   private val f64v4 = TType(DType.F64, Shape(Dim.Known(4)))
   private val f64v3 = TType(DType.F64, Shape(Dim.Known(3)))
-  private val f64m  = TType(DType.F64, Shape(Dim.Known(3), Dim.Known(4)))
+  private val f64m = TType(DType.F64, Shape(Dim.Known(3), Dim.Known(4)))
 
   // ── graph helpers ─────────────────────────────────────────────────────────
 
@@ -19,6 +19,7 @@ class SchedulePhase8Test extends FunSuite:
   private def planThen(graph: TensorGraph) =
     val plan = FusionPlanner.plan(Normalize.run(graph))
     Schedule.lower(plan)
+  end planThen
 
   // ══════════════════════════════════════════════════════════════════════════
   // Schedule.lower — structural tests (no execution)
@@ -31,13 +32,14 @@ class SchedulePhase8Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Sin, NodeId(0), f64v4)
     )
     planThen(graph) match
-      case Left(err) => fail(s"unexpected schedule error: ${err.message}")
+      case Left(err)      => fail(s"unexpected schedule error: ${err.message}")
       case Right(kernels) =>
         assertEquals(kernels.size, 1)
         val k = kernels.head
         assert(k.ir.isInstanceOf[KernelIR.Elementwise])
         assertEquals(k.inputNodes.size, 1)
         assertEquals(k.inputNodes.head, NodeId(0))
+    end match
   }
 
   test("schedule: x + y → one Elementwise kernel, two inputs") {
@@ -53,6 +55,7 @@ class SchedulePhase8Test extends FunSuite:
         val k = kernels.head
         assert(k.ir.isInstanceOf[KernelIR.Elementwise])
         assertEquals(k.inputNodes.size, 2)
+    end match
   }
 
   test("schedule: Elementwise outShape matches input param shape") {
@@ -61,11 +64,12 @@ class SchedulePhase8Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Neg, NodeId(0), f64v4)
     )
     planThen(graph) match
-      case Left(err) => fail(err.message)
+      case Left(err)      => fail(err.message)
       case Right(kernels) =>
         val e = kernels.head.ir.asInstanceOf[KernelIR.Elementwise]
         assertEquals(e.outShape.toSeq, Seq(4))
         assertEquals(e.inputNumel.toSeq, Seq(4))
+    end match
   }
 
   test("schedule: chain sin(cos(x)) → one kernel with single input") {
@@ -75,10 +79,11 @@ class SchedulePhase8Test extends FunSuite:
       TensorExpr.Unary(UnaryOp.Sin, NodeId(1), f64v4)
     )
     planThen(graph) match
-      case Left(err) => fail(err.message)
+      case Left(err)      => fail(err.message)
       case Right(kernels) =>
         assertEquals(kernels.size, 1)
         assertEquals(kernels.head.inputNodes.size, 1) // x is the only external input
+    end match
   }
 
   test("schedule: sin(x) + cos(x) → one kernel, one input, SBinary at root") {
@@ -89,12 +94,13 @@ class SchedulePhase8Test extends FunSuite:
       TensorExpr.Binary(BinaryOp.Add, NodeId(1), NodeId(2), f64v4)
     )
     planThen(graph) match
-      case Left(err) => fail(err.message)
+      case Left(err)      => fail(err.message)
       case Right(kernels) =>
         assertEquals(kernels.size, 1)
         assertEquals(kernels.head.inputNodes.size, 1)
         val e = kernels.head.ir.asInstanceOf[KernelIR.Elementwise]
         assert(e.expr.isInstanceOf[ScalarExpr.SBinary], s"expected SBinary root, got ${e.expr}")
+    end match
   }
 
   test("schedule: full reduce → one FullReduce kernel") {
@@ -104,7 +110,7 @@ class SchedulePhase8Test extends FunSuite:
       TensorExpr.Reduce(ReduceOp.Sum, NodeId(0), Vector(0), f64s)
     )
     planThen(graph) match
-      case Left(err) => fail(err.message)
+      case Left(err)      => fail(err.message)
       case Right(kernels) =>
         assertEquals(kernels.size, 1)
         val k = kernels.head
@@ -112,6 +118,7 @@ class SchedulePhase8Test extends FunSuite:
         assertEquals(r.op, ReduceOp.Sum)
         assertEquals(r.inNumel, 4)
         assertEquals(k.inputNodes, Vector(NodeId(0)))
+    end match
   }
 
   test("schedule: sum(sin(x) + 1) → one FullReduce kernel, body is SBinary") {
@@ -122,13 +129,14 @@ class SchedulePhase8Test extends FunSuite:
       TensorExpr.Reduce(ReduceOp.Sum, NodeId(2), Vector(0), f64s)
     )
     planThen(graph) match
-      case Left(err) => fail(err.message)
+      case Left(err)      => fail(err.message)
       case Right(kernels) =>
         assertEquals(kernels.size, 1)
         val r = kernels.head.ir.asInstanceOf[KernelIR.FullReduce]
         assertEquals(r.op, ReduceOp.Sum)
         // body should be Add(Load, Lit(1.0)) — not just Load
         assert(r.bodyExpr.isInstanceOf[ScalarExpr.SBinary], s"expected SBinary body, got ${r.bodyExpr}")
+    end match
   }
 
   test("schedule: two-group plan produces two kernels in order") {
@@ -142,13 +150,14 @@ class SchedulePhase8Test extends FunSuite:
       TensorExpr.Binary(BinaryOp.Add, NodeId(1), NodeId(2), f64v4)
     )
     planThen(graph) match
-      case Left(err) => fail(err.message)
+      case Left(err)      => fail(err.message)
       case Right(kernels) =>
         assertEquals(kernels.size, 2)
         // first kernel output is Sin, second uses it as input
         val k0 = kernels(0)
         val k1 = kernels(1)
         assert(k1.inputNodes.contains(k0.outputNode))
+    end match
   }
 
   test("schedule: Where node → Elementwise with Select expr") {
@@ -165,7 +174,7 @@ class SchedulePhase8Test extends FunSuite:
     )
     FusionPlanner.plan(graph) |> { plan =>
       Schedule.lower(plan) match
-        case Left(err) => fail(err.message)
+        case Left(err)      => fail(err.message)
         case Right(kernels) =>
           assertEquals(kernels.size, 1)
           val e = kernels.head.ir.asInstanceOf[KernelIR.Elementwise]
@@ -186,6 +195,7 @@ class SchedulePhase8Test extends FunSuite:
         assert(err.isInstanceOf[Schedule.ScheduleError.PartialReduce], s"expected PartialReduce, got $err")
       case Right(_) =>
         fail("expected PartialReduce error for partial-axis reduce")
+    end match
   }
 
   // ── outputNode wiring ─────────────────────────────────────────────────────
@@ -201,7 +211,7 @@ class SchedulePhase8Test extends FunSuite:
     plan.groups.zipWithIndex.foreach { (group, gi) =>
       val _ = gi // suppress unused warning
       Schedule.lower(plan) match
-        case Left(err) => fail(err.message)
+        case Left(err)      => fail(err.message)
         case Right(kernels) =>
           kernels.foreach { k =>
             assert(
@@ -209,11 +219,12 @@ class SchedulePhase8Test extends FunSuite:
               s"outputNode ${k.outputNode} not found in any FusionGroup"
             )
           }
+      end match
     }
   }
 
 end SchedulePhase8Test
 
 // ── Extension for pipe syntax used in one test ────────────────────────────────
-extension [A](a: A)
-  private def |>[B](f: A => B): B = f(a)
+extension [A](a: A) private def |>[B](f: A => B): B = f(a)
+end extension

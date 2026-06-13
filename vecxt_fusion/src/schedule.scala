@@ -7,7 +7,7 @@ import scala.collection.mutable
   * One `CompiledKernel` is produced per `FusionGroup`, in the execution order supplied by the planner. The kernels can
   * then be handed off to a platform-specific executor (see `KernelExecutor` on JVM).
   *
-  * === Supported nodes (Phase 8 first cut) ===
+  * ===Supported nodes (Phase 8 first cut)===
   *
   *   - F64 leafs: `Const`, `Param`, `Lift` — become boundary inputs.
   *   - `Unary`, `Binary`, `Where` — lowered to `ScalarExpr` tree nodes.
@@ -16,7 +16,7 @@ import scala.collection.mutable
   *   - `Cast(F64, a)` where `a` is already F64 — elided (identity).
   *   - `Reduce` as the terminal node of a group — lowered to `KernelIR.FullReduce` when all axes are reduced.
   *
-  * === Unsupported in Phase 8 (produce `ScheduleError`) ===
+  * ===Unsupported in Phase 8 (produce `ScheduleError`)===
   *
   *   - Non-F64 dtypes.
   *   - `Cast` to a dtype other than F64.
@@ -58,11 +58,13 @@ object Schedule:
     * Groups are returned in the same execution order as `plan.groups`. The caller should execute them in sequence,
     * feeding each kernel's output as an input to later kernels that reference its `outputNode`.
     *
-    * @param plan a `FusionPlan` produced by `FusionPlanner.plan`, ideally over a normalised graph.
-    * @return `Right(kernels)` on success, or `Left(error)` if any group cannot be scheduled.
+    * @param plan
+    *   a `FusionPlan` produced by `FusionPlanner.plan`, ideally over a normalised graph.
+    * @return
+    *   `Right(kernels)` on success, or `Left(error)` if any group cannot be scheduled.
     */
   def lower(plan: FusionPlan): Either[ScheduleError, Vector[CompiledKernel]] =
-    val graph   = plan.graph
+    val graph = plan.graph
     val results = Vector.newBuilder[CompiledKernel]
     var error: ScheduleError = null
     val it = plan.groups.iterator
@@ -73,6 +75,7 @@ object Schedule:
     end while
     if error != null then Left(error)
     else Right(results.result())
+    end if
   end lower
 
   // ── Group lowering ─────────────────────────────────────────────────────────
@@ -91,11 +94,11 @@ object Schedule:
       group: FusionGroup,
       graph: TensorGraph
   ): Either[ScheduleError, CompiledKernel] =
-    val outNode  = graph(group.output)
+    val outNode = graph(group.output)
     val outShape = knownShape(outNode.tpe.shape)
     val outNumel = shapeNumel(outNode.tpe.shape)
-    val inMap    = buildInputMap(group, graph)
-    val cache    = mutable.HashMap.empty[NodeId, Either[ScheduleError, ScalarExpr]]
+    val inMap = buildInputMap(group, graph)
+    val cache = mutable.HashMap.empty[NodeId, Either[ScheduleError, ScalarExpr]]
 
     buildScalarExpr(group.output, group, graph, inMap, outNumel, cache).map { expr =>
       val inputNumel = group.inputs.map(id => shapeNumel(graph(id).tpe.shape)).toArray
@@ -110,24 +113,23 @@ object Schedule:
   // ── Reduce group ───────────────────────────────────────────────────────────
 
   private def lowerReduceGroup(
-      group:  FusionGroup,
-      graph:  TensorGraph,
-      op:     ReduceOp,
+      group: FusionGroup,
+      graph: TensorGraph,
+      op: ReduceOp,
       bodyId: NodeId,
-      axes:   Vector[Int]
+      axes: Vector[Int]
   ): Either[ScheduleError, CompiledKernel] =
     val inShape = graph(bodyId).tpe.shape
-    val rank    = inShape.rank
+    val rank = inShape.rank
 
     // Phase 8: only full all-axes reductions are supported.
     val isFullReduce = (rank == 0 && axes.isEmpty) || (rank > 0 && axes == (0 until rank).toVector)
-    if !isFullReduce then
-      return Left(ScheduleError.PartialReduce(group.output))
+    if !isFullReduce then return Left(ScheduleError.PartialReduce(group.output))
     end if
 
-    val inNumel  = shapeNumel(inShape)
-    val inMap    = buildInputMap(group, graph)
-    val cache    = mutable.HashMap.empty[NodeId, Either[ScheduleError, ScalarExpr]]
+    val inNumel = shapeNumel(inShape)
+    val inMap = buildInputMap(group, graph)
+    val cache = mutable.HashMap.empty[NodeId, Either[ScheduleError, ScalarExpr]]
 
     buildScalarExpr(bodyId, group, graph, inMap, inNumel, cache).map { bodyExpr =>
       val inputNumel = group.inputs.map(id => shapeNumel(graph(id).tpe.shape)).toArray
@@ -157,24 +159,24 @@ object Schedule:
     * memoised in `cache` to avoid re-building shared subexpressions.
     */
   private def buildScalarExpr(
-      nodeId:   NodeId,
-      group:    FusionGroup,
-      graph:    TensorGraph,
-      inMap:    Map[NodeId, (BufRef.Input, Int)],
+      nodeId: NodeId,
+      group: FusionGroup,
+      graph: TensorGraph,
+      inMap: Map[NodeId, (BufRef.Input, Int)],
       outNumel: Int,
-      cache:    mutable.HashMap[NodeId, Either[ScheduleError, ScalarExpr]]
+      cache: mutable.HashMap[NodeId, Either[ScheduleError, ScalarExpr]]
   ): Either[ScheduleError, ScalarExpr] =
     cache.getOrElseUpdate(nodeId, computeScalarExpr(nodeId, group, graph, inMap, outNumel, cache))
   end buildScalarExpr
 
   /** Compute (uncached) the `ScalarExpr` for a single `nodeId`. */
   private def computeScalarExpr(
-      nodeId:   NodeId,
-      group:    FusionGroup,
-      graph:    TensorGraph,
-      inMap:    Map[NodeId, (BufRef.Input, Int)],
+      nodeId: NodeId,
+      group: FusionGroup,
+      graph: TensorGraph,
+      inMap: Map[NodeId, (BufRef.Input, Int)],
       outNumel: Int,
-      cache:    mutable.HashMap[NodeId, Either[ScheduleError, ScalarExpr]]
+      cache: mutable.HashMap[NodeId, Either[ScheduleError, ScalarExpr]]
   ): Either[ScheduleError, ScalarExpr] =
     inMap.get(nodeId) match
       case Some((buf, numel)) =>
@@ -219,7 +221,9 @@ object Schedule:
 
           case _: TensorExpr.Param | _: TensorExpr.Lift =>
             // These should always appear in inMap if the plan is valid; this path is a safety net.
-            Left(ScheduleError.UnsupportedNode(nodeId, "unexpected leaf node inside group body (plan invariant violated)"))
+            Left(
+              ScheduleError.UnsupportedNode(nodeId, "unexpected leaf node inside group body (plan invariant violated)")
+            )
 
         end match
     end match
