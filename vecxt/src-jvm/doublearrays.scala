@@ -46,8 +46,8 @@ object doublearrays:
       end while
 
       dest(n - 1) = b // exact endpoint, not a * (n-1) rounding artefact
+    end if
   end fillLinspace
-
 
   /** Generates a vector of linearly spaced values between a and b (inclusive). The returned vector will have length
     * elements, defaulting to 100.
@@ -56,6 +56,7 @@ object doublearrays:
     val out = new Array[Double](length)
     fillLinspace(out, a, b)
     out
+  end linspace
 
   extension (d: Double)
     inline def /(arr: Array[Double]) =
