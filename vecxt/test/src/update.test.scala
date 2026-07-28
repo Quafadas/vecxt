@@ -7,7 +7,6 @@ import MatrixHelper.*
 import MatrixInstance.*
 
 class UpdateSuite extends munit.FunSuite:
-  import BoundsCheck.DoBoundsCheck.yes
 
   val simpleMat = FunFixture[Matrix[Double]](
     setup = test =>

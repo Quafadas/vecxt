@@ -2,7 +2,6 @@ package vecxt
 
 import org.netlib.util.intW
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixHelper.zeros
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
@@ -36,9 +35,7 @@ object QR:
     * @throws ArithmeticException
     *   if the QR decomposition fails to compute
     */
-  inline def qr(matrix: Matrix[Double])(using
-      inline bc: BoundsCheck
-  ): (Q: Matrix[Double], R: Matrix[Double]) =
+  inline def qr(matrix: Matrix[Double]): (Q: Matrix[Double], R: Matrix[Double]) =
     val (m, n) = matrix.shape
 
     nonEmptyMatCheck(matrix)
@@ -160,7 +157,7 @@ object QR:
     else if info.`val` > 0 then throw ArithmeticException(s"Q generation failed. INFO=${info.`val`}")
     end if
 
-    val qMatrix = Matrix(qData, m, m)(using false)
+    val qMatrix = Matrix(qData, m, m)
 
     (Q = qMatrix, R = rMatrix)
   end qr

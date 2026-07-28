@@ -1,6 +1,5 @@
 package vecxt
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.intarrays.*
 import vecxt.matrix.*
@@ -12,7 +11,7 @@ import scala.annotation.targetName
 object JvmIntMatrix:
   extension (m: Matrix[Int])
 
-    inline def matmul(b: Matrix[Int])(using inline boundsCheck: BoundsCheck): Matrix[Int] =
+    inline def matmul(b: Matrix[Int]): Matrix[Int] =
       dimMatCheck(m, b)
       ???
 
@@ -22,7 +21,7 @@ object JvmIntMatrix:
     inline def /(d: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Double](vecxt.intarrays./(i)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Double](vecxt.intarrays./(i)(d), m.shape)
       else ???
     end /
 
@@ -30,40 +29,40 @@ object JvmIntMatrix:
     inline def /(d: Float): Matrix[Float] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Float](vecxt.intarrays./(i)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Float](vecxt.intarrays./(i)(d), m.shape)
       else ???
     end /
 
     inline def >=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Boolean](m.raw.gte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](m.raw.gte(d), m.shape)
       else ???
     end >=
 
     inline def >(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Boolean](m.raw.gt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](m.raw.gt(d), m.shape)
       else ???
     end >
 
     inline def <=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Boolean](m.raw.lte(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](m.raw.lte(d), m.shape)
       else ???
     end <=
 
     inline def <(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Boolean](m.raw.lt(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](m.raw.lt(d), m.shape)
       else ???
     end <
 
     @scala.annotation.targetName("intMatrixMaskInPlace")
-    inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def *:*=(bmat: Matrix[Boolean]): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val spi = IntVector.SPECIES_PREFERRED
@@ -85,7 +84,7 @@ object JvmIntMatrix:
     end *:*=
 
     @scala.annotation.targetName("intMatrixMask")
-    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Int] =
+    inline def *:*(bmat: Matrix[Boolean]): Matrix[Int] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val copy = m.deepCopy
@@ -104,7 +103,7 @@ object JvmIntMatrix:
           end while
           i += 1
         end while
-        Matrix[Int](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Int](newArr, m.rows, m.cols)
       end if
     end *:*
 
@@ -136,7 +135,7 @@ object JvmIntMatrix:
         i += 1
       end while
 
-      Matrix[Int](newArr, newShape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Int](newArr, newShape)
     end reduceAlongDimension
 
     @targetName("intMatrixMax")

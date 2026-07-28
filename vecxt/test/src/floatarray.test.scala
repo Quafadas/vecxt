@@ -4,7 +4,6 @@ import scala.util.chaining.*
 import all.*
 
 class FloatArrayExtensionSuite extends munit.FunSuite:
-  import BoundsCheck.DoBoundsCheck.yes
 
   private val tolerance = 1e-4f
 
@@ -344,7 +343,7 @@ class FloatArrayExtensionSuite extends munit.FunSuite:
   test("float outer product") {
     val v1 = Array[Float](1.0f, 2.0f, 3.0f)
     val v2 = Array[Float](4.0f, 5.0f)
-    import BoundsCheck.DoBoundsCheck.no
+
     val m = v1.outer(v2)
     assertEquals(m.rows, 3)
     assertEquals(m.cols, 2)

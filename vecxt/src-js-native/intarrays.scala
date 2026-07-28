@@ -2,8 +2,6 @@ package vecxt
 
 import scala.util.chaining.*
 
-import vecxt.BoundsCheck.BoundsCheck
-
 object intarrays:
 
   extension (vec: Array[Int])
@@ -21,7 +19,7 @@ object intarrays:
       idx
     end increments
 
-    inline def -(other: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+    inline def -(other: Array[Int]): Array[Int] =
       dimCheck(vec, other)
       val n = vec.length
       val res = Array.fill(n)(0)
@@ -34,7 +32,7 @@ object intarrays:
       res
     end -
 
-    inline def +(other: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+    inline def +(other: Array[Int]): Array[Int] =
       dimCheck(vec, other)
 
       val n = vec.length
@@ -48,7 +46,7 @@ object intarrays:
       res
     end +
 
-    inline def dot(other: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
+    inline def dot(other: Array[Int]): Int =
       dimCheck(vec, other)
       val n = vec.length
       var sum = 0
@@ -243,7 +241,7 @@ object intarrays:
       vec.clone().tap(_ -= scalar)
     end -
 
-    inline def -=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def -=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
       while i < vec.length do
@@ -252,7 +250,7 @@ object intarrays:
       end while
     end -=
 
-    inline def +=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
       while i < vec.length do

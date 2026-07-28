@@ -2,7 +2,6 @@ package vecxt
 
 import org.netlib.util.intW
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixHelper.zeros
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
@@ -42,9 +41,7 @@ object LU:
     * @throws IllegalArgumentException
     *   if matrix is empty or if an argument to LAPACK is invalid
     */
-  inline def lu(m: Matrix[Double])(using
-      inline bc: BoundsCheck
-  ): (L: Matrix[Double], U: Matrix[Double], P: Array[Int]) =
+  inline def lu(m: Matrix[Double]): (L: Matrix[Double], U: Matrix[Double], P: Array[Int]) =
     nonEmptyMatCheck(m)
 
     val rows = m.rows

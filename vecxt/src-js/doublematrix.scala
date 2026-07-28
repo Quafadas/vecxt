@@ -3,7 +3,6 @@ package vecxt
 import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.typedarray.Float64Array
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
@@ -12,8 +11,7 @@ object JsDoubleMatrix:
   extension (m: Matrix[Double])
 
     inline def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -26,11 +24,10 @@ object JsDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -43,13 +40,12 @@ object JsDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
       end if
     end >
 
     inline def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -62,13 +58,12 @@ object JsDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
       end if
     end <=
 
     inline def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -81,9 +76,9 @@ object JsDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
-    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def *:*(bmat: Matrix[Boolean]): Matrix[Double] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val newArr = Array.ofDim[Double](m.rows * m.cols)
@@ -106,14 +101,13 @@ object JsDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Double](newArr, m.rows, m.cols)
       end if
     end *:*
 
-    inline def +=(arr: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(arr: Array[Double]): Unit =
 
-      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
-      end if
+      assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 
       var i = 0
       while i < m.rows do
@@ -128,7 +122,6 @@ object JsDoubleMatrix:
     end +=
 
     inline def +=(n: Double): Unit =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
       else
         // Cache-friendly fallback: iterate with smallest stride in inner loop
@@ -159,14 +152,10 @@ object JsDoubleMatrix:
 
     end +=
 
-    inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0)(using
-        inline boundsCheck: BoundsCheck
-    ): Unit =
+    inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0): Unit =
       dimMatCheck(m, b)
-      inline if boundsCheck then
-        println("PERFORMING WARNING in matmul on JS")
-        println("THIS method copies into native JS types. Then copies back out. Expect catastrophic performance.")
-      end if
+      println("PERFORMING WARNING in matmul on JS")
+      println("THIS method copies into native JS types. Then copies back out. Expect catastrophic performance.")
 
       if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
         val lda = if m.isDenseColMajor then m.rows else m.cols
@@ -234,7 +223,7 @@ object JsDoubleMatrix:
 
     end `matmulInPlace!`
 
-    inline def *(vec: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def *(vec: Array[Double]): Array[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         val newArr = new Float64Array(m.rows)
         dgemv(

@@ -1,8 +1,6 @@
 package vecxt_io
 
 import java.nio.file.Files
-
-import vecxt.BoundsCheck.DoBoundsCheck.no
 import vecxt.all.*
 
 import ArrayIO.*

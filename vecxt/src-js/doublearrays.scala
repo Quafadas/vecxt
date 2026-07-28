@@ -5,7 +5,7 @@ import scala.scalajs.js.typedarray.Float64Array
 import scala.util.chaining.*
 
 import vecxt.BooleanArrays.*
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.matrix.Matrix
 
 object arrayUtil:
@@ -308,7 +308,7 @@ object doublearrays:
       end while
     end applyUnaryOpInPlace
 
-    inline def /(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def /(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -367,7 +367,7 @@ object doublearrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def *(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -380,7 +380,7 @@ object doublearrays:
       res
     end *
 
-    inline def *=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def *=(d: Array[Double]): Unit =
       dimCheck(vec, d)
       val n = vec.length
 
@@ -405,12 +405,12 @@ object doublearrays:
         end while
         i = i + 1
       end while
-      Matrix[Double](out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](out, (n, m))
     end outer
 
-    inline def *:*(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec.*(d)
+    inline def *:*(d: Array[Double]): Array[Double] = vec.*(d)
 
-    inline def *:*=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit = vec.*=(d)
+    inline def *:*=(d: Array[Double]): Unit = vec.*=(d)
 
     inline def <(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
@@ -442,7 +442,7 @@ object doublearrays:
 
     def toFloat64 = Float64Array.from(js.Array(vec*))
 
-    inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
+    inline def apply(index: Array[Boolean]): Array[Double] =
       dimCheck(vec, index)
       val trues = index.trues
       val newVec = Array.ofDim[Double](trues)
@@ -563,9 +563,7 @@ object doublearrays:
       newVec
     end unary_-
 
-    inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using
-        inline boundsCheck: BoundsCheck.BoundsCheck
-    ): Double =
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Double]): Double =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -589,9 +587,7 @@ object doublearrays:
       )
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Array[Double])(using
-        inline boundsCheck: BoundsCheck.BoundsCheck
-    ): Double =
+    inline def spearmansRankCorrelation(thatVector: Array[Double]): Double =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
@@ -599,7 +595,7 @@ object doublearrays:
     end spearmansRankCorrelation
 
     // An alias - pearson is the most commonly requested type of correlation
-    inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Double =
+    inline def corr(thatVector: Array[Double]): Double =
       pearsonCorrelationCoefficient(thatVector)
 
     def elementRanks: Array[Double] =
@@ -646,7 +642,7 @@ object doublearrays:
       out
     end cumsum
 
-    inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    inline def dot(v1: Array[Double]): Double =
       dimCheck(vec, v1)
 
       var product = 0.0
@@ -659,7 +655,7 @@ object doublearrays:
     end dot
 
     inline def norm: Double =
-      Math.sqrt(vec.dot(vec)(using vecxt.BoundsCheck.DoBoundsCheck.no))
+      Math.sqrt(vec.dot(vec))
     end norm
 
     inline def +(d: Double): Array[Double] =
@@ -685,12 +681,12 @@ object doublearrays:
       end while
     end -=
 
-    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
+    inline def -(vec2: Array[Double]): Array[Double] =
       dimCheck(vec, vec2)
       vec.clone().tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+    inline def -=(vec2: Array[Double]): Unit =
       dimCheck(vec, vec2)
       var i = 0
       while i < vec.length do
@@ -707,7 +703,7 @@ object doublearrays:
       end while
     end *=
 
-    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Double] =
+    inline def +(vec2: Array[Double]): Array[Double] =
       dimCheck(vec, vec2)
       vec.clone().tap(_ += vec2)
     end +
@@ -724,7 +720,7 @@ object doublearrays:
       end while
     end +:+=
 
-    inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+    inline def +=(vec2: Array[Double]): Unit =
       dimCheck(vec, vec2)
       var i = 0
       while i < vec.length do
@@ -733,7 +729,7 @@ object doublearrays:
       end while
     end +=
 
-    inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec + d
+    inline def add(d: Array[Double]): Array[Double] = vec + d
     inline def multInPlace(d: Double): Unit = vec *= d
 
     inline def *(d: Double): Array[Double] =

@@ -16,9 +16,9 @@ import spire.algebra.Ring
 import scala.reflect.ClassTag
 import vecxt.*
 import vecxt.all.*
-import vecxt.BoundsCheck.BoundsCheck
 
-import BoundsCheck.DoBoundsCheck.yes
+
+
 
 // A very naive matrix multiplication implementation...
 object SpireExt:
@@ -26,7 +26,7 @@ object SpireExt:
   extension [A: ClassTag: Ring](m1: Matrix[A])
     inline def @@@(
         m2: Matrix[A]
-    )(using inline boundsCheck: BoundsCheck): Matrix[A] =
+    ): Matrix[A] =
       dimMatCheck(m1, m2)
       val (r1, c1) = m1.shape
       val (r2, c2) = m2.shape
@@ -52,7 +52,7 @@ object SpireExt:
       val sb = new StringBuilder
       for i <- 0 until r do
         for j <- 0 until c do
-          sb.append(m1((i: Row, j: Col))(using BoundsCheck.DoBoundsCheck.no))
+          sb.append(m1((i: Row, j: Col)))
           sb.append(" ")
         end for
         sb.append("\n")

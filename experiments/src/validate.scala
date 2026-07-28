@@ -1,5 +1,4 @@
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 @main def validate(): Unit =
   import scala.io.Source

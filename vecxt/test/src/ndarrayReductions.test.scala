@@ -3,7 +3,6 @@ package vecxt
 import munit.FunSuite
 
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
 
 class NDArrayReductionsSuite extends FunSuite:
 
@@ -131,13 +130,12 @@ class NDArrayReductionsSuite extends FunSuite:
   }
 
   test("sum of empty 1-D (shape [0])") {
-    val arr = NDArray(Array.empty[Double], Array(1, 0), Array(1, 1), 0)(using BoundsCheck.DoBoundsCheck.no)
-    // numel = 0, reduce loop doesn't execute → initial value 0.0
+    val arr = NDArray.empty[Double]()
     assertClose(arr.sum, 0.0)
   }
 
   test("product of empty 1-D gives identity 1.0") {
-    val arr = NDArray(Array.empty[Double], Array(1, 0), Array(1, 1), 0)(using BoundsCheck.DoBoundsCheck.no)
+    val arr = NDArray.empty[Double]()
     assertClose(arr.product, 1.0)
   }
 
@@ -345,8 +343,8 @@ class NDArrayReductionsSuite extends FunSuite:
     val a = NDArray(data, Array(3, 3))
     val b = NDArray(data, Array(3, 3))
     val ndResult = a @@ b
-    val matA = Matrix[Double](data, 3, 3)(using BoundsCheck.DoBoundsCheck.no)
-    val matB = Matrix[Double](data, 3, 3)(using BoundsCheck.DoBoundsCheck.no)
+    val matA = Matrix[Double](data, 3, 3)
+    val matB = Matrix[Double](data, 3, 3)
     val matResult = matA @@ matB
     assertEquals(ndResult.shape.toSeq, Seq(3, 3))
     assertNDArrayClose(ndResult, matResult.raw)

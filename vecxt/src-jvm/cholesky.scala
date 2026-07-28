@@ -2,7 +2,6 @@ package vecxt
 
 import org.netlib.util.intW
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixHelper.zeros
 import vecxt.MatrixInstance.apply
 import vecxt.all.update
@@ -17,7 +16,7 @@ object Cholesky:
 
   // Copy the lower-triangular part of m into a new dense, column-major matrix.
   // LAPACK's dpotrf("L", ...) expects the input in this form and overwrites it with L.
-  inline private def lowerTriangular(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+  inline private def lowerTriangular(m: Matrix[Double]): Matrix[Double] =
     val A = Matrix.zeros[Double](m.rows, m.cols)
     val N = m.rows
     var i = 0
@@ -33,7 +32,7 @@ object Cholesky:
     A
   end lowerTriangular
 
-  inline def cholesky(m: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+  inline def cholesky(m: Matrix[Double]): Matrix[Double] =
     nonEmptyMatCheck(m)
 
     symmetricMatCheck(m)

@@ -2,8 +2,6 @@ package vecxt
 
 import scala.annotation.publicInBinary
 
-import vecxt.BoundsCheck.BoundsCheck
-
 object ndarray:
 
   class NDArray[A] @publicInBinary() private[ndarray] (
@@ -76,16 +74,19 @@ object ndarray:
         shape: Array[Int],
         strides: Array[Int],
         offset: Int = 0
-    )(using inline boundsCheck: BoundsCheck): NDArray[A] =
+    ): NDArray[A] =
       strideNDArrayCheck(data, shape, strides, offset)
       new NDArray(data, shape, strides, offset)
     end apply
+
+    inline def empty[A]()(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
+      new NDArray(Array.empty[A], Array(0), Array(1), 0)
 
     // Convenience: column-major from data + shape
     inline def apply[A](
         data: Array[A],
         shape: Array[Int]
-    )(using inline boundsCheck: BoundsCheck): NDArray[A] =
+    ): NDArray[A] =
       dimNDArrayCheck(data, shape)
       new NDArray(data, shape, colMajorStrides(shape), 0)
     end apply
@@ -93,7 +94,7 @@ object ndarray:
     // 1D from flat array
     inline def fromArray[A](
         data: Array[A]
-    )(using inline boundsCheck: BoundsCheck): NDArray[A] =
+    ): NDArray[A] =
       new NDArray(data, Array(data.length), Array(1), 0)
 
     /** Create a 0-dimensional (scalar) NDArray holding a single value. */
@@ -102,7 +103,7 @@ object ndarray:
 
     inline def zeros[A](
         shape: Array[Int]
-    )(using inline boundsCheck: BoundsCheck, oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
+    )(using oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
       shapeCheck(shape)
       val n = shapeProduct(shape)
       val data = Array.fill[A](n)(oz.zero)
@@ -111,7 +112,7 @@ object ndarray:
 
     inline def ones[A](
         shape: Array[Int]
-    )(using inline boundsCheck: BoundsCheck, oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
+    )(using oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
       shapeCheck(shape)
       val n = shapeProduct(shape)
       val data = Array.fill[A](n)(oz.one)
@@ -121,7 +122,7 @@ object ndarray:
     inline def fill[A](
         shape: Array[Int],
         value: A
-    )(using inline boundsCheck: BoundsCheck, ct: scala.reflect.ClassTag[A]): NDArray[A] =
+    )(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
       shapeCheck(shape)
       val n = shapeProduct(shape)
       val data = Array.fill[A](n)(value)

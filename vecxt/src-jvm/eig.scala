@@ -2,7 +2,6 @@ package vecxt
 
 import org.netlib.util.intW
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixHelper.zeros
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
@@ -13,14 +12,12 @@ import dev.ludovic.netlib.lapack.JavaLAPACK
 object Eigenvalues:
   private lazy final val lapack = JavaLAPACK.getInstance()
 
-  inline def eig(m: Matrix[Double])(using
-      inline bc: BoundsCheck
+  inline def eig(
+      m: Matrix[Double]
   ): (eigenvalues: Array[Double], complexEigenValues: Array[Double], eigenVectors: Matrix[Double]) =
     nonEmptyMatCheck(m)
     squareMatCheck(m)
-    if bc == vecxt.BoundsCheck.DoBoundsCheck.yes then
-      require(!m.raw.exists(_.isNaN), "Input matrix contains NaN values")
-    end if
+    require(!m.raw.exists(_.isNaN), "Input matrix contains NaN values")
 
     val n = m.rows
 

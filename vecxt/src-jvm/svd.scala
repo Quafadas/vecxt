@@ -3,7 +3,6 @@ package vecxt
 import org.netlib.util.intW
 
 import vecxt.BooleanArrays.trues
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.DoubleMatrix.matmul
 import vecxt.MatrixHelper.zeros
 import vecxt.MatrixInstance.*
@@ -39,7 +38,7 @@ object Svd:
     * @return
     *   The pseudo-inverse matrix with dimensions n×m (transposed from input)
     */
-  inline def pinv(matrix: Matrix[Double], toleranceFactor: Double = 1.0)(using inline bc: BoundsCheck): Matrix[Double] =
+  def pinv(matrix: Matrix[Double], toleranceFactor: Double = 1.0): Matrix[Double] =
     val (u, singularValues, vt) = svd(matrix, SVDMode.ReducedSVD)
 
     // Machine epsilon for Double
@@ -72,7 +71,7 @@ object Svd:
     end while
 
     // Multiply: vScaled * Uᵀ
-    vScaled.matmul(ut)(using false)
+    vScaled.matmul(ut)
   end pinv
 
   /** Computes the rank of a matrix using Singular Value Decomposition (SVD).
@@ -90,7 +89,7 @@ object Svd:
     * @return
     *   the numerical rank of the matrix, i.e., the number of singular values above the tolerance threshold
     */
-  inline def rank(matrix: Matrix[Double], toleranceFactor: Double = 1.0)(using inline bc: BoundsCheck): Int =
+  def rank(matrix: Matrix[Double], toleranceFactor: Double = 1.0): Int =
     val (_, singularValues, _) = svd(matrix)
 
     // Machine epsilon for Double
@@ -129,10 +128,10 @@ object Svd:
     * @throws IllegalStateException
     *   if the SVD computation fails to converge
     */
-  inline def svd(
+  def svd(
       matrix: Matrix[Double],
       mode: SVDMode = SVDMode.CompleteSVD
-  )(using inline bc: BoundsCheck): (U: Matrix[Double], s: Array[Double], Vt: Matrix[Double]) =
+  ): (U: Matrix[Double], s: Array[Double], Vt: Matrix[Double]) =
     val (m, n) = matrix.shape
 
     nonEmptyMatCheck(matrix)
@@ -225,8 +224,10 @@ object Svd:
     else if info.`val` > 0 then throw IllegalStateException(s"SVD failed to converge. INFO=${info.`val`}")
     end if
 
-    val uMatrix = Matrix(uArr, m, uCols)(using false)
-    val vtMatrix = Matrix(vtArr, vtRows, n)(using false)
+    val uMatrix =
+      if uArr.length == m * uCols then Matrix(uArr, m, uCols)
+      else Matrix(java.util.Arrays.copyOf(uArr, m * uCols), m, uCols)
+    val vtMatrix = Matrix(vtArr, vtRows, n)
     (U = uMatrix, s = singularValues, Vt = vtMatrix)
   end svd
 

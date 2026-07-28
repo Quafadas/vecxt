@@ -3,7 +3,6 @@ package vecxt
 import scala.annotation.targetName
 import scala.reflect.ClassTag
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.IntArraysX.contiguous
 import vecxt.MatrixHelper.zeros
 import vecxt.matrix.*
@@ -11,11 +10,11 @@ import vecxt.rangeExtender.*
 
 object MatrixInstance:
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
-    inline def update(rc: RowCol, value: A)(using inline boundsCheck: BoundsCheck): Unit =
+    inline def update(rc: RowCol, value: A): Unit =
       update(rc._1, rc._2, value)
     end update
 
-    inline def update(row: Row, col: Col, value: A)(using inline boundsCheck: BoundsCheck): Unit =
+    inline def update(row: Row, col: Col, value: A): Unit =
       indexCheckMat(m, (row, col))
       if m.offset == 0 && m.rowStride == 1 && m.colStride == m.rows then m.raw(col * m.rows + row) = value
       else if m.offset == 0 && m.rowStride == m.cols && m.colStride == 1 then
@@ -28,10 +27,11 @@ object MatrixInstance:
     end update
 
     @targetName("updateIdx")
-    inline def update(idx: Matrix[Boolean], value: A)(using inline boundsCheck: BoundsCheck): Unit =
+    inline def update(idx: Matrix[Boolean], value: A): Unit =
       sameDimMatCheck(idx, m)
       var i = 0
-      while i < m.numel do
+      val bound = m.numel
+      while i < bound do
         if idx.raw(i) then m.raw(i) = value
         end if
         i += 1
@@ -39,7 +39,7 @@ object MatrixInstance:
     end update
 
     @targetName("updateFct")
-    inline def update(inline fct: A => Boolean, value: A)(using inline boundsCheck: BoundsCheck): Unit =
+    inline def update(inline fct: A => Boolean, value: A): Unit =
       var i = 0
       while i < m.rows do
         var j = 0
@@ -56,7 +56,7 @@ object MatrixInstance:
         row: RangeExtender,
         col: RangeExtender,
         to: Array[A]
-    )(using inline boundsCheck: BoundsCheck): Unit =
+    ): Unit =
       // dimCheckLen(to, m.cols)
       // println("Updating matrix with row: " + row + ", col: " + col)
       // println(to.mkString(", "))
@@ -86,22 +86,20 @@ object MatrixInstance:
       end match
     end updateInPlace
 
-    def apply(rowRange: RangeExtender, col: Int)(using ClassTag[A]): Matrix[A] =
+    inline def apply(rowRange: RangeExtender, col: Int)(using ClassTag[A]): Matrix[A] =
       apply(rowRange, Array(col))
     end apply
 
-    def apply(row: Int, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
+    inline def apply(row: Int, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       apply(Array(row), colRange)
     end apply
 
-    def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
+    inline def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)
       val newCols = range(colRange, m.cols)
       val newArr = Array.ofDim[A](newCols.size * newRows.size)
 
-      if newRows.contiguous && newCols.contiguous then
-
-        submatrix(newRows, newCols)
+      if newRows.contiguous && newCols.contiguous then submatrix(newRows, newCols)
       else if m.isDenseColMajor then
         var idx = 0
         var i = 0
@@ -117,8 +115,7 @@ object MatrixInstance:
           end while
           i += 1
         end while
-
-        Matrix(newArr, (newRows.size, newCols.size))(using BoundsCheck.DoBoundsCheck.no)
+        Matrix(newArr, (newRows.size, newCols.size))
       else ???
       end if
 
@@ -129,7 +126,7 @@ object MatrixInstance:
       * @param ct
       * @return
       */
-    def deepCopy(using ct: ClassTag[A]): Matrix[A] =
+    inline def deepCopy(using ct: ClassTag[A]): Matrix[A] =
       deepCopy(asRowMajor = false)
     end deepCopy
 
@@ -140,9 +137,8 @@ object MatrixInstance:
       * @param ct
       * @return
       */
-    def deepCopy(asRowMajor: Boolean)(using ct: ClassTag[A]): Matrix[A] =
+    inline def deepCopy(asRowMajor: Boolean)(using ct: ClassTag[A]): Matrix[A] =
       // println(s"Deep copying matrix with shape ${m.shape} and offset ${m.offset}")
-      import BoundsCheck.DoBoundsCheck.no
       val newRaw = Array.ofDim[A](m.numel)
       val newMat =
         if asRowMajor then Matrix(newRaw, m.rows, m.cols, m.cols, 1, 0) // row-major: rowStride = cols, colStride = 1
@@ -160,12 +156,12 @@ object MatrixInstance:
 
     /** Element retrieval
       */
-    transparent inline def apply(b: RowCol)(using inline boundsCheck: BoundsCheck): A =
+    transparent inline def apply(b: RowCol): A =
       indexCheckMat(m, b)
       apply(b._1, b._2)
     end apply
 
-    inline def elementIndex(row: Row, col: Col)(using inline boundsCheck: BoundsCheck): Int =
+    def elementIndex(row: Row, col: Col): Int =
       indexCheckMat(m, (row, col))
       // inline if boundsCheck == BoundsCheck.DoBoundsCheck.yes then
       // println(s"Element index for ($row, $col) in matrix with shape ${m.shape} is being checked")
@@ -177,7 +173,7 @@ object MatrixInstance:
 
     end elementIndex
 
-    transparent inline def apply(row: Row, col: Col)(using inline boundsCheck: BoundsCheck): A =
+    transparent inline def apply(row: Row, col: Col): A =
       indexCheckMat(m, (row, col))
       // Fast path for default column-major layout (contiguous, no offset/stride)
       if m.offset == 0 && m.rowStride == 1 && m.colStride == m.rows then m.raw(col * m.rows + row)
@@ -199,7 +195,7 @@ object MatrixInstance:
       */
     inline def apply(
         indexes: Array[RowCol]
-    )(using inline boundsCheck: BoundsCheck, ct: ClassTag[A], onz: OneAndZero[A]): Matrix[A] =
+    )(using ct: ClassTag[A], onz: OneAndZero[A]): Matrix[A] =
       val newMat = Matrix.zeros(m.shape)
       var i = 0
       while i < indexes.length do
@@ -210,8 +206,7 @@ object MatrixInstance:
       newMat
     end apply
 
-    def submatrix(rowRange: RangeExtender, colRange: RangeExtender)(using ct: ClassTag[A]): Matrix[A] =
-      import BoundsCheck.DoBoundsCheck.no
+    inline def submatrix(rowRange: RangeExtender, colRange: RangeExtender)(using ct: ClassTag[A]): Matrix[A] =
 
       val newRows = range(rowRange, m.rows)
       val newCols = range(colRange, m.cols)
@@ -222,7 +217,6 @@ object MatrixInstance:
         val newColsSpan = newCols.last - newCols.head + 1
 
         val newOffset = m.offset + newRows.head * m.rowStride + newCols.head * m.colStride
-
         Matrix(
           raw = m.raw,
           rows = newRowsSpan,

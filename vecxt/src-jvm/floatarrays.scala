@@ -3,7 +3,6 @@ package vecxt
 import scala.reflect.ClassTag
 import scala.util.chaining.*
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
@@ -47,11 +46,12 @@ object floatarrays:
   end extension
 
   extension (f: Float)
-    inline def /(arr: Array[Float]) =
+    def /(arr: Array[Float]) =
       val out = new Array[Float](arr.length)
       val bf = FloatVector.broadcast(spf, f)
       var i = 0
-      while i < spf.loopBound(arr.length) do
+      val bound = spf.loopBound(arr.length)
+      while i < bound do
         bf.div(FloatVector.fromArray(spf, arr, i)).intoArray(out, i)
         i += spfl
       end while
@@ -65,11 +65,12 @@ object floatarrays:
 
     inline def +(arr: Array[Float]): Array[Float] = arr.+(f)
 
-    inline def -(arr: Array[Float]): Array[Float] =
+    def -(arr: Array[Float]): Array[Float] =
       val out = new Array[Float](arr.length)
       var i = 0
       val bf = FloatVector.broadcast(spf, f)
-      while i < spf.loopBound(arr.length) do
+      val bound = spf.loopBound(arr.length)
+      while i < bound do
         bf.sub(FloatVector.fromArray(spf, arr, i)).intoArray(out, i)
         i += spfl
       end while
@@ -214,10 +215,11 @@ object floatarrays:
     inline def `tanh!`: Unit =
       unaryFloatOp(VectorOperators.TANH)
 
-    inline def `**!`(power: Float): Unit =
+    def `**!`(power: Float): Unit =
       var i = 0
       val bp = FloatVector.broadcast(spf, power)
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .lanewise(VectorOperators.POW, bp)
@@ -234,9 +236,10 @@ object floatarrays:
     inline def **(power: Float): Array[Float] =
       vec.clone().tap(_.`**!`(power))
 
-    inline def `fma!`(multiply: Float, add: Float): Unit =
+    def `fma!`(multiply: Float, add: Float): Unit =
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .fma(multiply, add)
@@ -285,12 +288,13 @@ object floatarrays:
 
     end `clampFloatOp!`
 
-    inline def `clamp!`(floor: Float, ceil: Float): Unit =
+    def `clamp!`(floor: Float, ceil: Float): Unit =
       var i = 0
       val vecCeil = FloatVector.broadcast(spf, ceil)
       val vecFloor = FloatVector.broadcast(spf, floor)
 
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         val values = FloatVector.fromArray(spf, vec, i)
         val maskGt = values.compare(VectorOperators.GT, vecCeil)
         val maskLt = values.compare(VectorOperators.LT, vecFloor)
@@ -378,11 +382,12 @@ object floatarrays:
     inline def minSIMD: Float =
       reduceFloatOp(VectorOperators.MIN, Float.MaxValue)
 
-    inline def sumSIMD: Float =
+    def sumSIMD: Float =
       var i: Int = 0
       var acc = FloatVector.zero(spf)
 
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         acc = acc.add(FloatVector.fromArray(spf, vec, i))
         i += spfl
       end while
@@ -396,11 +401,11 @@ object floatarrays:
 
     inline def sum: Float = sumSIMD
 
-    inline def productSIMD: Float =
+    def productSIMD: Float =
       var i: Int = 0
       var acc = FloatVector.broadcast(spf, 1.0f)
-
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         acc = acc.mul(FloatVector.fromArray(spf, vec, i))
         i += spfl
       end while
@@ -414,7 +419,7 @@ object floatarrays:
 
     inline def product: Float = productSIMD
 
-    inline def productExceptSelf: Array[Float] =
+    def productExceptSelf: Array[Float] =
       val n = vec.length
       val leftProducts = new Array[Float](n)
       val rightProducts = new Array[Float](n)
@@ -432,7 +437,8 @@ object floatarrays:
       end while
 
       i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, leftProducts, i)
           .mul(FloatVector.fromArray(spf, rightProducts, i))
@@ -457,14 +463,15 @@ object floatarrays:
       meanAndVarianceTwoPass(mode)
     end meanAndVariance
 
-    inline def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Float, variance: Float) =
+    def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Float, variance: Float) =
       val μ = vec.mean.toDouble
       val μVec = FloatVector.broadcast(spf, μ.toFloat)
 
       var i = 0
       var acc = FloatVector.zero(spf)
 
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         val v = FloatVector.fromArray(spf, vec, i)
         val diff = v.sub(μVec)
         acc = diff.fma(diff, acc)
@@ -501,18 +508,19 @@ object floatarrays:
 
     inline def stdDev(mode: VarianceMode): Float = std(mode)
 
-    inline def dot(v1: Array[Float])(using inline boundsCheck: BoundsCheck): Float =
+    inline def dot(v1: Array[Float]): Float =
       dimCheck(vec, v1)
       blas.sdot(vec.length, vec, 1, v1, 1)
     end dot
 
     inline def norm: Float = blas.snrm2(vec.length, vec, 1)
 
-    inline def increments: Array[Float] =
+    def increments: Array[Float] =
       val out = new Array[Float](vec.length)
 
       var i = 1
-      while i < spf.loopBound(vec.length - 2) do
+      val bound = spf.loopBound(vec.length - 2)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .sub(FloatVector.fromArray(spf, vec, i - 1))
@@ -542,12 +550,13 @@ object floatarrays:
       out
     end cumsum
 
-    inline def logSumExp: Float =
+    def logSumExp: Float =
       val maxVal = vec.max
       var sumExpVec = FloatVector.zero(spf)
       var i = 0
 
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         val vecSegment = FloatVector.fromArray(spf, vec, i)
         val expSegment = vecSegment.sub(maxVal).lanewise(VectorOperators.EXP)
         sumExpVec = sumExpVec.add(expSegment)
@@ -564,22 +573,22 @@ object floatarrays:
       (maxVal + Math.log(sumExp)).toFloat
     end logSumExp
 
-    inline def -(vec2: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def -(vec2: Array[Float]): Array[Float] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def -=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.saxpy(vec.length, -1.0f, vec2, 1, vec, 1)
     end -=
 
-    inline def +(vec2: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def +(vec2: Array[Float]): Array[Float] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ += vec2)
     end +
 
-    inline def +=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    def +=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.saxpy(vec.length, 1.0f, vec2, 1, vec, 1)
     end +=
@@ -596,11 +605,12 @@ object floatarrays:
       end while
     end +:+=
 
-    inline def +(d: Float): Array[Float] =
+    def +(d: Float): Array[Float] =
       val out = new Array[Float](vec.length)
       val inc = FloatVector.broadcast(spf, d)
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .add(inc)
@@ -615,10 +625,11 @@ object floatarrays:
       out
     end +
 
-    inline def +=(d: Float): Unit =
+    def +=(d: Float): Unit =
       val inc = FloatVector.broadcast(spf, d)
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .add(inc)
@@ -632,11 +643,12 @@ object floatarrays:
       end while
     end +=
 
-    inline def -(d: Float): Array[Float] =
+    def -(d: Float): Array[Float] =
       val out = new Array[Float](vec.length)
       val inc = FloatVector.broadcast(spf, d)
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .sub(inc)
@@ -651,10 +663,11 @@ object floatarrays:
       out
     end -
 
-    inline def -=(d: Float): Unit =
+    def -=(d: Float): Unit =
       val inc = FloatVector.broadcast(spf, d)
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .sub(inc)
@@ -668,13 +681,14 @@ object floatarrays:
       end while
     end -=
 
-    inline def *:*(d: Array[Float])(using inline boundsCheck: BoundsCheck) = vec * d
+    inline def *:*(d: Array[Float]) = vec * d
 
-    inline def *(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    def *(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val out = new Array[Float](vec.length)
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .mul(FloatVector.fromArray(spf, d, i))
@@ -709,10 +723,11 @@ object floatarrays:
     //   vec.clone().tap(_ *= d)
     // end *
 
-    inline def *=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    def *=(d: Array[Float]): Unit =
       dimCheck(vec, d)
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .mul(FloatVector.fromArray(spf, d, i))
@@ -726,13 +741,14 @@ object floatarrays:
       end while
     end *=
 
-    inline def /:/(d: Array[Float])(using inline boundsCheck: BoundsCheck) = vec / d
+    inline def /:/(d: Array[Float]) = vec / d
 
-    inline def /(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    def /(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val out = new Array[Float](vec.length)
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .div(FloatVector.fromArray(spf, d, i))
@@ -755,9 +771,10 @@ object floatarrays:
       vec.clone.tap(_ /= d)
     end /
 
-    inline def *=(d: Float): Unit =
+    def *=(d: Float): Unit =
       var i = 0
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         FloatVector
           .fromArray(spf, vec, i)
           .mul(FloatVector.broadcast(spf, d))
@@ -868,9 +885,7 @@ object floatarrays:
       (cv / (n - 1)).toFloat
     end covariance
 
-    inline def pearsonCorrelationCoefficient(thatVector: Array[Float])(using
-        inline boundsCheck: BoundsCheck
-    ): Float =
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -896,14 +911,14 @@ object floatarrays:
       )).toFloat
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Array[Float])(using inline boundsCheck: BoundsCheck): Float =
+    inline def spearmansRankCorrelation(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
       theseRanks.pearsonCorrelationCoefficient(thoseRanks)
     end spearmansRankCorrelation
 
-    inline def corr(thatVector: Array[Float])(using inline boundsCheck: BoundsCheck): Float =
+    inline def corr(thatVector: Array[Float]): Float =
       pearsonCorrelationCoefficient(thatVector)
 
     inline def elementRanks: Array[Float] =
@@ -936,7 +951,7 @@ object floatarrays:
       ranks
     end elementRanks
 
-    inline def outer(other: Array[Float])(using ClassTag[Float]): Matrix[Float] =
+    def outer(other: Array[Float])(using ClassTag[Float]): Matrix[Float] =
       val n = vec.length
       val m = other.length
       val out = new Array[Float](n * m)
@@ -945,7 +960,8 @@ object floatarrays:
       while j < m do
         var i = 0
         val tmp = FloatVector.broadcast(spf, other(j))
-        while i < spf.loopBound(n) do
+        val bound = spf.loopBound(n)
+        while i < bound do
           FloatVector.fromArray(spf, vec, i).mul(tmp).intoArray(out, j * n + i)
           i = i + spfl
         end while
@@ -956,7 +972,7 @@ object floatarrays:
         end while
         j = j + 1
       end while
-      Matrix(out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+      Matrix(out, (n, m))
     end outer
 
     inline def `zeroWhere!`(

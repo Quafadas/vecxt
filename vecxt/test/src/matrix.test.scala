@@ -3,7 +3,7 @@ package vecxt
 import munit.FunSuite
 
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
+
 import dimensionExtender.DimensionExtender.Dimension.*
 import MatrixInstance.update
 

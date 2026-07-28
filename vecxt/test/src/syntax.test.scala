@@ -1,7 +1,5 @@
 package vecxt
 
-import BoundsCheck.DoBoundsCheck.yes
-
 import all.*
 
 class SyntaxSuite extends munit.FunSuite:

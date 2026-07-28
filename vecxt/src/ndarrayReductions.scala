@@ -1,6 +1,5 @@
 package vecxt
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.broadcast.ShapeMismatchException
 import vecxt.doublearrays.*
 import vecxt.matrix.*
@@ -22,9 +21,9 @@ private object NDArrayReductionHelpers:
   inline def argmax(d: Array[Double]): Int = d.argmax
   inline def argmin(d: Array[Double]): Int = d.argmin
   inline def dot(d1: Array[Double], d2: Array[Double]): Double =
-    d1.dot(d2)(using BoundsCheck.DoBoundsCheck.no)
+    d1.dot(d2)
   inline def matmul(m1: Matrix[Double], m2: Matrix[Double]): Matrix[Double] =
-    m1.matmul(m2)(using BoundsCheck.DoBoundsCheck.no)
+    m1.matmul(m2)
 
 end NDArrayReductionHelpers
 
@@ -339,16 +338,16 @@ object NDArrayReductions:
     // ── Linear algebra ─────────────────────────────────────────────────────
 
     /** Dot product of two 1-D NDArrays. */
-    inline def dot(b: NDArray[Double])(using inline bc: BoundsCheck): Double =
-      inline if bc then
-        if a.ndim != 1 then throw InvalidNDArray(s"dot requires 1-D arrays, got ndim=${a.ndim}")
-        end if
-        if b.ndim != 1 then throw InvalidNDArray(s"dot requires 1-D arrays, got ndim=${b.ndim}")
-        end if
-        if a.shape(0) != b.shape(0) then
-          throw ShapeMismatchException(s"dot: length mismatch: ${a.shape(0)} vs ${b.shape(0)}")
-        end if
+    inline def dot(b: NDArray[Double]): Double =
+
+      if a.ndim != 1 then throw InvalidNDArray(s"dot requires 1-D arrays, got ndim=${a.ndim}")
       end if
+      if b.ndim != 1 then throw InvalidNDArray(s"dot requires 1-D arrays, got ndim=${b.ndim}")
+      end if
+      if a.shape(0) != b.shape(0) then
+        throw ShapeMismatchException(s"dot: length mismatch: ${a.shape(0)} vs ${b.shape(0)}")
+      end if
+
       if a.isColMajor && b.isColMajor then NDArrayReductionHelpers.dot(a.data, b.data)
       else
         var acc = 0.0
@@ -362,34 +361,30 @@ object NDArrayReductions:
     end dot
 
     /** Matrix multiply two 2-D NDArrays. Result shape: [a.shape(0), b.shape(1)]. */
-    inline def matmul(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] =
-      inline if bc then
-        if a.ndim != 2 then throw InvalidNDArray(s"matmul requires 2-D arrays, got ndim=${a.ndim}")
-        end if
-        if b.ndim != 2 then throw InvalidNDArray(s"matmul requires 2-D arrays, got ndim=${b.ndim}")
-        end if
-        if a.shape(1) != b.shape(0) then
-          throw ShapeMismatchException(
-            s"matmul: inner dimension mismatch: ${a.shape(1)} vs ${b.shape(0)}"
-          )
-        end if
+    inline def matmul(b: NDArray[Double]): NDArray[Double] =
+
+      if a.ndim != 2 then throw InvalidNDArray(s"matmul requires 2-D arrays, got ndim=${a.ndim}")
       end if
+      if b.ndim != 2 then throw InvalidNDArray(s"matmul requires 2-D arrays, got ndim=${b.ndim}")
+      end if
+      if a.shape(1) != b.shape(0) then
+        throw ShapeMismatchException(
+          s"matmul: inner dimension mismatch: ${a.shape(1)} vs ${b.shape(0)}"
+        )
+      end if
+
       val aRows = a.shape(0)
       val aCols = a.shape(1)
       val bCols = b.shape(1)
-      val matA = Matrix[Double](a.data, aRows, aCols, a.strides(0), a.strides(1), a.offset)(using
-        BoundsCheck.DoBoundsCheck.no
-      )
-      val matB = Matrix[Double](b.data, b.shape(0), bCols, b.strides(0), b.strides(1), b.offset)(using
-        BoundsCheck.DoBoundsCheck.no
-      )
+      val matA = Matrix[Double](a.data, aRows, aCols, a.strides(0), a.strides(1), a.offset)
+      val matB = Matrix[Double](b.data, b.shape(0), bCols, b.strides(0), b.strides(1), b.offset)
       val result = NDArrayReductionHelpers.matmul(matA, matB)
       val outShape = Array(result.rows, result.cols)
       mkNDArray(result.raw, outShape, colMajorStrides(outShape), 0)
     end matmul
 
     /** Alias for matmul. */
-    inline def @@(b: NDArray[Double])(using inline bc: BoundsCheck): NDArray[Double] = a.matmul(b)
+    inline def @@(b: NDArray[Double]): NDArray[Double] = a.matmul(b)
 
   end extension
 

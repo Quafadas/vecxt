@@ -92,7 +92,7 @@ You can test custom vector operations by creating your own VectorMonoid instance
 ```scala
 import cats.kernel.Semigroup
 import vecxt.laws.{Dimension, VectorCommutativeMonoid}
-import vecxt.BoundsCheck
+
 
 def customVectorMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
   given Semigroup[Double] = Semigroup.instance[Double](_ + _)
@@ -107,7 +107,7 @@ def customVectorMonoid(using dim: Dimension): VectorCommutativeMonoid[Double] =
         i += 1
       result
     }
-  )(using Semigroup[Double], BoundsCheck.DoBoundsCheck.yes)
+  )(using Semigroup[Double])
 ```
 
 Then test it with discipline:
@@ -178,8 +178,6 @@ All Monoid laws plus:
 
 ✅ **Integration**: Works with cats ecosystem and discipline
 
-✅ **Zero Overhead**: Dimension validation can be disabled via BoundsCheck
-
 ## Dependencies
 
 To use the laws module, add to your build:
@@ -208,4 +206,3 @@ def testMvnDeps = Seq(
 
 - [cats kernel](https://typelevel.org/cats/typeclasses.html)
 - [discipline](https://github.com/typelevel/discipline) - Law checking for type classes
-- [vecxt BoundsCheck system](../bounds.md)

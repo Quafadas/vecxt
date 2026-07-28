@@ -3,14 +3,12 @@ package vecxtensions
 import vecxt.all.*
 import spire.math.Complex
 import munit.FunSuite
-import vecxt.BoundsCheck
+
 import spire.implicits.*
 
 import vecxtensions.SpireExt.*
 
 class MatrixExtensionSuite extends FunSuite:
-
-  import BoundsCheck.DoBoundsCheck.yes
 
   def assertVecEquals[A](v1: Array[A], v2: Array[A])(implicit loc: munit.Location): Unit =
     var i: Int = 0;

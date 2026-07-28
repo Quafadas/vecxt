@@ -1,8 +1,6 @@
 package vecxt
 
 object all:
-  // Choose not to export this, and import "no" to inline away bounds checking.
-  export vecxt.BoundsCheck.DoBoundsCheck.yes
 
   // arrays
   export vecxt.arrayUtil.*

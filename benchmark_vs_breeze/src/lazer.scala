@@ -2,14 +2,13 @@ package vecxt.benchmark
 
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
-import vecxt.BoundsCheck
+
 import scala.compiletime.uninitialized
 import vecxt.all.*
 import jdk.incubator.vector.VectorSpecies
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.DoubleVector
 import breeze.linalg.*
-import vecxt.BoundsCheck.DoBoundsCheck.no
 
 //% mill benchmark_vs_breeze.runJmh -jvmArgs --add-modules=jdk.incubator.vector
 @State(Scope.Thread)

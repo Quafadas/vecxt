@@ -1,7 +1,6 @@
 package vecxt
 
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 class DoubleArraysSuite extends munit.FunSuite:
 

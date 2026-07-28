@@ -1,8 +1,6 @@
 package vecxt
 import scala.annotation.publicInBinary
 
-import vecxt.BoundsCheck.BoundsCheck
-
 object matrix:
 
   /** This is a matrix. The constructor is private to ensure that you deliberately opt in or out of the bounds check.
@@ -23,7 +21,7 @@ object matrix:
     *   The type of elements in the matrix, specialized for Double, Boolean
     */
 
-  class Matrix[@specialized(Double, Boolean, Int) A] @publicInBinary() private[matrix] (
+  class Matrix[A] @publicInBinary() private[matrix] (
       val raw: Array[A],
       val rows: Row,
       val cols: Col,
@@ -60,14 +58,14 @@ object matrix:
 
   object Matrix:
 
-    inline def apply[@specialized(Double, Boolean, Int) A](
+    inline def apply[A](
         raw: Array[A],
         rows: Row,
         cols: Col,
         rowStride: Int,
         colStride: Int,
         offset: Int = 0
-    )(using inline boundsCheck: BoundsCheck): Matrix[A] =
+    ): Matrix[A] =
       strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
       new Matrix(
         raw = raw,
@@ -79,9 +77,7 @@ object matrix:
       )
     end apply
 
-    inline def apply[@specialized(Double, Boolean, Int) A](raw: Array[A], dim: RowCol)(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[A] =
+    inline def apply[A](raw: Array[A], dim: RowCol): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
 
       new Matrix(
@@ -102,9 +98,7 @@ object matrix:
       * @param boundsCheck
       * @return
       */
-    inline def apply[@specialized(Double, Boolean, Int) A](raw: Array[A], rows: Row, cols: Col)(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[A] =
+    inline def apply[A](raw: Array[A], rows: Row, cols: Col): Matrix[A] =
       dimMatInstantiateCheck(raw, (rows, cols))
       new Matrix(
         raw = raw,
@@ -116,14 +110,12 @@ object matrix:
       )
     end apply
 
-    inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: Array[A])(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[A] =
-      Matrix(raw, dim._1, dim._2)(using boundsCheck)
+    inline def apply[A](dim: RowCol, raw: Array[A]): Matrix[A] =
+      Matrix(raw, dim._1, dim._2)
     end apply
   end Matrix
 
-  extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
+  extension [A](m: Matrix[A])
 
     // transparent inline def refinedRaw = m.raw
 

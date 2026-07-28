@@ -1,6 +1,5 @@
 package vecxt
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.doublearrays.dot
 import vecxt.doublearrays.norm
 
@@ -13,7 +12,7 @@ import vecxt.doublearrays.norm
   */
 object cosineSimilarity:
 
-  inline def apply(v1: Array[Double], v2: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+  inline def apply(v1: Array[Double], v2: Array[Double]): Double =
     dimCheck(v1, v2)
     v1.dot(v2) / (v1.norm * v2.norm)
   end apply

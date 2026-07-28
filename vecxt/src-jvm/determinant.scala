@@ -1,6 +1,5 @@
 package vecxt
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixHelper.*
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
@@ -40,9 +39,9 @@ object Determinant:
       * @throws IllegalArgumentException
       *   if the matrix is not square
       */
-    inline def det(using inline boundsCheck: BoundsCheck): Double =
-      inline if boundsCheck then
-        if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
+    inline def det: Double =
+
+      if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
       end if
 
       val n = m.rows
@@ -184,9 +183,8 @@ object Determinant:
       * @throws IllegalArgumentException
       *   if the matrix is not square
       */
-    inline def adj(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      inline if boundsCheck then
-        if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
+    inline def adj: Matrix[Double] =
+      if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
       end if
 
       val n = m.rows
@@ -218,7 +216,7 @@ object Determinant:
           var j = 0
           while j < n do
             // Compute cofactor[j,i] which goes into adj[i,j]
-            val minor = getMinor(m, j, i, n)(using boundsCheck)
+            val minor = getMinor(m, j, i, n)
             val minorDet = minor.det
             val sign = if (i + j) % 2 == 0 then 1.0 else -1.0
             result(i, j) = sign * minorDet
@@ -233,9 +231,7 @@ object Determinant:
 
     /** Helper function to compute the minor matrix by removing a specific row and column
       */
-    private inline def getMinor(mat: Matrix[Double], removeRow: Int, removeCol: Int, n: Int)(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[Double] =
+    private inline def getMinor(mat: Matrix[Double], removeRow: Int, removeCol: Int, n: Int): Matrix[Double] =
       val minorSize = n - 1
       val minorData = Array.ofDim[Double](minorSize * minorSize)
 
@@ -273,9 +269,8 @@ object Determinant:
       * @throws ArithmeticException
       *   if the matrix is singular (determinant is zero)
       */
-    inline def inv(using inline boundsCheck: BoundsCheck): Matrix[Double] =
-      inline if boundsCheck then
-        if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
+    inline def inv: Matrix[Double] =
+      if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
       end if
 
       val n = m.rows

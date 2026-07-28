@@ -2,7 +2,6 @@ package vecxt
 
 import munit.FunSuite
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
 
 class SolveSuite extends FunSuite:
 
@@ -289,7 +288,7 @@ class SolveSuite extends FunSuite:
     val b = Array(1.0, 2.0) // Wrong size
 
     intercept[MatrixDimensionMismatch] {
-      solve(A, b)(using yes)
+      solve(A, b)
     }
   }
 
@@ -300,7 +299,7 @@ class SolveSuite extends FunSuite:
     val b = Array(1.0, 2.0)
 
     intercept[IllegalArgumentException] {
-      solve(A, b)(using yes)
+      solve(A, b)
     }
   }
 
@@ -309,7 +308,7 @@ class SolveSuite extends FunSuite:
     val b = Array(Double.NaN, 2.0)
 
     intercept[IllegalArgumentException] {
-      solve(A, b)(using yes)
+      solve(A, b)
     }
   }
 

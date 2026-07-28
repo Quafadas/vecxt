@@ -2,7 +2,7 @@ package vecxt
 
 import munit.FunSuite
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
+
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -111,7 +111,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U
     val PA = applyPermutation(id, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU), "P*A should equal L*U")
   }
 
@@ -128,7 +128,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-9), "P*A should equal L*U")
 
     // For diagonal matrix with no zeros, U diagonal should match (possibly reordered)
@@ -155,7 +155,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-9), "P*A should equal L*U")
   }
 
@@ -179,7 +179,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-9), "P*A should equal L*U")
   }
 
@@ -237,7 +237,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-9), "P*A should equal L*U")
   }
 
@@ -270,7 +270,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-9), "P*A should equal L*U")
   }
 
@@ -300,7 +300,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U still holds
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-9), "P*A should equal L*U even for singular matrix")
   }
 
@@ -326,7 +326,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-8), "P*A should equal L*U")
   }
 
@@ -415,7 +415,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U (with relaxed tolerance for small numbers)
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-15), "P*A should equal L*U")
   }
 
@@ -438,7 +438,7 @@ class LUSuite extends FunSuite:
 
     // Verify P*A = L*U
     val PA = applyPermutation(m, luResult.P)
-    val LU = luResult.L.matmul(luResult.U)(using false)
+    val LU = luResult.L.matmul(luResult.U)
     assert(matricesEqual(PA, LU, 1e-9), "P*A should equal L*U")
   }
 

@@ -1,6 +1,5 @@
 package vecxt
 
-import vecxt.BoundsCheck
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.matrix.Matrix
 import scala.annotation.targetName
@@ -36,7 +35,7 @@ object JvmIntMatrix:
         i += 1
       end while
 
-      Matrix[Int](newArr, newShape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Int](newArr, newShape)
     end reduceAlongDimension
 
     @targetName("intMatrixMax")

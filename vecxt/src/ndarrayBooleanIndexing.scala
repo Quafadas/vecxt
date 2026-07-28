@@ -2,7 +2,6 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 
@@ -13,14 +12,14 @@ object NDArrayBooleanIndexing:
     /** Select elements where mask is true. Returns a 1-D col-major NDArray. Mask must have the same shape as arr.
       * Result length = mask.countTrue.
       */
-    inline def apply(mask: NDArray[Boolean])(using inline bc: BoundsCheck): NDArray[A] =
-      inline if bc then
-        if !sameShape(arr.shape, mask.shape) then
-          throw ShapeMismatchException(
-            s"Boolean indexing requires arr and mask to have the same shape: [${arr.shape.mkString(",")}] vs [${mask.shape.mkString(",")}]."
-          )
-        end if
+    inline def apply(mask: NDArray[Boolean]): NDArray[A] =
+
+      if !sameShape(arr.shape, mask.shape) then
+        throw ShapeMismatchException(
+          s"Boolean indexing requires arr and mask to have the same shape: [${arr.shape.mkString(",")}] vs [${mask.shape.mkString(",")}]."
+        )
       end if
+
       if arr.isColMajor && mask.isColMajor then
         // Fast path: flat array iteration
         var count = 0
@@ -89,16 +88,16 @@ object NDArrayBooleanIndexing:
     /** Set elements where mask is true to `value`. Mutates arr.data in-place. Mask must have the same shape as arr, and
       * arr must be contiguous.
       */
-    inline def update(mask: NDArray[Boolean], value: A)(using inline bc: BoundsCheck): Unit =
-      inline if bc then
-        if !sameShape(arr.shape, mask.shape) then
-          throw ShapeMismatchException(
-            s"Boolean mask assignment requires arr and mask to have the same shape: [${arr.shape.mkString(",")}] vs [${mask.shape.mkString(",")}]."
-          )
-        end if
-        if !arr.isContiguous then throw InvalidNDArray("Boolean mask assignment requires a contiguous NDArray")
-        end if
+    inline def update(mask: NDArray[Boolean], value: A): Unit =
+
+      if !sameShape(arr.shape, mask.shape) then
+        throw ShapeMismatchException(
+          s"Boolean mask assignment requires arr and mask to have the same shape: [${arr.shape.mkString(",")}] vs [${mask.shape.mkString(",")}]."
+        )
       end if
+      if !arr.isContiguous then throw InvalidNDArray("Boolean mask assignment requires a contiguous NDArray")
+      end if
+
       if arr.isColMajor && mask.isColMajor then
         var i = 0
         while i < mask.data.length do

@@ -1,6 +1,5 @@
 package vecxt
 
-import vecxt.BoundsCheck
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.matrix.Matrix
 import scala.annotation.targetName
@@ -70,7 +69,7 @@ object JvmFloatMatrix:
         i += 1
       end while
 
-      Matrix[Float](newArr, newShape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Float](newArr, newShape)
     end reduceAlongDimension
 
     @targetName("floatMatrixMax")

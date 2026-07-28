@@ -3,7 +3,6 @@ package vecxt
 import scala.reflect.ClassTag
 import scala.util.chaining.*
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
@@ -59,11 +58,11 @@ object doublearrays:
   end linspace
 
   extension (d: Double)
-    inline def /(arr: Array[Double]) =
+    def /(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
-
+      val bound = spd.loopBound(arr.length)
       var i = 0
-      while i < spd.loopBound(arr.length) do
+      while i < bound do
         DoubleVector.broadcast(spd, d).div(DoubleVector.fromArray(spd, arr, i)).intoArray(out, i)
         i += spdl
       end while
@@ -77,11 +76,12 @@ object doublearrays:
 
     inline def +(arr: Array[Double]): Array[Double] = arr.+(d)
 
-    inline def -(arr: Array[Double]): Array[Double] =
+    def -(arr: Array[Double]): Array[Double] =
       val out = new Array[Double](arr.length)
       var i = 0
       val bd = DoubleVector.broadcast(spd, d)
-      while i < spd.loopBound(arr.length) do
+      val bound = spd.loopBound(arr.length)
+      while i < bound do
         bd.sub(DoubleVector.fromArray(spd, arr, i)).intoArray(out, i)
         i += spdl
       end while
@@ -103,7 +103,7 @@ object doublearrays:
       * https://stackoverflow.com/questions/79025873/selecting-values-from-java-simd-doublevector
       */
 
-    // inline def apply(index: Array[Boolean])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    // inline def apply(index: Array[Boolean]): Array[Double] =
     //   dimCheck(vec, index)
     //   val newVec: Array[Double] = new Array[Double](index.length)
     //   val out = new Array[Double](vec.length)
@@ -144,7 +144,8 @@ object doublearrays:
     // end apply
     private inline def unaryOp(inline op: VectorOperators.Unary): Unit =
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .lanewise(op)
@@ -269,7 +270,7 @@ object doublearrays:
     inline def tanh: Array[Double] =
       vec.clone().tap(_.unaryOp(VectorOperators.TANH))
 
-    inline def `**!`(power: Double): Unit =
+    def `**!`(power: Double): Unit =
       var i = 0
       val bp = DoubleVector.broadcast(spd, power)
       while i < spd.loopBound(vec.length) do
@@ -289,11 +290,11 @@ object doublearrays:
     inline def **(power: Double): Array[Double] =
       vec.clone().tap(_.`**!`(power))
 
-    inline def increments: Array[Double] =
+    def increments: Array[Double] =
       val out = new Array[Double](vec.length)
-
+      val bound = spd.loopBound(vec.length - 2)
       var i = 1
-      while i < spd.loopBound(vec.length - 2) do
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .sub(DoubleVector.fromArray(spd, vec, i - 1))
@@ -309,9 +310,7 @@ object doublearrays:
       out
     end increments
 
-    inline def pearsonCorrelationCoefficient(thatVector: Array[Double])(using
-        inline boundsCheck: BoundsCheck
-    ): Double =
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Double]): Double =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -338,7 +337,7 @@ object doublearrays:
       )
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    inline def spearmansRankCorrelation(thatVector: Array[Double]): Double =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
@@ -346,7 +345,7 @@ object doublearrays:
     end spearmansRankCorrelation
 
     // An alias - pearson is the most commonly requested type of correlation
-    inline def corr(thatVector: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    inline def corr(thatVector: Array[Double]): Double =
       pearsonCorrelationCoefficient(thatVector)
 
     inline def elementRanks: Array[Double] =
@@ -379,7 +378,7 @@ object doublearrays:
       ranks
     end elementRanks
 
-    inline def outer(other: Array[Double])(using ClassTag[Double]): Matrix[Double] =
+    def outer(other: Array[Double])(using ClassTag[Double]): Matrix[Double] =
       val n = vec.length
       val m = other.length
       val out = new Array[Double](n * m)
@@ -399,7 +398,7 @@ object doublearrays:
         end while
         j = j + 1
       end while
-      Matrix(out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+      Matrix(out, (n, m))
     end outer
 
     inline def variance: Double = variance(VarianceMode.Population)
@@ -417,10 +416,10 @@ object doublearrays:
 
     inline def stdDev(mode: VarianceMode): Double = std(mode)
 
-    inline def meanAndVariance: (mean: Double, variance: Double) =
+    def meanAndVariance: (mean: Double, variance: Double) =
       meanAndVariance(VarianceMode.Population)
 
-    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
       meanAndVarianceTwoPass(mode)
     end meanAndVariance
 
@@ -439,7 +438,7 @@ object doublearrays:
       * VarianceBenchmark.var_simd_welford 1000 thrpt 3 436244.559 ± 6158.585 ops/s 231]
       * VarianceBenchmark.var_simd_welford 100000 thrpt 3 4187.715 ± 203.266 ops/s
       */
-    private inline def meanAndVarianceWelfordSIMD(mode: VarianceMode): (mean: Double, variance: Double) =
+    private def meanAndVarianceWelfordSIMD(mode: VarianceMode): (mean: Double, variance: Double) =
       if vec.length == 0 then (0.0, 0.0)
       else
         // Per-lane accumulators
@@ -501,7 +500,7 @@ object doublearrays:
 
     /** Two-pass variance calculation (legacy, for comparison). First pass computes mean, second pass computes variance.
       */
-    inline def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Double, variance: Double) =
       val μ = vec.mean
       val l = spd.length()
       var tmp = DoubleVector.zero(spd)
@@ -534,14 +533,16 @@ object doublearrays:
 
     inline def sum: Double = sumSIMD
 
-    inline def sumSIMD: Double =
+    def sumSIMD: Double =
       var i: Int = 0
       var acc = DoubleVector.zero(spd)
+      val bound = spd.loopBound(vec.length)
 
-      while i < spd.loopBound(vec.length) do
+      while i < bound do
         acc = acc.add(DoubleVector.fromArray(spd, vec, i))
         i += spdl
       end while
+
       var temp = acc.reduceLanes(VectorOperators.ADD)
       // var temp = 0.0
       while i < vec.length do
@@ -553,11 +554,12 @@ object doublearrays:
 
     inline def product: Double = productSIMD
 
-    inline def productSIMD: Double =
+    def productSIMD: Double =
       var i: Int = 0
       var acc = DoubleVector.broadcast(spd, 1.0)
+      val bound = spd.loopBound(vec.length)
 
-      while i < spd.loopBound(vec.length) do
+      while i < bound do
         acc = acc.mul(DoubleVector.fromArray(spd, vec, i))
         i += spdl
       end while
@@ -580,7 +582,7 @@ object doublearrays:
       * @return
       *   An array where each element is the product of all the elements of `nums` except the element at the same index.
       */
-    inline def productExceptSelf: Array[Double] =
+    def productExceptSelf: Array[Double] =
       val n = vec.length
       val leftProducts = new Array[Double](n)
       val rightProducts = new Array[Double](n)
@@ -598,7 +600,8 @@ object doublearrays:
       end while
 
       i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, leftProducts, i)
           .mul(DoubleVector.fromArray(spd, rightProducts, i))
@@ -700,12 +703,13 @@ object doublearrays:
       * @return
       *   A new array with values clamped to the specified range.
       */
-    inline def `clamp!`(floor: Double, ceil: Double): Unit =
+    def `clamp!`(floor: Double, ceil: Double): Unit =
       var i = 0
       var vecCeil = DoubleVector.broadcast(spd, ceil)
       var vecFloor = DoubleVector.broadcast(spd, floor)
+      val bound = spd.loopBound(vec.length)
 
-      while i < spd.loopBound(vec.length) do
+      while i < bound do
         val values = DoubleVector.fromArray(spd, vec, i)
         val maskGt = values.compare(VectorOperators.GT, vecCeil)
         val maskLt = values.compare(VectorOperators.LT, vecFloor)
@@ -742,12 +746,13 @@ object doublearrays:
       *
       * logSumExp(x) = max(x) + log(sum(exp(x_i - max(x)))) for i = 1 to n
       */
-    inline def logSumExp: Double =
+    def logSumExp: Double =
       val maxVal = vec.max
       var sumExpVec = DoubleVector.zero(spd)
       var i = 0
+      val bound = spd.loopBound(vec.length)
 
-      while i < spd.loopBound(vec.length) do
+      while i < bound do
         val vecSegment = DoubleVector.fromArray(spd, vec, i)
         val expSegment = vecSegment.sub(maxVal).lanewise(VectorOperators.EXP)
         sumExpVec = sumExpVec.add(expSegment)
@@ -778,30 +783,31 @@ object doublearrays:
       out
     end cumsum
 
-    inline def dot(v1: Array[Double])(using inline boundsCheck: BoundsCheck): Double =
+    inline def dot(v1: Array[Double]): Double =
       dimCheck(vec, v1)
       blas.ddot(vec.length, vec, 1, v1, 1)
     end dot
 
     inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
 
-    inline def -(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def -(vec2: Array[Double]): Array[Double] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def -=(vec2: Array[Double]): Unit =
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
     end -=
 
-    inline def add(d: Array[Double])(using inline boundsCheck: BoundsCheck) = vec + d
+    inline def add(d: Array[Double]) = vec + d
 
-    inline def +(d: Double): Array[Double] =
+    def +(d: Double): Array[Double] =
       val out = new Array[Double](vec.length)
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .add(inc)
@@ -816,10 +822,11 @@ object doublearrays:
       out
     end +
 
-    inline def +=(d: Double): Unit =
+    def +=(d: Double): Unit =
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .add(inc)
@@ -833,11 +840,12 @@ object doublearrays:
       end while
     end +=
 
-    inline def -(d: Double): Array[Double] =
+    def -(d: Double): Array[Double] =
       val out = new Array[Double](vec.length)
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .sub(inc)
@@ -852,9 +860,10 @@ object doublearrays:
       out
     end -
 
-    inline def `fma!`(multiply: Double, add: Double): Unit =
+    def `fma!`(multiply: Double, add: Double): Unit =
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .fma(multiply, add)
@@ -871,10 +880,11 @@ object doublearrays:
     inline def fma(multiply: Double, add: Double): Array[Double] =
       vec.clone().tap(_ `fma!` (multiply, add))
 
-    inline def -=(d: Double): Unit =
+    def -=(d: Double): Unit =
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .sub(inc)
@@ -888,12 +898,12 @@ object doublearrays:
       end while
     end -=
 
-    inline def +(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def +(vec2: Array[Double]): Array[Double] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ += vec2)
     end +
 
-    inline def +=(vec2: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(vec2: Array[Double]): Unit =
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, 1.0, vec2, 1, vec, 1)
     end +=
@@ -912,11 +922,12 @@ object doublearrays:
 
     inline def multInPlace(d: Double) = vec *= d
 
-    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    def *(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val out = new Array[Double](vec.length)
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .mul(DoubleVector.fromArray(spd, d, i))
@@ -931,14 +942,15 @@ object doublearrays:
       out
     end *
 
-    inline def *:*(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec.*(d)
+    inline def *:*(d: Array[Double]): Array[Double] = vec.*(d)
 
-    inline def *:*=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit = vec.*=(d)
+    inline def *:*=(d: Array[Double]): Unit = vec.*=(d)
 
-    inline def *=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    def *=(d: Array[Double]): Unit =
       dimCheck(vec, d)
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .mul(DoubleVector.fromArray(spd, d, i))
@@ -952,11 +964,12 @@ object doublearrays:
       end while
     end *=
 
-    inline def /(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    def /(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val out = new Array[Double](vec.length)
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .div(DoubleVector.fromArray(spd, d, i))

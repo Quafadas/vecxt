@@ -158,7 +158,7 @@ class BooleanArrayExtensionSuite extends munit.FunSuite:
     val v1 = Array[Boolean](true, false, true, false, true)
 
     val v2 = Array[Int](0, 1, 2, 3, 4)
-    val indexed = v2.mask(v1)(using true)
+    val indexed = v2.mask(v1)
 
     assertEquals(indexed.length, v1.trues)
 

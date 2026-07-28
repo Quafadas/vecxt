@@ -4,7 +4,6 @@ import all.*
 import munit.FunSuite
 
 class MatrixAdditionTest extends FunSuite:
-  import vecxt.BoundsCheck.DoBoundsCheck.yes
 
   def mat9 =
     Matrix[Double](Array.tabulate[Double](9)(_.toDouble + 1), 3, 3, 3, 1, 0)

@@ -3,7 +3,6 @@ package vecxt
 import munit.FunSuite
 
 import all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
 
 class IntMatrixJvmSuite extends FunSuite:
 

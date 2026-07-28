@@ -1,7 +1,6 @@
 package vecxt_io
 
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.no
 import scala.math.Numeric
 import scala.reflect.ClassTag
 
@@ -44,7 +43,7 @@ object MatrixIO:
       case p: os.ResourcePath => os.read.lines(p)
     val lines = dropLeadingRows(allLines, dropRows)
 
-    if lines.isEmpty then Matrix(Array.empty[A], (0, 0))(using no)
+    if lines.isEmpty then Matrix(Array.empty[A], (0, 0))
     else
       val firstRow = splitLine(lines.head, seperator)
       if firstRow.isEmpty || firstRow.exists(_.isEmpty) then
@@ -80,7 +79,7 @@ object MatrixIO:
         row += 1
       end while
 
-      Matrix(data, (rows, cols))(using no)
+      Matrix(data, (rows, cols))
     end if
 
   end loadMatrix
