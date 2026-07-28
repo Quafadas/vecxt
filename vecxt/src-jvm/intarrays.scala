@@ -181,7 +181,7 @@ object intarrays:
       idx
     end logicalIdx
 
-    inline def increments: Array[Int] =
+    def increments: Array[Int] =
       val out = new Array[Int](vec.length)
       val limit = spi.loopBound(vec.length - 2)
       // val inc = spil - 1
@@ -190,7 +190,8 @@ object intarrays:
       // val mask = VectorMask.fromArray(spi, maskInit, 0)
 
       var i = 1
-      while i < spi.loopBound(vec.length - 2) do
+      val bound = spi.loopBound(vec.length - 2)
+      while i < bound do
         IntVector.fromArray(spi, vec, i).sub(IntVector.fromArray(spi, vec, i - 1)).intoArray(out, i)
         i += spil
       end while
@@ -223,11 +224,12 @@ object intarrays:
       out
     end countsToIdx
 
-    inline def sumSIMD: Int =
+    def sumSIMD: Int =
       var i: Int = 0
       var acc = IntVector.zero(spi)
 
-      while i < spi.loopBound(vec.length) do
+      val bound = spi.loopBound(vec.length)
+      while i < bound do
         acc = acc.add(IntVector.fromArray(spi, vec, i))
         i += spil
       end while
@@ -261,15 +263,15 @@ object intarrays:
       * VarianceBenchmark.var_simd_welford 1000 thrpt 3 436244.559 ± 6158.585 ops/s 231]
       * VarianceBenchmark.var_simd_welford 100000 thrpt 3 4187.715 ± 203.266 ops/s
       */
-    inline def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Double, variance: Double) =
       val μ = vec.mean
       val μVec = DoubleVector.broadcast(spd, μ)
 
       var i = 0
       var acc = DoubleVector.zero(spd)
       val tmp = new Array[Double](spdl)
-
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         var lane = 0
         while lane < spdl do
           tmp(lane) = vec(i + lane).toDouble
@@ -306,13 +308,13 @@ object intarrays:
 
     inline def stdDev(mode: VarianceMode): Double = std(mode)
 
-    inline def dot(vec2: Array[Int]): Int =
+    def dot(vec2: Array[Int]): Int =
       dimCheck(vec, vec2)
       val newVec = Array.ofDim[Int](vec.length)
       var i = 0
       var acc = IntVector.zero(spi)
-
-      while i < spi.loopBound(vec.length) do
+      val bound = spi.loopBound(vec.length)
+      while i < bound do
         acc = IntVector
           .fromArray(spi, vec, i)
           .mul(IntVector.fromArray(spi, vec2, i))
@@ -334,11 +336,10 @@ object intarrays:
       vec.clone.tap(_ -= vec2)
     end -
 
-    inline def -=(scalar: Int): Unit =
-
+    def -=(scalar: Int): Unit =
       var i = 0
-
-      while i < spi.loopBound(vec.length) do
+      val bound = spi.loopBound(vec.length)
+      while i < bound do
         IntVector
           .fromArray(spi, vec, i)
           .sub(scalar)
@@ -354,14 +355,15 @@ object intarrays:
     end -=
 
     @targetName("divideByDoubleScalar")
-    inline def /(scalar: Double): Array[Double] =
+    def /(scalar: Double): Array[Double] =
       val result = new Array[Double](vec.length)
       val scalarDoubleVec = DoubleVector.broadcast(spd, scalar)
       val tmp = new Array[Double](spdl)
 
       var i = 0
 
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         var lane = 0
         while lane < spdl do
           tmp(lane) = vec(i + lane).toDouble
@@ -385,14 +387,14 @@ object intarrays:
 
     end /
 
-    inline def /(scalar: Float): Array[Float] =
+    def /(scalar: Float): Array[Float] =
       val result = new Array[Float](vec.length)
       val scalarFloatVec = FloatVector.broadcast(spf, scalar)
       val tmp = new Array[Float](spfl)
 
       var i = 0
-
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         var lane = 0
         while lane < spfl do
           tmp(lane) = vec(i + lane).toFloat
@@ -414,14 +416,15 @@ object intarrays:
       result
     end /
 
-    inline def *(scalar: Float): Array[Float] =
+    def *(scalar: Float): Array[Float] =
       val result = new Array[Float](vec.length)
       val scalarFloatVec = FloatVector.broadcast(spf, scalar)
       val tmp = new Array[Float](spfl)
 
       var i = 0
 
-      while i < spf.loopBound(vec.length) do
+      val bound = spf.loopBound(vec.length)
+      while i < bound do
         var lane = 0
         while lane < spfl do
           tmp(lane) = vec(i + lane).toFloat
@@ -447,11 +450,11 @@ object intarrays:
       vec.clone().tap(_ -= scalar)
     end -
 
-    inline def -=(vec2: Array[Int]): Unit =
+    def -=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
-
-      while i < spi.loopBound(vec.length) do
+      val bound = spi.loopBound(vec.length)
+      while i < bound do
         IntVector
           .fromArray(spi, vec, i)
           .sub(IntVector.fromArray(spi, vec2, i))
@@ -470,11 +473,11 @@ object intarrays:
       vec.clone.tap(_ += vec2)
     end +
 
-    inline def +=(vec2: Array[Int]): Unit =
+    def +=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
-
-      while i < spi.loopBound(vec.length) do
+      val bound = spi.loopBound(vec.length)
+      while i < bound do
         IntVector
           .fromArray(spi, vec, i)
           .add(IntVector.fromArray(spi, vec2, i))
@@ -488,7 +491,7 @@ object intarrays:
       end while
     end +=
 
-    inline def minSIMD =
+    def minSIMD =
       var i = 0
       var acc = IntVector.broadcast(spi, Int.MaxValue)
 
@@ -506,7 +509,7 @@ object intarrays:
       temp
     end minSIMD
 
-    inline def maxSIMD =
+    def maxSIMD =
       var i = 0
       var acc = IntVector.broadcast(spi, Int.MinValue)
 
