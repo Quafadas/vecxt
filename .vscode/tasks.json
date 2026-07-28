@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "compiledClassesAndSemanticDbFiles",
+      "label": "compile",
       "type": "shell",
-      "command": "./mill __.jvm.compiledClassesAndSemanticDbFiles",
+      "command": "./mill __.jvm.compile",
       "runOptions": {
         "runOn": "folderOpen"
       },
