@@ -32,17 +32,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: coursier/cache-action@v8
+
       - uses: coursier/setup-action@main
         with:
-          jvm: temurin@17
-          apps: scala-cli
-
-      - name: Cache Coursier
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/coursier/v1
-          key: coursier-${{ runner.os }}-${{ hashFiles('build.mill', '**/package.mill') }}
-          restore-keys: coursier-${{ runner.os }}-
+          jvm: temurin@21
 
       - name: Setup NodeJS v18 LTS
         if: matrix.project == 'js'
