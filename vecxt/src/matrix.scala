@@ -1,7 +1,7 @@
 package vecxt
 import scala.annotation.publicInBinary
 
-import vecxt.BoundsCheck.BoundsCheck
+
 
 object matrix:
 
@@ -67,7 +67,7 @@ object matrix:
         rowStride: Int,
         colStride: Int,
         offset: Int = 0
-    )(using inline boundsCheck: BoundsCheck): Matrix[A] =
+    ): Matrix[A] =
       strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
       new Matrix(
         raw = raw,
@@ -79,9 +79,7 @@ object matrix:
       )
     end apply
 
-    inline def apply[@specialized(Double, Boolean, Int) A](raw: Array[A], dim: RowCol)(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[A] =
+    inline def apply[@specialized(Double, Boolean, Int) A](raw: Array[A], dim: RowCol): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
 
       new Matrix(
@@ -102,9 +100,7 @@ object matrix:
       * @param boundsCheck
       * @return
       */
-    inline def apply[@specialized(Double, Boolean, Int) A](raw: Array[A], rows: Row, cols: Col)(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[A] =
+    inline def apply[@specialized(Double, Boolean, Int) A](raw: Array[A], rows: Row, cols: Col): Matrix[A] =
       dimMatInstantiateCheck(raw, (rows, cols))
       new Matrix(
         raw = raw,
@@ -116,10 +112,8 @@ object matrix:
       )
     end apply
 
-    inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: Array[A])(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[A] =
-      Matrix(raw, dim._1, dim._2)(using boundsCheck)
+    inline def apply[@specialized(Double, Boolean, Int) A](dim: RowCol, raw: Array[A]): Matrix[A] =
+      Matrix(raw, dim._1, dim._2)
     end apply
   end Matrix
 

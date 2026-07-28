@@ -3,10 +3,9 @@ package vecxt
 import munit.FunSuite
 
 import all.*
-import vecxt.BoundsCheck.BoundsCheck
+
 
 class CholeskySuite extends FunSuite:
-  inline given bc: BoundsCheck = true
   private val tolerance = 1e-9
 
   test("cholesky of 1x1 positive scalar") {

@@ -2,7 +2,7 @@ package vecxt
 
 import munit.FunSuite
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
+
 import scala.util.Random
 class SvdSuite extends FunSuite:
 

@@ -1,7 +1,5 @@
 package vecxt.laws
 
-import vecxt.BoundsCheck
-
 import cats.kernel.CommutativeGroup
 import cats.kernel.Semigroup
 
@@ -36,23 +34,20 @@ object VectorCommutativeGroup:
       emptyFn: => Array[A],
       combineFn: (Array[A], Array[A]) => Array[A],
       inverseFn: Array[A] => Array[A]
-  )(using bc: BoundsCheck.BoundsCheck = BoundsCheck.DoBoundsCheck.yes): VectorCommutativeGroup[A] =
+  ): VectorCommutativeGroup[A] =
     new VectorCommutativeGroup[A]:
       val dimension: Dimension = dim
 
       def empty = emptyFn
 
       def combine(x: Array[A], y: Array[A]) =
-        if bc == BoundsCheck.DoBoundsCheck.yes then
-          validateDim(x)
-          validateDim(y)
-        end if
+        validateDim(x)
+        validateDim(y)
         combineFn(x, y)
       end combine
 
       def inverse(a: Array[A]): Array[A] =
-        if bc == BoundsCheck.DoBoundsCheck.yes then validateDim(a)
-        end if
+        validateDim(a)
         inverseFn(a)
       end inverse
 end VectorCommutativeGroup

@@ -1,6 +1,6 @@
 package vecxt.laws
 
-import vecxt.BoundsCheck
+
 
 import cats.kernel.Monoid
 import cats.kernel.Semigroup
@@ -48,17 +48,15 @@ object VectorMonoid:
   def forDimension[A: Semigroup](dim: Dimension)(
       emptyFn: => Array[A],
       combineFn: (Array[A], Array[A]) => Array[A]
-  )(using bc: BoundsCheck.BoundsCheck): VectorMonoid[A] =
+  ): VectorMonoid[A] =
     new VectorMonoid[A]:
       val dimension: Dimension = dim
 
       def empty = emptyFn
 
       def combine(x: Array[A], y: Array[A]) =
-        if bc then
-          validateDim(x)
-          validateDim(y)
-        end if
+        validateDim(x)
+        validateDim(y)
         combineFn(x, y)
       end combine
 end VectorMonoid

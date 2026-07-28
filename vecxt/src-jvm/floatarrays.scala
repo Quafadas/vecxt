@@ -3,7 +3,7 @@ package vecxt
 import scala.reflect.ClassTag
 import scala.util.chaining.*
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
@@ -501,7 +501,7 @@ object floatarrays:
 
     inline def stdDev(mode: VarianceMode): Float = std(mode)
 
-    inline def dot(v1: Array[Float])(using inline boundsCheck: BoundsCheck): Float =
+    inline def dot(v1: Array[Float]): Float =
       dimCheck(vec, v1)
       blas.sdot(vec.length, vec, 1, v1, 1)
     end dot
@@ -564,22 +564,22 @@ object floatarrays:
       (maxVal + Math.log(sumExp)).toFloat
     end logSumExp
 
-    inline def -(vec2: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def -(vec2: Array[Float]): Array[Float] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def -=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.saxpy(vec.length, -1.0f, vec2, 1, vec, 1)
     end -=
 
-    inline def +(vec2: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def +(vec2: Array[Float]): Array[Float] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ += vec2)
     end +
 
-    inline def +=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.saxpy(vec.length, 1.0f, vec2, 1, vec, 1)
     end +=
@@ -668,9 +668,9 @@ object floatarrays:
       end while
     end -=
 
-    inline def *:*(d: Array[Float])(using inline boundsCheck: BoundsCheck) = vec * d
+    inline def *:*(d: Array[Float]) = vec * d
 
-    inline def *(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def *(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val out = new Array[Float](vec.length)
       var i = 0
@@ -709,7 +709,7 @@ object floatarrays:
     //   vec.clone().tap(_ *= d)
     // end *
 
-    inline def *=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def *=(d: Array[Float]): Unit =
       dimCheck(vec, d)
       var i = 0
       while i < spf.loopBound(vec.length) do
@@ -726,9 +726,9 @@ object floatarrays:
       end while
     end *=
 
-    inline def /:/(d: Array[Float])(using inline boundsCheck: BoundsCheck) = vec / d
+    inline def /:/(d: Array[Float]) = vec / d
 
-    inline def /(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def /(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val out = new Array[Float](vec.length)
       var i = 0
@@ -868,9 +868,7 @@ object floatarrays:
       (cv / (n - 1)).toFloat
     end covariance
 
-    inline def pearsonCorrelationCoefficient(thatVector: Array[Float])(using
-        inline boundsCheck: BoundsCheck
-    ): Float =
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -896,14 +894,14 @@ object floatarrays:
       )).toFloat
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Array[Float])(using inline boundsCheck: BoundsCheck): Float =
+    inline def spearmansRankCorrelation(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
       theseRanks.pearsonCorrelationCoefficient(thoseRanks)
     end spearmansRankCorrelation
 
-    inline def corr(thatVector: Array[Float])(using inline boundsCheck: BoundsCheck): Float =
+    inline def corr(thatVector: Array[Float]): Float =
       pearsonCorrelationCoefficient(thatVector)
 
     inline def elementRanks: Array[Float] =
@@ -956,7 +954,7 @@ object floatarrays:
         end while
         j = j + 1
       end while
-      Matrix(out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+      Matrix(out, (n, m))
     end outer
 
     inline def `zeroWhere!`(

@@ -7,7 +7,7 @@ This cheatsheet compares common N-dimensional array operations across vecxt (Sca
 ```scala
 //> using scala 3.7.3 // or greater
 import vecxt.all.{*, given}
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 ```
 
 ## Construction

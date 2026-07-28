@@ -46,7 +46,6 @@ Here's an example of a well-structured method:
 package vecxt
 
 import jdk.incubator.vector.DoubleVector
-import vecxt.BoundsCheck.BoundsCheck
 
 object arrays:
 

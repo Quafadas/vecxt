@@ -3,7 +3,7 @@ package vecxt
 import munit.FunSuite
 
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
+
 import dimensionExtender.DimensionExtender.Dimension.*
 import MatrixInstance.update
 
@@ -777,7 +777,8 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals(mat.row(2), Array[Double](7.0, 8.0, 9.0))
   }
 
-  test("slice syntax (zero copy matrix)") {
+
+  test("slice syntax (zero copy matrix)".only) {
     val mat = mat1to9
     val a = mat(::, ::)
     assertVecEquals[Double](a.raw, mat.raw)

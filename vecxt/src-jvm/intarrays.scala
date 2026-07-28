@@ -3,7 +3,7 @@ package vecxt
 import scala.reflect.ClassTag
 import scala.util.chaining.scalaUtilChainingOps
 
-import vecxt.BoundsCheck.BoundsCheck
+
 
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
@@ -308,7 +308,7 @@ object intarrays:
 
     inline def stdDev(mode: VarianceMode): Double = std(mode)
 
-    inline def dot(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Int =
+    inline def dot(vec2: Array[Int]): Int =
       dimCheck(vec, vec2)
       val newVec = Array.ofDim[Int](vec.length)
       var i = 0
@@ -331,7 +331,7 @@ object intarrays:
       temp
     end dot
 
-    inline def -(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+    inline def -(vec2: Array[Int]): Array[Int] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ -= vec2)
     end -
@@ -449,7 +449,7 @@ object intarrays:
       vec.clone().tap(_ -= scalar)
     end -
 
-    inline def -=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def -=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
 
@@ -467,12 +467,12 @@ object intarrays:
       end while
     end -=
 
-    inline def +(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Array[Int] =
+    inline def +(vec2: Array[Int]): Array[Int] =
       dimCheck(vec, vec2)
       vec.clone.tap(_ += vec2)
     end +
 
-    inline def +=(vec2: Array[Int])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
 

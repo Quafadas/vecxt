@@ -2,7 +2,7 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.all.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
@@ -14,12 +14,10 @@ object JvmDoubleMatrix:
     VectorSpecies.of(java.lang.Integer.TYPE, VectorShape.forBitSize(vecxt.doublearrays.spdl * Integer.SIZE));
 
   extension (m: Matrix[Double]) // inline def /(n: Double): Matrix[Double] =
-    //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+    //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)
 
     // TODO check whether this work with flexible memory layout patterns
-    inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0)(using
-        inline boundsCheck: BoundsCheck
-    ): Unit =
+    inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0): Unit =
       dimMatCheck(m, b)
 
       val lda = if m.isDenseColMajor then m.rows else m.cols
@@ -74,7 +72,7 @@ object JvmDoubleMatrix:
 
     end `matmulInPlace!`
 
-    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Double] =
+    inline def *:*(bmat: Matrix[Boolean]): Matrix[Double] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val copy = m.deepCopy
@@ -93,11 +91,11 @@ object JvmDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Double](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Double](newArr, m.rows, m.cols)
       end if
     end *:*
 
-    inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def *:*=(bmat: Matrix[Boolean]): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val spd = doublearrays.spd
@@ -118,15 +116,13 @@ object JvmDoubleMatrix:
       end if
     end *:*=
 
-    // inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
+    // inline def @@(b: Matrix[Double]): Matrix[Double] = m.matmul(b)
 
     // inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
     // TODO: Dim check
 
-    inline def *(vec: Array[Double], alpha: Double = 1.0, beta: Double = 1.0)(using
-        inline boundsCheck: BoundsCheck
-    ): Array[Double] =
+    inline def *(vec: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Array[Double] =
 
       if m.isDenseColMajor then
         require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
@@ -153,7 +149,7 @@ object JvmDoubleMatrix:
 
     inline def >=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.doublearrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.doublearrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -166,11 +162,11 @@ object JvmDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def >(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.doublearrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.doublearrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -183,11 +179,11 @@ object JvmDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def <=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.doublearrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.doublearrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -200,11 +196,11 @@ object JvmDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def <(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.doublearrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.doublearrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -217,7 +213,7 @@ object JvmDoubleMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     /** Adds the elements of this vector to the matrix with broadcasting behavior.
       *
@@ -231,10 +227,9 @@ object JvmDoubleMatrix:
       * @param boundsCheck
       *   Whether to perform bounds checking on the vector length.
       */
-    inline def +=(arr: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(arr: Array[Double]): Unit =
 
-      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
-      end if
+      assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 
       /**   1. If rowStride = 1, then we can broadcast each element of arr down each column SIMD
         *   2. If colStride = 1, then we can add each element of the vector to each row
@@ -321,7 +316,7 @@ object JvmDoubleMatrix:
     end +=
 
     def +=(n: Double): Unit =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+      
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
       else
         // println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
@@ -349,7 +344,7 @@ object JvmDoubleMatrix:
               i += sp_int_doubleLanes.length
             end while
             while i < m.rows do
-              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m.elementIndex(i, j)
               m(i, j) = n + m(i, j)
               i += 1
             end while
@@ -381,7 +376,7 @@ object JvmDoubleMatrix:
             end while
 
             while j < m.cols do
-              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m.elementIndex(i, j)
               m(i, j) = n + m(i, j)
               j += 1
             end while

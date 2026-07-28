@@ -1,7 +1,6 @@
 package check
 
 import breeze.linalg.*
-import vecxt.BoundsCheck.DoBoundsCheck.no
 import vecxt.all.*
 import breeze.numerics.step
 

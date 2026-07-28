@@ -23,7 +23,7 @@ For example if your data acquisition is serverside, but do parts of a calculatio
 
 import vecxt.all.*
 
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 def algo(a: Array[Double], b :Array[Double], c: Double ) = (a + b)  / c
 

@@ -1,7 +1,7 @@
 package vecxt
 
 import jdk.incubator.vector.DoubleVector
-import BoundsCheck.DoBoundsCheck.no
+
 import vecxt.all.*
 
 class IntArraysJvmSuite extends munit.FunSuite:

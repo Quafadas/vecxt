@@ -7,7 +7,7 @@ import scala.util.chaining.*
 import org.ekrich.blas.unsafe.*
 
 import vecxt.BooleanArrays.trues
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.matrix.Matrix
 
 object floatarrays:
@@ -400,7 +400,7 @@ object floatarrays:
       end while
     end `-!`
 
-    inline def /(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def /(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Float](n)
@@ -412,7 +412,7 @@ object floatarrays:
       res
     end /
 
-    inline def /:/(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def /:/(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Float](n)
@@ -424,7 +424,7 @@ object floatarrays:
       res
     end /:/
 
-    inline def /=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def /=(d: Array[Float]): Unit =
       dimCheck(vec, d)
       val n = vec.length
       var i = 0
@@ -434,7 +434,7 @@ object floatarrays:
       end while
     end /=
 
-    inline def *(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def *(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val out = new Array[Float](vec.length)
       var i = 0
@@ -445,7 +445,7 @@ object floatarrays:
       out
     end *
 
-    inline def *:*(d: Array[Float])(using inline boundsCheck: BoundsCheck): Array[Float] =
+    inline def *:*(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val out = new Array[Float](vec.length)
       var i = 0
@@ -456,7 +456,7 @@ object floatarrays:
       out
     end *:*
 
-    inline def *=(d: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def *=(d: Array[Float]): Unit =
       dimCheck(vec, d)
       var i = 0
       while i < vec.length do
@@ -551,7 +551,7 @@ object floatarrays:
         end while
         i = i + 1
       end while
-      Matrix[Float](out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Float](out, (n, m))
     end outer
 
     inline def <(num: Float): Array[Boolean] =
@@ -666,25 +666,25 @@ object floatarrays:
 
     inline def norm: Float = blas.cblas_snrm2(vec.length, vec.at(0), 1)
 
-    inline def dot(v1: Array[Float])(using inline boundsCheck: BoundsCheck): Float =
+    inline def dot(v1: Array[Float]): Float =
       dimCheck(vec, v1)
       blas.cblas_sdot(vec.length, vec.at(0), 1, v1.at(0), 1)
     end dot
 
-    inline def -(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Float] =
+    inline def -(vec2: Array[Float]): Array[Float] =
       vec.clone.tap(_ -= vec2)
     end -
 
-    inline def -=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+    inline def -=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.cblas_saxpy(vec.length, -1.0f, vec2.at(0), 1, vec.at(0), 1)
     end -=
 
-    inline def +(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Array[Float] =
+    inline def +(vec2: Array[Float]): Array[Float] =
       vec.clone.tap(_ += vec2)
     end +
 
-    inline def +=(vec2: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Unit =
+    inline def +=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.cblas_saxpy(vec.length, 1.0f, vec2.at(0), 1, vec.at(0), 1)
     end +=
@@ -738,9 +738,7 @@ object floatarrays:
     inline def /(d: Float): Array[Float] =
       vec.clone.tap(_ /= d)
 
-    inline def pearsonCorrelationCoefficient(thatVector: Array[Float])(using
-        inline boundsCheck: BoundsCheck.BoundsCheck
-    ): Float =
+    inline def pearsonCorrelationCoefficient(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -764,16 +762,14 @@ object floatarrays:
       )).toFloat
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Array[Float])(using
-        inline boundsCheck: BoundsCheck.BoundsCheck
-    ): Float =
+    inline def spearmansRankCorrelation(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
       theseRanks.pearsonCorrelationCoefficient(thoseRanks)
     end spearmansRankCorrelation
 
-    inline def corr(thatVector: Array[Float])(using inline boundsCheck: BoundsCheck.BoundsCheck): Float =
+    inline def corr(thatVector: Array[Float]): Float =
       pearsonCorrelationCoefficient(thatVector)
 
     def elementRanks: Array[Float] =

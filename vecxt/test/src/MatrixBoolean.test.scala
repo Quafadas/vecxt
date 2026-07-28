@@ -3,7 +3,7 @@ package vecxt
 import all.*
 import munit.FunSuite
 
-import BoundsCheck.DoBoundsCheck.yes
+
 
 class MatrixBooleanSuite extends FunSuite:
 

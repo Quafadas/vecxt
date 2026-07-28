@@ -4,12 +4,12 @@ import scala.reflect.ClassTag
 import scala.util.control.Breaks.*
 
 import vecxt.BooleanArrays.trues
-import vecxt.BoundsCheck.BoundsCheck
+
 
 object IntArraysX:
 
   extension [A](vec: Array[A])
-    inline def mask(index: Array[Boolean])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]) =
+    inline def mask(index: Array[Boolean])(using ct: ClassTag[A]) =
       dimCheck(vec, index)
       val trues = index.trues
       val newVec: Array[A] = new Array[A](trues)

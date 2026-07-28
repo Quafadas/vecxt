@@ -4,8 +4,8 @@ import io.github.quafadas.plots.SetupVegaBrowser.{*, given}
 import io.circe.syntax.*
 
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
-import vecxt.BoundsCheck
+
+
 import scala.reflect.ClassTag
 import vecxt_io.MatrixIO
 import vecxt_io.MatrixIO.*
@@ -308,7 +308,7 @@ def gradient_descentf(
     w2: Matrix[Float],
     b2: Array[Float]
 ) =
-  import BoundsCheck.DoBoundsCheck.yes
+  
   println("Starting gradient descent...")
   println(s"alpha: $alpha, decay_rate: $decayRate, iterations: $iterations")
   val numEpochs = x.rows / batchSize
@@ -407,7 +407,7 @@ def gradient_descent(
     w2: Matrix[Double],
     b2: Array[Double]
 ) =
-  import BoundsCheck.DoBoundsCheck.yes
+  
   println("Starting gradient descent...")
   println(s"alpha: $alpha, decay_rate: $decayRate, iterations: $iterations")
   val numEpochs = x.rows / batchSize

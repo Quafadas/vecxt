@@ -1,6 +1,6 @@
 package vecxt
 
-import BoundsCheck.DoBoundsCheck.yes
+
 
 import all.*
 

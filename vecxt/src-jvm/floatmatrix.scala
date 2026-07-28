@@ -2,7 +2,7 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.all.*
 import vecxt.dimensionExtender.DimensionExtender.*
 import scala.util.chaining.*
@@ -20,24 +20,20 @@ object JvmFloatMatrix:
 
   extension (m: Matrix[Float])
     @targetName("matmulFloat")
-    inline def @@(b: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] =
+    inline def @@(b: Matrix[Float]): Matrix[Float] =
       m.matmul(b, 1.0f, 0.0f)
 
     @targetName("matmulFloatNonDefault")
-    inline def matmul(b: Matrix[Float], alpha: Float, beta: Float)(using
-        inline boundsCheck: BoundsCheck
-    ): Matrix[Float] =
+    inline def matmul(b: Matrix[Float], alpha: Float, beta: Float): Matrix[Float] =
       dimMatCheck(m, b)
       val newArr: Array[Float] = Array.ofDim[Float](m.rows * b.cols)
       val newmat = Matrix[Float](newArr, m.rows, b.cols)
-      m.`matmulInPlace!`(b, newmat, alpha, beta)(using boundsCheck)
+      m.`matmulInPlace!`(b, newmat, alpha, beta)
       newmat
     end matmul
 
     @targetName("matmulFloatInPlace")
-    inline def `matmulInPlace!`(b: Matrix[Float], c: Matrix[Float], alpha: Float, beta: Float)(using
-        inline boundsCheck: BoundsCheck
-    ): Unit =
+    inline def `matmulInPlace!`(b: Matrix[Float], c: Matrix[Float], alpha: Float, beta: Float): Unit =
       dimMatCheck(m, b)
 
       val lda = if m.isDenseColMajor then m.rows else m.cols
@@ -93,7 +89,7 @@ object JvmFloatMatrix:
     end `matmulInPlace!`
 
     @targetName("matmulFloatElementWise")
-    inline def *:*(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Matrix[Float] =
+    inline def *:*(bmat: Matrix[Boolean]): Matrix[Float] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val copy = m.deepCopy
@@ -112,12 +108,12 @@ object JvmFloatMatrix:
           end while
           i += 1
         end while
-        Matrix[Float](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Float](newArr, m.rows, m.cols)
       end if
     end *:*
 
     @targetName("matmulFloatElementWiseInPlace")
-    inline def *:*=(bmat: Matrix[Boolean])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def *:*=(bmat: Matrix[Boolean]): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val zero = FloatVector.zero(spf)
@@ -137,16 +133,14 @@ object JvmFloatMatrix:
       end if
     end *:*=
 
-    // inline def @@(b: Matrix[Double])(using inline boundsCheck: BoundsCheck): Matrix[Double] = m.matmul(b)
+    // inline def @@(b: Matrix[Double]): Matrix[Double] = m.matmul(b)
 
     // inline def *:*=(d: Double): Unit = m.raw.multInPlace(d)
 
     // TODO: Dim check
 
     @targetName("matmulFloatVector")
-    inline def *(vec: Array[Float], alpha: Float, beta: Float)(using
-        inline boundsCheck: BoundsCheck
-    ): Array[Float] =
+    inline def *(vec: Array[Float], alpha: Float, beta: Float): Array[Float] =
 
       if m.isDenseColMajor then
         require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
@@ -173,7 +167,7 @@ object JvmFloatMatrix:
 
     inline def >=(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -186,12 +180,12 @@ object JvmFloatMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixGT")
     inline def >(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.floatarrays.>(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.floatarrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -204,12 +198,12 @@ object JvmFloatMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixLE")
     inline def <=(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.floatarrays.<=(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.floatarrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -222,12 +216,12 @@ object JvmFloatMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixLT")
     inline def <(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.floatarrays.<(m.raw)(d), m.shape)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](vecxt.floatarrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -240,7 +234,7 @@ object JvmFloatMatrix:
           end while
           i += 1
         end while
-        Matrix[Boolean](newArr, m.rows, m.cols)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Boolean](newArr, m.rows, m.cols)
 
     /** Adds the elements of this vector to the matrix with broadcasting behavior.
       *
@@ -255,10 +249,9 @@ object JvmFloatMatrix:
       *   Whether to perform bounds checking on the vector length.
       */
     @targetName("floatmatrixAddVectorInPlace")
-    inline def +=(arr: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def +=(arr: Array[Float]): Unit =
 
-      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
-      end if
+      assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")      
 
       /**   1. If rowStride = 1, then we can broadcast each element of arr down each column SIMD
         *   2. If colStride = 1, then we can add each element of the vector to each row
@@ -345,15 +338,15 @@ object JvmFloatMatrix:
     end +=
 
     @targetName("floatmatrixSubVector")
-    inline def -(mat1: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] =
+    def -(mat1: Matrix[Float]): Matrix[Float] =
       sameDimMatCheck(m, mat1)
       if sameDenseElementWiseMemoryLayoutCheck(m, mat1) then
         val newArr = vecxt.floatarrays.-(m.raw)(mat1.raw)
-        Matrix[Float](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)(using BoundsCheck.DoBoundsCheck.no)
+        Matrix[Float](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)
       else
         val newArr = Array.ofDim[Float](m.numel)
         val newMat =
-          Matrix[Float](newArr, m.rows, m.cols, m.cols, 1, 0)(using BoundsCheck.DoBoundsCheck.no)
+          Matrix[Float](newArr, m.rows, m.cols, m.cols, 1, 0)
         var i = 0
         while i < m.rows do
           var j = 0
@@ -368,10 +361,9 @@ object JvmFloatMatrix:
     end -
 
     @targetName("floatmatrixSubVectorInPlace")
-    inline def -=(arr: Array[Float])(using inline boundsCheck: BoundsCheck): Unit =
+    def -=(arr: Array[Float]): Unit =
 
-      if boundsCheck then assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
-      end if
+      assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 
       if m.rowStride == 1 then
         var i = 0
@@ -452,8 +444,7 @@ object JvmFloatMatrix:
     end -=
 
     @targetName("floatmatrixAddScalarInPlace")
-    def +=(n: Float): Unit =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+    inline def +=(n: Float): Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.floatarrays.+=(m.raw)(n)
       else
         // println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
@@ -481,7 +472,7 @@ object JvmFloatMatrix:
               i += sp_int_floatLanes.length()
             end while
             while i < m.rows do
-              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m.elementIndex(i, j)
               m(i, j) = n + m(i, j)
               i += 1
             end while
@@ -513,7 +504,7 @@ object JvmFloatMatrix:
             end while
 
             while j < m.cols do
-              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m.elementIndex(i, j)
               m(i, j) = n + m(i, j)
               j += 1
             end while
@@ -525,8 +516,7 @@ object JvmFloatMatrix:
     end +=
 
     @targetName("floatmatrixSubScalarInPlace")
-    def -=(n: Float): Unit =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+    inline def -=(n: Float): Unit =      
       if m.hasSimpleContiguousMemoryLayout then vecxt.floatarrays.-=(m.raw)(n)
       else
         if m.rowStride <= m.colStride then
@@ -545,7 +535,7 @@ object JvmFloatMatrix:
               i += sp_int_floatLanes.length()
             end while
             while i < m.rows do
-              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m.elementIndex(i, j)
               m(i, j) = m(i, j) - n
               i += 1
             end while
@@ -571,7 +561,7 @@ object JvmFloatMatrix:
             end while
 
             while j < m.cols do
-              m.elementIndex(i, j)(using BoundsCheck.DoBoundsCheck.yes)
+              m.elementIndex(i, j)
               m(i, j) = m(i, j) - n
               j += 1
             end while
@@ -626,7 +616,7 @@ object JvmFloatMatrix:
           var acc = 0.0f
           var j = 0
           while j < m.rows do
-            acc += m((j, i))(using BoundsCheck.DoBoundsCheck.no)
+            acc += m((j, i))
             j += 1
           end while
           result(i) = acc
@@ -664,7 +654,7 @@ object JvmFloatMatrix:
         i += 1
       end while
 
-      Matrix[Float](newArr, newShape)(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Float](newArr, newShape)
     end reduceAlongDimension
 
     @targetName("floatMatrixMax")
@@ -690,17 +680,17 @@ object JvmFloatMatrix:
   end extension
 
   extension (d: Float)
-    inline def *(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] = m * d
+    inline def *(m: Matrix[Float]): Matrix[Float] = m * d
 
-    inline def +(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] = m + d
+    inline def +(m: Matrix[Float]): Matrix[Float] = m + d
 
-    inline def -(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] = ???
-    inline def /(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Matrix[Float] = ???
+    inline def -(m: Matrix[Float]): Matrix[Float] = ???
+    inline def /(m: Matrix[Float]): Matrix[Float] = ???
 
-    inline def *=(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Unit = m *= d
-    inline def +=(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Unit = ??? // m += d
-    inline def -=(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Unit = ??? // m -= d
-    inline def /=(m: Matrix[Float])(using inline boundsCheck: BoundsCheck): Unit = ???
+    inline def *=(m: Matrix[Float]): Unit = m *= d
+    inline def +=(m: Matrix[Float]): Unit = ??? // m += d
+    inline def -=(m: Matrix[Float]): Unit = ??? // m -= d
+    inline def /=(m: Matrix[Float]): Unit = ???
 
   end extension
 

@@ -1,6 +1,6 @@
 package vecxt
 
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 import all.*
 
 class MatrixHelperTileSuite extends munit.FunSuite:

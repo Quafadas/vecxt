@@ -4,7 +4,7 @@ import munit.FunSuite
 import all.*
 
 class SubmatrixTest extends FunSuite:
-  import vecxt.BoundsCheck.DoBoundsCheck.yes
+  
 
   test("simple sub is zero copy"):
     val mat1 = Matrix.fromRows[Double](

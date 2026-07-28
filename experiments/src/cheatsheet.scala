@@ -2,7 +2,6 @@
 //> using javaOpt "--add-modules=jdk.incubator.vector"
 
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.no
 
 object CheatsheetTest:
 

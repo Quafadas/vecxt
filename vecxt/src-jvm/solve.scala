@@ -2,7 +2,7 @@ package vecxt
 
 import org.netlib.util.intW
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
 
@@ -35,19 +35,16 @@ object Solve:
     * @throws ArithmeticException
     *   if the matrix A is singular (not invertible)
     */
-  inline def solve(A: Matrix[Double], b: Matrix[Double])(using
-      inline bc: BoundsCheck
-  ): Matrix[Double] =
+  inline def solve(A: Matrix[Double], b: Matrix[Double]): Matrix[Double] =
     nonEmptyMatCheck(A)
     nonEmptyMatCheck(b)
     squareMatCheck(A)
-    inline if bc then if A.rows != b.rows then throw MatrixDimensionMismatch(A.rows, A.cols, b.rows, b.cols)
+    if A.rows != b.rows then throw MatrixDimensionMismatch(A.rows, A.cols, b.rows, b.cols)
     end if
-
-    if bc == vecxt.BoundsCheck.DoBoundsCheck.yes then
-      require(!A.raw.exists(_.isNaN), "Input matrix A contains NaN values")
-      require(!b.raw.exists(_.isNaN), "Input matrix b contains NaN values")
-    end if
+    
+    require(!A.raw.exists(_.isNaN), "Input matrix A contains NaN values")
+    require(!b.raw.exists(_.isNaN), "Input matrix b contains NaN values")
+    
 
     val n = A.rows
     val nrhs = b.cols
@@ -98,9 +95,9 @@ object Solve:
     * @throws ArithmeticException
     *   if the matrix A is singular (not invertible)
     */
-  inline def solve(A: Matrix[Double], b: Array[Double])(using inline bc: BoundsCheck): Array[Double] =
+  inline def solve(A: Matrix[Double], b: Array[Double]): Array[Double] =
     // Convert array to column matrix
-    val bMatrix = Matrix(b, b.length, 1)(using false)
+    val bMatrix = Matrix(b, b.length, 1)
     val xMatrix = solve(A, bMatrix)
 
     // Extract solution from matrix (no copy needed as solve already makes a copy)

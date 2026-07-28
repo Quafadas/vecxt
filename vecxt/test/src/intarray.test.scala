@@ -3,7 +3,7 @@ package vecxt
 import all.*
 
 class IntArrayExtensionSuite extends munit.FunSuite:
-  import BoundsCheck.DoBoundsCheck.yes
+  
 
   lazy val v_fill = Array[Int](0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 

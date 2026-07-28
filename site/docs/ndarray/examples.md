@@ -6,7 +6,7 @@
 
 ```scala mdoc:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 // 1D from a flat Array
 val v = NDArray.fromArray(Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0))
@@ -39,7 +39,7 @@ z.layout
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 // col-major 2×3: data stored column by column
 // data = [col0row0, col0row1, col1row0, col1row1, col2row0, col2row1]
@@ -67,7 +67,7 @@ Slices are **zero-copy** — they share the backing array.
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val m = NDArray(Array.tabulate(12)(_.toDouble), Array(3, 4))
 m.layout
@@ -94,7 +94,7 @@ Transpose is **zero-copy** — it permutes strides without touching data.
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val m = NDArray(Array.tabulate(6)(_.toDouble), Array(2, 3))
 m.shape.mkString("[", ",", "]")   // [2,3]
@@ -119,7 +119,7 @@ perm.shape.mkString("[", ",", "]") // [4,2,3]
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 // reshape: zero-copy for contiguous arrays
 val m = NDArray(Array.tabulate(12)(_.toDouble), Array(3, 4))
@@ -151,7 +151,7 @@ arr3d.squeeze.shape.mkString("[", ",", "]") // [2,3]
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val a = NDArray(Array(1.0, 2.0, 3.0, 4.0), Array(2, 2))
 val b = NDArray(Array(10.0, 20.0, 30.0, 40.0), Array(2, 2))
@@ -193,7 +193,7 @@ Comparison ops return `NDArray[Boolean]` with the same shape.
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val a = NDArray(Array(1.0, 5.0, 3.0, 7.0, 2.0, 6.0), Array(2, 3))
 
@@ -214,7 +214,7 @@ Broadcasting in vecxt is **explicit**: use `broadcastTo` or `broadcastPair` befo
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 // Broadcast a row vector shape [1,3] → [4,3] (zero-copy: stride-0 in dim 0)
 val row = NDArray(Array(1.0, 2.0, 3.0), Array(1, 3))
@@ -250,7 +250,7 @@ NDArray views (slice, T, reshape on contiguous, squeeze, unsqueeze) share the ba
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val m = NDArray(Array.tabulate(6)(_.toDouble), Array(2, 3))
 
@@ -275,7 +275,7 @@ indep.data eq m.data            // false — fresh backing array
 
 ```scala mdoc:reset:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 // A "batch" of 4 matrices, each 3×5: shape [4, 3, 5]
 // col-major strides: [1, 4, 12]

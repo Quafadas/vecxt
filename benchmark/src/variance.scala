@@ -2,8 +2,8 @@ package vecxt.benchmark
 
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
-import vecxt.arrays.*
-import vecxt.BoundsCheck
+import vecxt.all.*
+
 import scala.compiletime.uninitialized
 import vecxt.*
 import jdk.incubator.vector.VectorSpecies

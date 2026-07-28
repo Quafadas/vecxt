@@ -330,7 +330,7 @@ object Scenarr:
     inline def takeFirstNIterations(i: Int) =
       assert(i > 0 && i <= scenario.numberIterations)
       val idx = scenario.iterations <= i
-      import vecxt.BoundsCheck.DoBoundsCheck.yes
+      
       Scenarr(
         scenario.iterations.mask(idx),
         scenario.days.mask(idx),
@@ -351,7 +351,7 @@ object Scenarr:
     inline def iteration(num: Int) =
       assert(num > 0 && num <= scenario.numberIterations)
       val idx = scenario.iterations =:= num
-      import vecxt.BoundsCheck.DoBoundsCheck.yes
+      
       Scenarr(
         scenario.iterations.mask(idx),
         scenario.days.mask(idx),
@@ -395,10 +395,10 @@ object Scenarr:
       end if
       val idx = scenario.amounts > newThresh
       Scenarr(
-        scenario.iterations.mask(idx)(using false),
-        scenario.days.mask(idx)(using false),
-        scenario.amounts.mask(idx)(using false),
-        scenario.ids.mask(idx)(using false),
+        scenario.iterations.mask(idx),
+        scenario.days.mask(idx),
+        scenario.amounts.mask(idx),
+        scenario.ids.mask(idx),
         scenario.numberIterations,
         newThresh,
         scenario.day1,

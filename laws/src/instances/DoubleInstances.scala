@@ -1,6 +1,6 @@
 package vecxt.laws.instances
 
-import vecxt.BoundsCheck
+
 import vecxt.all.{*, given}
 import vecxt.laws.Dimension
 import vecxt.laws.VectorCommutativeGroup
@@ -19,7 +19,7 @@ object double:
     VectorCommutativeGroup.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(0.0),
       combineFn = (x, y) =>
-        import vecxt.BoundsCheck.DoBoundsCheck.yes
+        
         x + y
       ,
       inverseFn = (a) => -a

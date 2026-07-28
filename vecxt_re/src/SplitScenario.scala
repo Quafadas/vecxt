@@ -1,20 +1,17 @@
 package vecxt_re
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt_re.SplitLosses.splitAmntFast
 
 object SplitScenario:
   extension (tower: Tower)
-    inline def splitScenarioAmounts(scenario: Scenarr)(using
-        inline bc: BoundsCheck
-    ): (
+    inline def splitScenarioAmounts(scenario: Scenarr): (
         ceded: Array[Double],
         retained: Array[Double],
         splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]
     ) =
       val tmp =
-        if bc then scenario.sorted
-        else scenario
+        scenario.sorted
 
       tower.splitAmntFast(
         tmp.iterations,

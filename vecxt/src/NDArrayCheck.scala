@@ -1,6 +1,6 @@
 package vecxt
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.ndarray.NDArray
 
 /** strideNDArrayCheck validates construction of an NDArray with arbitrary strides and offset.
@@ -18,8 +18,8 @@ object strideNDArrayCheck:
       shape: Array[Int],
       strides: Array[Int],
       offset: Int
-  )(using inline doCheck: BoundsCheck): Unit =
-    inline if doCheck then
+  ): Unit =
+    
       if shape.length != strides.length then
         throw InvalidNDArray(
           s"Shape rank (${shape.length}) and strides rank (${strides.length}) must match"
@@ -74,8 +74,8 @@ object dimNDArrayCheck:
   inline def apply[A](
       data: Array[A],
       shape: Array[Int]
-  )(using inline doCheck: BoundsCheck): Unit =
-    inline if doCheck then
+  ): Unit =
+    
       var prod = 1
       var i = 0
       while i < shape.length do
@@ -93,8 +93,8 @@ end dimNDArrayCheck
 object shapeCheck:
   inline def apply(
       shape: Array[Int]
-  )(using inline doCheck: BoundsCheck): Unit =
-    inline if doCheck then
+  ): Unit =
+    
       var i = 0
       while i < shape.length do
         if shape(i) <= 0 then
@@ -110,8 +110,7 @@ case class InvalidNDArray(message: String) extends Exception(message)
 
 /** indexNDArrayCheck validates element-access indices against the NDArray's shape. */
 object indexNDArrayCheck:
-  inline def apply[A](arr: NDArray[A], indices: Array[Int])(using inline bc: BoundsCheck): Unit =
-    inline if bc then
+  inline def apply[A](arr: NDArray[A], indices: Array[Int]): Unit =    
       if indices.length != arr.ndim then
         throw InvalidNDArray(
           s"Rank mismatch: expected ${arr.ndim} indices, got ${indices.length}"

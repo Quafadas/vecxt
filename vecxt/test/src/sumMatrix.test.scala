@@ -5,7 +5,7 @@ import all.*
 import dimensionExtender.DimensionExtender.Dimension.*
 
 class SumMatrixTest extends FunSuite:
-  import vecxt.BoundsCheck.DoBoundsCheck.yes
+  
 
   def mat1to9 = Matrix.fromRows[Double](
     Array[Double](1.0, 2.0, 3.0),

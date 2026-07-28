@@ -1,6 +1,6 @@
 package vecxt_re
 
-import vecxt.BoundsCheck.BoundsCheck
+
 
 object SplitLosses:
   extension (tower: Tower)
@@ -13,15 +13,12 @@ object SplitLosses:
       * @param bc
       * @return
       */
-    inline def splitAmntFast(years: Array[Int], losses: Array[Double])(using
-        inline bc: BoundsCheck
-    ): (
+    inline def splitAmntFast(years: Array[Int], losses: Array[Double]): (
         ceded: Array[Double],
         retained: Array[Double],
         splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]
     ) =
-      inline if bc then assert(years.length == losses.length)
-      end if
+      assert(years.length == losses.length)
       if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))
       else
 

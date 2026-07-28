@@ -2,7 +2,7 @@ package vecxt
 
 import munit.FunSuite
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
+
 
 class EigenValueSuite extends FunSuite:
 
@@ -262,7 +262,7 @@ class EigenValueSuite extends FunSuite:
     m(1, 1) = 1.0
 
     intercept[IllegalArgumentException] {
-      eig(m)(using yes)
+      eig(m)
     }
   }
 

@@ -3,7 +3,7 @@ package experiments
 import RPT.*
 import cats.syntax.all.*
 import io.github.quafadas.table.TypeInferrer
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 @main def pricingFun =
 

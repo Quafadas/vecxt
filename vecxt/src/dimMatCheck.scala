@@ -1,57 +1,82 @@
 package vecxt
 
-import vecxt.BoundsCheck.BoundsCheck
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
+import scala.annotation.targetName
 
 object dimMatCheck:
-  inline def apply[A](a: Matrix[A], b: Matrix[A])(using inline doCheck: BoundsCheck) =
-    inline if doCheck then if a.cols != b.rows then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
+  inline def apply[A](a: Matrix[A], b: Matrix[A]) =
+    if a.cols != b.rows then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end dimMatCheck
 
 object sameDimMatCheck:
-  inline def apply[A, B](a: Matrix[A], b: Matrix[B])(using inline doCheck: BoundsCheck) =
-    inline if doCheck then
-      if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
+  inline def apply[A, B](a: Matrix[A], b: Matrix[B]) =
+    if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end sameDimMatCheck
 
 /** If this is true, then we can use the same memory layout for element-wise operations
   */
 object sameDenseElementWiseMemoryLayoutCheck:
-  def apply[A, B](a: Matrix[A], b: Matrix[B]): Boolean =
+  inline def apply[A, B](a: Matrix[A], b: Matrix[B]): Boolean =
     a.isDenseColMajor && b.isDenseColMajor && a.rowStride == b.rowStride || a.isDenseRowMajor && b.isDenseRowMajor && a.colStride == b.colStride
 end sameDenseElementWiseMemoryLayoutCheck
 
 object indexCheckMat:
-  inline def apply[A](a: Matrix[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
-    inline if doCheck then
-      if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+
+  inline def apply(a: Matrix[?], dim: RowCol) =
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+      throw java.lang.IndexOutOfBoundsException(
+        s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+      )
+
+  @targetName("indexCheckMatInDouble")
+  def apply(a: Matrix[Double], dim: RowCol) =
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+        throw java.lang.IndexOutOfBoundsException(
+          s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+        )
+
+  @targetName("indexCheckMatInFloat")
+  def apply(a: Matrix[Float], dim: RowCol) =
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+        throw java.lang.IndexOutOfBoundsException(
+          s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+        )
+
+  @targetName("indexCheckMatInInt")
+  def apply(a: Matrix[Int], dim: RowCol) =
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+        throw java.lang.IndexOutOfBoundsException(
+          s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+        )
+  
+  @targetName("indexCheckMatInLong")
+  def apply(a: Matrix[Long], dim: RowCol) =
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
         throw java.lang.IndexOutOfBoundsException(
           s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
         )
 end indexCheckMat
 
 object dimMatInstantiateCheck:
-  inline def apply[A](raw: Array[A], dim: RowCol)(using inline doCheck: BoundsCheck) =
-    inline if doCheck then
-      if dim._1 * dim._2 != raw.size
+  inline def apply[A](raw: Array[A], dim: RowCol) =
+    if dim._1 * dim._2 != raw.size
       then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatInstantiateCheck
 
 object nonEmptyMatCheck:
-  inline def apply[A](mat: Matrix[A])(using inline doCheck: BoundsCheck) =
-    inline if doCheck then if mat.cols == 0 || mat.rows == 0 then throw MatrixEmptyException()
+  inline def apply[A](mat: Matrix[A]) =
+    if mat.cols == 0 || mat.rows == 0 then throw MatrixEmptyException()
 end nonEmptyMatCheck
 
 object squareMatCheck:
-  inline def apply[A](mat: Matrix[A])(using inline doCheck: BoundsCheck) =
-    inline if doCheck then if mat.rows != mat.cols then throw MatrixNotSquareException(mat.rows, mat.cols)
+  inline def apply[A](mat: Matrix[A]) =
+    if mat.rows != mat.cols then throw MatrixNotSquareException(mat.rows, mat.cols)
 end squareMatCheck
 
 object symmetricMatCheck:
-  inline def apply(mat: Matrix[Double], tol: Double = 1e-7)(using inline doCheck: BoundsCheck) =
-    inline if doCheck then
-      squareMatCheck(mat)
+  inline def apply(mat: Matrix[Double], tol: Double = 1e-7) =
+    squareMatCheck(mat)    
       var i = 0
       while i < mat.rows do
         var j = 0
@@ -76,9 +101,8 @@ case class MatrixNotSymmetricException(rows: Int, cols: Int, i: Int, j: Int, val
     )
 
 object dimMatDInstantiateCheck:
-  inline def apply[A](raw: Array[Double], dim: RowCol)(using inline doCheck: BoundsCheck) =
-    inline if doCheck then
-      if dim._1 * dim._2 != raw.size
+  inline def apply[A](raw: Array[Double], dim: RowCol) =
+    if dim._1 * dim._2 != raw.size
       then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatDInstantiateCheck
 

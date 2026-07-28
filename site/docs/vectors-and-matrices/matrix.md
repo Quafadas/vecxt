@@ -5,7 +5,7 @@ Some examples. You shouldn't use `toString()` to find out about matricies. Mdoc 
 ```scala mdoc:to-string
 
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val nestedArr = Array(
   Array[Double](1.0, 2.0, 3.5),
@@ -40,7 +40,7 @@ More matrix operations...
 ```scala mdoc:to-string
 
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val mat1 = Matrix.fromRows(
   Array(1.0, 4.0, 2.0),
@@ -107,7 +107,7 @@ Index via a `Int`, `Array[Int]` or a `Range` to slice a matrix. The `::` operato
 
 ```scala mdoc:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val mat = Matrix.fromRows(
   Array[Double](1.0, 2.0, 3.0),
@@ -127,7 +127,7 @@ mat(Array(0, 2), 0 to 1).printMat
 
 ```scala mdoc:to-string
 import vecxt.all.*
-import vecxt.BoundsCheck.DoBoundsCheck.yes
+
 
 val mat4 = Matrix.fromRows(
   Array[Double](1.0, 2.0, 3.0),

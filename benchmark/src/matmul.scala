@@ -3,9 +3,9 @@ package vecxt.benchmark
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import vecxt.all.*
-import vecxt.BoundsCheck
+
 import scala.compiletime.uninitialized
-import BoundsCheck.DoBoundsCheck.no
+
 
 @State(Scope.Thread)
 class DgemmBenchmark extends BLASBenchmark:
@@ -39,8 +39,8 @@ class DgemmBenchmark extends BLASBenchmark:
 
     beta = randomDouble();
     // c = randomDoubleArray(m * n);
-    matA = Matrix(a, (m, k))(using BoundsCheck.DoBoundsCheck.no)
-    matB = Matrix(b, (k, n))(using BoundsCheck.DoBoundsCheck.no)
+    matA = Matrix(a, (m, k))
+    matB = Matrix(b, (k, n))
     ()
 
   end setup

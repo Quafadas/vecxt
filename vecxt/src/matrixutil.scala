@@ -2,7 +2,7 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
@@ -18,7 +18,7 @@ object matrixUtil:
 
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
 
-    private inline def tupleFromIdx(b: Int)(using inline boundsCheck: BoundsCheck): RowCol =
+    private inline def tupleFromIdx(b: Int): RowCol =
       // dimCheckLen(m.raw, b)
       (b / m.rows, b % m.rows)
     end tupleFromIdx
@@ -29,8 +29,7 @@ object matrixUtil:
       */
     inline def mapRowsInPlace(
         inline f: Array[A] => Array[A]
-    )(using ClassTag[A]): Unit =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+    )(using ClassTag[A]): Unit =      
       var idx = 0
       while idx < m.rows do
         m.updateInPlace(Array[Int](idx), ::, f(m.row(idx)))
@@ -40,8 +39,7 @@ object matrixUtil:
 
     inline def mapRows[B](
         inline f: Array[A] => Array[B]
-    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =      
       val newArr = Array.ofDim[B](m.numel)
       val m2 = Matrix(newArr, m.rows, m.cols)
       var idx = 0
@@ -54,8 +52,7 @@ object matrixUtil:
 
     inline def mapRowsToScalar[B](
         inline f: Array[A] => B
-    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =      
       val newArr = Array.ofDim[B](m.rows)
       var i = 0
       if m.isDenseRowMajor then
@@ -76,8 +73,7 @@ object matrixUtil:
 
     inline def mapColsInPlace(
         inline f: Array[A] => Array[A]
-    )(using ClassTag[A]): Unit =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+    )(using ClassTag[A]): Unit =      
 
       var idx = 0
       while idx < m.cols do
@@ -88,8 +84,7 @@ object matrixUtil:
 
     inline def mapCols[B](
         inline f: Array[A] => Array[B]
-    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =      
       val newArr = Array.ofDim[B](m.numel)
       // println(m.printMat)
       val m2 = Matrix(newArr, m.rows, m.cols)
@@ -105,7 +100,7 @@ object matrixUtil:
 
     inline def mapColsToScalar[B](
         inline f: Array[A] => B
-    )(using ClassTag[B], ClassTag[A])(using inline boundsCheck: BoundsCheck): Matrix[B] =
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       val newArr = Array.ofDim[B](m.cols)
       var i = 0
       if m.isDenseColMajor then
@@ -155,14 +150,14 @@ object matrixUtil:
       rowStride = m.colStride, // swap strides
       colStride = m.rowStride,
       offset = m.offset // same offset
-    )(using BoundsCheck.DoBoundsCheck.no)
+    )
 
     inline def diag(using ClassTag[A]): Array[A] =
       val minDim = Math.min(m.rows, m.cols)
       val newArr = Array.ofDim[A](minDim)
       var i = 0
       while i < minDim do
-        newArr(i) = m((i, i))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        newArr(i) = m((i, i))
         i += 1
       end while
       newArr
@@ -179,7 +174,7 @@ object matrixUtil:
         val thisRow = if startFrom == Vertical.Top then i else m.rows - i - 1
         val colIdx = if direction == Horizontal.Left then col - i else col + i
 
-        newArr(i) = m((thisRow, colIdx))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        newArr(i) = m((thisRow, colIdx))
         i += 1
       end while
       newArr
@@ -194,7 +189,7 @@ object matrixUtil:
       while i < minDim do
         val thisCol = if startFrom == Horizontal.Right then m.cols - i - 1 else i
         val rowIdx = if direction == Vertical.Bottom then i else row - i
-        newArr(i) = m((rowIdx, thisCol))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        newArr(i) = m((rowIdx, thisCol))
         i += 1
       end while
       newArr
@@ -211,14 +206,13 @@ object matrixUtil:
       val newArr = Array.ofDim[A](m.cols)
       var j = 0
       while j < m.cols do
-        newArr(j) = m((i, j))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        newArr(j) = m((i, j))
         j += 1
       end while
       newArr
     end row
 
-    inline def printMat(using ClassTag[A]): String =
-      import vecxt.BoundsCheck.DoBoundsCheck.no
+    inline def printMat(using ClassTag[A]): String =      
       val arrArr =
         for i <- 0 until m.rows
         yield
@@ -240,14 +234,14 @@ object matrixUtil:
       val newArr = Array.ofDim[A](m.rows)
       var j = 0
       while j < m.rows do
-        newArr(j) = m((j, i))(using vecxt.BoundsCheck.DoBoundsCheck.no)
+        newArr(j) = m((j, i))
         j += 1
       end while
       newArr
 
     end col
 
-    inline def horzcat(m2: Matrix[A])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]): Matrix[A] =
+    inline def horzcat(m2: Matrix[A])(using ct: ClassTag[A]): Matrix[A] =
       if m.isDenseColMajor && m2.isDenseColMajor then
         val newShape = (m.rows, m.cols + m2.cols)
         val newArr = m.raw.appendedAll[A](m2.raw)
@@ -255,7 +249,7 @@ object matrixUtil:
       else ???
     end horzcat
 
-    inline def vertcat(m2: Matrix[A])(using inline boundsCheck: BoundsCheck, ct: ClassTag[A]): Matrix[A] =
+    inline def vertcat(m2: Matrix[A])(using ct: ClassTag[A]): Matrix[A] =
       if m.isDenseColMajor && m2.isDenseColMajor then
         val newShape = (m.rows + m2.rows, m.cols)
         val newArr: Array[A] = Array.ofDim[A](newShape._1 * newShape._2)

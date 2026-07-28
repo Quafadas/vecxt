@@ -3,9 +3,10 @@ package vecxt.benchmark
 import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import vecxt.all.*
-import vecxt.BoundsCheck
-import BoundsCheck.DoBoundsCheck.no
+
+
 import scala.compiletime.uninitialized
+import scala.util.chaining.scalaUtilChainingOps
 
 import java.util.concurrent.TimeUnit
 
@@ -230,14 +231,14 @@ class MnistBenchmark extends BLASBenchmark:
 
   // @Benchmark
   // def upd_01_w1_update(bh: Blackhole): Unit =
-  //   import BoundsCheck.DoBoundsCheck.yes
+  //   
   //   val w = w1.deepCopy
   //   w -= (dw1 * 0.05f)
   //   bh.consume(w)
 
   // @Benchmark
   // def upd_02_w2_update(bh: Blackhole): Unit =
-  //   import BoundsCheck.DoBoundsCheck.yes
+  //   
   //   val w = w2.deepCopy
   //   w -= (dw2 * 0.05f)
   //   bh.consume(w)

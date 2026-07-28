@@ -14,7 +14,7 @@
 
 @main def inv_test =
   import vecxt.all.*
-  import vecxt.BoundsCheck.DoBoundsCheck.yes
+  
 
   val A = Matrix.fromRows(
     Array(1.0, 9.0, 2.0, 1.0, 1.0),
@@ -40,7 +40,7 @@ end inv_test
 
 @main def argmax =
   import vecxt.all.*
-  import vecxt.BoundsCheck.DoBoundsCheck.yes
+  
 
   val r1 = Matrix.fromRows(
     Array(0.0, 1.0, 2.0, 3.0),

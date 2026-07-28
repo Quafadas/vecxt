@@ -1,6 +1,6 @@
 package vecxt
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.matrix.Matrix
 
 /** Linear system solver placeholder for JS and Native platforms.
@@ -17,7 +17,7 @@ object Solve:
     * @return
     *   The solution matrix x (n×m) such that A*x = b.
     */
-  inline def solve(A: Matrix[Double], b: Matrix[Double])(using inline bc: BoundsCheck): Matrix[Double] = ???
+  inline def solve(A: Matrix[Double], b: Matrix[Double]): Matrix[Double] = ???
 
   /** Solves a system of linear equations A*x = b for a single right-hand side vector.
     *
@@ -28,6 +28,6 @@ object Solve:
     * @return
     *   The solution vector x as an Array[Double] of length n such that A*x = b.
     */
-  inline def solve(A: Matrix[Double], b: Array[Double])(using inline bc: BoundsCheck): Array[Double] = ???
+  inline def solve(A: Matrix[Double], b: Array[Double]): Array[Double] = ???
 
 end Solve

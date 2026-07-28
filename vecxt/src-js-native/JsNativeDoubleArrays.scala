@@ -2,7 +2,7 @@ package vecxt
 import scala.math.Ordering
 import scala.reflect.ClassTag
 
-import vecxt.BoundsCheck.BoundsCheck
+
 import vecxt.matrix.Matrix
 
 // These use project panama (SIMD) on the JVM, so need own JS native implementation
@@ -62,16 +62,16 @@ trait JsNativeDoubleArrays:
 
   // extension [@specialized(Double, Int) A: Numeric](m: Matrix[A])
   //   inline def >=(d: A): Matrix[Boolean] =
-  //     Matrix[Boolean](m.raw >= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+  //     Matrix[Boolean](m.raw >= d, m.shape)
 
   //   inline def >(d: A): Matrix[Boolean] =
-  //     Matrix[Boolean](m.raw > d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+  //     Matrix[Boolean](m.raw > d, m.shape)
 
   //   inline def <=(d: A): Matrix[Boolean] =
-  //     Matrix[Boolean](m.raw <= d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+  //     Matrix[Boolean](m.raw <= d, m.shape)
 
   //   inline def <(d: A): Matrix[Boolean] =
-  //     Matrix[Boolean](m.raw < d, m.shape)(using BoundsCheck.DoBoundsCheck.no)
+  //     Matrix[Boolean](m.raw < d, m.shape)
   // end extension
 
   extension (vec: Array[Double])
@@ -284,7 +284,7 @@ trait JsNativeDoubleArrays:
       end while
     end applyUnaryOpInPlace
 
-    inline def /(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def /(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -341,7 +341,7 @@ trait JsNativeDoubleArrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-    inline def *(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] =
+    inline def *(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -354,9 +354,9 @@ trait JsNativeDoubleArrays:
       res
     end *
 
-    inline def *:*(d: Array[Double])(using inline boundsCheck: BoundsCheck): Array[Double] = vec.*(d)
+    inline def *:*(d: Array[Double]): Array[Double] = vec.*(d)
 
-    inline def *=(d: Array[Double])(using inline boundsCheck: BoundsCheck): Unit =
+    inline def *=(d: Array[Double]): Unit =
       dimCheck(vec, d)
       val n = vec.length
 
@@ -381,7 +381,7 @@ trait JsNativeDoubleArrays:
         end while
         i = i + 1
       end while
-      Matrix[Double](out, (n, m))(using BoundsCheck.DoBoundsCheck.no)
+      Matrix[Double](out, (n, m))
     end outer
 
     inline def <(num: Double): Array[Boolean] =

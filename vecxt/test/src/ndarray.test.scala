@@ -3,7 +3,7 @@ package vecxt
 import munit.FunSuite
 
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
+
 
 class NDArraySuite extends FunSuite:
 
@@ -213,13 +213,6 @@ class NDArraySuite extends FunSuite:
     intercept[java.lang.IndexOutOfBoundsException] {
       NDArray(Array(1.0, 2.0, 3.0), Array(1, 3), Array(1, 1), 10)
     }
-  }
-
-  test("bounds check can be disabled") {
-    import BoundsCheck.DoBoundsCheck.no
-    // Invalid: product of shape (6) != data.length (3), but no exception expected
-    val arr = NDArray(Array(1.0, 2.0, 3.0), Array(2, 3))(using no)
-    assertEquals(arr.shape.toSeq, Seq(2, 3))
   }
 
   // ---- Consistency with Matrix ----
@@ -554,13 +547,6 @@ class NDArrayM2Suite extends FunSuite:
     intercept[InvalidNDArray] {
       arr(Array(0, 0, 0)) // 3 indices for a 2D array
     }
-  }
-
-  test("bounds check can be disabled for apply") {
-    import BoundsCheck.DoBoundsCheck.no
-    val arr = NDArray.fromArray(Array(1.0, 2.0, 3.0))(using no)
-    val v = arr(0)(using no)
-    assertEquals(v, 1.0)
   }
 
   test("T rejects non-2D array") {

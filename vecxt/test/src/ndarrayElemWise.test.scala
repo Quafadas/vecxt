@@ -3,7 +3,7 @@ package vecxt
 import munit.FunSuite
 
 import all.*
-import BoundsCheck.DoBoundsCheck.yes
+
 
 class NDArrayElemWiseSuite extends FunSuite:
 

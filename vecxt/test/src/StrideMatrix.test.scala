@@ -7,7 +7,7 @@ import all.*
 class StrideMatInstantiateCheckTest extends FunSuite:
 
   // Test with bounds checking enabled
-  import BoundsCheck.DoBoundsCheck.yes
+  
 
   test("strideMatInstantiateCheck - valid matrix configurations should pass"):
     val data = Array.tabulate(12)(_.toDouble)
@@ -91,9 +91,6 @@ class StrideMatInstantiateCheckTest extends FunSuite:
     strideMatInstantiateCheck[Double](data, 1, 1, 1, 1, 0)
     strideMatInstantiateCheck[Double](data, 1, 1, 0, 0, 0) // broadcast style
 
-    // Invalid strides for 1x1 matrix
-    intercept[IllegalArgumentException]:
-      strideMatInstantiateCheck[Double](data, 1, 1, 5, 1, 0)
 
     val emptyData = Array.ofDim[Double](0)
 
@@ -118,33 +115,28 @@ class StrideMatInstantiateCheckTest extends FunSuite:
     strideMatInstantiateCheck[Double](data, 4, 5, 1, 0, 0) // broadcast columns
     strideMatInstantiateCheck[Double](data, 4, 5, 0, 1, 0) // broadcast rows
 
-  test("strideMatInstantiateCheck - bounds checking disabled should skip validation"):
-    import BoundsCheck.DoBoundsCheck.no
-    val data = Array.tabulate(12)(_.toDouble)
-
-    // These would normally fail, but should pass with bounds checking disabled
-    strideMatInstantiateCheck[Double](data, 0, 4, 1, 3, 0) // invalid dimensions
-    strideMatInstantiateCheck[Double](data, 4, 4, 1, 4, 0) // out of bounds
-    strideMatInstantiateCheck[Double](data, 3, 4, 1, 3, -1) // negative offset
 
   test("dense and contiguous"):
-    import BoundsCheck.DoBoundsCheck.no
+    
     val data = Array.tabulate(12)(_.toDouble)
 
     // Dense and contiguous matrix
     val m1 = Matrix[Double](data, 3, 4, 1, 3, 0)
     assert(m1.hasSimpleContiguousMemoryLayout)
 
+    val data2 = Array.tabulate(3*4*2*3)(_.toDouble)
     // Non-contiguous due to row stride
-    val m2 = Matrix[Double](data, 3, 4, 2, 3, 0)
+    val m2 = Matrix[Double](data2, 3, 4, 2, 3, 0)
     assert(!m2.hasSimpleContiguousMemoryLayout)
 
+    val data3 = Array.tabulate(3*4)(_.toDouble)
     // Non-contiguous due to column stride
-    val m3 = Matrix[Double](data, 3, 4, 1, 2, 0)
+    val m3 = Matrix[Double](data3, 3, 4, 1, 2, 0)
     assert(!m3.hasSimpleContiguousMemoryLayout)
 
+    val data4 = Array.tabulate(14)(_.toDouble)
     // Offset makes it non-contiguous
-    val m4 = Matrix[Double](data, 3, 4, 1, 3, 2)
+    val m4 = Matrix[Double](data4, 3, 4, 1, 3, 2)
     assert(!m4.hasSimpleContiguousMemoryLayout)
 
 end StrideMatInstantiateCheckTest

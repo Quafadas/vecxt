@@ -1,6 +1,6 @@
 package vecxt
 
-import vecxt.BoundsCheck.BoundsCheck
+
 
 /** strideMatInstantiateCheck performs a set of safety checks when constructing a matrix view with arbitrary strides and
   * offset into a backing array. The checks include:
@@ -45,8 +45,8 @@ object strideMatInstantiateCheck:
       rowStride: Int,
       colStride: Int,
       offset: Int
-  )(using inline doCheck: BoundsCheck) =
-    inline if doCheck then
+  ) =
+   
       // Check basic dimension validity
       if rows <= 0 || cols <= 0 then throw InvalidMatrix(rows, cols, raw.length)
       end if
@@ -59,12 +59,12 @@ object strideMatInstantiateCheck:
       end if
 
       // For 1x1 matrices, enforce sensible strides for semantic clarity
-      if rows == 1 && cols == 1 then
-        if (rowStride != 0 && rowStride != 1) || (colStride != 0 && colStride != 1) then
-          throw IllegalArgumentException(
-            s"For 1x1 matrix, strides should be 0 (broadcast) or 1 (standard). Got rowStride=$rowStride, colStride=$colStride"
-          )
-      end if
+      // if rows == 1 && cols == 1 then
+      //   if (rowStride != 0 && rowStride != 1) || (colStride != 0 && colStride != 1) then
+      //     throw IllegalArgumentException(
+      //       s"For 1x1 matrix, strides should be 0 (broadcast) or 1 (standard). Got rowStride=$rowStride, colStride=$colStride"
+      //     )
+      // end if
 
       // Calculate all possible indices that could be accessed
       // For each dimension, we need to consider both i=0 and i=max positions

@@ -13,7 +13,7 @@ class TowerSuite extends munit.FunSuite:
       retained: Array[Double],
       splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])] = IndexedSeq.empty
   ) =
-    import vecxt.BoundsCheck.DoBoundsCheck.yes
+    
     assertVecEquals(ceded + retained, losses)
     assertVecEquals(splits.map(_.cededToLayer).reduce(_ + _), ceded)
   end noleakage
