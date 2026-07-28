@@ -777,7 +777,7 @@ class MatrixExtensionSuite extends FunSuite:
     assertVecEquals(mat.row(2), Array[Double](7.0, 8.0, 9.0))
   }
 
-  test("slice syntax (zero copy matrix)".only) {
+  test("slice syntax (zero copy matrix)") {
     val mat = mat1to9
     val a = mat(::, ::)
     assertVecEquals[Double](a.raw, mat.raw)
