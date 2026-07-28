@@ -11,7 +11,9 @@ object ErasureProbe:
     while i < m.numel do
       acc += m.raw(i) * other.raw(i)
       i += 1
+    end while
     acc
+  end concreteAccess
 
   // Case B: element type ABSTRACT — the control. Must look different.
   def genericAccess[A](m: Matrix[A], other: Matrix[A]): Int =
@@ -19,8 +21,11 @@ object ErasureProbe:
     var i = 0
     while i < m.numel do
       if m.raw(i) == other.raw(i) then n += 1
+      end if
       i += 1
+    end while
     n
+  end genericAccess
 
   // Case C: baseline — direct array, no Matrix wrapper
   def rawArrayAccess(a: Array[Double], b: Array[Double]): Double =
@@ -29,4 +34,7 @@ object ErasureProbe:
     while i < a.length do
       acc += a(i) * b(i)
       i += 1
+    end while
     acc
+  end rawArrayAccess
+end ErasureProbe

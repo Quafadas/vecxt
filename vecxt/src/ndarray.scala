@@ -4,9 +4,8 @@ import scala.annotation.publicInBinary
 
 object ndarray:
 
-  /**
-    * Don't mutate the shape or strides arrays after creating an NDArray. Dervived fields will be wrong. 
-    * 
+  /** Don't mutate the shape or strides arrays after creating an NDArray. Dervived fields will be wrong.
+    *
     * Make a new one
     *
     * @param data
@@ -21,11 +20,12 @@ object ndarray:
       val offset: Int
   ):
 
-    val ndim: Int = shape.length    
+    val ndim: Int = shape.length
+
     /** True if this is a 0-dimensional (scalar) NDArray. */
     // val isScalar: Boolean = shape.length == 0
 
-    private val dataLength: Int = data.length 
+    private val dataLength: Int = data.length
 
     val numel: Int =
       var prod = 1
@@ -34,7 +34,8 @@ object ndarray:
         prod *= shape(i)
         i += 1
       end while
-      prod    
+      prod
+    end numel
 
     val isColMajor: Boolean =
       // Column-major (F-order): strides = [1, shape(0), shape(0)*shape(1), ...]
@@ -70,7 +71,6 @@ object ndarray:
         result && dataLength == numel
 
     val isContiguous: Boolean = isColMajor || isRowMajor
-
 
     def layout: String =
       s"ndim: $ndim, shape: [${shape.mkString(",")}], strides: [${strides.mkString(",")}], offset: $offset, data length: $dataLength"
