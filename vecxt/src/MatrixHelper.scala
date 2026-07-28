@@ -8,13 +8,13 @@ import vecxt.matrix.*
 object MatrixHelper:
   extension (m: Matrix.type)
 
-    inline def fromRowsArray[@specialized(Double, Boolean, Int) A](
+    inline def fromRowsArray[A](
         a: Array[Array[A]]
     )(using classTag: ClassTag[A]): Matrix[A] =
       Matrix.fromRows(a.toSeq*)
     end fromRowsArray
 
-    inline def fromRows[@specialized(Double, Boolean, Int) A](
+    inline def fromRows[A](
         a: Array[A]*
     )(using classTag: ClassTag[A]): Matrix[A] =
       val rows = a.size
@@ -38,7 +38,7 @@ object MatrixHelper:
       Matrix(newArr, rows, cols)
     end fromRows
 
-    inline def fromColumns[@specialized(Double, Boolean, Int) A](
+    inline def fromColumns[A](
         a: Array[A]*
     )(using classTag: ClassTag[A]): Matrix[A] =
       val cols = a.size
@@ -60,7 +60,7 @@ object MatrixHelper:
       Matrix(newArr, (rows, cols))
     end fromColumns
 
-    inline def fromColumnsArray[@specialized(Double, Boolean, Int) A](
+    inline def fromColumnsArray[A](
         a: Array[Array[A]]
     )(using classTag: ClassTag[A]): Matrix[A] =
       val cols = a.size
@@ -145,7 +145,7 @@ object MatrixHelper:
       Matrix(newArr, dim)
     end zerosOf
 
-    inline def rand(rows: Int, cols: Int): Matrix[Double] =
+    def rand(rows: Int, cols: Int): Matrix[Double] =
       val size = rows * cols
       val newArr = Array.ofDim[Double](size)
       val rng = new scala.util.Random()
@@ -157,11 +157,11 @@ object MatrixHelper:
       Matrix[Double](newArr, (rows, cols))
     end rand
 
-    inline def rand(dim: RowCol): Matrix[Double] =
+    def rand(dim: RowCol): Matrix[Double] =
       rand(dim._1, dim._2)
     end rand
 
-    inline def randInt(rows: Int, cols: Int, minVal: Int, maxVal: Int): Matrix[Int] =
+    def randInt(rows: Int, cols: Int, minVal: Int, maxVal: Int): Matrix[Int] =
       val size = rows * cols
       val newArr = Array.ofDim[Int](size)
       val rng = new scala.util.Random()
@@ -174,15 +174,15 @@ object MatrixHelper:
       Matrix[Int](newArr, (rows, cols))
     end randInt
 
-    inline def randInt(rows: Int, cols: Int): Matrix[Int] =
+    def randInt(rows: Int, cols: Int): Matrix[Int] =
       randInt(rows, cols, 0, 100)
     end randInt
 
-    inline def randInt(dim: RowCol, minVal: Int, maxVal: Int): Matrix[Int] =
+    def randInt(dim: RowCol, minVal: Int, maxVal: Int): Matrix[Int] =
       randInt(dim._1, dim._2, minVal, maxVal)
     end randInt
 
-    inline def randInt(dim: RowCol): Matrix[Int] =
+    def randInt(dim: RowCol): Matrix[Int] =
       randInt(dim._1, dim._2, 0, 100)
     end randInt
 
@@ -234,7 +234,7 @@ object MatrixHelper:
       Matrix(newArr, inM.rows * rowsN, inM.cols * colsN)
     end tile
 
-    inline def createDiagonal(v: Array[Double]): Matrix[Double] =
+    def createDiagonal(v: Array[Double]): Matrix[Double] =
       val size = v.length
       val newArr = Array.ofDim[Double](size * size)
       var j = 0
