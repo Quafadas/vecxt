@@ -273,7 +273,8 @@ object doublearrays:
     def `**!`(power: Double): Unit =
       var i = 0
       val bp = DoubleVector.broadcast(spd, power)
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
           .lanewise(VectorOperators.POW, bp)
@@ -387,7 +388,8 @@ object doublearrays:
       while j < m do
         var i = 0
         val tmp = DoubleVector.broadcast(spd, other(j))
-        while i < spd.loopBound(n) do
+        val bound = spd.loopBound(n)
+        while i < bound do
           DoubleVector.fromArray(spd, vec, i).mul(tmp).intoArray(out, j * n + i)
           i = i + spdl
         end while
@@ -450,7 +452,8 @@ object doublearrays:
         var i = 0
         var j: Double = 1
         // ALl lanes will have processed J elements at the end of this loop
-        while i < spd.loopBound(vec.length) do
+        val bound = spd.loopBound(vec.length)
+        while i < bound do
           j = j + 1
           val values = DoubleVector.fromArray(spd, vec, i)
           delta = values.sub(laneMeans) // Use current mean
@@ -507,7 +510,8 @@ object doublearrays:
       val μVec = DoubleVector.broadcast(spd, μ)
 
       var i = 0
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         val v = DoubleVector.fromArray(spd, vec, i)
         val diff = v.sub(μVec)
         tmp = diff.fma(diff, tmp)
@@ -621,7 +625,8 @@ object doublearrays:
       var i = 0
       var vecAcc = DoubleVector.broadcast(spd, initial)
 
-      while i < spd.loopBound(vec.length) do
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
         vecAcc = vecAcc.lanewise(op, DoubleVector.fromArray(spd, vec, i))
         i += spdl
       end while

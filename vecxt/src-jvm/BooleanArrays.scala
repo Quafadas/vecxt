@@ -13,11 +13,12 @@ object BooleanArrays:
 
   extension (vec: Array[Boolean])
     // TODO, benchmark
-    inline def allTrue: Boolean =
+    def allTrue: Boolean =
       var out = true
       var i = 0
       breakable {
-        while i < spb.loopBound(vec.length) do
+        val bound = spb.loopBound(vec.length)
+        while i < bound do
           if !VectorMask.fromArray(spb, vec, i).allTrue then
             out = false
             break
@@ -37,11 +38,12 @@ object BooleanArrays:
       out
     end allTrue
 
-    inline def any: Boolean =
+    def any: Boolean =
       var out = false
       var i = 0
       breakable {
-        while i < spb.loopBound(vec.length) do
+        val bound = spb.loopBound(vec.length)
+        while i < bound do
           if VectorMask.fromArray(spb, vec, i).anyTrue() then
             out = true
             break
@@ -61,7 +63,7 @@ object BooleanArrays:
       out
     end any
 
-    inline def trues: Int =
+    def trues: Int =
       var i = 0
       var sum = 0
 
@@ -78,11 +80,12 @@ object BooleanArrays:
       sum
     end trues
 
-    inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
+    def &&(thatIdx: Array[Boolean]): Array[Boolean] =
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
 
-      while i < spb.loopBound(vec.length) do
+      val bound = spb.loopBound(vec.length)
+      while i < bound do
         ByteVector
           .fromBooleanArray(spb, vec, i)
           .and(ByteVector.fromBooleanArray(spb, thatIdx, i))
@@ -97,16 +100,17 @@ object BooleanArrays:
       result
     end &&
 
-    inline def not: Array[Boolean] =
+    def not: Array[Boolean] =
       val dup = vec.clone()
       dup.`not!`
       dup
     end not
 
-    inline def `not!`: Unit =
+    def `not!`: Unit =
       var i = 0
 
-      while i < spb.loopBound(vec.length) do
+      val bound = spb.loopBound(vec.length)
+      while i < bound do
         ByteVector
           .fromBooleanArray(spb, vec, i)
           .not()
@@ -120,12 +124,13 @@ object BooleanArrays:
       end while
     end `not!`
 
-    inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
+    def ||(thatIdx: Array[Boolean]): Array[Boolean] =
 
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       var i = 0
 
-      while i < spb.loopBound(vec.length) do
+      val bound = spb.loopBound(vec.length)
+      while i < bound do
         ByteVector
           .fromBooleanArray(spb, vec, i)
           .or(ByteVector.fromBooleanArray(spb, thatIdx, i))
