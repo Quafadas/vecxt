@@ -23,32 +23,39 @@ object doublearrays:
   final val spbl = spb.length()
   final val spil = spi.length()
 
+  final val iota: DoubleVector = DoubleVector.fromArray(spd, Array.tabulate(spdl)(_.toDouble), 0)
+
+  /** Zero-allocation: fills a caller-owned buffer. */
+  def fillLinspace(dest: Array[Double], a: Double, b: Double): Unit =
+    val n = dest.length
+    if n == 1 then dest(0) = a
+    else if n > 1 then
+      val increment = (b - a) / (n - 1)
+      val step = iota.mul(increment) // loop-invariant: [0, inc, 2*inc, ...]
+      val bound = spd.loopBound(n)
+
+      var i = 0
+      while i < bound do
+        step.add(a + increment * i).intoArray(dest, i)
+        i += spdl
+      end while
+
+      while i < n do
+        dest(i) = a + increment * i
+        i += 1
+      end while
+
+      dest(n - 1) = b // exact endpoint, not a * (n-1) rounding artefact
+    end if
+  end fillLinspace
+
   /** Generates a vector of linearly spaced values between a and b (inclusive). The returned vector will have length
     * elements, defaulting to 100.
     */
-  def linspace(a: Double, b: Double, length: Int = 100): Array[Double] =
-
-    val result = new Array[Double](length)
-    val increment = (b - a) / (length - 1)
-
-    var i = 0
-    val loopBound = spd.loopBound(length)
-
-    // SIMD loop
-    while i < loopBound do
-      val indices = DoubleVector.fromArray(spd, Array.tabulate(spd.length())(j => (i + j).toDouble), 0)
-      val values = indices.mul(increment).add(a)
-      values.intoArray(result, i)
-      i += spdl
-    end while
-
-    // Scalar tail
-    while i < length do
-      result(i) = a + increment * i
-      i += 1
-    end while
-
-    result
+  inline def linspace(a: Double, b: Double, length: Int = 100): Array[Double] =
+    val out = new Array[Double](length)
+    fillLinspace(out, a, b)
+    out
   end linspace
 
   extension (d: Double)
