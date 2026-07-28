@@ -15,7 +15,16 @@ protected[vecxt] object dimCheck:
   inline def apply[A](a: Array[A], b: Array[A]) =
     if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
-  inline def apply(a: Array[Double], b: Array[Double]) =
+  def apply(a: Array[Double], b: Array[Double]) =
+    if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
+  def apply(a: Array[Float], b: Array[Float]) =
+    if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
+  def apply(a: Array[Int], b: Array[Int]) =
+    if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
+
+  def apply(a: Array[Long], b: Array[Long]) =
     if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 end dimCheck
 

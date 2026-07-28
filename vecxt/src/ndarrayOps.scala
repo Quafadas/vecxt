@@ -533,7 +533,8 @@ object ndarrayOps:
         val result = new Array[A](arr.numel)
         val indices = new Array[Int](arr.ndim)
         var outPos = 0
-        while outPos < arr.numel do
+        val bound = arr.numel
+        while outPos < bound do
           var flatIdx = arr.offset
           var k = 0
           while k < arr.ndim do

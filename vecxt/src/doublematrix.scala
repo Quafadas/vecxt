@@ -101,7 +101,8 @@ object DoubleMatrix:
       // TODO: SIMD optimization
       if sameDenseElementWiseMemoryLayoutCheck(m, other) then
         var i = 0
-        while i < m.numel do
+        val bound = m.numel
+        while i < bound do
           newArr(i) = math.max(m.raw(i), other.raw(i))
           i += 1
         end while

@@ -30,7 +30,8 @@ object MatrixInstance:
     inline def update(idx: Matrix[Boolean], value: A): Unit =
       sameDimMatCheck(idx, m)
       var i = 0
-      while i < m.numel do
+      val bound = m.numel
+      while i < bound do
         if idx.raw(i) then m.raw(i) = value
         end if
         i += 1
