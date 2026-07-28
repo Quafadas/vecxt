@@ -23,6 +23,13 @@ Each module contains it's own build definition in the package.mill file in it's 
 - If you see an error like this is JS `[error] @scala.scalajs.js.annotation.internal.JSType is for compiler internal use only. Do not use it yourself.`, run `./mill clean vecxt.js._` to clear the build cache.
 - To run a specific main class, use the runMain command and specify the package. `./mill experiments.runMain testCheatsheet` for example.
 
+## The rule
+
+> Use `inline` when the compiler erases something the JIT cannot recover: **closure identity**, a **compile-time constant**, or a **concrete type**. Do not use `inline` merely to avoid a call.
+
+For justification, see `site/docs/blog/2026-07-28-Inlining.md`
+
+
 ## Folder structure
 
 vecxt/
