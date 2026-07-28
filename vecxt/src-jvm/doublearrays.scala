@@ -542,7 +542,7 @@ object doublearrays:
         acc = acc.add(DoubleVector.fromArray(spd, vec, i))
         i += spdl
       end while
-      
+
       var temp = acc.reduceLanes(VectorOperators.ADD)
       // var temp = 0.0
       while i < vec.length do
@@ -608,7 +608,6 @@ object doublearrays:
           .intoArray(leftProducts, i)
         i += spdl
       end while
-      
 
       while i < vec.length do
         leftProducts(i) = leftProducts(i) * rightProducts(i)
@@ -950,7 +949,7 @@ object doublearrays:
     def *=(d: Array[Double]): Unit =
       dimCheck(vec, d)
       var i = 0
-      val bound = spd.loopBound(vec.length) 
+      val bound = spd.loopBound(vec.length)
       while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
