@@ -3,7 +3,6 @@ package vecxt
 import scala.annotation.targetName
 import scala.reflect.ClassTag
 
-
 import vecxt.IntArraysX.contiguous
 import vecxt.MatrixHelper.zeros
 import vecxt.matrix.*
@@ -99,8 +98,7 @@ object MatrixInstance:
       val newCols = range(colRange, m.cols)
       val newArr = Array.ofDim[A](newCols.size * newRows.size)
 
-      if newRows.contiguous && newCols.contiguous then
-        submatrix(newRows, newCols)
+      if newRows.contiguous && newCols.contiguous then submatrix(newRows, newCols)
       else if m.isDenseColMajor then
         var idx = 0
         var i = 0
@@ -115,7 +113,7 @@ object MatrixInstance:
             j += 1
           end while
           i += 1
-        end while        
+        end while
         Matrix(newArr, (newRows.size, newCols.size))
       else ???
       end if
@@ -139,7 +137,7 @@ object MatrixInstance:
       * @return
       */
     inline def deepCopy(asRowMajor: Boolean)(using ct: ClassTag[A]): Matrix[A] =
-      // println(s"Deep copying matrix with shape ${m.shape} and offset ${m.offset}")      
+      // println(s"Deep copying matrix with shape ${m.shape} and offset ${m.offset}")
       val newRaw = Array.ofDim[A](m.numel)
       val newMat =
         if asRowMajor then Matrix(newRaw, m.rows, m.cols, m.cols, 1, 0) // row-major: rowStride = cols, colStride = 1

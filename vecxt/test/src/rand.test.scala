@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class RandSuite extends FunSuite:
 
   test("rand(rows, cols) creates matrix with correct dimensions") {

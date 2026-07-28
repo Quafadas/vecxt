@@ -330,7 +330,7 @@ object Scenarr:
     inline def takeFirstNIterations(i: Int) =
       assert(i > 0 && i <= scenario.numberIterations)
       val idx = scenario.iterations <= i
-      
+
       Scenarr(
         scenario.iterations.mask(idx),
         scenario.days.mask(idx),
@@ -351,7 +351,7 @@ object Scenarr:
     inline def iteration(num: Int) =
       assert(num > 0 && num <= scenario.numberIterations)
       val idx = scenario.iterations =:= num
-      
+
       Scenarr(
         scenario.iterations.mask(idx),
         scenario.days.mask(idx),

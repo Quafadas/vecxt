@@ -1,7 +1,5 @@
 package vecxt
 
-
-
 case class VectorDimensionMismatch(givenDimension: Int, requiredDimension: Int)
     extends Exception(
       s"Expected Vector dimensions to match. First dimension was : $requiredDimension, second was : $givenDimension ."

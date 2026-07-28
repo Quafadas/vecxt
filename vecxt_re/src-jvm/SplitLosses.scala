@@ -2,8 +2,6 @@ package vecxt_re
 
 import java.util.concurrent.Executors
 
-
-
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.VectorSpecies
@@ -25,7 +23,7 @@ object SplitLosses:
         splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]
     ) =
       assert(years.length == losses.length)
-      
+
       if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))
       else
 

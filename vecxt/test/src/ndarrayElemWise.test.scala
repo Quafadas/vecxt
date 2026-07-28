@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class NDArrayElemWiseSuite extends FunSuite:
 
   // ── Binary ops (col-major fast path) ─────────────────────────────────────

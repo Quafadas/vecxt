@@ -1,6 +1,5 @@
 package vecxt
 
-
 import vecxt.doublearrays.dot
 import vecxt.doublearrays.norm
 

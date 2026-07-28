@@ -3,7 +3,6 @@ package vecxt
 import munit.FunSuite
 import all.*
 
-
 class QRSuite extends FunSuite:
 
   val epsilon = 1e-10

@@ -1,6 +1,5 @@
 package vecxt.laws.instances
 
-
 import vecxt.all.{*, given}
 import vecxt.laws.Dimension
 import vecxt.laws.VectorCommutativeGroup
@@ -18,10 +17,7 @@ object double:
   def vectorAdditionGroup(using dim: Dimension): VectorCommutativeGroup[Double] =
     VectorCommutativeGroup.forDimension(dim)(
       emptyFn = Array.fill(dim.size)(0.0),
-      combineFn = (x, y) =>
-        
-        x + y
-      ,
+      combineFn = (x, y) => x + y,
       inverseFn = (a) => -a
     )
   end vectorAdditionGroup

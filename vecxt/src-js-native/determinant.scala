@@ -1,6 +1,5 @@
 package vecxt
 
-
 import vecxt.MatrixHelper.*
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
@@ -26,9 +25,10 @@ object Determinant:
       * @throws IllegalArgumentException
       *   if the matrix is not square
       */
-    inline def det: Double =      
+    inline def det: Double =
       if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
-      
+      end if
+
       val n = m.rows
 
       // Handle small cases directly
@@ -133,9 +133,9 @@ object Determinant:
       *   if the matrix is not square
       */
     inline def adj: Matrix[Double] =
-      
+
       if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
-      
+      end if
 
       val n = m.rows
 
@@ -220,8 +220,9 @@ object Determinant:
       *   if the matrix is singular (determinant is zero)
       */
     inline def inv: Matrix[Double] =
-      
-      if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")      
+
+      if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
+      end if
 
       val n = m.rows
 

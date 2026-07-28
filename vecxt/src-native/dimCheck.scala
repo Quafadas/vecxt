@@ -1,7 +1,5 @@
 package vecxt
 
-
-
 protected[vecxt] object dimCheckLen:
   inline def apply[A](a: Array[A], b: Int) =
     if a.length != b then throw VectorDimensionMismatch(a.length, b)

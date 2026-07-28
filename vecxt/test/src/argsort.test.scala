@@ -2,7 +2,6 @@ package vecxt
 
 import vecxt.all.*
 
-
 class DoubleArraysSuite extends munit.FunSuite:
 
   test("unique - empty array"):

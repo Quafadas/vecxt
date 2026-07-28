@@ -2,7 +2,6 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 
@@ -14,13 +13,13 @@ object NDArrayBooleanIndexing:
       * Result length = mask.countTrue.
       */
     inline def apply(mask: NDArray[Boolean]): NDArray[A] =
-      
+
       if !sameShape(arr.shape, mask.shape) then
         throw ShapeMismatchException(
           s"Boolean indexing requires arr and mask to have the same shape: [${arr.shape.mkString(",")}] vs [${mask.shape.mkString(",")}]."
         )
       end if
-    
+
       if arr.isColMajor && mask.isColMajor then
         // Fast path: flat array iteration
         var count = 0
@@ -90,7 +89,7 @@ object NDArrayBooleanIndexing:
       * arr must be contiguous.
       */
     inline def update(mask: NDArray[Boolean], value: A): Unit =
-      
+
       if !sameShape(arr.shape, mask.shape) then
         throw ShapeMismatchException(
           s"Boolean mask assignment requires arr and mask to have the same shape: [${arr.shape.mkString(",")}] vs [${mask.shape.mkString(",")}]."
@@ -98,7 +97,7 @@ object NDArrayBooleanIndexing:
       end if
       if !arr.isContiguous then throw InvalidNDArray("Boolean mask assignment requires a contiguous NDArray")
       end if
-    
+
       if arr.isColMajor && mask.isColMajor then
         var i = 0
         while i < mask.data.length do

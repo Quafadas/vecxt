@@ -1,6 +1,5 @@
 package vecxt
 
-
 import all.*
 
 class MatrixHelperTileSuite extends munit.FunSuite:

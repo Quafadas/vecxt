@@ -2,7 +2,6 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-
 import vecxt.IntArraysX.*
 import vecxt.ndarray.*
 import vecxt.rangeExtender.MatrixRange.*
@@ -18,7 +17,7 @@ object ndarrayOps:
 
     /** Read a single element from a 1D NDArray. */
     inline def apply(i0: Int): A =
-      
+
       if arr.ndim != 1 then throw InvalidNDArray(s"Rank mismatch: expected ndim=1, got ndim=${arr.ndim}")
       end if
       if i0 < 0 || i0 >= arr.shape(0) then
@@ -26,13 +25,13 @@ object ndarrayOps:
           s"Index $i0 out of bounds for dim 0 of size ${arr.shape(0)}"
         )
       end if
-    
+
       arr.data(arr.offset + i0 * arr.strides(0))
     end apply
 
     /** Read a single element from a 2D NDArray (col-major: first index = row, second = column). */
     inline def apply(i0: Int, i1: Int): A =
-      
+
       if arr.ndim != 2 then throw InvalidNDArray(s"Rank mismatch: expected ndim=2, got ndim=${arr.ndim}")
       end if
       if i0 < 0 || i0 >= arr.shape(0) then
@@ -45,7 +44,7 @@ object ndarrayOps:
           s"Index $i1 out of bounds for dim 1 of size ${arr.shape(1)}"
         )
       end if
-    
+
       arr.data(arr.offset + i0 * arr.strides(0) + i1 * arr.strides(1))
     end apply
 
@@ -73,7 +72,7 @@ object ndarrayOps:
 
     /** Read a single element from a 4D NDArray. */
     inline def apply(i0: Int, i1: Int, i2: Int, i3: Int): A =
-      
+
       if arr.ndim != 4 then throw InvalidNDArray(s"Rank mismatch: expected ndim=4, got ndim=${arr.ndim}")
       end if
       if i0 < 0 || i0 >= arr.shape(0) then
@@ -95,7 +94,7 @@ object ndarrayOps:
         throw new java.lang.IndexOutOfBoundsException(
           s"Index $i3 out of bounds for dim 3 of size ${arr.shape(3)}"
         )
-      end if      
+      end if
       arr.data(
         arr.offset + i0 * arr.strides(0) + i1 * arr.strides(1) + i2 * arr.strides(2) + i3 * arr.strides(3)
       )
@@ -114,15 +113,16 @@ object ndarrayOps:
     end apply
 
     /** Read the single element of a 0-d NDArray. */
-    inline def scalar: A =      
-      if arr.ndim != 0 then throw InvalidNDArray(s"scalar accessor requires ndim=0, got ndim=${arr.ndim}")        
+    inline def scalar: A =
+      if arr.ndim != 0 then throw InvalidNDArray(s"scalar accessor requires ndim=0, got ndim=${arr.ndim}")
+      end if
       arr.data(arr.offset)
     end scalar
 
     // ── Element write (update) ──────────────────────────────────────────────
 
     /** Write a single element in a 1D NDArray. */
-    inline def update(i0: Int, value: A): Unit =      
+    inline def update(i0: Int, value: A): Unit =
       if arr.ndim != 1 then throw InvalidNDArray(s"Rank mismatch: expected ndim=1, got ndim=${arr.ndim}")
       end if
       if i0 < 0 || i0 >= arr.shape(0) then
@@ -135,7 +135,7 @@ object ndarrayOps:
 
     /** Write a single element in a 2D NDArray. */
     inline def update(i0: Int, i1: Int, value: A): Unit =
-    
+
       if arr.ndim != 2 then throw InvalidNDArray(s"Rank mismatch: expected ndim=2, got ndim=${arr.ndim}")
       end if
       if i0 < 0 || i0 >= arr.shape(0) then
@@ -147,13 +147,13 @@ object ndarrayOps:
         throw new java.lang.IndexOutOfBoundsException(
           s"Index $i1 out of bounds for dim 1 of size ${arr.shape(1)}"
         )
-      end if      
+      end if
       arr.data(arr.offset + i0 * arr.strides(0) + i1 * arr.strides(1)) = value
     end update
 
     /** Write a single element in a 3D NDArray. */
     inline def update(i0: Int, i1: Int, i2: Int, value: A): Unit =
-      
+
       if arr.ndim != 3 then throw InvalidNDArray(s"Rank mismatch: expected ndim=3, got ndim=${arr.ndim}")
       end if
       if i0 < 0 || i0 >= arr.shape(0) then
@@ -170,13 +170,13 @@ object ndarrayOps:
         throw new java.lang.IndexOutOfBoundsException(
           s"Index $i2 out of bounds for dim 2 of size ${arr.shape(2)}"
         )
-      end if      
+      end if
       arr.data(arr.offset + i0 * arr.strides(0) + i1 * arr.strides(1) + i2 * arr.strides(2)) = value
     end update
 
     /** Write a single element in a 4D NDArray. */
     inline def update(i0: Int, i1: Int, i2: Int, i3: Int, value: A): Unit =
-      
+
       if arr.ndim != 4 then throw InvalidNDArray(s"Rank mismatch: expected ndim=4, got ndim=${arr.ndim}")
       end if
       if i0 < 0 || i0 >= arr.shape(0) then
@@ -198,7 +198,7 @@ object ndarrayOps:
         throw new java.lang.IndexOutOfBoundsException(
           s"Index $i3 out of bounds for dim 3 of size ${arr.shape(3)}"
         )
-      end if      
+      end if
       arr.data(
         arr.offset + i0 * arr.strides(0) + i1 * arr.strides(1) + i2 * arr.strides(2) + i3 * arr.strides(3)
       ) = value
@@ -218,9 +218,9 @@ object ndarrayOps:
 
     /** Write the single element of a 0-d NDArray. */
     inline def setScalar(value: A): Unit =
-      
+
       if arr.ndim != 0 then throw InvalidNDArray(s"setScalar requires ndim=0, got ndim=${arr.ndim}")
-      end if      
+      end if
       arr.data(arr.offset) = value
     end setScalar
 
@@ -231,7 +231,7 @@ object ndarrayOps:
       * The returned NDArray shares the backing `data` — mutation through the view is visible in the original.
       */
     inline def slice(dim: Int, start: Int, end: Int): NDArray[A] =
-      
+
       if dim < 0 || dim >= arr.ndim then throw InvalidNDArray(s"Dimension $dim out of range [0, ${arr.ndim})")
       end if
       if start < 0 || start >= arr.shape(dim) then
@@ -241,7 +241,7 @@ object ndarrayOps:
         throw InvalidNDArray(
           s"End $end invalid: must satisfy start ($start) < end <= dim_size (${arr.shape(dim)})"
         )
-      end if      
+      end if
       val newShape = arr.shape.clone()
       newShape(dim) = end - start
       val newOffset = arr.offset + start * arr.strides(dim)
@@ -267,7 +267,7 @@ object ndarrayOps:
       * `perm` must be a permutation of `0 until ndim`.
       */
     inline def transpose(perm: Array[Int]): NDArray[A] =
-      
+
       if perm.length != arr.ndim then
         throw InvalidNDArray(
           s"Permutation length (${perm.length}) must match ndim (${arr.ndim})"
@@ -284,7 +284,7 @@ object ndarrayOps:
         seen(perm(k)) = true
         k += 1
       end while
-    
+
       val newShape = new Array[Int](arr.ndim)
       val newStrides = new Array[Int](arr.ndim)
       k = 0
@@ -304,13 +304,13 @@ object ndarrayOps:
       * copy is made first.
       */
     inline def reshape(newShape: Array[Int])(using ct: ClassTag[A]): NDArray[A] =
-      
+
       shapeCheck(newShape)
       if shapeProduct(newShape) != arr.numel then
         throw InvalidNDArray(
           s"Cannot reshape array of ${arr.numel} elements to shape [${newShape.mkString(",")}]"
         )
-      end if      
+      end if
       if arr.isColMajor then
         // Fast path: isColMajor guarantees offset==0, dense col-major strides, and data.length==numel,
         // so we can safely reuse the backing array and assign new col-major strides.
@@ -350,14 +350,14 @@ object ndarrayOps:
 
     /** Remove dimension `dim`, which must have size 1 (zero-copy view). */
     inline def squeeze(dim: Int): NDArray[A] =
-      
+
       if dim < 0 || dim >= arr.ndim then throw InvalidNDArray(s"Dimension $dim out of range [0, ${arr.ndim})")
       end if
       if arr.shape(dim) != 1 then
         throw InvalidNDArray(
           s"Cannot squeeze dimension $dim of size ${arr.shape(dim)}: size must be 1"
         )
-      end if      
+      end if
       val newShape = new Array[Int](arr.ndim - 1)
       val newStrides = new Array[Int](arr.ndim - 1)
       var j = 0
@@ -378,7 +378,7 @@ object ndarrayOps:
       * `dim` must be in `[0, ndim]`.
       */
     inline def unsqueeze(dim: Int): NDArray[A] =
-      
+
       if dim < 0 || dim > arr.ndim then throw InvalidNDArray(s"Dimension $dim out of range [0, ${arr.ndim}]")
       end if
       val newNdim = arr.ndim + 1

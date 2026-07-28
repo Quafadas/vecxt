@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class IntMatrixJvmSuite extends FunSuite:
 
   private def assertIntMatrixEquals(actual: Matrix[Int], expected: Matrix[Int])(implicit

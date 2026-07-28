@@ -2,8 +2,6 @@ package vecxt
 
 import scala.annotation.publicInBinary
 
-
-
 object ndarray:
 
   class NDArray[A] @publicInBinary() private[ndarray] (
@@ -81,7 +79,8 @@ object ndarray:
       new NDArray(data, shape, strides, offset)
     end apply
 
-    inline def empty[A]()(using ct: scala.reflect.ClassTag[A]): NDArray[A] = new NDArray(Array.empty[A], Array(0), Array(1), 0)
+    inline def empty[A]()(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
+      new NDArray(Array.empty[A], Array(0), Array(1), 0)
 
     // Convenience: column-major from data + shape
     inline def apply[A](

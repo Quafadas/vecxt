@@ -2,7 +2,6 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-
 import vecxt.all.*
 import vecxt.dimensionExtender.DimensionExtender.*
 import scala.util.chaining.*
@@ -166,8 +165,7 @@ object JvmFloatMatrix:
     end *
 
     inline def >=(d: Float): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -184,8 +182,7 @@ object JvmFloatMatrix:
 
     @targetName("floatmatrixGT")
     inline def >(d: Float): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.floatarrays.>(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -202,8 +199,7 @@ object JvmFloatMatrix:
 
     @targetName("floatmatrixLE")
     inline def <=(d: Float): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.floatarrays.<=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -220,8 +216,7 @@ object JvmFloatMatrix:
 
     @targetName("floatmatrixLT")
     inline def <(d: Float): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.floatarrays.<(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -251,7 +246,7 @@ object JvmFloatMatrix:
     @targetName("floatmatrixAddVectorInPlace")
     inline def +=(arr: Array[Float]): Unit =
 
-      assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")      
+      assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 
       /**   1. If rowStride = 1, then we can broadcast each element of arr down each column SIMD
         *   2. If colStride = 1, then we can add each element of the vector to each row
@@ -516,7 +511,7 @@ object JvmFloatMatrix:
     end +=
 
     @targetName("floatmatrixSubScalarInPlace")
-    inline def -=(n: Float): Unit =      
+    inline def -=(n: Float): Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.floatarrays.-=(m.raw)(n)
       else
         if m.rowStride <= m.colStride then

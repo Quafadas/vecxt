@@ -1,6 +1,5 @@
 package vecxt
 
-
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 import vecxt.ndarrayOps.sameAndContiguousMemoryLayout
@@ -198,14 +197,14 @@ object NDArrayDoubleOps:
       if a.ndim == 0 then b + a.data(a.offset)
       else if b.ndim == 0 then a + b.data(b.offset)
       else
-        
+
         if !sameShape(a.shape, b.shape) then
           throw ShapeMismatchException(
             s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
               "Use broadcastTo or broadcastPair to align shapes first."
           )
         end if
-      
+
         if sameAndContiguousMemoryLayout(a, b) then
           mkNDArray(
             vecxt.doublearrays.+(a.data)(b.data),
@@ -224,14 +223,14 @@ object NDArrayDoubleOps:
     inline def -(b: NDArray[Double]): NDArray[Double] =
       if a.ndim == 0 then (a.data(a.offset): Double) - b
       else if b.ndim == 0 then a - b.data(b.offset)
-      else        
+      else
         if !sameShape(a.shape, b.shape) then
           throw ShapeMismatchException(
             s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
               "Use broadcastTo or broadcastPair to align shapes first."
           )
         end if
-      
+
         if sameAndContiguousMemoryLayout(a, b) then
           mkNDArray(
             vecxt.doublearrays.-(a.data)(b.data),
@@ -250,14 +249,14 @@ object NDArrayDoubleOps:
     inline def *(b: NDArray[Double]): NDArray[Double] =
       if a.ndim == 0 then b * a.data(a.offset)
       else if b.ndim == 0 then a * b.data(b.offset)
-      else        
+      else
         if !sameShape(a.shape, b.shape) then
           throw ShapeMismatchException(
             s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
               "Use broadcastTo or broadcastPair to align shapes first."
           )
         end if
-        
+
         if sameAndContiguousMemoryLayout(a, b) then
           mkNDArray(
             vecxt.doublearrays.*:*(a.data)(b.data),
@@ -276,14 +275,14 @@ object NDArrayDoubleOps:
       if a.ndim == 0 then (a.data(a.offset): Double) / b
       else if b.ndim == 0 then a / b.data(b.offset)
       else
-        
+
         if !sameShape(a.shape, b.shape) then
           throw ShapeMismatchException(
             s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
               "Use broadcastTo or broadcastPair to align shapes first."
           )
         end if
-        
+
         if sameAndContiguousMemoryLayout(a, b) then
           mkNDArray(
             vecxt.doublearrays./(a.data)(b.data),
@@ -374,8 +373,7 @@ object NDArrayDoubleOps:
               "Use broadcastTo to align shapes first."
           )
         end if
-        if sameAndContiguousMemoryLayout(a, b) then
-          vecxt.doublearrays.+=(a.data)(b.data)
+        if sameAndContiguousMemoryLayout(a, b) then vecxt.doublearrays.+=(a.data)(b.data)
         else binaryOpInPlaceGeneral(a, b, _ + _)
         end if
       end if
@@ -395,8 +393,7 @@ object NDArrayDoubleOps:
               "Use broadcastTo to align shapes first."
           )
         end if
-        if sameAndContiguousMemoryLayout(a, b) then
-          vecxt.doublearrays.-=(a.data)(b.data)
+        if sameAndContiguousMemoryLayout(a, b) then vecxt.doublearrays.-=(a.data)(b.data)
         else binaryOpInPlaceGeneral(a, b, _ - _)
         end if
       end if
@@ -416,8 +413,7 @@ object NDArrayDoubleOps:
               "Use broadcastTo to align shapes first."
           )
         end if
-        if sameAndContiguousMemoryLayout(a, b) then
-          vecxt.doublearrays.*=(a.data)(b.data)
+        if sameAndContiguousMemoryLayout(a, b) then vecxt.doublearrays.*=(a.data)(b.data)
         else binaryOpInPlaceGeneral(a, b, _ * _)
         end if
       end if

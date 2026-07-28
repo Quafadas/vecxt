@@ -1,6 +1,5 @@
 package vecxt
 
-
 import vecxt.broadcast.ShapeMismatchException
 import vecxt.doublearrays.*
 import vecxt.matrix.*
@@ -340,7 +339,7 @@ object NDArrayReductions:
 
     /** Dot product of two 1-D NDArrays. */
     inline def dot(b: NDArray[Double]): Double =
-      
+
       if a.ndim != 1 then throw InvalidNDArray(s"dot requires 1-D arrays, got ndim=${a.ndim}")
       end if
       if b.ndim != 1 then throw InvalidNDArray(s"dot requires 1-D arrays, got ndim=${b.ndim}")
@@ -348,7 +347,7 @@ object NDArrayReductions:
       if a.shape(0) != b.shape(0) then
         throw ShapeMismatchException(s"dot: length mismatch: ${a.shape(0)} vs ${b.shape(0)}")
       end if
-    
+
       if a.isColMajor && b.isColMajor then NDArrayReductionHelpers.dot(a.data, b.data)
       else
         var acc = 0.0
@@ -363,7 +362,7 @@ object NDArrayReductions:
 
     /** Matrix multiply two 2-D NDArrays. Result shape: [a.shape(0), b.shape(1)]. */
     inline def matmul(b: NDArray[Double]): NDArray[Double] =
-    
+
       if a.ndim != 2 then throw InvalidNDArray(s"matmul requires 2-D arrays, got ndim=${a.ndim}")
       end if
       if b.ndim != 2 then throw InvalidNDArray(s"matmul requires 2-D arrays, got ndim=${b.ndim}")
@@ -373,7 +372,7 @@ object NDArrayReductions:
           s"matmul: inner dimension mismatch: ${a.shape(1)} vs ${b.shape(0)}"
         )
       end if
-    
+
       val aRows = a.shape(0)
       val aCols = a.shape(1)
       val bCols = b.shape(1)

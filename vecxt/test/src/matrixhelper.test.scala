@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class MatrixHelperSuite extends FunSuite:
 
   private def assertDiagonalMatrix(diagonal: Array[Double], matrix: Matrix[Double])(using loc: munit.Location): Unit =

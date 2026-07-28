@@ -5,7 +5,6 @@ import io.circe.syntax.*
 
 import vecxt.all.*
 
-
 import scala.reflect.ClassTag
 import vecxt_io.MatrixIO
 import vecxt_io.MatrixIO.*
@@ -308,7 +307,7 @@ def gradient_descentf(
     w2: Matrix[Float],
     b2: Array[Float]
 ) =
-  
+
   println("Starting gradient descent...")
   println(s"alpha: $alpha, decay_rate: $decayRate, iterations: $iterations")
   val numEpochs = x.rows / batchSize
@@ -407,7 +406,7 @@ def gradient_descent(
     w2: Matrix[Double],
     b2: Array[Double]
 ) =
-  
+
   println("Starting gradient descent...")
   println(s"alpha: $alpha, decay_rate: $decayRate, iterations: $iterations")
   val numEpochs = x.rows / batchSize

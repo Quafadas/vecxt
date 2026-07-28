@@ -3,8 +3,6 @@ package vecxt
 import all.*
 import munit.FunSuite
 
-
-
 /** Here we test the matrix multiplication with different memory layouts. Col Major * Col Major Row Major * Row Major
   * Col Major * Row Major Row Major * Col Major
   *

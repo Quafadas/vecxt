@@ -2,7 +2,6 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-
 import vecxt.MatrixInstance.apply
 import vecxt.matrix.*
 
@@ -209,7 +208,7 @@ object MatrixHelper:
       * // Results in a 4x6 matrix with m repeated 2 times vertically and 3 times horizontally
       *   }}}
       */
-    inline def tile[A](inM: Matrix[A], rowsN: Int, colsN: Int)(using ClassTag[A]): Matrix[A] =      
+    inline def tile[A](inM: Matrix[A], rowsN: Int, colsN: Int)(using ClassTag[A]): Matrix[A] =
 
       val newArr = Array.ofDim[A](inM.numel * rowsN * colsN)
       var r = 0

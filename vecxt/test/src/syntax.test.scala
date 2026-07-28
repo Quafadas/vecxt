@@ -1,7 +1,5 @@
 package vecxt
 
-
-
 import all.*
 
 class SyntaxSuite extends munit.FunSuite:

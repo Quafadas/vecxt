@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class NDArray0DSuite extends FunSuite:
 
   // ── Construction tests ───────────────────────────────────────────────────

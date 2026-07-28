@@ -10,8 +10,6 @@ import vecxtensions.SpireExt.*
 
 class MatrixExtensionSuite extends FunSuite:
 
-  
-
   def assertVecEquals[A](v1: Array[A], v2: Array[A])(implicit loc: munit.Location): Unit =
     var i: Int = 0;
     while i < v1.length do

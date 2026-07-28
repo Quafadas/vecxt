@@ -4,7 +4,6 @@ import RPT.*
 import cats.syntax.all.*
 import io.github.quafadas.table.TypeInferrer
 
-
 @main def pricingFun =
 
   val data = CSV.resource("losses.csv", CsvOpts(TypeInferrer.FromAllRows, ReadAs.Columns))

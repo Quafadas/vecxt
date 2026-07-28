@@ -4,7 +4,6 @@ import scala.scalanative.unsafe.*
 import org.ekrich.blas.unsafe.blas
 import org.ekrich.blas.unsafe.blasEnums
 
-
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
@@ -38,7 +37,7 @@ object NativeDoubleMatrix:
     end *:*
 
     inline def +=(arr: Array[Double]): Unit =
-      assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")      
+      assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 
       var i = 0
       while i < m.rows do
@@ -53,7 +52,7 @@ object NativeDoubleMatrix:
     end +=
 
     inline def +=(n: Double): Unit =
-      
+
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
       else
         // Cache-friendly fallback: iterate with smallest stride in inner loop
@@ -85,8 +84,7 @@ object NativeDoubleMatrix:
     end +=
 
     inline def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -102,8 +100,7 @@ object NativeDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -121,8 +118,7 @@ object NativeDoubleMatrix:
     end >
 
     inline def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -140,8 +136,7 @@ object NativeDoubleMatrix:
     end <=
 
     inline def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0

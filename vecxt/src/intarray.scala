@@ -5,7 +5,6 @@ import scala.util.control.Breaks.*
 
 import vecxt.BooleanArrays.trues
 
-
 object IntArraysX:
 
   extension [A](vec: Array[A])

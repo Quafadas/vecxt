@@ -38,10 +38,10 @@ object VectorCommutativeMonoid:
       def empty = emptyFn
 
       def combine(x: Array[A], y: Array[A]) =
-        
+
         validateDim(x)
         validateDim(y)
-        
+
         combineFn(x, y)
       end combine
 end VectorCommutativeMonoid

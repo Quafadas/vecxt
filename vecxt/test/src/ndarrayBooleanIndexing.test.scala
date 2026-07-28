@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class NDArrayBooleanIndexingSuite extends FunSuite:
 
   // ── apply(mask) ───────────────────────────────────────────────────────────

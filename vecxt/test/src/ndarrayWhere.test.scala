@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class NDArrayWhereSuite extends FunSuite:
 
   // ── where(condition, x: NDArray, y: NDArray) ─────────────────────────────

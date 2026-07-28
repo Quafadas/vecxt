@@ -1,6 +1,5 @@
 import vecxt.all.*
 
-
 @main def validate(): Unit =
   import scala.io.Source
 

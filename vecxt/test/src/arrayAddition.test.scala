@@ -3,7 +3,6 @@ package vecxt
 import all.*
 
 class ArrayAdditionSuite extends munit.FunSuite:
-  
 
   test("array addition to columns (dim 0)"):
     val mat = Matrix.fromRows[Double](

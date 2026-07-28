@@ -1,8 +1,6 @@
 package vecxt
 import scala.annotation.publicInBinary
 
-
-
 object matrix:
 
   /** This is a matrix. The constructor is private to ensure that you deliberately opt in or out of the bounds check.

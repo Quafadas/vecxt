@@ -1,7 +1,5 @@
 package vecxt.laws
 
-
-
 import cats.kernel.Monoid
 import cats.kernel.Semigroup
 

@@ -1,7 +1,5 @@
 package vecxt_re
 
-
-
 object SplitLosses:
   extension (tower: Tower)
     /** Optimsie for small number of layers. Large numbers of claims.

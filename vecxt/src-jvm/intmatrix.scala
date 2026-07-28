@@ -1,6 +1,5 @@
 package vecxt
 
-
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.intarrays.*
 import vecxt.matrix.*

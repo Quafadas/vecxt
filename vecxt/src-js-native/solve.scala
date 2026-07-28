@@ -1,6 +1,5 @@
 package vecxt
 
-
 import vecxt.matrix.Matrix
 
 /** Linear system solver placeholder for JS and Native platforms.

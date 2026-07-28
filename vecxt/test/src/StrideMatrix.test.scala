@@ -7,7 +7,6 @@ import all.*
 class StrideMatInstantiateCheckTest extends FunSuite:
 
   // Test with bounds checking enabled
-  
 
   test("strideMatInstantiateCheck - valid matrix configurations should pass"):
     val data = Array.tabulate(12)(_.toDouble)
@@ -91,7 +90,6 @@ class StrideMatInstantiateCheckTest extends FunSuite:
     strideMatInstantiateCheck[Double](data, 1, 1, 1, 1, 0)
     strideMatInstantiateCheck[Double](data, 1, 1, 0, 0, 0) // broadcast style
 
-
     val emptyData = Array.ofDim[Double](0)
 
     // Empty data should fail
@@ -115,21 +113,20 @@ class StrideMatInstantiateCheckTest extends FunSuite:
     strideMatInstantiateCheck[Double](data, 4, 5, 1, 0, 0) // broadcast columns
     strideMatInstantiateCheck[Double](data, 4, 5, 0, 1, 0) // broadcast rows
 
-
   test("dense and contiguous"):
-    
+
     val data = Array.tabulate(12)(_.toDouble)
 
     // Dense and contiguous matrix
     val m1 = Matrix[Double](data, 3, 4, 1, 3, 0)
     assert(m1.hasSimpleContiguousMemoryLayout)
 
-    val data2 = Array.tabulate(3*4*2*3)(_.toDouble)
+    val data2 = Array.tabulate(3 * 4 * 2 * 3)(_.toDouble)
     // Non-contiguous due to row stride
     val m2 = Matrix[Double](data2, 3, 4, 2, 3, 0)
     assert(!m2.hasSimpleContiguousMemoryLayout)
 
-    val data3 = Array.tabulate(3*4)(_.toDouble)
+    val data3 = Array.tabulate(3 * 4)(_.toDouble)
     // Non-contiguous due to column stride
     val m3 = Matrix[Double](data3, 3, 4, 1, 2, 0)
     assert(!m3.hasSimpleContiguousMemoryLayout)

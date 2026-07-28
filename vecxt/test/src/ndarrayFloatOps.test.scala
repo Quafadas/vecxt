@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class NDArrayFloatOpsSuite extends FunSuite:
 
   // ── Binary ops ────────────────────────────────────────────────────────────

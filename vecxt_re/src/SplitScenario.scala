@@ -1,6 +1,5 @@
 package vecxt_re
 
-
 import vecxt_re.SplitLosses.splitAmntFast
 
 object SplitScenario:

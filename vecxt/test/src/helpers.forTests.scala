@@ -55,7 +55,7 @@ def assertVecEquals(v1: Array[Boolean], v2: Array[Boolean])(implicit loc: munit.
 end assertVecEquals
 
 def assertMatrixEquals(m1: Matrix[Double], m2: Matrix[Double])(implicit loc: munit.Location): Unit =
-  
+
   assertEquals(m1.rows, m2.rows)
   assertEquals(m1.cols, m2.cols)
   for i <- 0 until m1.rows do
@@ -66,7 +66,7 @@ end assertMatrixEquals
 
 @targetName("assertMatrixEqualsInt")
 def assertMatrixEquals(m1: Matrix[Int], m2: Matrix[Int])(implicit loc: munit.Location): Unit =
-  
+
   assertEquals(m1.rows, m2.rows)
   assertEquals(m1.cols, m2.cols)
   for i <- 0 until m1.rows do

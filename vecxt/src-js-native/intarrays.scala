@@ -2,8 +2,6 @@ package vecxt
 
 import scala.util.chaining.*
 
-
-
 object intarrays:
 
   extension (vec: Array[Int])

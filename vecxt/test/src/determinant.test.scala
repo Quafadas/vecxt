@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class DeterminantSuite extends FunSuite:
 
   private val tolerance = 1e-10

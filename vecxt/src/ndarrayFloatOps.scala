@@ -2,7 +2,6 @@ package vecxt
 
 import scala.annotation.targetName
 
-
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 import vecxt.ndarrayOps.sameAndContiguousMemoryLayout
@@ -202,13 +201,13 @@ object NDArrayFloatOps:
       if a.ndim == 0 then b + a.data(a.offset)
       else if b.ndim == 0 then a + b.data(b.offset)
       else
-        
+
         if !sameShape(a.shape, b.shape) then
           throw ShapeMismatchException(
             s"Binary op + requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
               "Use broadcastTo or broadcastPair to align shapes first."
           )
-    
+
         end if
         if sameAndContiguousMemoryLayout(a, b) then
           mkNDArray(
@@ -230,14 +229,14 @@ object NDArrayFloatOps:
       if a.ndim == 0 then (a.data(a.offset): Float) - b
       else if b.ndim == 0 then a - b.data(b.offset)
       else
-        
+
         if !sameShape(a.shape, b.shape) then
           throw ShapeMismatchException(
             s"Binary op - requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
               "Use broadcastTo or broadcastPair to align shapes first."
           )
         end if
-      
+
         if sameAndContiguousMemoryLayout(a, b) then
           mkNDArray(
             vecxt.floatarrays.-(a.data)(b.data),
@@ -258,14 +257,14 @@ object NDArrayFloatOps:
       if a.ndim == 0 then b * a.data(a.offset)
       else if b.ndim == 0 then a * b.data(b.offset)
       else
-        
+
         if !sameShape(a.shape, b.shape) then
           throw ShapeMismatchException(
             s"Binary op * requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
               "Use broadcastTo or broadcastPair to align shapes first."
           )
         end if
-        
+
         if sameAndContiguousMemoryLayout(a, b) then
           mkNDArray(
             vecxt.floatarrays.*:*(a.data)(b.data),
@@ -284,14 +283,14 @@ object NDArrayFloatOps:
     inline def /(b: NDArray[Float]): NDArray[Float] =
       if a.ndim == 0 then (a.data(a.offset): Float) / b
       else if b.ndim == 0 then a / b.data(b.offset)
-      else        
+      else
         if !sameShape(a.shape, b.shape) then
           throw ShapeMismatchException(
             s"Binary op / requires same shape: [${a.shape.mkString(",")}] vs [${b.shape.mkString(",")}]. " +
               "Use broadcastTo or broadcastPair to align shapes first."
           )
         end if
-      
+
         if sameAndContiguousMemoryLayout(a, b) then
           mkNDArray(
             vecxt.floatarrays./:/(a.data)(b.data),

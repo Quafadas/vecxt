@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class FloatMatrixJvmSuite extends FunSuite:
 
   private val tolerance = 1e-4

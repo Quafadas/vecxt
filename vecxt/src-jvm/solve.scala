@@ -2,7 +2,6 @@ package vecxt
 
 import org.netlib.util.intW
 
-
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
 
@@ -41,10 +40,9 @@ object Solve:
     squareMatCheck(A)
     if A.rows != b.rows then throw MatrixDimensionMismatch(A.rows, A.cols, b.rows, b.cols)
     end if
-    
+
     require(!A.raw.exists(_.isNaN), "Input matrix A contains NaN values")
     require(!b.raw.exists(_.isNaN), "Input matrix b contains NaN values")
-    
 
     val n = A.rows
     val nrhs = b.cols

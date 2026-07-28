@@ -3,8 +3,6 @@ package vecxt
 import all.*
 import munit.FunSuite
 
-
-
 class MatrixBooleanSuite extends FunSuite:
 
   test("zeros") {

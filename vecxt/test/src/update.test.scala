@@ -7,7 +7,6 @@ import MatrixHelper.*
 import MatrixInstance.*
 
 class UpdateSuite extends munit.FunSuite:
-  
 
   val simpleMat = FunFixture[Matrix[Double]](
     setup = test =>

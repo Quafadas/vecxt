@@ -32,36 +32,36 @@ object indexCheckMat:
   @targetName("indexCheckMatInDouble")
   def apply(a: Matrix[Double], dim: RowCol) =
     if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
-        throw java.lang.IndexOutOfBoundsException(
-          s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
-        )
+      throw java.lang.IndexOutOfBoundsException(
+        s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+      )
 
   @targetName("indexCheckMatInFloat")
   def apply(a: Matrix[Float], dim: RowCol) =
     if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
-        throw java.lang.IndexOutOfBoundsException(
-          s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
-        )
+      throw java.lang.IndexOutOfBoundsException(
+        s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+      )
 
   @targetName("indexCheckMatInInt")
   def apply(a: Matrix[Int], dim: RowCol) =
     if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
-        throw java.lang.IndexOutOfBoundsException(
-          s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
-        )
-  
+      throw java.lang.IndexOutOfBoundsException(
+        s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+      )
+
   @targetName("indexCheckMatInLong")
   def apply(a: Matrix[Long], dim: RowCol) =
     if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
-        throw java.lang.IndexOutOfBoundsException(
-          s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
-        )
+      throw java.lang.IndexOutOfBoundsException(
+        s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
+      )
 end indexCheckMat
 
 object dimMatInstantiateCheck:
   inline def apply[A](raw: Array[A], dim: RowCol) =
     if dim._1 * dim._2 != raw.size
-      then throw InvalidMatrix(dim._1, dim._2, raw.size)
+    then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatInstantiateCheck
 
 object nonEmptyMatCheck:
@@ -76,18 +76,19 @@ end squareMatCheck
 
 object symmetricMatCheck:
   inline def apply(mat: Matrix[Double], tol: Double = 1e-7) =
-    squareMatCheck(mat)    
-      var i = 0
-      while i < mat.rows do
-        var j = 0
-        while j < i do
-          if math.abs(mat(i, j) - mat(j, i)) > tol then
-            throw MatrixNotSymmetricException(mat.rows, mat.cols, i, j, mat(i, j), mat(j, i))
-          end if
-          j += 1
-        end while
-        i += 1
+    squareMatCheck(mat)
+    var i = 0
+    while i < mat.rows do
+      var j = 0
+      while j < i do
+        if math.abs(mat(i, j) - mat(j, i)) > tol then
+          throw MatrixNotSymmetricException(mat.rows, mat.cols, i, j, mat(i, j), mat(j, i))
+        end if
+        j += 1
       end while
+      i += 1
+    end while
+  end apply
 end symmetricMatCheck
 
 case class MatrixEmptyException() extends Exception("Matrix must be non-empty")
@@ -103,7 +104,7 @@ case class MatrixNotSymmetricException(rows: Int, cols: Int, i: Int, j: Int, val
 object dimMatDInstantiateCheck:
   inline def apply[A](raw: Array[Double], dim: RowCol) =
     if dim._1 * dim._2 != raw.size
-      then throw InvalidMatrix(dim._1, dim._2, raw.size)
+    then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatDInstantiateCheck
 
 case class MatrixDimensionMismatch(aCols: Int, aRows: Int, bCols: Int, bRows: Int)

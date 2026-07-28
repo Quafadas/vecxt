@@ -2,7 +2,6 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
@@ -29,7 +28,7 @@ object matrixUtil:
       */
     inline def mapRowsInPlace(
         inline f: Array[A] => Array[A]
-    )(using ClassTag[A]): Unit =      
+    )(using ClassTag[A]): Unit =
       var idx = 0
       while idx < m.rows do
         m.updateInPlace(Array[Int](idx), ::, f(m.row(idx)))
@@ -39,7 +38,7 @@ object matrixUtil:
 
     inline def mapRows[B](
         inline f: Array[A] => Array[B]
-    )(using ClassTag[B], ClassTag[A]): Matrix[B] =      
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       val newArr = Array.ofDim[B](m.numel)
       val m2 = Matrix(newArr, m.rows, m.cols)
       var idx = 0
@@ -52,7 +51,7 @@ object matrixUtil:
 
     inline def mapRowsToScalar[B](
         inline f: Array[A] => B
-    )(using ClassTag[B], ClassTag[A]): Matrix[B] =      
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       val newArr = Array.ofDim[B](m.rows)
       var i = 0
       if m.isDenseRowMajor then
@@ -73,7 +72,7 @@ object matrixUtil:
 
     inline def mapColsInPlace(
         inline f: Array[A] => Array[A]
-    )(using ClassTag[A]): Unit =      
+    )(using ClassTag[A]): Unit =
 
       var idx = 0
       while idx < m.cols do
@@ -84,7 +83,7 @@ object matrixUtil:
 
     inline def mapCols[B](
         inline f: Array[A] => Array[B]
-    )(using ClassTag[B], ClassTag[A]): Matrix[B] =      
+    )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       val newArr = Array.ofDim[B](m.numel)
       // println(m.printMat)
       val m2 = Matrix(newArr, m.rows, m.cols)
@@ -212,7 +211,7 @@ object matrixUtil:
       newArr
     end row
 
-    inline def printMat(using ClassTag[A]): String =      
+    inline def printMat(using ClassTag[A]): String =
       val arrArr =
         for i <- 0 until m.rows
         yield

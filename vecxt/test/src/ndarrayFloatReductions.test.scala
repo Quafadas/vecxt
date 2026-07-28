@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class NDArrayFloatReductionsSuite extends FunSuite:
 
   test("NDArray[Float] sum") {

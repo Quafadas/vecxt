@@ -6,7 +6,6 @@ import vecxt.all.*
 
 import scala.compiletime.uninitialized
 
-
 @State(Scope.Thread)
 class DgemmBenchmark extends BLASBenchmark:
 

@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class MatrixUtilSuite extends FunSuite:
 
   // ── transpose / .T ────────────────────────────────────────────────────────

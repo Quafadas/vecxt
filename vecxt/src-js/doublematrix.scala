@@ -3,7 +3,6 @@ package vecxt
 import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.typedarray.Float64Array
 
-
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 
@@ -12,8 +11,7 @@ object JsDoubleMatrix:
   extension (m: Matrix[Double])
 
     inline def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -29,8 +27,7 @@ object JsDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -48,8 +45,7 @@ object JsDoubleMatrix:
     end >
 
     inline def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -67,8 +63,7 @@ object JsDoubleMatrix:
     end <=
 
     inline def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -126,7 +121,7 @@ object JsDoubleMatrix:
 
     end +=
 
-    inline def +=(n: Double): Unit =      
+    inline def +=(n: Double): Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
       else
         // Cache-friendly fallback: iterate with smallest stride in inner loop
@@ -158,9 +153,9 @@ object JsDoubleMatrix:
     end +=
 
     inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0): Unit =
-      dimMatCheck(m, b)      
+      dimMatCheck(m, b)
       println("PERFORMING WARNING in matmul on JS")
-      println("THIS method copies into native JS types. Then copies back out. Expect catastrophic performance.")      
+      println("THIS method copies into native JS types. Then copies back out. Expect catastrophic performance.")
 
       if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
         val lda = if m.isDenseColMajor then m.rows else m.cols

@@ -1,6 +1,5 @@
 package vecxt
 
-
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.matrix.Matrix
 import scala.annotation.targetName

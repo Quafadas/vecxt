@@ -2,7 +2,6 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-
 import vecxt.all.*
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
@@ -148,8 +147,7 @@ object JvmDoubleMatrix:
     end *
 
     inline def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.doublearrays.>=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -165,8 +163,7 @@ object JvmDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.doublearrays.>(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -182,8 +179,7 @@ object JvmDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.doublearrays.<=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -199,8 +195,7 @@ object JvmDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     inline def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then
-        Matrix[Boolean](vecxt.doublearrays.<(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         var i = 0
@@ -316,7 +311,7 @@ object JvmDoubleMatrix:
     end +=
 
     def +=(n: Double): Unit =
-      
+
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
       else
         // println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")

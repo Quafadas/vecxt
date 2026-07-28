@@ -1,7 +1,5 @@
 package vecxt
 
-
-
 /** strideMatInstantiateCheck performs a set of safety checks when constructing a matrix view with arbitrary strides and
   * offset into a backing array. The checks include:
   *   - Ensuring the number of rows and columns are positive.
@@ -46,57 +44,58 @@ object strideMatInstantiateCheck:
       colStride: Int,
       offset: Int
   ) =
-   
-      // Check basic dimension validity
-      if rows <= 0 || cols <= 0 then throw InvalidMatrix(rows, cols, raw.length)
-      end if
 
-      // Check offset bounds
-      if offset < 0 || offset >= raw.length then
-        throw java.lang.IndexOutOfBoundsException(
-          s"Offset $offset is out of bounds for array of size ${raw.length}"
-        )
-      end if
+    // Check basic dimension validity
+    if rows <= 0 || cols <= 0 then throw InvalidMatrix(rows, cols, raw.length)
+    end if
 
-      // For 1x1 matrices, enforce sensible strides for semantic clarity
-      // if rows == 1 && cols == 1 then
-      //   if (rowStride != 0 && rowStride != 1) || (colStride != 0 && colStride != 1) then
-      //     throw IllegalArgumentException(
-      //       s"For 1x1 matrix, strides should be 0 (broadcast) or 1 (standard). Got rowStride=$rowStride, colStride=$colStride"
-      //     )
-      // end if
+    // Check offset bounds
+    if offset < 0 || offset >= raw.length then
+      throw java.lang.IndexOutOfBoundsException(
+        s"Offset $offset is out of bounds for array of size ${raw.length}"
+      )
+    end if
 
-      // Calculate all possible indices that could be accessed
-      // For each dimension, we need to consider both i=0 and i=max positions
-      val rowIndices =
-        if rows > 1 && rowStride != 0 then Seq(0 * rowStride, (rows - 1) * rowStride)
-        else Seq(0)
+    // For 1x1 matrices, enforce sensible strides for semantic clarity
+    // if rows == 1 && cols == 1 then
+    //   if (rowStride != 0 && rowStride != 1) || (colStride != 0 && colStride != 1) then
+    //     throw IllegalArgumentException(
+    //       s"For 1x1 matrix, strides should be 0 (broadcast) or 1 (standard). Got rowStride=$rowStride, colStride=$colStride"
+    //     )
+    // end if
 
-      val colIndices =
-        if cols > 1 && colStride != 0 then Seq(0 * colStride, (cols - 1) * colStride)
-        else Seq(0)
+    // Calculate all possible indices that could be accessed
+    // For each dimension, we need to consider both i=0 and i=max positions
+    val rowIndices =
+      if rows > 1 && rowStride != 0 then Seq(0 * rowStride, (rows - 1) * rowStride)
+      else Seq(0)
 
-      // Generate all combinations of row and column offsets
-      val allIndices = for
-        rowOffset <- rowIndices
-        colOffset <- colIndices
-      yield offset + rowOffset + colOffset
+    val colIndices =
+      if cols > 1 && colStride != 0 then Seq(0 * colStride, (cols - 1) * colStride)
+      else Seq(0)
 
-      val minIndex = allIndices.min
-      val maxIndex = allIndices.max
+    // Generate all combinations of row and column offsets
+    val allIndices = for
+      rowOffset <- rowIndices
+      colOffset <- colIndices
+    yield offset + rowOffset + colOffset
 
-      // Check bounds
-      if minIndex < 0 then
-        throw java.lang.IndexOutOfBoundsException(
-          s"Matrix with dimensions ($rows, $cols), strides ($rowStride, $colStride), and offset $offset " +
-            s"would access negative index $minIndex"
-        )
-      end if
+    val minIndex = allIndices.min
+    val maxIndex = allIndices.max
 
-      if maxIndex >= raw.length then
-        throw java.lang.IndexOutOfBoundsException(
-          s"Matrix with dimensions ($rows, $cols), strides ($rowStride, $colStride), and offset $offset " +
-            s"would access index $maxIndex, but array size is only ${raw.length}"
-        )
-      end if
+    // Check bounds
+    if minIndex < 0 then
+      throw java.lang.IndexOutOfBoundsException(
+        s"Matrix with dimensions ($rows, $cols), strides ($rowStride, $colStride), and offset $offset " +
+          s"would access negative index $minIndex"
+      )
+    end if
+
+    if maxIndex >= raw.length then
+      throw java.lang.IndexOutOfBoundsException(
+        s"Matrix with dimensions ($rows, $cols), strides ($rowStride, $colStride), and offset $offset " +
+          s"would access index $maxIndex, but array size is only ${raw.length}"
+      )
+    end if
+  end apply
 end strideMatInstantiateCheck

@@ -4,7 +4,6 @@ import scala.util.chaining.*
 import all.*
 
 class ArrayExtensionSuite extends munit.FunSuite:
-  
 
   lazy val v_fill = Array[Double](0, 1, 2, 3, 4)
 
@@ -147,7 +146,6 @@ class ArrayExtensionSuite extends munit.FunSuite:
     // val afterIndex = v1(vIdx)
     // assertEqualsDouble(afterIndex(0), 1.0, 0.0001)
     // assertEqualsDouble(afterIndex(1), 3.0, 0.0001)
-    
 
     val v2 = Array[Double](1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
     val vIdx2 = Array[Boolean](true, false, true, true, false, true, false, true, false)

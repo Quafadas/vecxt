@@ -1,6 +1,5 @@
 package vecxt_re
 
-
 import vecxt.all.*
 
 /** Aims to provide a (very) simple index mapping for period-based models.

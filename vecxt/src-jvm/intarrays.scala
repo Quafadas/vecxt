@@ -3,8 +3,6 @@ package vecxt
 import scala.reflect.ClassTag
 import scala.util.chaining.scalaUtilChainingOps
 
-
-
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.FloatVector

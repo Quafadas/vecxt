@@ -4,7 +4,6 @@ import munit.FunSuite
 
 import all.*
 
-
 class NDArrayReductionsSuite extends FunSuite:
 
   // ── Full reductions ────────────────────────────────────────────────────────

@@ -2,7 +2,6 @@ package vecxt
 
 import org.netlib.util.intW
 
-
 import vecxt.MatrixHelper.zeros
 import vecxt.MatrixInstance.*
 import vecxt.matrix.Matrix
