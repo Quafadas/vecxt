@@ -39,22 +39,22 @@ object JvmIntMatrix:
     end reduceAlongDimension
 
     @targetName("intMatrixMax")
-    inline def max(dim: DimensionExtender): Matrix[Int] =
+    def max(dim: DimensionExtender): Matrix[Int] =
       reduceAlongDimension(dim, math.max, Int.MinValue)
     end max
 
     @targetName("intMatrixMin")
-    inline def min(dim: DimensionExtender): Matrix[Int] =
+    def min(dim: DimensionExtender): Matrix[Int] =
       reduceAlongDimension(dim, math.min, Int.MaxValue)
     end min
 
     @targetName("intMatrixSum")
-    inline def sum(dim: DimensionExtender): Matrix[Int] =
+    def sum(dim: DimensionExtender): Matrix[Int] =
       reduceAlongDimension(dim, _ + _, 0)
     end sum
 
     @targetName("intMatrixProduct")
-    inline def product(dim: DimensionExtender): Matrix[Int] =
+    def product(dim: DimensionExtender): Matrix[Int] =
       reduceAlongDimension(dim, _ * _, 1)
     end product
 

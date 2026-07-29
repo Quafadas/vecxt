@@ -9,7 +9,7 @@ protected[vecxt] object dimCheck:
   inline def apply[A, B](a: Array[A], b: Array[B]) =
     if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 
-  inline def apply(a: Array[Double], b: Array[Double]) =
+  def apply(a: Array[Double], b: Array[Double]) =
     if a.length != b.length then throw VectorDimensionMismatch(a.length, b.length)
 end dimCheck
 

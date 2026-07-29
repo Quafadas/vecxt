@@ -17,7 +17,7 @@ object matrixUtil:
 
   extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
 
-    private inline def tupleFromIdx(b: Int): RowCol =
+    private def tupleFromIdx(b: Int): RowCol =
       // dimCheckLen(m.raw, b)
       (b / m.rows, b % m.rows)
     end tupleFromIdx
@@ -122,7 +122,7 @@ object matrixUtil:
       *
       * @return
       */
-    inline def T: Matrix[A] = m.transpose
+    def T: Matrix[A] = m.transpose
 
     /** Returns the transpose of this matrix by swapping rows and columns.
       *
@@ -142,7 +142,7 @@ object matrixUtil:
       * //       [2, 4]]
       *   }}}
       */
-    inline def transpose: Matrix[A] = Matrix(
+    def transpose: Matrix[A] = Matrix(
       raw = m.raw,
       rows = m.cols, // swap dimensions
       cols = m.rows,
@@ -240,7 +240,7 @@ object matrixUtil:
 
     end col
 
-    inline def horzcat(m2: Matrix[A])(using ct: ClassTag[A]): Matrix[A] =
+    def horzcat(m2: Matrix[A])(using ct: ClassTag[A]): Matrix[A] =
       if m.isDenseColMajor && m2.isDenseColMajor then
         val newShape = (m.rows, m.cols + m2.cols)
         val newArr = m.raw.appendedAll[A](m2.raw)

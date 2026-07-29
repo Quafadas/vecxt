@@ -13,7 +13,7 @@ object floatarrays:
   // export vecxt.JsNativeFloatArrays.*
 
   extension (f: Float)
-    inline def /(arr: Array[Float]) =
+    def /(arr: Array[Float]) =
       val out = new Array[Float](arr.length)
       var i = 0
 
@@ -24,7 +24,7 @@ object floatarrays:
       out
     end /
 
-    inline def +(arr: Array[Float]) =
+    def +(arr: Array[Float]) =
       val out = new Array[Float](arr.length)
       var i = 0
 
@@ -35,7 +35,7 @@ object floatarrays:
       out
     end +
 
-    inline def -(arr: Array[Float]) =
+    def -(arr: Array[Float]) =
       val out = new Array[Float](arr.length)
       var i = 0
 
@@ -46,7 +46,7 @@ object floatarrays:
       out
     end -
 
-    inline def *(arr: Array[Float]) =
+    def *(arr: Array[Float]) =
       val out = new Array[Float](arr.length)
       var i = 0
 
@@ -61,7 +61,7 @@ object floatarrays:
 
   extension (vec: Array[Float])
 
-    inline def clampMin(min: Float): Array[Float] =
+    def clampMin(min: Float): Array[Float] =
       val n = vec.length
       val res = Array.ofDim[Float](n)
 
@@ -73,7 +73,7 @@ object floatarrays:
       res
     end clampMin
 
-    inline def `clampMin!`(min: Float): Unit =
+    def `clampMin!`(min: Float): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = math.max(vec(i), min)
@@ -81,11 +81,11 @@ object floatarrays:
       end while
     end `clampMin!`
 
-    inline def maxClamp(max: Float): Array[Float] = clampMax(max)
+    def maxClamp(max: Float): Array[Float] = clampMax(max)
 
-    inline def minClamp(min: Float): Array[Float] = clampMin(min)
+    def minClamp(min: Float): Array[Float] = clampMin(min)
 
-    inline def clampMax(max: Float): Array[Float] =
+    def clampMax(max: Float): Array[Float] =
       val n = vec.length
       val res = Array.ofDim[Float](n)
 
@@ -97,7 +97,7 @@ object floatarrays:
       res
     end clampMax
 
-    inline def `clampMax!`(max: Float): Unit =
+    def `clampMax!`(max: Float): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = math.min(vec(i), max)
@@ -105,7 +105,7 @@ object floatarrays:
       end while
     end `clampMax!`
 
-    inline def clamp(min: Float, max: Float): Array[Float] =
+    def clamp(min: Float, max: Float): Array[Float] =
       val n = vec.length
       val res = Array.ofDim[Float](n)
 
@@ -117,7 +117,7 @@ object floatarrays:
       res
     end clamp
 
-    inline def `clamp!`(min: Float, max: Float): Unit =
+    def `clamp!`(min: Float, max: Float): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = math.min(math.max(vec(i), min), max)
@@ -125,7 +125,7 @@ object floatarrays:
       end while
     end `clamp!`
 
-    inline def argmax: Int =
+    def argmax: Int =
       val n = vec.length
       if n == 0 then -1
       else
@@ -143,7 +143,7 @@ object floatarrays:
       end if
     end argmax
 
-    inline def argmin: Int =
+    def argmin: Int =
       val n = vec.length
       if n == 0 then -1
       else
@@ -161,7 +161,7 @@ object floatarrays:
       end if
     end argmin
 
-    inline def minSIMD: Float =
+    def minSIMD: Float =
       var i = 0
       var acc = Float.PositiveInfinity
       while i < vec.length do
@@ -173,7 +173,7 @@ object floatarrays:
       acc
     end minSIMD
 
-    inline def maxSIMD: Float =
+    def maxSIMD: Float =
       var i = 0
       var acc = Float.NegativeInfinity
       while i < vec.length do
@@ -185,11 +185,11 @@ object floatarrays:
       acc
     end maxSIMD
 
-    inline def min: Float = minSIMD
+    def min: Float = minSIMD
 
-    inline def max: Float = maxSIMD
+    def max: Float = maxSIMD
 
-    inline def sumSIMD: Float =
+    def sumSIMD: Float =
       var sum = 0.0
       var i = 0
       while i < vec.length do
@@ -199,9 +199,9 @@ object floatarrays:
       sum.toFloat
     end sumSIMD
 
-    inline def sum: Float = sumSIMD
+    def sum: Float = sumSIMD
 
-    inline def productSIMD: Float =
+    def productSIMD: Float =
       var prod = 1.0
       var i = 0
       while i < vec.length do
@@ -213,7 +213,7 @@ object floatarrays:
 
     // inline def product: Float = productSIMD
 
-    inline def `**!`(power: Float): Unit =
+    def `**!`(power: Float): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.pow(vec(i).toDouble, power.toDouble).toFloat
@@ -221,7 +221,7 @@ object floatarrays:
       end while
     end `**!`
 
-    inline def **(power: Float): Array[Float] =
+    def **(power: Float): Array[Float] =
       val newVec = Array.ofDim[Float](vec.length)
       var i = 0
       while i < vec.length do
@@ -231,7 +231,7 @@ object floatarrays:
       newVec
     end **
 
-    inline def `fma!`(multiply: Float, add: Float): Unit =
+    def `fma!`(multiply: Float, add: Float): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = (vec(i) * multiply + add)
@@ -239,7 +239,7 @@ object floatarrays:
       end while
     end `fma!`
 
-    inline def fma(multiply: Float, add: Float): Array[Float] =
+    def fma(multiply: Float, add: Float): Array[Float] =
       val newVec = Array.ofDim[Float](vec.length)
       var i = 0
       while i < vec.length do
@@ -267,7 +267,7 @@ object floatarrays:
       end while
     end applyUnaryOpInPlace
 
-    inline def abs: Array[Float] =
+    def abs: Array[Float] =
       val newVec = Array.ofDim[Float](vec.length)
       var i = 0
       while i < vec.length do
@@ -277,7 +277,7 @@ object floatarrays:
       newVec
     end abs
 
-    inline def `abs!`: Unit =
+    def `abs!`: Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.abs(vec(i))
@@ -285,103 +285,103 @@ object floatarrays:
       end while
     end `abs!`
 
-    inline def exp: Array[Float] =
+    def exp: Array[Float] =
       applyUnaryOp(Math.exp)
 
-    inline def `exp!`: Unit =
+    def `exp!`: Unit =
       applyUnaryOpInPlace(Math.exp)
 
-    inline def expm1: Array[Float] =
+    def expm1: Array[Float] =
       applyUnaryOp(Math.expm1)
 
-    inline def `expm1!`: Unit =
+    def `expm1!`: Unit =
       applyUnaryOpInPlace(Math.expm1)
 
-    inline def log: Array[Float] =
+    def log: Array[Float] =
       applyUnaryOp(Math.log)
 
-    inline def `log!`: Unit =
+    def `log!`: Unit =
       applyUnaryOpInPlace(Math.log)
 
-    inline def log10: Array[Float] =
+    def log10: Array[Float] =
       applyUnaryOp(Math.log10)
 
-    inline def `log10!`: Unit =
+    def `log10!`: Unit =
       applyUnaryOpInPlace(Math.log10)
 
-    inline def log1p: Array[Float] =
+    def log1p: Array[Float] =
       applyUnaryOp(Math.log1p)
 
-    inline def `log1p!`: Unit =
+    def `log1p!`: Unit =
       applyUnaryOpInPlace(Math.log1p)
 
-    inline def sqrt: Array[Float] =
+    def sqrt: Array[Float] =
       applyUnaryOp(Math.sqrt)
 
-    inline def `sqrt!`: Unit =
+    def `sqrt!`: Unit =
       applyUnaryOpInPlace(Math.sqrt)
 
-    inline def cbrt: Array[Float] =
+    def cbrt: Array[Float] =
       applyUnaryOp(Math.cbrt)
 
-    inline def `cbrt!`: Unit =
+    def `cbrt!`: Unit =
       applyUnaryOpInPlace(Math.cbrt)
 
-    inline def sin: Array[Float] =
+    def sin: Array[Float] =
       applyUnaryOp(Math.sin)
 
-    inline def `sin!`: Unit =
+    def `sin!`: Unit =
       applyUnaryOpInPlace(Math.sin)
 
-    inline def sinh: Array[Float] =
+    def sinh: Array[Float] =
       applyUnaryOp(Math.sinh)
 
-    inline def `sinh!`: Unit =
+    def `sinh!`: Unit =
       applyUnaryOpInPlace(Math.sinh)
 
-    inline def cos: Array[Float] =
+    def cos: Array[Float] =
       applyUnaryOp(Math.cos)
 
-    inline def `cos!`: Unit =
+    def `cos!`: Unit =
       applyUnaryOpInPlace(Math.cos)
 
-    inline def cosh: Array[Float] =
+    def cosh: Array[Float] =
       applyUnaryOp(Math.cosh)
 
-    inline def `cosh!`: Unit =
+    def `cosh!`: Unit =
       applyUnaryOpInPlace(Math.cosh)
 
-    inline def tan: Array[Float] =
+    def tan: Array[Float] =
       applyUnaryOp(Math.tan)
 
-    inline def `tan!`: Unit =
+    def `tan!`: Unit =
       applyUnaryOpInPlace(Math.tan)
 
-    inline def tanh: Array[Float] =
+    def tanh: Array[Float] =
       applyUnaryOp(Math.tanh)
 
-    inline def `tanh!`: Unit =
+    def `tanh!`: Unit =
       applyUnaryOpInPlace(Math.tanh)
 
-    inline def asin: Array[Float] =
+    def asin: Array[Float] =
       applyUnaryOp(Math.asin)
 
-    inline def `asin!`: Unit =
+    def `asin!`: Unit =
       applyUnaryOpInPlace(Math.asin)
 
-    inline def acos: Array[Float] =
+    def acos: Array[Float] =
       applyUnaryOp(Math.acos)
 
-    inline def `acos!`: Unit =
+    def `acos!`: Unit =
       applyUnaryOpInPlace(Math.acos)
 
-    inline def atan: Array[Float] =
+    def atan: Array[Float] =
       applyUnaryOp(Math.atan)
 
-    inline def `atan!`: Unit =
+    def `atan!`: Unit =
       applyUnaryOpInPlace(Math.atan)
 
-    inline def unary_- : Array[Float] =
+    def unary_- : Array[Float] =
       val newVec = Array.ofDim[Float](vec.length)
       var i = 0
       while i < vec.length do
@@ -391,7 +391,7 @@ object floatarrays:
       newVec
     end unary_-
 
-    inline def `-!`: Unit =
+    def `-!`: Unit =
       var i = 0
       while i < vec.length do
         vec(i) = -vec(i)
@@ -399,7 +399,7 @@ object floatarrays:
       end while
     end `-!`
 
-    inline def /(d: Array[Float]): Array[Float] =
+    def /(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Float](n)
@@ -411,7 +411,7 @@ object floatarrays:
       res
     end /
 
-    inline def /:/(d: Array[Float]): Array[Float] =
+    def /:/(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Float](n)
@@ -423,7 +423,7 @@ object floatarrays:
       res
     end /:/
 
-    inline def /=(d: Array[Float]): Unit =
+    def /=(d: Array[Float]): Unit =
       dimCheck(vec, d)
       val n = vec.length
       var i = 0
@@ -433,7 +433,7 @@ object floatarrays:
       end while
     end /=
 
-    inline def *(d: Array[Float]): Array[Float] =
+    def *(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val out = new Array[Float](vec.length)
       var i = 0
@@ -444,7 +444,7 @@ object floatarrays:
       out
     end *
 
-    inline def *:*(d: Array[Float]): Array[Float] =
+    def *:*(d: Array[Float]): Array[Float] =
       dimCheck(vec, d)
       val out = new Array[Float](vec.length)
       var i = 0
@@ -455,7 +455,7 @@ object floatarrays:
       out
     end *:*
 
-    inline def *=(d: Array[Float]): Unit =
+    def *=(d: Array[Float]): Unit =
       dimCheck(vec, d)
       var i = 0
       while i < vec.length do
@@ -486,7 +486,7 @@ object floatarrays:
     //   res
     // end /
 
-    inline def productExceptSelf: Array[Float] =
+    def productExceptSelf: Array[Float] =
       val n = vec.length
       val left = Array.ofDim[Float](n)
       val right = Array.ofDim[Float](n)
@@ -525,7 +525,7 @@ object floatarrays:
       *
       * logSumExp(x) = max(x) + log(sum(exp(x_i - max(x)))) for i = 1 to n
       */
-    inline def logSumExp: Float =
+    def logSumExp: Float =
       val maxVal = vec.max
       var sumExp = 0.0
       var i = 0
@@ -536,7 +536,7 @@ object floatarrays:
       (maxVal + Math.log(sumExp)).toFloat
     end logSumExp
 
-    inline def outer(other: Array[Float])(using ClassTag[Float]): Matrix[Float] =
+    def outer(other: Array[Float])(using ClassTag[Float]): Matrix[Float] =
       val n = vec.length
       val m = other.length
       val out: Array[Float] = Array.ofDim[Float](n * m)
@@ -553,16 +553,16 @@ object floatarrays:
       Matrix[Float](out, (n, m))
     end outer
 
-    inline def <(num: Float): Array[Boolean] =
+    def <(num: Float): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
-    inline def <=(num: Float): Array[Boolean] =
+    def <=(num: Float): Array[Boolean] =
       logicalIdx((a, b) => a <= b, num)
 
-    inline def >(num: Float): Array[Boolean] =
+    def >(num: Float): Array[Boolean] =
       logicalIdx((a, b) => a > b, num)
 
-    inline def >=(num: Float): Array[Boolean] =
+    def >=(num: Float): Array[Boolean] =
       logicalIdx((a, b) => a >= b, num)
 
     inline def logicalIdx(
@@ -581,13 +581,13 @@ object floatarrays:
       idx
     end logicalIdx
 
-    inline def cumsum: Array[Float] =
+    def cumsum: Array[Float] =
       val out = vec.clone()
       out.`cumsum!`
       out
     end cumsum
 
-    inline def `cumsum!`: Unit =
+    def `cumsum!`: Unit =
       var i = 1
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
@@ -595,7 +595,7 @@ object floatarrays:
       end while
     end `cumsum!`
 
-    inline def increments: Array[Float] =
+    def increments: Array[Float] =
       val out = new Array[Float](vec.length)
       out(0) = vec(0)
       var i = 1
@@ -622,20 +622,20 @@ object floatarrays:
       newVec
     end apply
 
-    inline def mean: Float =
+    def mean: Float =
       (vec.sum / vec.length).toFloat
     end mean
 
-    inline def variance: Float = variance(VarianceMode.Population)
+    def variance: Float = variance(VarianceMode.Population)
 
-    inline def variance(mode: VarianceMode): Float =
+    def variance(mode: VarianceMode): Float =
       meanAndVariance(mode).variance
     end variance
 
-    inline def meanAndVariance: (mean: Float, variance: Float) =
+    def meanAndVariance: (mean: Float, variance: Float) =
       meanAndVariance(VarianceMode.Population)
 
-    inline def meanAndVariance(mode: VarianceMode): (mean: Float, variance: Float) =
+    def meanAndVariance(mode: VarianceMode): (mean: Float, variance: Float) =
       var mean = 0.0
       var m2 = 0.0
       var i = 0
@@ -654,51 +654,51 @@ object floatarrays:
       (mean.toFloat, (m2 / denom).toFloat)
     end meanAndVariance
 
-    inline def std: Float = std(VarianceMode.Population)
+    def std: Float = std(VarianceMode.Population)
 
-    inline def std(mode: VarianceMode): Float =
+    def std(mode: VarianceMode): Float =
       Math.sqrt(vec.variance(mode).toDouble).toFloat
 
-    inline def stdDev: Float = stdDev(VarianceMode.Population)
+    def stdDev: Float = stdDev(VarianceMode.Population)
 
-    inline def stdDev(mode: VarianceMode): Float = std(mode)
+    def stdDev(mode: VarianceMode): Float = std(mode)
 
-    inline def norm: Float = blas.cblas_snrm2(vec.length, vec.at(0), 1)
+    def norm: Float = blas.cblas_snrm2(vec.length, vec.at(0), 1)
 
-    inline def dot(v1: Array[Float]): Float =
+    def dot(v1: Array[Float]): Float =
       dimCheck(vec, v1)
       blas.cblas_sdot(vec.length, vec.at(0), 1, v1.at(0), 1)
     end dot
 
-    inline def -(vec2: Array[Float]): Array[Float] =
+    def -(vec2: Array[Float]): Array[Float] =
       val out = vec.clone
       out -= vec2
       out
     end -
 
-    inline def -=(vec2: Array[Float]): Unit =
+    def -=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.cblas_saxpy(vec.length, -1.0f, vec2.at(0), 1, vec.at(0), 1)
     end -=
 
-    inline def +(vec2: Array[Float]): Array[Float] =
+    def +(vec2: Array[Float]): Array[Float] =
       val out = vec.clone
       out += vec2
       out
     end +
 
-    inline def +=(vec2: Array[Float]): Unit =
+    def +=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.cblas_saxpy(vec.length, 1.0f, vec2.at(0), 1, vec.at(0), 1)
     end +=
 
-    inline def +:+(d: Float): Array[Float] =
+    def +:+(d: Float): Array[Float] =
       val out = vec.clone
       out +:+= d
       out
     end +:+
 
-    inline def +:+=(d: Float): Unit =
+    def +:+=(d: Float): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) + d
@@ -706,13 +706,13 @@ object floatarrays:
       end while
     end +:+=
 
-    inline def -(d: Float): Array[Float] =
+    def -(d: Float): Array[Float] =
       val out = vec.clone()
       out -= d
       out
     end -
 
-    inline def -=(d: Float): Unit =
+    def -=(d: Float): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) - d
@@ -720,13 +720,13 @@ object floatarrays:
       end while
     end -=
 
-    inline def +(d: Float): Array[Float] =
+    def +(d: Float): Array[Float] =
       val out = vec.clone()
       out += d
       out
     end +
 
-    inline def +=(d: Float): Unit =
+    def +=(d: Float): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) + d
@@ -734,26 +734,26 @@ object floatarrays:
       end while
     end +=
 
-    inline def *=(d: Float): Unit =
+    def *=(d: Float): Unit =
       blas.cblas_sscal(vec.length, d, vec.at(0), 1)
     end *=
 
-    inline def *(d: Float): Array[Float] =
+    def *(d: Float): Array[Float] =
       val out = vec.clone
       out *= d
       out
     end *
 
-    inline def /=(d: Float): Unit =
+    def /=(d: Float): Unit =
       blas.cblas_sscal(vec.length, 1.0f / d, vec.at(0), 1)
 
-    inline def /(d: Float): Array[Float] =
+    def /(d: Float): Array[Float] =
       val out = vec.clone
       out /= d
       out
     end /
 
-    inline def pearsonCorrelationCoefficient(thatVector: Array[Float]): Float =
+    def pearsonCorrelationCoefficient(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -777,14 +777,14 @@ object floatarrays:
       )).toFloat
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Array[Float]): Float =
+    def spearmansRankCorrelation(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
       theseRanks.pearsonCorrelationCoefficient(thoseRanks)
     end spearmansRankCorrelation
 
-    inline def corr(thatVector: Array[Float]): Float =
+    def corr(thatVector: Array[Float]): Float =
       pearsonCorrelationCoefficient(thatVector)
 
     def elementRanks: Array[Float] =
@@ -863,7 +863,7 @@ object floatarrays:
   end extension
 
   extension (vec: Array[Array[Double]])
-    inline def horizontalSum: Array[Double] =
+    def horizontalSum: Array[Double] =
       val out = new Array[Double](vec.head.length)
       var i = 0
       while i < vec.head.length do

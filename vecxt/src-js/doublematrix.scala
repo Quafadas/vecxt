@@ -10,7 +10,7 @@ object JsDoubleMatrix:
 
   extension (m: Matrix[Double])
 
-    inline def >=(d: Double): Matrix[Boolean] =
+    def >=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -26,7 +26,7 @@ object JsDoubleMatrix:
         end while
         Matrix[Boolean](newArr, m.rows, m.cols)
 
-    inline def >(d: Double): Matrix[Boolean] =
+    def >(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -44,7 +44,7 @@ object JsDoubleMatrix:
       end if
     end >
 
-    inline def <=(d: Double): Matrix[Boolean] =
+    def <=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -62,7 +62,7 @@ object JsDoubleMatrix:
       end if
     end <=
 
-    inline def <(d: Double): Matrix[Boolean] =
+    def <(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -78,7 +78,7 @@ object JsDoubleMatrix:
         end while
         Matrix[Boolean](newArr, m.rows, m.cols)
 
-    inline def *:*(bmat: Matrix[Boolean]): Matrix[Double] =
+    def *:*(bmat: Matrix[Boolean]): Matrix[Double] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val newArr = Array.ofDim[Double](m.rows * m.cols)
@@ -105,7 +105,7 @@ object JsDoubleMatrix:
       end if
     end *:*
 
-    inline def +=(arr: Array[Double]): Unit =
+    def +=(arr: Array[Double]): Unit =
 
       assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 
@@ -121,7 +121,7 @@ object JsDoubleMatrix:
 
     end +=
 
-    inline def +=(n: Double): Unit =
+    def +=(n: Double): Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
       else
         // Cache-friendly fallback: iterate with smallest stride in inner loop
@@ -152,7 +152,7 @@ object JsDoubleMatrix:
 
     end +=
 
-    inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0): Unit =
+    def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0): Unit =
       dimMatCheck(m, b)
       println("PERFORMING WARNING in matmul on JS")
       println("THIS method copies into native JS types. Then copies back out. Expect catastrophic performance.")
@@ -223,7 +223,7 @@ object JsDoubleMatrix:
 
     end `matmulInPlace!`
 
-    inline def *(vec: Array[Double]): Array[Double] =
+    def *(vec: Array[Double]): Array[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         val newArr = new Float64Array(m.rows)
         dgemv(

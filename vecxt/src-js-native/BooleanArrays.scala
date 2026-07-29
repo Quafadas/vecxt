@@ -4,9 +4,9 @@ object BooleanArrays:
 
   extension (vec: Array[Boolean])
 
-    inline def allTrue = vec.forall(identity)
+    def allTrue = vec.forall(identity)
 
-    inline def any: Boolean =
+    def any: Boolean =
       var i = 0
       var any = false
       while i < vec.length && any == false do
@@ -17,7 +17,7 @@ object BooleanArrays:
       any
     end any
 
-    inline def trues: Int =
+    def trues: Int =
       var i = 0
       var sum = 0
       while i < vec.length do
@@ -28,7 +28,7 @@ object BooleanArrays:
       sum
     end trues
 
-    inline def not: Array[Boolean] =
+    def not: Array[Boolean] =
       val result = new Array[Boolean](vec.length)
       var i = 0
       while i < vec.length do
@@ -38,7 +38,7 @@ object BooleanArrays:
       result
     end not
 
-    inline def `not!`: Unit =
+    def `not!`: Unit =
       var i = 0
       while i < vec.length do
         vec(i) = !vec(i)

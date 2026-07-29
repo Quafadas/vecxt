@@ -18,11 +18,11 @@ object JvmFloatMatrix:
 
   extension (m: Matrix[Float])
     @targetName("matmulFloat")
-    inline def @@(b: Matrix[Float]): Matrix[Float] =
+    def @@(b: Matrix[Float]): Matrix[Float] =
       m.matmul(b, 1.0f, 0.0f)
 
     @targetName("matmulFloatNonDefault")
-    inline def matmul(b: Matrix[Float], alpha: Float, beta: Float): Matrix[Float] =
+    def matmul(b: Matrix[Float], alpha: Float, beta: Float): Matrix[Float] =
       dimMatCheck(m, b)
       val newArr: Array[Float] = Array.ofDim[Float](m.rows * b.cols)
       val newmat = Matrix[Float](newArr, m.rows, b.cols)
@@ -31,7 +31,7 @@ object JvmFloatMatrix:
     end matmul
 
     @targetName("matmulFloatInPlace")
-    inline def `matmulInPlace!`(b: Matrix[Float], c: Matrix[Float], alpha: Float, beta: Float): Unit =
+    def `matmulInPlace!`(b: Matrix[Float], c: Matrix[Float], alpha: Float, beta: Float): Unit =
       dimMatCheck(m, b)
 
       val lda = if m.isDenseColMajor then m.rows else m.cols
@@ -87,7 +87,7 @@ object JvmFloatMatrix:
     end `matmulInPlace!`
 
     @targetName("matmulFloatElementWise")
-    inline def *:*(bmat: Matrix[Boolean]): Matrix[Float] =
+    def *:*(bmat: Matrix[Boolean]): Matrix[Float] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val copy = m.deepCopy
@@ -111,7 +111,7 @@ object JvmFloatMatrix:
     end *:*
 
     @targetName("matmulFloatElementWiseInPlace")
-    inline def *:*=(bmat: Matrix[Boolean]): Unit =
+    def *:*=(bmat: Matrix[Boolean]): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val zero = FloatVector.zero(spf)
@@ -138,7 +138,7 @@ object JvmFloatMatrix:
     // TODO: Dim check
 
     @targetName("matmulFloatVector")
-    inline def *(vec: Array[Float], alpha: Float, beta: Float): Array[Float] =
+    def *(vec: Array[Float], alpha: Float, beta: Float): Array[Float] =
 
       if m.isDenseColMajor then
         require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
@@ -163,7 +163,7 @@ object JvmFloatMatrix:
       else ???
     end *
 
-    inline def >=(d: Float): Matrix[Boolean] =
+    def >=(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -180,7 +180,7 @@ object JvmFloatMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixGT")
-    inline def >(d: Float): Matrix[Boolean] =
+    def >(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -197,7 +197,7 @@ object JvmFloatMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixLE")
-    inline def <=(d: Float): Matrix[Boolean] =
+    def <=(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -214,7 +214,7 @@ object JvmFloatMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixLT")
-    inline def <(d: Float): Matrix[Boolean] =
+    def <(d: Float): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -243,7 +243,7 @@ object JvmFloatMatrix:
       *   Whether to perform bounds checking on the vector length.
       */
     @targetName("floatmatrixAddVectorInPlace")
-    inline def +=(arr: Array[Float]): Unit =
+    def +=(arr: Array[Float]): Unit =
 
       assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 
@@ -438,7 +438,7 @@ object JvmFloatMatrix:
     end -=
 
     @targetName("floatmatrixAddScalarInPlace")
-    inline def +=(n: Float): Unit =
+    def +=(n: Float): Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.floatarrays.+=(m.raw)(n)
       else
         // println(s" .offset: ${m.offset}, m.rowStride: ${m.rowStride}, m.colStride: ${m.colStride}")
@@ -510,7 +510,7 @@ object JvmFloatMatrix:
     end +=
 
     @targetName("floatmatrixSubScalarInPlace")
-    inline def -=(n: Float): Unit =
+    def -=(n: Float): Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.floatarrays.-=(m.raw)(n)
       else
         if m.rowStride <= m.colStride then
@@ -566,19 +566,19 @@ object JvmFloatMatrix:
 
     end -=
 
-    inline def *=(d: Float): Unit =
+    def *=(d: Float): Unit =
       if m.hasSimpleContiguousMemoryLayout then floatarrays.*=(m.raw)(d)
       else ???
     end *=
 
-    inline def *(d: Float): Matrix[Float] =
+    def *(d: Float): Matrix[Float] =
       val out = m.deepCopy
       out.*=(d)
       out
 
     end *
 
-    inline def +(d: Float): Matrix[Float] =
+    def +(d: Float): Matrix[Float] =
       val out = m.deepCopy
       out.+=(d)
       out
@@ -589,7 +589,7 @@ object JvmFloatMatrix:
       * For dense column-major matrices the SIMD reduction runs directly on the backing array at each column's base
       * offset — no intermediate array is allocated per column.
       */
-    inline def colSums: Array[Float] =
+    def colSums: Array[Float] =
       val result = Array.ofDim[Float](m.cols)
       var i = 0
       if m.isDenseColMajor then
@@ -656,39 +656,39 @@ object JvmFloatMatrix:
     end reduceAlongDimension
 
     @targetName("floatMatrixMax")
-    inline def max(dim: DimensionExtender): Matrix[Float] =
+    def max(dim: DimensionExtender): Matrix[Float] =
       reduceAlongDimension(dim, math.max, Float.MinValue)
     end max
 
     @targetName("floatMatrixMin")
-    inline def min(dim: DimensionExtender): Matrix[Float] =
+    def min(dim: DimensionExtender): Matrix[Float] =
       reduceAlongDimension(dim, math.min, Float.MaxValue)
     end min
 
     @targetName("floatMatrixSum")
-    inline def sum(dim: DimensionExtender): Matrix[Float] =
+    def sum(dim: DimensionExtender): Matrix[Float] =
       reduceAlongDimension(dim, _ + _, 0.0f)
     end sum
 
     @targetName("floatMatrixProduct")
-    inline def product(dim: DimensionExtender): Matrix[Float] =
+    def product(dim: DimensionExtender): Matrix[Float] =
       reduceAlongDimension(dim, _ * _, 1.0f)
     end product
 
   end extension
 
   extension (d: Float)
-    inline def *(m: Matrix[Float]): Matrix[Float] = m * d
+    def *(m: Matrix[Float]): Matrix[Float] = m * d
 
-    inline def +(m: Matrix[Float]): Matrix[Float] = m + d
+    def +(m: Matrix[Float]): Matrix[Float] = m + d
 
-    inline def -(m: Matrix[Float]): Matrix[Float] = ???
-    inline def /(m: Matrix[Float]): Matrix[Float] = ???
+    def -(m: Matrix[Float]): Matrix[Float] = ???
+    def /(m: Matrix[Float]): Matrix[Float] = ???
 
-    inline def *=(m: Matrix[Float]): Unit = m *= d
-    inline def +=(m: Matrix[Float]): Unit = ??? // m += d
-    inline def -=(m: Matrix[Float]): Unit = ??? // m -= d
-    inline def /=(m: Matrix[Float]): Unit = ???
+    def *=(m: Matrix[Float]): Unit = m *= d
+    def +=(m: Matrix[Float]): Unit = ??? // m += d
+    def -=(m: Matrix[Float]): Unit = ??? // m -= d
+    def /=(m: Matrix[Float]): Unit = ???
 
   end extension
 

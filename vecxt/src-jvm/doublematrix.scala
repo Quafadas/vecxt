@@ -16,7 +16,7 @@ object JvmDoubleMatrix:
     //   Matrix(vecxt.arrays./(m.raw)(n), m.shape)
 
     // TODO check whether this work with flexible memory layout patterns
-    inline def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0): Unit =
+    def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0): Unit =
       dimMatCheck(m, b)
 
       val lda = if m.isDenseColMajor then m.rows else m.cols
@@ -71,7 +71,7 @@ object JvmDoubleMatrix:
 
     end `matmulInPlace!`
 
-    inline def *:*(bmat: Matrix[Boolean]): Matrix[Double] =
+    def *:*(bmat: Matrix[Boolean]): Matrix[Double] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val copy = m.deepCopy
@@ -94,7 +94,7 @@ object JvmDoubleMatrix:
       end if
     end *:*
 
-    inline def *:*=(bmat: Matrix[Boolean]): Unit =
+    def *:*=(bmat: Matrix[Boolean]): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val spd = doublearrays.spd
@@ -121,7 +121,7 @@ object JvmDoubleMatrix:
 
     // TODO: Dim check
 
-    inline def *(vec: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Array[Double] =
+    def *(vec: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Array[Double] =
 
       if m.isDenseColMajor then
         require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
@@ -146,7 +146,7 @@ object JvmDoubleMatrix:
       else ???
     end *
 
-    inline def >=(d: Double): Matrix[Boolean] =
+    def >=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -162,7 +162,7 @@ object JvmDoubleMatrix:
         end while
         Matrix[Boolean](newArr, m.rows, m.cols)
 
-    inline def >(d: Double): Matrix[Boolean] =
+    def >(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -178,7 +178,7 @@ object JvmDoubleMatrix:
         end while
         Matrix[Boolean](newArr, m.rows, m.cols)
 
-    inline def <=(d: Double): Matrix[Boolean] =
+    def <=(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -194,7 +194,7 @@ object JvmDoubleMatrix:
         end while
         Matrix[Boolean](newArr, m.rows, m.cols)
 
-    inline def <(d: Double): Matrix[Boolean] =
+    def <(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
@@ -222,7 +222,7 @@ object JvmDoubleMatrix:
       * @param boundsCheck
       *   Whether to perform bounds checking on the vector length.
       */
-    inline def +=(arr: Array[Double]): Unit =
+    def +=(arr: Array[Double]): Unit =
 
       assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 

@@ -11,7 +11,7 @@ object JvmFloatMatrix:
       * For dense column-major matrices iterates directly on the backing array at each column's base offset — no
       * intermediate array is allocated per column.
       */
-    inline def colSums: Array[Float] =
+    def colSums: Array[Float] =
       val result = Array.ofDim[Float](m.cols)
       var i = 0
       if m.isDenseColMajor then
@@ -73,22 +73,22 @@ object JvmFloatMatrix:
     end reduceAlongDimension
 
     @targetName("floatMatrixMax")
-    inline def max(dim: DimensionExtender): Matrix[Float] =
+    def max(dim: DimensionExtender): Matrix[Float] =
       reduceAlongDimension(dim, math.max, Float.MinValue)
     end max
 
     @targetName("floatMatrixMin")
-    inline def min(dim: DimensionExtender): Matrix[Float] =
+    def min(dim: DimensionExtender): Matrix[Float] =
       reduceAlongDimension(dim, math.min, Float.MaxValue)
     end min
 
     @targetName("floatMatrixSum")
-    inline def sum(dim: DimensionExtender): Matrix[Float] =
+    def sum(dim: DimensionExtender): Matrix[Float] =
       reduceAlongDimension(dim, _ + _, 0.0f)
     end sum
 
     @targetName("floatMatrixProduct")
-    inline def product(dim: DimensionExtender): Matrix[Float] =
+    def product(dim: DimensionExtender): Matrix[Float] =
       reduceAlongDimension(dim, _ * _, 1.0f)
     end product
 

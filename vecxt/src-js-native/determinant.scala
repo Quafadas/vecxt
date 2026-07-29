@@ -25,7 +25,7 @@ object Determinant:
       * @throws IllegalArgumentException
       *   if the matrix is not square
       */
-    inline def det: Double =
+    def det: Double =
       if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
       end if
 
@@ -132,7 +132,7 @@ object Determinant:
       * @throws IllegalArgumentException
       *   if the matrix is not square
       */
-    inline def adj: Matrix[Double] =
+    def adj: Matrix[Double] =
 
       if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
       end if
@@ -181,7 +181,7 @@ object Determinant:
 
     /** Helper function to compute the minor matrix by removing a specific row and column
       */
-    private inline def getMinor(mat: Matrix[Double], removeRow: Int, removeCol: Int, n: Int): Matrix[Double] =
+    private def getMinor(mat: Matrix[Double], removeRow: Int, removeCol: Int, n: Int): Matrix[Double] =
       val minorSize = n - 1
       val minorData = Array.ofDim[Double](minorSize * minorSize)
 
@@ -219,7 +219,7 @@ object Determinant:
       * @throws ArithmeticException
       *   if the matrix is singular (determinant is zero)
       */
-    inline def inv: Matrix[Double] =
+    def inv: Matrix[Double] =
 
       if m.rows != m.cols then throw new IllegalArgumentException(s"Matrix must be square, got ${m.rows}x${m.cols}")
       end if
