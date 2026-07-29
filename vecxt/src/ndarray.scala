@@ -23,7 +23,7 @@ object ndarray:
     val ndim: Int = shape.length
 
     /** True if this is a 0-dimensional (scalar) NDArray. */
-    // val isScalar: Boolean = shape.length == 0
+    def isScalar: Boolean = shape.length == 0
 
     private val dataLength: Int = data.length
 
