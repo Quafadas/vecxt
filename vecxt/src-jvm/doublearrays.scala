@@ -165,6 +165,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.NEG)
       out
+    end unary_-
 
     inline def -! : Unit =
       unaryOp(VectorOperators.NEG)
@@ -173,6 +174,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.ABS)
       out
+    end abs
 
     inline def `abs!`: Unit =
       unaryOp(VectorOperators.ABS)
@@ -181,6 +183,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.ACOS)
       out
+    end acos
 
     inline def `acos!`: Unit =
       unaryOp(VectorOperators.ACOS)
@@ -189,6 +192,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.ASIN)
       out
+    end asin
 
     inline def `asin!`: Unit =
       unaryOp(VectorOperators.ASIN)
@@ -197,6 +201,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.ATAN)
       out
+    end atan
 
     inline def `atan!`: Unit =
       unaryOp(VectorOperators.ATAN)
@@ -205,6 +210,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.CBRT)
       out
+    end cbrt
 
     inline def `cbrt!`: Unit =
       unaryOp(VectorOperators.CBRT)
@@ -213,6 +219,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.COS)
       out
+    end cos
 
     inline def `cos!`: Unit =
       unaryOp(VectorOperators.COS)
@@ -221,6 +228,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.COSH)
       out
+    end cosh
 
     inline def `cosh!`: Unit =
       unaryOp(VectorOperators.COSH)
@@ -229,6 +237,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.EXP)
       out
+    end exp
 
     inline def `exp!`: Unit =
       unaryOp(VectorOperators.EXP)
@@ -237,6 +246,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.EXPM1)
       out
+    end expm1
 
     inline def `expm1!`: Unit =
       unaryOp(VectorOperators.EXPM1)
@@ -245,6 +255,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG)
       out
+    end log
 
     inline def `log!`: Unit =
       unaryOp(VectorOperators.LOG)
@@ -253,6 +264,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG10)
       out
+    end log10
 
     inline def `log10!`: Unit =
       unaryOp(VectorOperators.LOG10)
@@ -261,6 +273,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG1P)
       out
+    end log1p
 
     inline def `log1p!`: Unit =
       unaryOp(VectorOperators.LOG1P)
@@ -269,6 +282,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.SQRT)
       out
+    end sqrt
 
     inline def `sqrt!`: Unit =
       unaryOp(VectorOperators.SQRT)
@@ -277,6 +291,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.SIN)
       out
+    end sin
 
     inline def `sin!`: Unit =
       unaryOp(VectorOperators.SIN)
@@ -285,6 +300,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.SINH)
       out
+    end sinh
 
     inline def `sinh!`: Unit =
       unaryOp(VectorOperators.SINH)
@@ -296,6 +312,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.TAN)
       out
+    end tan
 
     inline def `tanh!`: Unit =
       unaryOp(VectorOperators.TANH)
@@ -304,6 +321,7 @@ object doublearrays:
       val out = vec.clone()
       out.unaryOp(VectorOperators.TANH)
       out
+    end tanh
 
     def `**!`(power: Double): Unit =
       var i = 0
@@ -327,6 +345,7 @@ object doublearrays:
       val out = vec.clone()
       out.`**!`(power)
       out
+    end **
 
     def increments: Array[Double] =
       val out = new Array[Double](vec.length)
@@ -724,11 +743,13 @@ object doublearrays:
       val out = vec.clone
       out.`clampOp!`(VectorOperators.GT, ceil)
       out
+    end clampMax
 
     inline def maxClamp(ceil: Double): Array[Double] =
       val out = vec.clone
       out.`clampOp!`(VectorOperators.GT, ceil)
       out
+    end maxClamp
 
     inline def `maxClamp!`(ceil: Double): Unit =
       vec.`clampOp!`(VectorOperators.GT, ceil)
@@ -744,11 +765,13 @@ object doublearrays:
       val out = vec.clone
       out.`clampOp!`(VectorOperators.LT, floor)
       out
+    end clampMin
 
     inline def minClamp(floor: Double): Array[Double] =
       val out = vec.clone
       out.`clampOp!`(VectorOperators.LT, floor)
       out
+    end minClamp
 
     inline def `minClamp!`(floor: Double): Unit =
       vec.`clampOp!`(VectorOperators.LT, floor)
@@ -796,6 +819,7 @@ object doublearrays:
       val out = vec.clone
       out.`clamp!`(floor, ceil)
       out
+    end clamp
 
     /** The formula for the logarithm of the sum of exponentials is:
       *
@@ -943,6 +967,7 @@ object doublearrays:
       val out = vec.clone()
       out `fma!` (multiply, add)
       out
+    end fma
 
     def -=(d: Double): Unit =
       val inc = DoubleVector.broadcast(spd, d)
@@ -1379,6 +1404,7 @@ object doublearrays:
       val out = vec.clone()
       out.`zeroWhere!`(other, threshold, op)
       out
+    end zeroWhere
 
   end extension
 

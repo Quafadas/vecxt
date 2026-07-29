@@ -732,6 +732,7 @@ object floatarrays:
       val out = vec.clone()
       out += d
       out
+    end +
 
     inline def +=(d: Float): Unit =
       var i = 0
@@ -767,6 +768,7 @@ object floatarrays:
       val out = vec.clone
       out /= d
       out
+    end /
 
     inline def pearsonCorrelationCoefficient(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
@@ -873,6 +875,7 @@ object floatarrays:
       val out = vec.clone()
       out.`zeroWhere!`(other, threshold, op)
       out
+    end zeroWhere
 
   end extension
 

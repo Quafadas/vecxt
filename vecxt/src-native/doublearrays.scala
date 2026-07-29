@@ -720,6 +720,7 @@ object doublearrays:
       val out = vec.clone()
       out += d
       out
+    end +
 
     inline def +=(d: Double): Unit =
       var i = 0
@@ -746,6 +747,7 @@ object doublearrays:
       val out = vec.clone
       out /= d
       out
+    end /
 
     def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean
@@ -790,6 +792,7 @@ object doublearrays:
       val out = vec.clone()
       out.`zeroWhere!`(other, threshold, op)
       out
+    end zeroWhere
 
   end extension
 

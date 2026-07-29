@@ -110,6 +110,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.NEG)
       out
+    end unary_-
 
     inline def `-!`: Unit =
       unaryFloatOp(VectorOperators.NEG)
@@ -118,6 +119,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.ABS)
       out
+    end abs
 
     inline def `abs!`: Unit =
       unaryFloatOp(VectorOperators.ABS)
@@ -126,6 +128,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.ACOS)
       out
+    end acos
 
     inline def `acos!`: Unit =
       unaryFloatOp(VectorOperators.ACOS)
@@ -134,6 +137,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.ASIN)
       out
+    end asin
 
     inline def `asin!`: Unit =
       unaryFloatOp(VectorOperators.ASIN)
@@ -142,6 +146,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.ATAN)
       out
+    end atan
 
     inline def `atan!`: Unit =
       unaryFloatOp(VectorOperators.ATAN)
@@ -150,6 +155,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.CBRT)
       out
+    end cbrt
 
     inline def `cbrt!`: Unit =
       unaryFloatOp(VectorOperators.CBRT)
@@ -158,6 +164,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.COS)
       out
+    end cos
 
     inline def `cos!`: Unit =
       unaryFloatOp(VectorOperators.COS)
@@ -166,6 +173,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.COSH)
       out
+    end cosh
 
     inline def `cosh!`: Unit =
       unaryFloatOp(VectorOperators.COSH)
@@ -174,6 +182,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.EXP)
       out
+    end exp
 
     inline def `exp!`: Unit =
       unaryFloatOp(VectorOperators.EXP)
@@ -182,6 +191,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.EXPM1)
       out
+    end expm1
 
     inline def `expm1!`: Unit =
       unaryFloatOp(VectorOperators.EXPM1)
@@ -190,6 +200,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.LOG)
       out
+    end log
 
     inline def `log!`: Unit =
       unaryFloatOp(VectorOperators.LOG)
@@ -198,6 +209,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.LOG10)
       out
+    end log10
 
     inline def `log10!`: Unit =
       unaryFloatOp(VectorOperators.LOG10)
@@ -206,6 +218,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.LOG1P)
       out
+    end log1p
 
     inline def `log1p!`: Unit =
       unaryFloatOp(VectorOperators.LOG1P)
@@ -214,6 +227,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.SQRT)
       out
+    end sqrt
 
     inline def `sqrt!`: Unit =
       unaryFloatOp(VectorOperators.SQRT)
@@ -222,6 +236,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.SIN)
       out
+    end sin
 
     inline def `sin!`: Unit =
       unaryFloatOp(VectorOperators.SIN)
@@ -230,6 +245,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.SINH)
       out
+    end sinh
 
     inline def `sinh!`: Unit =
       unaryFloatOp(VectorOperators.SINH)
@@ -238,6 +254,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.TAN)
       out
+    end tan
 
     inline def `tan!`: Unit =
       unaryFloatOp(VectorOperators.TAN)
@@ -246,6 +263,7 @@ object floatarrays:
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.TANH)
       out
+    end tanh
 
     inline def `tanh!`: Unit =
       unaryFloatOp(VectorOperators.TANH)
@@ -272,6 +290,7 @@ object floatarrays:
       val out = vec.clone()
       out.`**!`(power)
       out
+    end **
 
     def `fma!`(multiply: Float, add: Float): Unit =
       var i = 0
@@ -294,16 +313,19 @@ object floatarrays:
       val out = vec.clone()
       out `fma!` (multiply, add)
       out
+    end fma
 
     inline def clampMin(floor: Float): Array[Float] =
       val out = vec.clone
       out.`clampFloatOp!`(VectorOperators.LT, floor)
       out
+    end clampMin
 
     inline def minClamp(floor: Float): Array[Float] =
       val out = vec.clone
       out.`clampFloatOp!`(VectorOperators.LT, floor)
       out
+    end minClamp
 
     inline def `minClamp!`(floor: Float): Unit =
       vec.`clampFloatOp!`(VectorOperators.LT, floor)
@@ -312,11 +334,13 @@ object floatarrays:
       val out = vec.clone
       out.`clampFloatOp!`(VectorOperators.GT, ceil)
       out
+    end clampMax
 
     inline def maxClamp(ceil: Float): Array[Float] =
       val out = vec.clone
       out.`clampFloatOp!`(VectorOperators.GT, ceil)
       out
+    end maxClamp
 
     inline def `maxClamp!`(ceil: Float): Unit =
       vec.`clampFloatOp!`(VectorOperators.GT, ceil)
@@ -370,6 +394,7 @@ object floatarrays:
       val out = vec.clone
       out.`clamp!`(floor, ceil)
       out
+    end clamp
 
     inline def argmax: Int =
       val n = vec.length
@@ -1088,6 +1113,7 @@ object floatarrays:
       val out = vec.clone()
       out.`zeroWhere!`(other, threshold, op)
       out
+    end zeroWhere
 
   end extension
 end floatarrays
