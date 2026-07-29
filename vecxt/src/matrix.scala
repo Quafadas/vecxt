@@ -21,7 +21,7 @@ object matrix:
     *   The type of elements in the matrix, specialized for Double, Boolean
     */
 
-  class Matrix[A] @publicInBinary() private[matrix] (
+  final class Matrix[A] @publicInBinary() private[matrix] (
       val raw: Array[A],
       val rows: Row,
       val cols: Col,
@@ -30,6 +30,18 @@ object matrix:
       val offset: Int = 0
   ):
 
+    /** If the matrix is dense and contiguous in row major order, it means that the data is stored in a single block of
+      * memory in row major order. Useful for performance optimizations.
+      * @return
+      */
+    val isDenseColMajor: Boolean =
+      rowStride == 1 && colStride == rows && offset == 0
+
+    val isDenseRowMajor: Boolean =
+      rowStride == cols && colStride == 1 && offset == 0
+
+    val numel: Int = rows * cols
+
     /** If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or
       * column major, or row major order, with the exact number of elements matching the number of rows and columns.
       *
@@ -37,22 +49,10 @@ object matrix:
       *
       * @return
       */
-    lazy val hasSimpleContiguousMemoryLayout: Boolean =
+    val hasSimpleContiguousMemoryLayout: Boolean =
       (isDenseRowMajor || isDenseColMajor) && raw.length == numel
 
-    /** If the matrix is dense and contiguous in row major order, it means that the data is stored in a single block of
-      * memory in row major order. Useful for performance optimizations.
-      * @return
-      */
-    lazy val isDenseColMajor: Boolean =
-      rowStride == 1 && colStride == rows && offset == 0
-
-    lazy val isDenseRowMajor: Boolean =
-      rowStride == cols && colStride == 1 && offset == 0
-
-    lazy val numel: Int = rows * cols
-
-    lazy val layout: String =
+    def layout: String =
       s"rows: $rows, cols: $cols, rowStride: $rowStride, colStride: $colStride, offset: $offset, data length: ${raw.length}"
   end Matrix
 

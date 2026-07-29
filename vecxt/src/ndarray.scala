@@ -4,16 +4,30 @@ import scala.annotation.publicInBinary
 
 object ndarray:
 
-  class NDArray[A] @publicInBinary() private[ndarray] (
+  /** Don't mutate the shape or strides arrays after creating an NDArray. Dervived fields will be wrong.
+    *
+    * Make a new one
+    *
+    * @param data
+    * @param shape
+    * @param strides
+    * @param offset
+    */
+  final class NDArray[A] @publicInBinary() private[ndarray] (
       val data: Array[A],
       val shape: Array[Int],
       val strides: Array[Int],
       val offset: Int
   ):
 
-    lazy val ndim: Int = shape.length
+    val ndim: Int = shape.length
 
-    lazy val numel: Int =
+    /** True if this is a 0-dimensional (scalar) NDArray. */
+    def isScalar: Boolean = shape.length == 0
+
+    private val dataLength: Int = data.length
+
+    val numel: Int =
       var prod = 1
       var i = 0
       while i < shape.length do
@@ -23,9 +37,7 @@ object ndarray:
       prod
     end numel
 
-    lazy val isContiguous: Boolean = isColMajor || isRowMajor
-
-    lazy val isColMajor: Boolean =
+    def isColMajor: Boolean =
       // Column-major (F-order): strides = [1, shape(0), shape(0)*shape(1), ...]
       // and data.length == numel and offset == 0
       if offset != 0 then false
@@ -40,9 +52,9 @@ object ndarray:
           expected *= shape(i)
           i += 1
         end while
-        result && data.length == numel
+        result && dataLength == numel
 
-    lazy val isRowMajor: Boolean =
+    def isRowMajor: Boolean =
       // Row-major (C-order): strides = [..., shape(n-1), 1]
       if offset != 0 then false
       else if shape.length == 0 then true
@@ -56,13 +68,12 @@ object ndarray:
           expected *= shape(i)
           i -= 1
         end while
-        result && data.length == numel
+        result && dataLength == numel
 
-    /** True if this is a 0-dimensional (scalar) NDArray. */
-    lazy val isScalar: Boolean = shape.length == 0
+    def isContiguous: Boolean = isColMajor || isRowMajor
 
-    lazy val layout: String =
-      s"ndim: $ndim, shape: [${shape.mkString(",")}], strides: [${strides.mkString(",")}], offset: $offset, data length: ${data.length}"
+    def layout: String =
+      s"ndim: $ndim, shape: [${shape.mkString(",")}], strides: [${strides.mkString(",")}], offset: $offset, data length: $dataLength"
 
   end NDArray
 

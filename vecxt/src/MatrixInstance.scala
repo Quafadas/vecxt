@@ -9,7 +9,7 @@ import vecxt.matrix.*
 import vecxt.rangeExtender.*
 
 object MatrixInstance:
-  extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
+  extension [A](m: Matrix[A])
     inline def update(rc: RowCol, value: A): Unit =
       update(rc._1, rc._2, value)
     end update

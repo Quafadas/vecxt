@@ -16,7 +16,9 @@ object Solve:
     * @return
     *   The solution matrix x (n×m) such that A*x = b.
     */
-  inline def solve(A: Matrix[Double], b: Matrix[Double]): Matrix[Double] = ???
+  inline def solve(A: Matrix[Double], b: Matrix[Double]): Matrix[Double] = scala.compiletime.error(
+    "Unimplemented on JS / Native at the moment"
+  )
 
   /** Solves a system of linear equations A*x = b for a single right-hand side vector.
     *
@@ -27,6 +29,8 @@ object Solve:
     * @return
     *   The solution vector x as an Array[Double] of length n such that A*x = b.
     */
-  inline def solve(A: Matrix[Double], b: Array[Double]): Array[Double] = ???
+  inline def solve(A: Matrix[Double], b: Array[Double]): Array[Double] = scala.compiletime.error(
+    "Unimplemented on JS / Native at the moment"
+  )
 
 end Solve
