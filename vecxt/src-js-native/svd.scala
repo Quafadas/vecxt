@@ -10,12 +10,12 @@ object Svd:
     case ReducedSVD // the first min(M,N) columns of U and the first min(M,N) rows of V**T are returned in the arrays U and VT
   end SVDMode
 
-  inline def pinv(matrix: Matrix[Double], toleranceFactor: Double = 1.0): Matrix[Double] = 
+  inline def pinv(matrix: Matrix[Double], toleranceFactor: Double = 1.0): Matrix[Double] =
     scala.compiletime.error(
       "Unimplemented on JS / Native at the moment"
     )
 
-  inline def rank(matrix: Matrix[Double], toleranceFactor: Double = 1.0): Int = 
+  inline def rank(matrix: Matrix[Double], toleranceFactor: Double = 1.0): Int =
     scala.compiletime.error(
       "Unimplemented on JS / Native at the moment"
     )
@@ -46,7 +46,7 @@ object Svd:
   inline def svd(
       matrix: Matrix[Double],
       mode: SVDMode = SVDMode.CompleteSVD
-  ): (U: Matrix[Double], s: Array[Double], Vt: Matrix[Double]) = 
+  ): (U: Matrix[Double], s: Array[Double], Vt: Matrix[Double]) =
     scala.compiletime.error(
       "Unimplemented on JS / Native at the moment"
     )

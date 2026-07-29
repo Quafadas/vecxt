@@ -72,7 +72,6 @@ object ndarray:
 
     def isContiguous: Boolean = isColMajor || isRowMajor
 
-
     def layout: String =
       s"ndim: $ndim, shape: [${shape.mkString(",")}], strides: [${strides.mkString(",")}], offset: $offset, data length: $dataLength"
 

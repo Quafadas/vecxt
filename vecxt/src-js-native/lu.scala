@@ -22,7 +22,7 @@ object LU:
     *   - P: Permutation array
     */
   inline def lu(m: Matrix[Double]): (L: Matrix[Double], U: Matrix[Double], P: Array[Int]) = scala.compiletime.error(
-      "Unimplemented on JS / Native at the moment"
-    )
+    "Unimplemented on JS / Native at the moment"
+  )
 
 end LU
