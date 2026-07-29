@@ -132,12 +132,12 @@ def dataToCoords[A](data: Array[A], pixelSize: Int): IndexedSeq[(x: Int, y: Int,
 
 // -- Below here is the neural network machinery
 
-inline def reluM(z: Matrix[Double]): Matrix[Double] = Matrix(z.raw.clampMin(0.0), z.shape)
+def reluM(z: Matrix[Double]): Matrix[Double] = Matrix(z.raw.clampMin(0.0), z.shape)
 
 @targetName("reluMFloat")
-inline def reluM(z: Matrix[Float]): Matrix[Float] = Matrix(z.raw.clampMin(0.0), z.shape)
+def reluM(z: Matrix[Float]): Matrix[Float] = Matrix(z.raw.clampMin(0.0), z.shape)
 
-inline def softmaxRows(z: Matrix[Double]): Matrix[Double] =
+def softmaxRows(z: Matrix[Double]): Matrix[Double] =
   z.mapRows { row =>
     row -= row.max
     row.`exp!`
@@ -146,7 +146,7 @@ inline def softmaxRows(z: Matrix[Double]): Matrix[Double] =
   }
 
 @targetName("softmaxRowsFloat")
-inline def softmaxRows(z: Matrix[Float]): Matrix[Float] =
+def softmaxRows(z: Matrix[Float]): Matrix[Float] =
   z.mapRows { row =>
     row -= row.max
     row.`exp!`
@@ -256,7 +256,7 @@ def back_prop(
   (dw1 = dw1, db1 = db1, dw2 = dw2, db2 = db2)
 end back_prop
 
-inline def oneHot[T](int: Int, numClasses: Int)(using ct: ClassTag[T], f: Numeric[T]): Array[T] =
+def oneHot[T](int: Int, numClasses: Int)(using ct: ClassTag[T], f: Numeric[T]): Array[T] =
   val arr = Array.fill[T](numClasses)(f.zero)
   if int >= 0 && int < numClasses then arr(int) = f.one
   end if

@@ -637,7 +637,7 @@ object doublearrays:
         result = inline op match
           case VectorOperators.MAX => Math.max(result, vec(i))
           case VectorOperators.MIN => Math.min(result, vec(i))
-          case _                   => ???
+          case _                   => scala.compiletime.error("reduceOp supports MAX and MIN only")
         i += 1
       end while
 
@@ -670,7 +670,7 @@ object doublearrays:
         vec(i) = inline op match
           case VectorOperators.LT => Math.max(initial, vec(i))
           case VectorOperators.GT => Math.min(initial, vec(i))
-          case _                  => ???
+          case _                  => scala.compiletime.error("reduceOp supports MAX and MIN only")
         i += 1
       end while
 
@@ -1069,7 +1069,7 @@ object doublearrays:
             idx(i) = vec(i) >= num
             i += 1
           end while
-        case _ => ???
+        case _ => scala.compiletime.error("this method supports EQ, NE, LT, LE, GT, GE only")
       end match
 
       idx

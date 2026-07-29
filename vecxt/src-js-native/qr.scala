@@ -16,6 +16,8 @@ object QR:
     *   - Q: The orthogonal matrix
     *   - R: The upper triangular matrix
     */
-  inline def qr(matrix: Matrix[Double]): (Q: Matrix[Double], R: Matrix[Double]) = ???
+  inline def qr(matrix: Matrix[Double]): (Q: Matrix[Double], R: Matrix[Double]) = scala.compiletime.error(
+      "Unimplemented on JS / Native at the moment"
+    )
 
 end QR

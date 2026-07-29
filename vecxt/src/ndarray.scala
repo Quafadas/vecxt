@@ -37,7 +37,7 @@ object ndarray:
       prod
     end numel
 
-    val isColMajor: Boolean =
+    def isColMajor: Boolean =
       // Column-major (F-order): strides = [1, shape(0), shape(0)*shape(1), ...]
       // and data.length == numel and offset == 0
       if offset != 0 then false
@@ -54,7 +54,7 @@ object ndarray:
         end while
         result && dataLength == numel
 
-    val isRowMajor: Boolean =
+    def isRowMajor: Boolean =
       // Row-major (C-order): strides = [..., shape(n-1), 1]
       if offset != 0 then false
       else if shape.length == 0 then true
@@ -70,7 +70,8 @@ object ndarray:
         end while
         result && dataLength == numel
 
-    val isContiguous: Boolean = isColMajor || isRowMajor
+    def isContiguous: Boolean = isColMajor || isRowMajor
+
 
     def layout: String =
       s"ndim: $ndim, shape: [${shape.mkString(",")}], strides: [${strides.mkString(",")}], offset: $offset, data length: $dataLength"
