@@ -13,7 +13,7 @@ trait JsNativeDoubleArrays:
   end linspace
 
   extension (d: Double)
-    inline def /(arr: Array[Double]) =
+    def /(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
       var i = 0
 
@@ -24,7 +24,7 @@ trait JsNativeDoubleArrays:
       out
     end /
 
-    inline def +(arr: Array[Double]) =
+    def +(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
       var i = 0
 
@@ -35,7 +35,7 @@ trait JsNativeDoubleArrays:
       out
     end +
 
-    inline def -(arr: Array[Double]) =
+    def -(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
       var i = 0
 
@@ -46,7 +46,7 @@ trait JsNativeDoubleArrays:
       out
     end -
 
-    inline def *(arr: Array[Double]) =
+    def *(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
       var i = 0
 
@@ -75,7 +75,7 @@ trait JsNativeDoubleArrays:
 
   extension (vec: Array[Double])
 
-    inline def clampMin(min: Double): Array[Double] =
+    def clampMin(min: Double): Array[Double] =
       val n = vec.length
       val res = Array.ofDim[Double](n)
 
@@ -87,7 +87,7 @@ trait JsNativeDoubleArrays:
       res
     end clampMin
 
-    inline def `clampMin!`(min: Double): Unit =
+    def `clampMin!`(min: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.max(vec(i), min)
@@ -95,11 +95,11 @@ trait JsNativeDoubleArrays:
       end while
     end `clampMin!`
 
-    inline def maxClamp(max: Double): Array[Double] = clampMax(max)
+    def maxClamp(max: Double): Array[Double] = clampMax(max)
 
-    inline def minClamp(min: Double): Array[Double] = clampMin(min)
+    def minClamp(min: Double): Array[Double] = clampMin(min)
 
-    inline def clampMax(max: Double): Array[Double] =
+    def clampMax(max: Double): Array[Double] =
       val n = vec.length
       val res = Array.ofDim[Double](n)
 
@@ -111,7 +111,7 @@ trait JsNativeDoubleArrays:
       res
     end clampMax
 
-    inline def `clampMax!`(max: Double): Unit =
+    def `clampMax!`(max: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.min(vec(i), max)
@@ -119,7 +119,7 @@ trait JsNativeDoubleArrays:
       end while
     end `clampMax!`
 
-    inline def clamp(min: Double, max: Double): Array[Double] =
+    def clamp(min: Double, max: Double): Array[Double] =
       val n = vec.length
       val res = Array.ofDim[Double](n)
 
@@ -130,7 +130,7 @@ trait JsNativeDoubleArrays:
       end while
       res
     end clamp
-    inline def `clamp!`(min: Double, max: Double): Unit =
+    def `clamp!`(min: Double, max: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.min(Math.max(vec(i), min), max)
@@ -138,7 +138,7 @@ trait JsNativeDoubleArrays:
       end while
     end `clamp!`
 
-    inline def argmax: Int =
+    def argmax: Int =
       val n = vec.length
       if n == 0 then -1 // Handle empty array case
       else
@@ -156,7 +156,7 @@ trait JsNativeDoubleArrays:
       end if
     end argmax
 
-    inline def argmin: Int =
+    def argmin: Int =
       val n = vec.length
       if n == 0 then -1 // Handle empty array case
       else
@@ -175,7 +175,7 @@ trait JsNativeDoubleArrays:
       end if
     end argmin
 
-    inline def `**!`(power: Double): Unit =
+    def `**!`(power: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.pow(vec(i), power)
@@ -183,7 +183,7 @@ trait JsNativeDoubleArrays:
       end while
     end `**!`
 
-    inline def **(power: Double): Array[Double] =
+    def **(power: Double): Array[Double] =
       val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
@@ -193,7 +193,7 @@ trait JsNativeDoubleArrays:
       newVec
     end **
 
-    inline def `fma!`(multiply: Double, add: Double): Unit =
+    def `fma!`(multiply: Double, add: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) * multiply + add
@@ -201,7 +201,7 @@ trait JsNativeDoubleArrays:
       end while
     end `fma!`
 
-    inline def `fma`(multiply: Double, add: Double): Array[Double] =
+    def `fma`(multiply: Double, add: Double): Array[Double] =
       val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
@@ -211,58 +211,58 @@ trait JsNativeDoubleArrays:
       newVec
     end `fma`
 
-    inline def exp: Array[Double] =
+    def exp: Array[Double] =
       applyUnaryOp(Math.exp)
 
-    inline def `exp!`: Unit =
+    def `exp!`: Unit =
       applyUnaryOpInPlace(Math.exp)
 
-    inline def log: Array[Double] =
+    def log: Array[Double] =
       applyUnaryOp(Math.log)
 
-    inline def `log!`: Unit =
+    def `log!`: Unit =
       applyUnaryOpInPlace(Math.log)
 
-    inline def sqrt: Array[Double] =
+    def sqrt: Array[Double] =
       applyUnaryOp(Math.sqrt)
 
-    inline def `sqrt!`: Unit =
+    def `sqrt!`: Unit =
       applyUnaryOpInPlace(Math.sqrt)
 
-    inline def cbrt: Array[Double] =
+    def cbrt: Array[Double] =
       applyUnaryOp(Math.cbrt)
 
-    inline def `cbrt!`: Unit =
+    def `cbrt!`: Unit =
       applyUnaryOpInPlace(Math.cbrt)
 
-    inline def sin: Array[Double] =
+    def sin: Array[Double] =
       applyUnaryOp(Math.sin)
 
-    inline def `sin!`: Unit =
+    def `sin!`: Unit =
       applyUnaryOpInPlace(Math.sin)
 
-    inline def cos: Array[Double] =
+    def cos: Array[Double] =
       applyUnaryOp(Math.cos)
 
-    inline def `cos!`: Unit =
+    def `cos!`: Unit =
       applyUnaryOpInPlace(Math.cos)
 
-    inline def tan: Array[Double] =
+    def tan: Array[Double] =
       applyUnaryOp(Math.tan)
 
-    inline def `tan!`: Unit =
+    def `tan!`: Unit =
       applyUnaryOpInPlace(Math.tan)
 
-    inline def asin: Array[Double] =
+    def asin: Array[Double] =
       applyUnaryOp(Math.asin)
 
-    inline def `asin!`: Unit =
+    def `asin!`: Unit =
       applyUnaryOpInPlace(Math.asin)
 
-    inline def - : Array[Double] =
+    def - : Array[Double] =
       applyUnaryOp(-_)
 
-    inline def `-!`: Unit =
+    def `-!`: Unit =
       applyUnaryOpInPlace(-_)
 
     private inline def applyUnaryOp(inline op: Double => Double): Array[Double] =
@@ -283,7 +283,7 @@ trait JsNativeDoubleArrays:
       end while
     end applyUnaryOpInPlace
 
-    inline def /(d: Array[Double]): Array[Double] =
+    def /(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -295,7 +295,7 @@ trait JsNativeDoubleArrays:
       res
     end /
 
-    inline def productExceptSelf: Array[Double] =
+    def productExceptSelf: Array[Double] =
       val n = vec.length
       val left = Array.ofDim[Double](n)
       val right = Array.ofDim[Double](n)
@@ -334,13 +334,13 @@ trait JsNativeDoubleArrays:
       *
       * logSumExp(x) = max(x) + log(sum(exp(x_i - max(x)))) for i = 1 to n
       */
-    inline def logSumExp: Double =
+    def logSumExp: Double =
       val maxVal = vec.max
       val sumExp = vec.map(x => Math.exp(x - maxVal)).sum
       maxVal + Math.log(sumExp)
     end logSumExp
 
-    inline def *(d: Array[Double]): Array[Double] =
+    def *(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -353,9 +353,9 @@ trait JsNativeDoubleArrays:
       res
     end *
 
-    inline def *:*(d: Array[Double]): Array[Double] = vec.*(d)
+    def *:*(d: Array[Double]): Array[Double] = vec.*(d)
 
-    inline def *=(d: Array[Double]): Unit =
+    def *=(d: Array[Double]): Unit =
       dimCheck(vec, d)
       val n = vec.length
 
@@ -366,7 +366,7 @@ trait JsNativeDoubleArrays:
       end while
     end *=
 
-    inline def outer(other: Array[Double])(using ClassTag[Double]): Matrix[Double] =
+    def outer(other: Array[Double])(using ClassTag[Double]): Matrix[Double] =
       val n = vec.length
       val m = other.length
       val out: Array[Double] = Array.ofDim[Double](n * m)
@@ -383,16 +383,16 @@ trait JsNativeDoubleArrays:
       Matrix[Double](out, (n, m))
     end outer
 
-    inline def <(num: Double): Array[Boolean] =
+    def <(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
-    inline def <=(num: Double): Array[Boolean] =
+    def <=(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a <= b, num)
 
-    inline def >(num: Double): Array[Boolean] =
+    def >(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a > b, num)
 
-    inline def >=(num: Double): Array[Boolean] =
+    def >=(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a >= b, num)
 
     inline def logicalIdx(

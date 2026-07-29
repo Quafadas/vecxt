@@ -17,7 +17,7 @@ object doublearrays:
   end linspace
 
   extension (d: Double)
-    inline def /(arr: Array[Double]) =
+    def /(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
       var i = 0
 
@@ -28,7 +28,7 @@ object doublearrays:
       out
     end /
 
-    inline def +(arr: Array[Double]) =
+    def +(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
       var i = 0
 
@@ -39,7 +39,7 @@ object doublearrays:
       out
     end +
 
-    inline def -(arr: Array[Double]) =
+    def -(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
       var i = 0
 
@@ -50,7 +50,7 @@ object doublearrays:
       out
     end -
 
-    inline def *(arr: Array[Double]) =
+    def *(arr: Array[Double]) =
       val out = new Array[Double](arr.length)
       var i = 0
 
@@ -65,7 +65,7 @@ object doublearrays:
 
   extension (vec: Array[Double])
 
-    inline def clampMin(min: Double): Array[Double] =
+    def clampMin(min: Double): Array[Double] =
       val n = vec.length
       val res = Array.ofDim[Double](n)
 
@@ -77,7 +77,7 @@ object doublearrays:
       res
     end clampMin
 
-    inline def `clampMin!`(min: Double): Unit =
+    def `clampMin!`(min: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.max(vec(i), min)
@@ -85,11 +85,11 @@ object doublearrays:
       end while
     end `clampMin!`
 
-    inline def maxClamp(max: Double): Array[Double] = clampMax(max)
+    def maxClamp(max: Double): Array[Double] = clampMax(max)
 
-    inline def minClamp(min: Double): Array[Double] = clampMin(min)
+    def minClamp(min: Double): Array[Double] = clampMin(min)
 
-    inline def clampMax(max: Double): Array[Double] =
+    def clampMax(max: Double): Array[Double] =
       val n = vec.length
       val res = Array.ofDim[Double](n)
 
@@ -101,7 +101,7 @@ object doublearrays:
       res
     end clampMax
 
-    inline def `clampMax!`(max: Double): Unit =
+    def `clampMax!`(max: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.min(vec(i), max)
@@ -109,7 +109,7 @@ object doublearrays:
       end while
     end `clampMax!`
 
-    inline def clamp(min: Double, max: Double): Array[Double] =
+    def clamp(min: Double, max: Double): Array[Double] =
       val n = vec.length
       val res = Array.ofDim[Double](n)
 
@@ -120,7 +120,7 @@ object doublearrays:
       end while
       res
     end clamp
-    inline def `clamp!`(min: Double, max: Double): Unit =
+    def `clamp!`(min: Double, max: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.min(Math.max(vec(i), min), max)
@@ -128,7 +128,7 @@ object doublearrays:
       end while
     end `clamp!`
 
-    inline def argmax: Int =
+    def argmax: Int =
       val n = vec.length
       if n == 0 then -1 // Handle empty array case
       else
@@ -146,7 +146,7 @@ object doublearrays:
       end if
     end argmax
 
-    inline def argmin: Int =
+    def argmin: Int =
       val n = vec.length
       if n == 0 then -1 // Handle empty array case
       else
@@ -165,7 +165,7 @@ object doublearrays:
       end if
     end argmin
 
-    inline def `**!`(power: Double): Unit =
+    def `**!`(power: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = Math.pow(vec(i), power)
@@ -173,7 +173,7 @@ object doublearrays:
       end while
     end `**!`
 
-    inline def **(power: Double): Array[Double] =
+    def **(power: Double): Array[Double] =
       val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
@@ -183,7 +183,7 @@ object doublearrays:
       newVec
     end **
 
-    inline def `fma!`(multiply: Double, add: Double): Unit =
+    def `fma!`(multiply: Double, add: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) * multiply + add
@@ -191,7 +191,7 @@ object doublearrays:
       end while
     end `fma!`
 
-    inline def `fma`(multiply: Double, add: Double): Array[Double] =
+    def `fma`(multiply: Double, add: Double): Array[Double] =
       val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
@@ -201,58 +201,58 @@ object doublearrays:
       newVec
     end `fma`
 
-    inline def exp: Array[Double] =
+    def exp: Array[Double] =
       applyUnaryOp(Math.exp)
 
-    inline def `exp!`: Unit =
+    def `exp!`: Unit =
       applyUnaryOpInPlace(Math.exp)
 
-    inline def log: Array[Double] =
+    def log: Array[Double] =
       applyUnaryOp(Math.log)
 
-    inline def `log!`: Unit =
+    def `log!`: Unit =
       applyUnaryOpInPlace(Math.log)
 
-    inline def sqrt: Array[Double] =
+    def sqrt: Array[Double] =
       applyUnaryOp(Math.sqrt)
 
-    inline def `sqrt!`: Unit =
+    def `sqrt!`: Unit =
       applyUnaryOpInPlace(Math.sqrt)
 
-    inline def cbrt: Array[Double] =
+    def cbrt: Array[Double] =
       applyUnaryOp(Math.cbrt)
 
-    inline def `cbrt!`: Unit =
+    def `cbrt!`: Unit =
       applyUnaryOpInPlace(Math.cbrt)
 
-    inline def sin: Array[Double] =
+    def sin: Array[Double] =
       applyUnaryOp(Math.sin)
 
-    inline def `sin!`: Unit =
+    def `sin!`: Unit =
       applyUnaryOpInPlace(Math.sin)
 
-    inline def cos: Array[Double] =
+    def cos: Array[Double] =
       applyUnaryOp(Math.cos)
 
-    inline def `cos!`: Unit =
+    def `cos!`: Unit =
       applyUnaryOpInPlace(Math.cos)
 
-    inline def tan: Array[Double] =
+    def tan: Array[Double] =
       applyUnaryOp(Math.tan)
 
-    inline def `tan!`: Unit =
+    def `tan!`: Unit =
       applyUnaryOpInPlace(Math.tan)
 
-    inline def asin: Array[Double] =
+    def asin: Array[Double] =
       applyUnaryOp(Math.asin)
 
-    inline def `asin!`: Unit =
+    def `asin!`: Unit =
       applyUnaryOpInPlace(Math.asin)
 
-    inline def - : Array[Double] =
+    def - : Array[Double] =
       applyUnaryOp(-_)
 
-    inline def `-!`: Unit =
+    def `-!`: Unit =
       applyUnaryOpInPlace(-_)
 
     private inline def applyUnaryOp(inline op: Double => Double): Array[Double] =
@@ -273,7 +273,7 @@ object doublearrays:
       end while
     end applyUnaryOpInPlace
 
-    inline def /(d: Array[Double]): Array[Double] =
+    def /(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -285,7 +285,7 @@ object doublearrays:
       res
     end /
 
-    inline def productExceptSelf: Array[Double] =
+    def productExceptSelf: Array[Double] =
       val n = vec.length
       val left = Array.ofDim[Double](n)
       val right = Array.ofDim[Double](n)
@@ -324,13 +324,13 @@ object doublearrays:
       *
       * logSumExp(x) = max(x) + log(sum(exp(x_i - max(x)))) for i = 1 to n
       */
-    inline def logSumExp: Double =
+    def logSumExp: Double =
       val maxVal = vec.max
       val sumExp = vec.map(x => Math.exp(x - maxVal)).sum
       maxVal + Math.log(sumExp)
     end logSumExp
 
-    inline def *(d: Array[Double]): Array[Double] =
+    def *(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val n = vec.length
       val res = Array.ofDim[Double](n)
@@ -343,11 +343,11 @@ object doublearrays:
       res
     end *
 
-    inline def *:*(d: Array[Double]): Array[Double] = vec.*(d)
+    def *:*(d: Array[Double]): Array[Double] = vec.*(d)
 
-    inline def *:*=(d: Array[Double]): Unit = vec.*=(d)
+    def *:*=(d: Array[Double]): Unit = vec.*=(d)
 
-    inline def *=(d: Array[Double]): Unit =
+    def *=(d: Array[Double]): Unit =
       dimCheck(vec, d)
       val n = vec.length
 
@@ -358,7 +358,7 @@ object doublearrays:
       end while
     end *=
 
-    inline def outer(other: Array[Double])(using ClassTag[Double]): Matrix[Double] =
+    def outer(other: Array[Double])(using ClassTag[Double]): Matrix[Double] =
       val n = vec.length
       val m = other.length
       val out: Array[Double] = Array.ofDim[Double](n * m)
@@ -375,16 +375,16 @@ object doublearrays:
       Matrix[Double](out, (n, m))
     end outer
 
-    inline def <(num: Double): Array[Boolean] =
+    def <(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
-    inline def <=(num: Double): Array[Boolean] =
+    def <=(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a <= b, num)
 
-    inline def >(num: Double): Array[Boolean] =
+    def >(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a > b, num)
 
-    inline def >=(num: Double): Array[Boolean] =
+    def >=(num: Double): Array[Boolean] =
       logicalIdx((a, b) => a >= b, num)
 
     inline def logicalIdx(
@@ -412,14 +412,14 @@ object doublearrays:
     //   sum
     // end trues
 
-    inline def &&(thatIdx: Array[Boolean]): Array[Boolean] =
+    def &&(thatIdx: Array[Boolean]): Array[Boolean] =
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       for i <- 0 until vec.length do result(i) = vec(i) && thatIdx(i)
       end for
       result
     end &&
 
-    inline def ||(thatIdx: Array[Boolean]): Array[Boolean] =
+    def ||(thatIdx: Array[Boolean]): Array[Boolean] =
       val result: Array[Boolean] = new Array[Boolean](vec.length)
       for i <- 0 until vec.length do result(i) = vec(i) || thatIdx(i)
       end for
@@ -468,7 +468,7 @@ object doublearrays:
       newVec
     end apply
 
-    inline def minSIMD: Double =
+    def minSIMD: Double =
       var i = 0
       var acc = Double.PositiveInfinity
       while i < vec.length do
@@ -480,7 +480,7 @@ object doublearrays:
       acc
     end minSIMD
 
-    inline def maxSIMD: Double =
+    def maxSIMD: Double =
       var i = 0
       var acc = Double.NegativeInfinity
       while i < vec.length do
@@ -492,7 +492,7 @@ object doublearrays:
       acc
     end maxSIMD
 
-    inline def product: Double =
+    def product: Double =
       var sum = 1.0
       var i = 0;
       while i < vec.length do
@@ -502,7 +502,7 @@ object doublearrays:
       sum
     end product
 
-    inline def productSIMD: Double = product
+    def productSIMD: Double = product
 
     def increments: Array[Double] =
       val out = new Array[Double](vec.length)
@@ -515,7 +515,7 @@ object doublearrays:
       out
     end increments
 
-    inline def pearsonCorrelationCoefficient(thatVector: Array[Double]): Double =
+    def pearsonCorrelationCoefficient(thatVector: Array[Double]): Double =
       dimCheck(vec, thatVector)
       val n = vec.length
       var i = 0
@@ -539,7 +539,7 @@ object doublearrays:
       )
     end pearsonCorrelationCoefficient
 
-    inline def spearmansRankCorrelation(thatVector: Array[Double]): Double =
+    def spearmansRankCorrelation(thatVector: Array[Double]): Double =
       dimCheck(vec, thatVector)
       val theseRanks = vec.elementRanks
       val thoseRanks = thatVector.elementRanks
@@ -547,10 +547,10 @@ object doublearrays:
     end spearmansRankCorrelation
 
     // An alias - pearson is the most commonly requested type of correlation
-    inline def corr(thatVector: Array[Double]): Double =
+    def corr(thatVector: Array[Double]): Double =
       pearsonCorrelationCoefficient(thatVector)
 
-    inline def elementRanks: Array[Double] =
+    def elementRanks: Array[Double] =
       val indexed: Array[(Double, Int)] = vec.zipWithIndex
       indexed.sortInPlace()(using Ordering.by(_._1))
 
@@ -580,25 +580,25 @@ object doublearrays:
       ranks
     end elementRanks
 
-    inline def variance: Double = variance(VarianceMode.Population)
+    def variance: Double = variance(VarianceMode.Population)
 
-    inline def variance(mode: VarianceMode): Double =
+    def variance(mode: VarianceMode): Double =
       meanAndVariance(mode).variance
     end variance
 
-    inline def std: Double = std(VarianceMode.Population)
+    def std: Double = std(VarianceMode.Population)
 
-    inline def std(mode: VarianceMode): Double =
+    def std(mode: VarianceMode): Double =
       Math.sqrt(vec.variance(mode))
 
-    inline def stdDev: Double = stdDev(VarianceMode.Population)
+    def stdDev: Double = stdDev(VarianceMode.Population)
 
-    inline def stdDev(mode: VarianceMode): Double = std(mode)
+    def stdDev(mode: VarianceMode): Double = std(mode)
 
-    inline def meanAndVariance: (mean: Double, variance: Double) =
+    def meanAndVariance: (mean: Double, variance: Double) =
       meanAndVariance(VarianceMode.Population)
 
-    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
       var mean = 0.0
       var m2 = 0.0
       var i = 0
@@ -618,11 +618,11 @@ object doublearrays:
       (mean, m2 / denom)
     end meanAndVariance
 
-    inline def mean: Double = vec.sumSIMD / vec.length
+    def mean: Double = vec.sumSIMD / vec.length
 
-    inline def sumSIMD: Double = sum
+    def sumSIMD: Double = sum
 
-    inline def sum: Double =
+    def sum: Double =
       var sum = 0.0
       var i = 0;
       while i < vec.length do
@@ -632,7 +632,7 @@ object doublearrays:
       sum
     end sum
 
-    inline def `cumsum!`: Unit =
+    def `cumsum!`: Unit =
       var i = 1
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
@@ -640,13 +640,13 @@ object doublearrays:
       end while
     end `cumsum!`
 
-    inline def cumsum: Array[Double] =
+    def cumsum: Array[Double] =
       val out = vec.clone
       out.`cumsum!`
       out
     end cumsum
 
-    inline def unary_- : Array[Double] =
+    def unary_- : Array[Double] =
       val newVec = Array.ofDim[Double](vec.length)
       var i = 0
       while i < vec.length do
@@ -656,42 +656,42 @@ object doublearrays:
       newVec
     end unary_-
 
-    inline def norm: Double = blas.cblas_dnrm2(vec.length, vec.at(0), 1)
+    def norm: Double = blas.cblas_dnrm2(vec.length, vec.at(0), 1)
 
-    inline def dot(v1: Array[Double]): Double =
+    def dot(v1: Array[Double]): Double =
       dimCheck(vec, v1)
       blas.cblas_ddot(vec.length, vec.at(0), 1, v1.at(0), 1)
     end dot
 
-    inline def -(vec2: Array[Double]): Array[Double] =
+    def -(vec2: Array[Double]): Array[Double] =
       val out = vec.clone
       out -= vec2
       out
     end -
 
-    inline def -=(vec2: Array[Double]): Unit =
+    def -=(vec2: Array[Double]): Unit =
       dimCheck(vec, vec2)
       blas.cblas_daxpy(vec.length, -1.0, vec2.at(0), 1, vec.at(0), 1)
     end -=
 
-    inline def +(vec2: Array[Double]): Array[Double] =
+    def +(vec2: Array[Double]): Array[Double] =
       val out = vec.clone
       out += vec2
       out
     end +
 
-    inline def +=(vec2: Array[Double]): Unit =
+    def +=(vec2: Array[Double]): Unit =
       dimCheck(vec, vec2)
       blas.cblas_daxpy(vec.length, 1.0, vec2.at(0), 1, vec.at(0), 1)
     end +=
 
-    inline def +:+(d: Double): Array[Double] =
+    def +:+(d: Double): Array[Double] =
       val out = vec.clone
       out +:+= d
       out
     end +:+
 
-    inline def +:+=(d: Double): Unit =
+    def +:+=(d: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) + d
@@ -699,16 +699,16 @@ object doublearrays:
       end while
     end +:+=
 
-    inline def add(d: Array[Double]): Array[Double] = vec + d
-    inline def multInPlace(d: Double): Unit = vec *= d
+    def add(d: Array[Double]): Array[Double] = vec + d
+    def multInPlace(d: Double): Unit = vec *= d
 
-    inline def -(d: Double): Array[Double] =
+    def -(d: Double): Array[Double] =
       val out = vec.clone()
       out -= d
       out
     end -
 
-    inline def -=(d: Double): Unit =
+    def -=(d: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) - d
@@ -716,13 +716,13 @@ object doublearrays:
       end while
     end -=
 
-    inline def +(d: Double): Array[Double] =
+    def +(d: Double): Array[Double] =
       val out = vec.clone()
       out += d
       out
     end +
 
-    inline def +=(d: Double): Unit =
+    def +=(d: Double): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) + d
@@ -730,20 +730,20 @@ object doublearrays:
       end while
     end +=
 
-    inline def *=(d: Double): Unit =
+    def *=(d: Double): Unit =
       blas.cblas_dscal(vec.length, d, vec.at(0), 1)
     end *=
 
-    inline def *(d: Double): Array[Double] =
+    def *(d: Double): Array[Double] =
       val out = vec.clone
       out *= d
       out
     end *
 
-    inline def /=(d: Double): Unit =
+    def /=(d: Double): Unit =
       blas.cblas_dscal(vec.length, 1 / d, vec.at(0), 1)
 
-    inline def /(d: Double) =
+    def /(d: Double) =
       val out = vec.clone
       out /= d
       out

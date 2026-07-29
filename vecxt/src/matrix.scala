@@ -58,7 +58,7 @@ object matrix:
 
   object Matrix:
 
-    inline def apply[A](
+    def apply[A](
         raw: Array[A],
         rows: Row,
         cols: Col,
@@ -77,7 +77,7 @@ object matrix:
       )
     end apply
 
-    inline def apply[A](raw: Array[A], dim: RowCol): Matrix[A] =
+    def apply[A](raw: Array[A], dim: RowCol): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)
 
       new Matrix(
@@ -98,7 +98,7 @@ object matrix:
       * @param boundsCheck
       * @return
       */
-    inline def apply[A](raw: Array[A], rows: Row, cols: Col): Matrix[A] =
+    def apply[A](raw: Array[A], rows: Row, cols: Col): Matrix[A] =
       dimMatInstantiateCheck(raw, (rows, cols))
       new Matrix(
         raw = raw,
@@ -110,7 +110,7 @@ object matrix:
       )
     end apply
 
-    inline def apply[A](dim: RowCol, raw: Array[A]): Matrix[A] =
+    def apply[A](dim: RowCol, raw: Array[A]): Matrix[A] =
       Matrix(raw, dim._1, dim._2)
     end apply
   end Matrix
@@ -119,7 +119,7 @@ object matrix:
 
     // transparent inline def refinedRaw = m.raw
 
-    inline def shape: RowCol = (m.rows, m.cols)
+    def shape: RowCol = (m.rows, m.cols)
 
     // inline def rows: Row = m._2
 

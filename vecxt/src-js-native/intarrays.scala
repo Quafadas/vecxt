@@ -4,7 +4,7 @@ object intarrays:
 
   extension (vec: Array[Int])
 
-    inline def increments: Array[Int] =
+    def increments: Array[Int] =
       val n = vec.length
       val idx = Array.ofDim[Int](vec.length)
 
@@ -17,7 +17,7 @@ object intarrays:
       idx
     end increments
 
-    inline def -(other: Array[Int]): Array[Int] =
+    def -(other: Array[Int]): Array[Int] =
       dimCheck(vec, other)
       val n = vec.length
       val res = Array.fill(n)(0)
@@ -30,7 +30,7 @@ object intarrays:
       res
     end -
 
-    inline def +(other: Array[Int]): Array[Int] =
+    def +(other: Array[Int]): Array[Int] =
       dimCheck(vec, other)
 
       val n = vec.length
@@ -44,7 +44,7 @@ object intarrays:
       res
     end +
 
-    inline def dot(other: Array[Int]): Int =
+    def dot(other: Array[Int]): Int =
       dimCheck(vec, other)
       val n = vec.length
       var sum = 0
@@ -57,22 +57,22 @@ object intarrays:
       sum
     end dot
 
-    inline def =:=(nums: Array[Int]): Array[Boolean] =
+    def =:=(nums: Array[Int]): Array[Boolean] =
       logicalIdxArr(nums, (a, b) => a == b)
 
-    inline def =:=(num: Int): Array[Boolean] =
+    def =:=(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a == b, num)
 
-    inline def <(num: Int): Array[Boolean] =
+    def <(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a < b, num)
 
-    inline def <=(num: Int): Array[Boolean] =
+    def <=(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a <= b, num)
 
-    inline def >(num: Int): Array[Boolean] =
+    def >(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a > b, num)
 
-    inline def >=(num: Int): Array[Boolean] =
+    def >=(num: Int): Array[Boolean] =
       logicalIdx((a, b) => a >= b, num)
 
     inline def logicalIdx(
@@ -107,7 +107,7 @@ object intarrays:
       idx
     end logicalIdxArr
 
-    inline def countsToIdx: Array[Int] =
+    def countsToIdx: Array[Int] =
       var total = vec.sum
       var i = 0
       val out = new Array[Int](total)
@@ -126,7 +126,7 @@ object intarrays:
       out
     end countsToIdx
 
-    inline def mean: Double =
+    def mean: Double =
       var sum = 0.0
       var i = 0
       while i < vec.length do
@@ -136,16 +136,16 @@ object intarrays:
       sum / vec.length
     end mean
 
-    inline def variance: Double = variance(VarianceMode.Population)
+    def variance: Double = variance(VarianceMode.Population)
 
-    inline def variance(mode: VarianceMode): Double =
+    def variance(mode: VarianceMode): Double =
       vec.meanAndVariance(mode).variance
     end variance
 
-    inline def meanAndVariance: (mean: Double, variance: Double) =
+    def meanAndVariance: (mean: Double, variance: Double) =
       meanAndVariance(VarianceMode.Population)
 
-    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
       var mean = 0.0
       var m2 = 0.0
       var i = 0
@@ -164,16 +164,16 @@ object intarrays:
       (mean, m2 / denom)
     end meanAndVariance
 
-    inline def std: Double = std(VarianceMode.Population)
+    def std: Double = std(VarianceMode.Population)
 
-    inline def std(mode: VarianceMode): Double =
+    def std(mode: VarianceMode): Double =
       Math.sqrt(vec.variance(mode))
 
-    inline def stdDev: Double = stdDev(VarianceMode.Population)
+    def stdDev: Double = stdDev(VarianceMode.Population)
 
-    inline def stdDev(mode: VarianceMode): Double = std(mode)
+    def stdDev(mode: VarianceMode): Double = std(mode)
 
-    inline def minSIMD: Int =
+    def minSIMD: Int =
       var i = 0
       var acc = Int.MaxValue
       while i < vec.length do
@@ -185,7 +185,7 @@ object intarrays:
       acc
     end minSIMD
 
-    inline def maxSIMD: Int =
+    def maxSIMD: Int =
       var i = 0
       var acc = Int.MinValue
       while i < vec.length do
@@ -197,7 +197,7 @@ object intarrays:
       acc
     end maxSIMD
 
-    inline def -=(scalar: Int): Unit =
+    def -=(scalar: Int): Unit =
       var i = 0
       while i < vec.length do
         vec(i) = vec(i) - scalar
@@ -205,7 +205,7 @@ object intarrays:
       end while
     end -=
 
-    inline def /(scalar: Double): Array[Double] =
+    def /(scalar: Double): Array[Double] =
       val result = new Array[Double](vec.length)
       var i = 0
       while i < vec.length do
@@ -215,7 +215,7 @@ object intarrays:
       result
     end /
 
-    inline def /(scalar: Float): Array[Float] =
+    def /(scalar: Float): Array[Float] =
       val result = new Array[Float](vec.length)
       var i = 0
       while i < vec.length do
@@ -225,7 +225,7 @@ object intarrays:
       result
     end /
 
-    inline def *(scalar: Float): Array[Float] =
+    def *(scalar: Float): Array[Float] =
       val result = new Array[Float](vec.length)
       var i = 0
       while i < vec.length do
@@ -235,13 +235,13 @@ object intarrays:
       result
     end *
 
-    inline def -(scalar: Int): Array[Int] =
+    def -(scalar: Int): Array[Int] =
       val out = vec.clone()
       out -= scalar
       out
     end -
 
-    inline def -=(vec2: Array[Int]): Unit =
+    def -=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
       while i < vec.length do
@@ -250,7 +250,7 @@ object intarrays:
       end while
     end -=
 
-    inline def +=(vec2: Array[Int]): Unit =
+    def +=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
       while i < vec.length do

@@ -11,14 +11,14 @@ import scala.annotation.targetName
 object JvmIntMatrix:
   extension (m: Matrix[Int])
 
-    inline def matmul(b: Matrix[Int]): Matrix[Int] =
+    def matmul(b: Matrix[Int]): Matrix[Int] =
       dimMatCheck(m, b)
       ???
 
     end matmul
 
     @scala.annotation.targetName("intMatrixDivDouble")
-    inline def /(d: Double): Matrix[Double] =
+    def /(d: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Double](vecxt.intarrays./(i)(d), m.shape)
@@ -26,35 +26,35 @@ object JvmIntMatrix:
     end /
 
     @scala.annotation.targetName("intMatrixDivFloat")
-    inline def /(d: Float): Matrix[Float] =
+    def /(d: Float): Matrix[Float] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Float](vecxt.intarrays./(i)(d), m.shape)
       else ???
     end /
 
-    inline def >=(d: Int): Matrix[Boolean] =
+    def >=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Boolean](m.raw.gte(d), m.shape)
       else ???
     end >=
 
-    inline def >(d: Int): Matrix[Boolean] =
+    def >(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Boolean](m.raw.gt(d), m.shape)
       else ???
     end >
 
-    inline def <=(d: Int): Matrix[Boolean] =
+    def <=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Boolean](m.raw.lte(d), m.shape)
       else ???
     end <=
 
-    inline def <(d: Int): Matrix[Boolean] =
+    def <(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Boolean](m.raw.lt(d), m.shape)
@@ -62,7 +62,7 @@ object JvmIntMatrix:
     end <
 
     @scala.annotation.targetName("intMatrixMaskInPlace")
-    inline def *:*=(bmat: Matrix[Boolean]): Unit =
+    def *:*=(bmat: Matrix[Boolean]): Unit =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val spi = IntVector.SPECIES_PREFERRED
@@ -84,7 +84,7 @@ object JvmIntMatrix:
     end *:*=
 
     @scala.annotation.targetName("intMatrixMask")
-    inline def *:*(bmat: Matrix[Boolean]): Matrix[Int] =
+    def *:*(bmat: Matrix[Boolean]): Matrix[Int] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         val copy = m.deepCopy
@@ -139,22 +139,22 @@ object JvmIntMatrix:
     end reduceAlongDimension
 
     @targetName("intMatrixMax")
-    inline def max(dim: DimensionExtender): Matrix[Int] =
+    def max(dim: DimensionExtender): Matrix[Int] =
       reduceAlongDimension(dim, math.max, Int.MinValue)
     end max
 
     @targetName("intMatrixMin")
-    inline def min(dim: DimensionExtender): Matrix[Int] =
+    def min(dim: DimensionExtender): Matrix[Int] =
       reduceAlongDimension(dim, math.min, Int.MaxValue)
     end min
 
     @targetName("intMatrixSum")
-    inline def sum(dim: DimensionExtender): Matrix[Int] =
+    def sum(dim: DimensionExtender): Matrix[Int] =
       reduceAlongDimension(dim, _ + _, 0)
     end sum
 
     @targetName("intMatrixProduct")
-    inline def product(dim: DimensionExtender): Matrix[Int] =
+    def product(dim: DimensionExtender): Matrix[Int] =
       reduceAlongDimension(dim, _ * _, 1)
     end product
 
