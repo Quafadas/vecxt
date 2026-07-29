@@ -2,7 +2,6 @@ package vecxt
 
 import scala.reflect.ClassTag
 import scala.scalanative.unsafe.*
-import scala.util.chaining.*
 
 import org.ekrich.blas.unsafe.*
 
@@ -665,7 +664,9 @@ object doublearrays:
     end dot
 
     inline def -(vec2: Array[Double]): Array[Double] =
-      vec.clone.tap(_ -= vec2)
+      val out = vec.clone
+      out -= vec2
+      out
     end -
 
     inline def -=(vec2: Array[Double]): Unit =
@@ -674,7 +675,9 @@ object doublearrays:
     end -=
 
     inline def +(vec2: Array[Double]): Array[Double] =
-      vec.clone.tap(_ += vec2)
+      val out = vec.clone
+      out += vec2
+      out
     end +
 
     inline def +=(vec2: Array[Double]): Unit =
@@ -683,7 +686,9 @@ object doublearrays:
     end +=
 
     inline def +:+(d: Double): Array[Double] =
-      vec.clone.tap(_ +:+= d)
+      val out = vec.clone
+      out +:+= d
+      out
     end +:+
 
     inline def +:+=(d: Double): Unit =
@@ -698,7 +703,9 @@ object doublearrays:
     inline def multInPlace(d: Double): Unit = vec *= d
 
     inline def -(d: Double): Array[Double] =
-      vec.clone().tap(_ -= d)
+      val out = vec.clone()
+      out -= d
+      out
     end -
 
     inline def -=(d: Double): Unit =
@@ -710,7 +717,10 @@ object doublearrays:
     end -=
 
     inline def +(d: Double): Array[Double] =
-      vec.clone().tap(_ += d)
+      val out = vec.clone()
+      out += d
+      out
+    end +
 
     inline def +=(d: Double): Unit =
       var i = 0
@@ -725,14 +735,19 @@ object doublearrays:
     end *=
 
     inline def *(d: Double): Array[Double] =
-      vec.clone.tap(_ *= d)
+      val out = vec.clone
+      out *= d
+      out
     end *
 
     inline def /=(d: Double): Unit =
       blas.cblas_dscal(vec.length, 1 / d, vec.at(0), 1)
 
     inline def /(d: Double) =
-      vec.clone.tap(_ /= d)
+      val out = vec.clone
+      out /= d
+      out
+    end /
 
     def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean
@@ -774,7 +789,10 @@ object doublearrays:
         threshold: Double,
         inline op: ComparisonOp
     ): Array[Double] =
-      vec.clone().tap(_.`zeroWhere!`(other, threshold, op))
+      val out = vec.clone()
+      out.`zeroWhere!`(other, threshold, op)
+      out
+    end zeroWhere
 
   end extension
 

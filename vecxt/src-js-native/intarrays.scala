@@ -1,7 +1,5 @@
 package vecxt
 
-import scala.util.chaining.*
-
 object intarrays:
 
   extension (vec: Array[Int])
@@ -238,7 +236,9 @@ object intarrays:
     end *
 
     inline def -(scalar: Int): Array[Int] =
-      vec.clone().tap(_ -= scalar)
+      val out = vec.clone()
+      out -= scalar
+      out
     end -
 
     inline def -=(vec2: Array[Int]): Unit =

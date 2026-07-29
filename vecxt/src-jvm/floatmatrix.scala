@@ -4,7 +4,6 @@ import scala.reflect.ClassTag
 
 import vecxt.all.*
 import vecxt.dimensionExtender.DimensionExtender.*
-import scala.util.chaining.*
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.*
 import scala.annotation.targetName
@@ -573,12 +572,16 @@ object JvmFloatMatrix:
     end *=
 
     inline def *(d: Float): Matrix[Float] =
-      m.deepCopy.tap(_.*=(d))
+      val out = m.deepCopy
+      out.*=(d)
+      out
 
     end *
 
     inline def +(d: Float): Matrix[Float] =
-      m.deepCopy.tap(_.+=(d))
+      val out = m.deepCopy
+      out.+=(d)
+      out
     end +
 
     /** Returns the sum of each column as a flat Array[Float].

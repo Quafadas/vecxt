@@ -1,7 +1,6 @@
 package vecxt
 
 import scala.reflect.ClassTag
-import scala.util.chaining.scalaUtilChainingOps
 
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
@@ -333,7 +332,9 @@ object intarrays:
 
     inline def -(vec2: Array[Int]): Array[Int] =
       dimCheck(vec, vec2)
-      vec.clone.tap(_ -= vec2)
+      val out = vec.clone
+      out -= vec2
+      out
     end -
 
     def -=(scalar: Int): Unit =
@@ -447,7 +448,9 @@ object intarrays:
     end *
 
     inline def -(scalar: Int): Array[Int] =
-      vec.clone().tap(_ -= scalar)
+      val out = vec.clone()
+      out -= scalar
+      out
     end -
 
     def -=(vec2: Array[Int]): Unit =
@@ -470,7 +473,9 @@ object intarrays:
 
     inline def +(vec2: Array[Int]): Array[Int] =
       dimCheck(vec, vec2)
-      vec.clone.tap(_ += vec2)
+      val out = vec.clone
+      out += vec2
+      out
     end +
 
     def +=(vec2: Array[Int]): Unit =

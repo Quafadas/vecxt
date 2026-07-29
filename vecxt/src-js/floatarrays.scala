@@ -3,7 +3,6 @@ package vecxt
 import scala.reflect.ClassTag
 import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float32Array
-import scala.util.chaining.*
 
 import vecxt.BooleanArrays.trues
 
@@ -672,7 +671,9 @@ object floatarrays:
     end dot
 
     inline def -(vec2: Array[Float]): Array[Float] =
-      vec.clone.tap(_ -= vec2)
+      val out = vec.clone
+      out -= vec2
+      out
     end -
 
     inline def -=(vec2: Array[Float]): Unit =
@@ -685,7 +686,9 @@ object floatarrays:
     end -=
 
     inline def +(vec2: Array[Float]): Array[Float] =
-      vec.clone.tap(_ += vec2)
+      val out = vec.clone
+      out += vec2
+      out
     end +
 
     inline def +=(vec2: Array[Float]): Unit =
@@ -698,7 +701,9 @@ object floatarrays:
     end +=
 
     inline def +:+(d: Float): Array[Float] =
-      vec.clone.tap(_ +:+= d)
+      val out = vec.clone
+      out +:+= d
+      out
     end +:+
 
     inline def +:+=(d: Float): Unit =
@@ -710,7 +715,9 @@ object floatarrays:
     end +:+=
 
     inline def -(d: Float): Array[Float] =
-      vec.clone().tap(_ -= d)
+      val out = vec.clone()
+      out -= d
+      out
     end -
 
     inline def -=(d: Float): Unit =
@@ -722,7 +729,10 @@ object floatarrays:
     end -=
 
     inline def +(d: Float): Array[Float] =
-      vec.clone().tap(_ += d)
+      val out = vec.clone()
+      out += d
+      out
+    end +
 
     inline def +=(d: Float): Unit =
       var i = 0
@@ -741,7 +751,9 @@ object floatarrays:
     end *=
 
     inline def *(d: Float): Array[Float] =
-      vec.clone.tap(_ *= d)
+      val out = vec.clone
+      out *= d
+      out
     end *
 
     inline def /=(d: Float): Unit =
@@ -753,7 +765,10 @@ object floatarrays:
     end /=
 
     inline def /(d: Float): Array[Float] =
-      vec.clone.tap(_ /= d)
+      val out = vec.clone
+      out /= d
+      out
+    end /
 
     inline def pearsonCorrelationCoefficient(thatVector: Array[Float]): Float =
       dimCheck(vec, thatVector)
@@ -857,7 +872,10 @@ object floatarrays:
         threshold: Float,
         inline op: ComparisonOp
     ): Array[Float] =
-      vec.clone().tap(_.`zeroWhere!`(other, threshold, op))
+      val out = vec.clone()
+      out.`zeroWhere!`(other, threshold, op)
+      out
+    end zeroWhere
 
   end extension
 
