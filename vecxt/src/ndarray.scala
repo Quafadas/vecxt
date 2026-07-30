@@ -25,6 +25,10 @@ object ndarray:
     /** True if this is a 0-dimensional (scalar) NDArray. */
     def isScalar: Boolean = shape.length == 0
 
+    // Same situation as Matrix.hasSimpleContiguousMemoryLayout (vecxt/issues/105, check C6a): `data.length`
+    // routes through ScalaRunTime$.array_length here because `A` is this class's own abstract parameter,
+    // not a caller's concrete one - no factory-level overload reaches this field. Once per construction,
+    // not per element.
     private val dataLength: Int = data.length
 
     val numel: Int =
@@ -90,6 +94,31 @@ object ndarray:
       new NDArray(data, shape, strides, offset)
     end apply
 
+    // Concrete overloads of the constructor above (vecxt/issues/105, check C6a). `apply[A]` above is
+    // itself `inline`, so a caller with a concretely-typed array already specializes through it into the
+    // matching concrete overload of strideNDArrayCheck; these exist as an explicit, guaranteed fast path
+    // rather than relying on that alone. As with Matrix, NDArray's own constructor body (`dataLength`)
+    // stays generic regardless - see the comment on that field.
+    def apply(data: Array[Double], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Double] =
+      strideNDArrayCheck(data, shape, strides, offset)
+      new NDArray(data, shape, strides, offset)
+
+    def apply(data: Array[Float], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Float] =
+      strideNDArrayCheck(data, shape, strides, offset)
+      new NDArray(data, shape, strides, offset)
+
+    def apply(data: Array[Int], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Int] =
+      strideNDArrayCheck(data, shape, strides, offset)
+      new NDArray(data, shape, strides, offset)
+
+    def apply(data: Array[Long], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Long] =
+      strideNDArrayCheck(data, shape, strides, offset)
+      new NDArray(data, shape, strides, offset)
+
+    def apply(data: Array[Boolean], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Boolean] =
+      strideNDArrayCheck(data, shape, strides, offset)
+      new NDArray(data, shape, strides, offset)
+
     inline def empty[A]()(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
       new NDArray(Array.empty[A], Array(0), Array(1), 0)
 
@@ -98,6 +127,26 @@ object ndarray:
         data: Array[A],
         shape: Array[Int]
     ): NDArray[A] =
+      dimNDArrayCheck(data, shape)
+      new NDArray(data, shape, colMajorStrides(shape), 0)
+
+    def apply(data: Array[Double], shape: Array[Int]): NDArray[Double] =
+      dimNDArrayCheck(data, shape)
+      new NDArray(data, shape, colMajorStrides(shape), 0)
+
+    def apply(data: Array[Float], shape: Array[Int]): NDArray[Float] =
+      dimNDArrayCheck(data, shape)
+      new NDArray(data, shape, colMajorStrides(shape), 0)
+
+    def apply(data: Array[Int], shape: Array[Int]): NDArray[Int] =
+      dimNDArrayCheck(data, shape)
+      new NDArray(data, shape, colMajorStrides(shape), 0)
+
+    def apply(data: Array[Long], shape: Array[Int]): NDArray[Long] =
+      dimNDArrayCheck(data, shape)
+      new NDArray(data, shape, colMajorStrides(shape), 0)
+
+    def apply(data: Array[Boolean], shape: Array[Int]): NDArray[Boolean] =
       dimNDArrayCheck(data, shape)
       new NDArray(data, shape, colMajorStrides(shape), 0)
     end apply

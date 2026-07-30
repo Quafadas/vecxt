@@ -49,6 +49,14 @@ object matrix:
       *
       * @return
       */
+    // `raw.length` here and in `layout` below routes through ScalaRunTime$.array_length (vecxt/issues/105,
+    // check C6a) - unlike Matrix.apply's overloads, this can't be fixed by overloading, because there is
+    // only one compiled Matrix class no matter how many concrete factory overloads construct it: `A` is
+    // this class's own abstract parameter at this point, not a caller's concrete one. `layout` could move
+    // to a `Matrix[Double]`-style extension (same trick used elsewhere) with no behavioural change since
+    // it's already recomputed on every call, but that removes a public instance method from a published
+    // library's binary shape - a call worth making deliberately, not as a side effect of this audit. Both
+    // run once per construction/toString, not per element, so the cost here is the label, not the number.
     val hasSimpleContiguousMemoryLayout: Boolean =
       (isDenseRowMajor || isDenseColMajor) && raw.length == numel
 
@@ -76,6 +84,39 @@ object matrix:
         offset = offset
       )
     end apply
+
+    // Concrete overloads of the constructor above (vecxt/issues/105, check C6a): overload resolution
+    // picks these over the generic `apply[A]` whenever the caller already holds a concretely-typed
+    // array, which routes the call into strideMatInstantiateCheck's matching concrete overload instead
+    // of its generic one. This only fixes the check *inside this factory* - Matrix's own constructor
+    // body (`hasSimpleContiguousMemoryLayout`) stays generic regardless, since it's the same single
+    // compiled class either way; see the comment on that field.
+    def apply(raw: Array[Double], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Double] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+
+    def apply(raw: Array[Float], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Float] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+
+    def apply(raw: Array[Int], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Int] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+
+    def apply(raw: Array[Long], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Long] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+
+    def apply(
+        raw: Array[Boolean],
+        rows: Row,
+        cols: Col,
+        rowStride: Int,
+        colStride: Int,
+        offset: Int
+    ): Matrix[Boolean] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
 
     def apply[A](raw: Array[A], dim: RowCol): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)

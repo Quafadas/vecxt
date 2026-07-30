@@ -23,6 +23,33 @@ object ArrayIO:
       os.write.over(path, arr.mkString(seperator.toString))
   end extension
 
+  // Concrete overloads (vecxt/issues/105, check C6a): a concretely-typed receiver resolves `.mkString`
+  // through Predef's type-specific wrap (wrapDoubleArray etc.) instead of the generic fallback.
+  extension (arr: Array[Double])
+    def write(path: os.Path, seperator: Char): Unit =
+      os.write.over(path, arr.mkString(seperator.toString))
+  end extension
+
+  extension (arr: Array[Float])
+    def write(path: os.Path, seperator: Char): Unit =
+      os.write.over(path, arr.mkString(seperator.toString))
+  end extension
+
+  extension (arr: Array[Int])
+    def write(path: os.Path, seperator: Char): Unit =
+      os.write.over(path, arr.mkString(seperator.toString))
+  end extension
+
+  extension (arr: Array[Long])
+    def write(path: os.Path, seperator: Char): Unit =
+      os.write.over(path, arr.mkString(seperator.toString))
+  end extension
+
+  extension (arr: Array[Boolean])
+    def write(path: os.Path, seperator: Char): Unit =
+      os.write.over(path, arr.mkString(seperator.toString))
+  end extension
+
   def loadArray[A: Numeric: ClassTag](
       path: os.Path | os.ResourcePath,
       seperator: Char = ',',

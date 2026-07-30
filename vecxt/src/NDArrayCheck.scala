@@ -12,12 +12,11 @@ import vecxt.ndarray.NDArray
   *   - All corner combinations of indices stay within [0, data.length)
   */
 object strideNDArrayCheck:
-  inline def apply[A](
-      data: Array[A],
-      shape: Array[Int],
-      strides: Array[Int],
-      offset: Int
-  ): Unit =
+
+  /** Only ever reads `dataLength` - never an element - so the concrete/generic split (vecxt/issues/105, check C6a)
+    * only has to happen once, here, rather than being duplicated across every overload below.
+    */
+  private def checkBounds(dataLength: Int, shape: Array[Int], strides: Array[Int], offset: Int): Unit =
 
     if shape.length != strides.length then
       throw InvalidNDArray(
@@ -35,9 +34,9 @@ object strideNDArrayCheck:
       i += 1
     end while
 
-    if offset < 0 || (data.length > 0 && offset >= data.length) then
+    if offset < 0 || (dataLength > 0 && offset >= dataLength) then
       throw java.lang.IndexOutOfBoundsException(
-        s"Offset $offset is out of bounds for array of size ${data.length}"
+        s"Offset $offset is out of bounds for array of size $dataLength"
       )
     end if
 
@@ -60,34 +59,57 @@ object strideNDArrayCheck:
       )
     end if
 
-    if maxIdx >= data.length then
+    if maxIdx >= dataLength then
       throw java.lang.IndexOutOfBoundsException(
         s"NDArray with shape [${shape.mkString(",")}], strides [${strides.mkString(",")}], offset $offset " +
-          s"would access index $maxIdx, but array size is only ${data.length}"
+          s"would access index $maxIdx, but array size is only $dataLength"
       )
     end if
-  end apply
+  end checkBounds
+
+  inline def apply[A](data: Array[A], shape: Array[Int], strides: Array[Int], offset: Int): Unit =
+    checkBounds(data.length, shape, strides, offset)
+
+  def apply(data: Array[Double], shape: Array[Int], strides: Array[Int], offset: Int): Unit =
+    checkBounds(data.length, shape, strides, offset)
+
+  def apply(data: Array[Float], shape: Array[Int], strides: Array[Int], offset: Int): Unit =
+    checkBounds(data.length, shape, strides, offset)
+
+  def apply(data: Array[Int], shape: Array[Int], strides: Array[Int], offset: Int): Unit =
+    checkBounds(data.length, shape, strides, offset)
+
+  def apply(data: Array[Long], shape: Array[Int], strides: Array[Int], offset: Int): Unit =
+    checkBounds(data.length, shape, strides, offset)
+
+  def apply(data: Array[Boolean], shape: Array[Int], strides: Array[Int], offset: Int): Unit =
+    checkBounds(data.length, shape, strides, offset)
 end strideNDArrayCheck
 
 /** dimNDArrayCheck validates that the product of shape dimensions equals data.length. */
 object dimNDArrayCheck:
-  inline def apply[A](
-      data: Array[A],
-      shape: Array[Int]
-  ): Unit =
 
+  private def checkProduct(dataLength: Int, shape: Array[Int]): Unit =
     var prod = 1
     var i = 0
     while i < shape.length do
       prod *= shape(i)
       i += 1
     end while
-    if prod != data.length then
+    if prod != dataLength then
       throw InvalidNDArray(
-        s"Shape [${shape.mkString(",")}] implies $prod elements, but data has ${data.length} elements"
+        s"Shape [${shape.mkString(",")}] implies $prod elements, but data has $dataLength elements"
       )
     end if
-  end apply
+  end checkProduct
+
+  inline def apply[A](data: Array[A], shape: Array[Int]): Unit = checkProduct(data.length, shape)
+
+  def apply(data: Array[Double], shape: Array[Int]): Unit = checkProduct(data.length, shape)
+  def apply(data: Array[Float], shape: Array[Int]): Unit = checkProduct(data.length, shape)
+  def apply(data: Array[Int], shape: Array[Int]): Unit = checkProduct(data.length, shape)
+  def apply(data: Array[Long], shape: Array[Int]): Unit = checkProduct(data.length, shape)
+  def apply(data: Array[Boolean], shape: Array[Int]): Unit = checkProduct(data.length, shape)
 end dimNDArrayCheck
 
 /** shapeCheck validates that all dimensions are > 0. A 0-length shape (0-d array) is valid. */

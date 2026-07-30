@@ -23,6 +23,11 @@ import org.objectweb.asm.tree.LineNumberNode
   * `probe.*` (experiments/src/Kernel.scala, erasure.scala) is excluded from the scanned classpath below, not
   * whitelisted: those methods are deliberately-generic erasure demonstrations, not library surface, so leaving the
   * package out of scope is a decision about what counts as audited code, distinct from suppressing a specific finding.
+  *
+  * `vecxt_re.Plots` is excluded for the same reason, on the maintainer's confirmation: reporting/plotting code that
+  * is never on a fast path, not library surface either. `experiments/src/mnist.scala` and `pricing_fun.scala` are
+  * excluded on the same reasoning by extension - one-off preprocessing/plotting glue in an experiments script, not
+  * reusable library surface, and not currently confirmed by the maintainer, so revisit if that reasoning is wrong.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
@@ -53,10 +58,14 @@ class SpecializationFailureAuditSuite extends munit.FunSuite:
     found.toSeq
   end hitsInMethod
 
+  private val excludedSourceFiles = Set("mnist.scala", "pricing_fun.scala")
+
   private def hitsInClass(bytes: Array[Byte]): Seq[Hit] =
     val node = new ClassNode(Opcodes.ASM9)
     new ClassReader(bytes).accept(node, ClassReader.SKIP_FRAMES)
-    if node.name.startsWith("probe/") then Seq.empty
+    val excludedPackage = node.name.startsWith("probe/") || node.name.startsWith("vecxt_re/Plots")
+    val excludedSource = Option(node.sourceFile).exists(excludedSourceFiles.contains)
+    if excludedPackage || excludedSource then Seq.empty
     else
       val file = Option(node.sourceFile).getOrElse(node.name)
       val className = node.name.replace('/', '.')

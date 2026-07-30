@@ -559,4 +559,452 @@ object ndarrayOps:
 
   end extension
 
+  // Concrete overloads of NDArray[A]#apply(selectors*) above (vecxt/issues/105, check C6a). That
+  // method's zero-copy branch never touches an element regardless of A, but its gather branch's
+  // `out(j) = arr.data(posIn)` does, so - unlike the constructor-check helpers elsewhere in this change
+  // - the whole method is duplicated per type rather than factored, since splitting out just the gather
+  // loop would mean threading every local it closes over back out through a helper signature. `arr` has
+  // a concrete receiver type in each copy below, so `arr.data`/`out` are a checkcast + primitive
+  // load/store, not a ScalaRunTime call. Keep any change to the logic in sync across all six copies (one
+  // generic above, five here).
+  extension (arr: NDArray[Double])
+    def apply(selectors: RangeExtender*): NDArray[Double] =
+      if selectors.length != arr.ndim then
+        throw InvalidNDArray(
+          s"Expected ${arr.ndim} selectors for ndim=${arr.ndim}, got ${selectors.length}"
+        )
+      end if
+
+      var allContiguous = true
+      var k = 0
+      while k < arr.ndim do
+        selectors(k) match
+          case _: ::.type => // always contiguous, skip
+          case r: Range   =>
+            if r.start < 0 || r.end > arr.shape(k) then
+              throw new java.lang.IndexOutOfBoundsException(
+                s"Range ${r.start} until ${r.end} out of bounds for dim $k of size ${arr.shape(k)}"
+              )
+            end if
+            if r.step != 1 then allContiguous = false
+            end if
+          case a: Array[Int] =>
+            var i = 0
+            while i < a.length do
+              if a(i) < 0 || a(i) >= arr.shape(k) then
+                throw new java.lang.IndexOutOfBoundsException(
+                  s"Index ${a(i)} out of bounds for dim $k of size ${arr.shape(k)}"
+                )
+              end if
+              i += 1
+            end while
+            if !a.contiguous then allContiguous = false
+            end if
+        end match
+        k += 1
+      end while
+
+      val newShape = new Array[Int](arr.ndim)
+      k = 0
+      while k < arr.ndim do
+        newShape(k) = selectors(k) match
+          case _: ::.type    => arr.shape(k)
+          case r: Range      => r.length
+          case a: Array[Int] => a.length
+        k += 1
+      end while
+
+      if allContiguous then
+        var newOffset = arr.offset
+        k = 0
+        while k < arr.ndim do
+          val start = selectors(k) match
+            case _: ::.type    => 0
+            case r: Range      => r.start
+            case a: Array[Int] => if a.isEmpty then 0 else a(0)
+          newOffset += start * arr.strides(k)
+          k += 1
+        end while
+        mkNDArray(arr.data, newShape, arr.strides.clone(), newOffset)
+      else
+        val resolved = new Array[Array[Int]](arr.ndim)
+        k = 0
+        while k < arr.ndim do
+          resolved(k) = range(selectors(k), arr.shape(k))
+          k += 1
+        end while
+
+        val outStrides = colMajorStrides(newShape)
+        val n = shapeProduct(newShape)
+        val out = new Array[Double](n)
+
+        var j = 0
+        while j < n do
+          var posIn = arr.offset
+          k = 0
+          while k < arr.ndim do
+            val coord = (j / outStrides(k)) % newShape(k)
+            posIn += resolved(k)(coord) * arr.strides(k)
+            k += 1
+          end while
+          out(j) = arr.data(posIn)
+          j += 1
+        end while
+        mkNDArray(out, newShape, outStrides, 0)
+      end if
+    end apply
+  end extension
+
+  extension (arr: NDArray[Float])
+    def apply(selectors: RangeExtender*): NDArray[Float] =
+      if selectors.length != arr.ndim then
+        throw InvalidNDArray(
+          s"Expected ${arr.ndim} selectors for ndim=${arr.ndim}, got ${selectors.length}"
+        )
+      end if
+
+      var allContiguous = true
+      var k = 0
+      while k < arr.ndim do
+        selectors(k) match
+          case _: ::.type => // always contiguous, skip
+          case r: Range   =>
+            if r.start < 0 || r.end > arr.shape(k) then
+              throw new java.lang.IndexOutOfBoundsException(
+                s"Range ${r.start} until ${r.end} out of bounds for dim $k of size ${arr.shape(k)}"
+              )
+            end if
+            if r.step != 1 then allContiguous = false
+            end if
+          case a: Array[Int] =>
+            var i = 0
+            while i < a.length do
+              if a(i) < 0 || a(i) >= arr.shape(k) then
+                throw new java.lang.IndexOutOfBoundsException(
+                  s"Index ${a(i)} out of bounds for dim $k of size ${arr.shape(k)}"
+                )
+              end if
+              i += 1
+            end while
+            if !a.contiguous then allContiguous = false
+            end if
+        end match
+        k += 1
+      end while
+
+      val newShape = new Array[Int](arr.ndim)
+      k = 0
+      while k < arr.ndim do
+        newShape(k) = selectors(k) match
+          case _: ::.type    => arr.shape(k)
+          case r: Range      => r.length
+          case a: Array[Int] => a.length
+        k += 1
+      end while
+
+      if allContiguous then
+        var newOffset = arr.offset
+        k = 0
+        while k < arr.ndim do
+          val start = selectors(k) match
+            case _: ::.type    => 0
+            case r: Range      => r.start
+            case a: Array[Int] => if a.isEmpty then 0 else a(0)
+          newOffset += start * arr.strides(k)
+          k += 1
+        end while
+        mkNDArray(arr.data, newShape, arr.strides.clone(), newOffset)
+      else
+        val resolved = new Array[Array[Int]](arr.ndim)
+        k = 0
+        while k < arr.ndim do
+          resolved(k) = range(selectors(k), arr.shape(k))
+          k += 1
+        end while
+
+        val outStrides = colMajorStrides(newShape)
+        val n = shapeProduct(newShape)
+        val out = new Array[Float](n)
+
+        var j = 0
+        while j < n do
+          var posIn = arr.offset
+          k = 0
+          while k < arr.ndim do
+            val coord = (j / outStrides(k)) % newShape(k)
+            posIn += resolved(k)(coord) * arr.strides(k)
+            k += 1
+          end while
+          out(j) = arr.data(posIn)
+          j += 1
+        end while
+        mkNDArray(out, newShape, outStrides, 0)
+      end if
+    end apply
+  end extension
+
+  extension (arr: NDArray[Int])
+    def apply(selectors: RangeExtender*): NDArray[Int] =
+      if selectors.length != arr.ndim then
+        throw InvalidNDArray(
+          s"Expected ${arr.ndim} selectors for ndim=${arr.ndim}, got ${selectors.length}"
+        )
+      end if
+
+      var allContiguous = true
+      var k = 0
+      while k < arr.ndim do
+        selectors(k) match
+          case _: ::.type => // always contiguous, skip
+          case r: Range   =>
+            if r.start < 0 || r.end > arr.shape(k) then
+              throw new java.lang.IndexOutOfBoundsException(
+                s"Range ${r.start} until ${r.end} out of bounds for dim $k of size ${arr.shape(k)}"
+              )
+            end if
+            if r.step != 1 then allContiguous = false
+            end if
+          case a: Array[Int] =>
+            var i = 0
+            while i < a.length do
+              if a(i) < 0 || a(i) >= arr.shape(k) then
+                throw new java.lang.IndexOutOfBoundsException(
+                  s"Index ${a(i)} out of bounds for dim $k of size ${arr.shape(k)}"
+                )
+              end if
+              i += 1
+            end while
+            if !a.contiguous then allContiguous = false
+            end if
+        end match
+        k += 1
+      end while
+
+      val newShape = new Array[Int](arr.ndim)
+      k = 0
+      while k < arr.ndim do
+        newShape(k) = selectors(k) match
+          case _: ::.type    => arr.shape(k)
+          case r: Range      => r.length
+          case a: Array[Int] => a.length
+        k += 1
+      end while
+
+      if allContiguous then
+        var newOffset = arr.offset
+        k = 0
+        while k < arr.ndim do
+          val start = selectors(k) match
+            case _: ::.type    => 0
+            case r: Range      => r.start
+            case a: Array[Int] => if a.isEmpty then 0 else a(0)
+          newOffset += start * arr.strides(k)
+          k += 1
+        end while
+        mkNDArray(arr.data, newShape, arr.strides.clone(), newOffset)
+      else
+        val resolved = new Array[Array[Int]](arr.ndim)
+        k = 0
+        while k < arr.ndim do
+          resolved(k) = range(selectors(k), arr.shape(k))
+          k += 1
+        end while
+
+        val outStrides = colMajorStrides(newShape)
+        val n = shapeProduct(newShape)
+        val out = new Array[Int](n)
+
+        var j = 0
+        while j < n do
+          var posIn = arr.offset
+          k = 0
+          while k < arr.ndim do
+            val coord = (j / outStrides(k)) % newShape(k)
+            posIn += resolved(k)(coord) * arr.strides(k)
+            k += 1
+          end while
+          out(j) = arr.data(posIn)
+          j += 1
+        end while
+        mkNDArray(out, newShape, outStrides, 0)
+      end if
+    end apply
+  end extension
+
+  extension (arr: NDArray[Long])
+    def apply(selectors: RangeExtender*): NDArray[Long] =
+      if selectors.length != arr.ndim then
+        throw InvalidNDArray(
+          s"Expected ${arr.ndim} selectors for ndim=${arr.ndim}, got ${selectors.length}"
+        )
+      end if
+
+      var allContiguous = true
+      var k = 0
+      while k < arr.ndim do
+        selectors(k) match
+          case _: ::.type => // always contiguous, skip
+          case r: Range   =>
+            if r.start < 0 || r.end > arr.shape(k) then
+              throw new java.lang.IndexOutOfBoundsException(
+                s"Range ${r.start} until ${r.end} out of bounds for dim $k of size ${arr.shape(k)}"
+              )
+            end if
+            if r.step != 1 then allContiguous = false
+            end if
+          case a: Array[Int] =>
+            var i = 0
+            while i < a.length do
+              if a(i) < 0 || a(i) >= arr.shape(k) then
+                throw new java.lang.IndexOutOfBoundsException(
+                  s"Index ${a(i)} out of bounds for dim $k of size ${arr.shape(k)}"
+                )
+              end if
+              i += 1
+            end while
+            if !a.contiguous then allContiguous = false
+            end if
+        end match
+        k += 1
+      end while
+
+      val newShape = new Array[Int](arr.ndim)
+      k = 0
+      while k < arr.ndim do
+        newShape(k) = selectors(k) match
+          case _: ::.type    => arr.shape(k)
+          case r: Range      => r.length
+          case a: Array[Int] => a.length
+        k += 1
+      end while
+
+      if allContiguous then
+        var newOffset = arr.offset
+        k = 0
+        while k < arr.ndim do
+          val start = selectors(k) match
+            case _: ::.type    => 0
+            case r: Range      => r.start
+            case a: Array[Int] => if a.isEmpty then 0 else a(0)
+          newOffset += start * arr.strides(k)
+          k += 1
+        end while
+        mkNDArray(arr.data, newShape, arr.strides.clone(), newOffset)
+      else
+        val resolved = new Array[Array[Int]](arr.ndim)
+        k = 0
+        while k < arr.ndim do
+          resolved(k) = range(selectors(k), arr.shape(k))
+          k += 1
+        end while
+
+        val outStrides = colMajorStrides(newShape)
+        val n = shapeProduct(newShape)
+        val out = new Array[Long](n)
+
+        var j = 0
+        while j < n do
+          var posIn = arr.offset
+          k = 0
+          while k < arr.ndim do
+            val coord = (j / outStrides(k)) % newShape(k)
+            posIn += resolved(k)(coord) * arr.strides(k)
+            k += 1
+          end while
+          out(j) = arr.data(posIn)
+          j += 1
+        end while
+        mkNDArray(out, newShape, outStrides, 0)
+      end if
+    end apply
+  end extension
+
+  extension (arr: NDArray[Boolean])
+    def apply(selectors: RangeExtender*): NDArray[Boolean] =
+      if selectors.length != arr.ndim then
+        throw InvalidNDArray(
+          s"Expected ${arr.ndim} selectors for ndim=${arr.ndim}, got ${selectors.length}"
+        )
+      end if
+
+      var allContiguous = true
+      var k = 0
+      while k < arr.ndim do
+        selectors(k) match
+          case _: ::.type => // always contiguous, skip
+          case r: Range   =>
+            if r.start < 0 || r.end > arr.shape(k) then
+              throw new java.lang.IndexOutOfBoundsException(
+                s"Range ${r.start} until ${r.end} out of bounds for dim $k of size ${arr.shape(k)}"
+              )
+            end if
+            if r.step != 1 then allContiguous = false
+            end if
+          case a: Array[Int] =>
+            var i = 0
+            while i < a.length do
+              if a(i) < 0 || a(i) >= arr.shape(k) then
+                throw new java.lang.IndexOutOfBoundsException(
+                  s"Index ${a(i)} out of bounds for dim $k of size ${arr.shape(k)}"
+                )
+              end if
+              i += 1
+            end while
+            if !a.contiguous then allContiguous = false
+            end if
+        end match
+        k += 1
+      end while
+
+      val newShape = new Array[Int](arr.ndim)
+      k = 0
+      while k < arr.ndim do
+        newShape(k) = selectors(k) match
+          case _: ::.type    => arr.shape(k)
+          case r: Range      => r.length
+          case a: Array[Int] => a.length
+        k += 1
+      end while
+
+      if allContiguous then
+        var newOffset = arr.offset
+        k = 0
+        while k < arr.ndim do
+          val start = selectors(k) match
+            case _: ::.type    => 0
+            case r: Range      => r.start
+            case a: Array[Int] => if a.isEmpty then 0 else a(0)
+          newOffset += start * arr.strides(k)
+          k += 1
+        end while
+        mkNDArray(arr.data, newShape, arr.strides.clone(), newOffset)
+      else
+        val resolved = new Array[Array[Int]](arr.ndim)
+        k = 0
+        while k < arr.ndim do
+          resolved(k) = range(selectors(k), arr.shape(k))
+          k += 1
+        end while
+
+        val outStrides = colMajorStrides(newShape)
+        val n = shapeProduct(newShape)
+        val out = new Array[Boolean](n)
+
+        var j = 0
+        while j < n do
+          var posIn = arr.offset
+          k = 0
+          while k < arr.ndim do
+            val coord = (j / outStrides(k)) % newShape(k)
+            posIn += resolved(k)(coord) * arr.strides(k)
+            k += 1
+          end while
+          out(j) = arr.data(posIn)
+          j += 1
+        end while
+        mkNDArray(out, newShape, outStrides, 0)
+      end if
+    end apply
+  end extension
+
 end ndarrayOps
