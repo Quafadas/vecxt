@@ -13,8 +13,8 @@ import vecxt.ndarray.NDArray
   */
 object strideNDArrayCheck:
 
-  /** Only ever reads `dataLength` - never an element - so the concrete/generic split (vecxt/issues/105, check C6a)
-    * only has to happen once, here, rather than being duplicated across every overload below.
+  /** Only ever reads `dataLength` - never an element - so the concrete/generic split (vecxt/issues/105, check C6a) only
+    * has to happen once, here, rather than being duplicated across every overload below.
     */
   private def checkBounds(dataLength: Int, shape: Array[Int], strides: Array[Int], offset: Int): Unit =
 

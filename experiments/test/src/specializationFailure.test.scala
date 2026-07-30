@@ -24,10 +24,10 @@ import org.objectweb.asm.tree.LineNumberNode
   * whitelisted: those methods are deliberately-generic erasure demonstrations, not library surface, so leaving the
   * package out of scope is a decision about what counts as audited code, distinct from suppressing a specific finding.
   *
-  * `vecxt_re.Plots` is excluded for the same reason, on the maintainer's confirmation: reporting/plotting code that
-  * is never on a fast path, not library surface either. `experiments/src/mnist.scala` and `pricing_fun.scala` are
-  * excluded on the same reasoning by extension - one-off preprocessing/plotting glue in an experiments script, not
-  * reusable library surface, and not currently confirmed by the maintainer, so revisit if that reasoning is wrong.
+  * `vecxt_re.Plots` is excluded for the same reason, on the maintainer's confirmation: reporting/plotting code that is
+  * never on a fast path, not library surface either. `experiments/src/mnist.scala` and `pricing_fun.scala` are excluded
+  * on the same reasoning by extension - one-off preprocessing/plotting glue in an experiments script, not reusable
+  * library surface, and not currently confirmed by the maintainer, so revisit if that reasoning is wrong.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 

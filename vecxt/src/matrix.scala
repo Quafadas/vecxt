@@ -94,18 +94,22 @@ object matrix:
     def apply(raw: Array[Double], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Double] =
       strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
       new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
 
     def apply(raw: Array[Float], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Float] =
       strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
       new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
 
     def apply(raw: Array[Int], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Int] =
       strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
       new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
 
     def apply(raw: Array[Long], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Long] =
       strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
       new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
 
     def apply(
         raw: Array[Boolean],
@@ -117,6 +121,7 @@ object matrix:
     ): Matrix[Boolean] =
       strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
       new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
 
     def apply[A](raw: Array[A], dim: RowCol): Matrix[A] =
       dimMatInstantiateCheck(raw, dim)

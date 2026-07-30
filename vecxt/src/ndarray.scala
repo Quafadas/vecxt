@@ -102,22 +102,27 @@ object ndarray:
     def apply(data: Array[Double], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Double] =
       strideNDArrayCheck(data, shape, strides, offset)
       new NDArray(data, shape, strides, offset)
+    end apply
 
     def apply(data: Array[Float], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Float] =
       strideNDArrayCheck(data, shape, strides, offset)
       new NDArray(data, shape, strides, offset)
+    end apply
 
     def apply(data: Array[Int], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Int] =
       strideNDArrayCheck(data, shape, strides, offset)
       new NDArray(data, shape, strides, offset)
+    end apply
 
     def apply(data: Array[Long], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Long] =
       strideNDArrayCheck(data, shape, strides, offset)
       new NDArray(data, shape, strides, offset)
+    end apply
 
     def apply(data: Array[Boolean], shape: Array[Int], strides: Array[Int], offset: Int): NDArray[Boolean] =
       strideNDArrayCheck(data, shape, strides, offset)
       new NDArray(data, shape, strides, offset)
+    end apply
 
     inline def empty[A]()(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
       new NDArray(Array.empty[A], Array(0), Array(1), 0)
@@ -129,22 +134,27 @@ object ndarray:
     ): NDArray[A] =
       dimNDArrayCheck(data, shape)
       new NDArray(data, shape, colMajorStrides(shape), 0)
+    end apply
 
     def apply(data: Array[Double], shape: Array[Int]): NDArray[Double] =
       dimNDArrayCheck(data, shape)
       new NDArray(data, shape, colMajorStrides(shape), 0)
+    end apply
 
     def apply(data: Array[Float], shape: Array[Int]): NDArray[Float] =
       dimNDArrayCheck(data, shape)
       new NDArray(data, shape, colMajorStrides(shape), 0)
+    end apply
 
     def apply(data: Array[Int], shape: Array[Int]): NDArray[Int] =
       dimNDArrayCheck(data, shape)
       new NDArray(data, shape, colMajorStrides(shape), 0)
+    end apply
 
     def apply(data: Array[Long], shape: Array[Int]): NDArray[Long] =
       dimNDArrayCheck(data, shape)
       new NDArray(data, shape, colMajorStrides(shape), 0)
+    end apply
 
     def apply(data: Array[Boolean], shape: Array[Int]): NDArray[Boolean] =
       dimNDArrayCheck(data, shape)
