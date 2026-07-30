@@ -9,16 +9,16 @@ import org.objectweb.asm.tree.MethodNode
 import org.objectweb.asm.tree.MethodInsnNode
 import org.objectweb.asm.tree.LineNumberNode
 
-/** Phase 0 of the plan in https://github.com/Quafadas/vecxt/issues/105 — check C6a only, standalone
-  * and ahead of the rest of the bytecode-audit infrastructure (no baseline, no annotations).
+/** Phase 0 of the plan in https://github.com/Quafadas/vecxt/issues/105 — check C6a only, standalone and ahead of the
+  * rest of the bytecode-audit infrastructure (no baseline, no annotations).
   *
-  * scala/runtime/ScalaRunTime$ array accessors (and Predef$.genericWrapArray) are emitted only when a
-  * generic type parameter has erased an array to Object; a numeric array library has no legitimate
-  * reason to hit any of them, so any occurrence anywhere is a FAIL — no whitelist, no @HotPath scope.
+  * scala/runtime/ScalaRunTime$ array accessors (and Predef$.genericWrapArray) are emitted only when a generic type
+  * parameter has erased an array to Object; a numeric array library has no legitimate reason to hit any of them, so any
+  * occurrence anywhere is a FAIL — no whitelist, no @HotPath scope.
   *
-  * `scala/reflect/ClassTag.newArray` is deliberately left out: unlike the symbols above, it's the
-  * ordinary, non-erasure way to allocate a generic array, and is only a problem inside a hot kernel —
-  * that needs the `@HotPath` scoping Phase 1 introduces, so it's deferred rather than flagged here.
+  * `scala/reflect/ClassTag.newArray` is deliberately left out: unlike the symbols above, it's the ordinary, non-erasure
+  * way to allocate a generic array, and is only a problem inside a hot kernel — that needs the `@HotPath` scoping Phase
+  * 1 introduces, so it's deferred rather than flagged here.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
@@ -40,11 +40,12 @@ class SpecializationFailureAuditSuite extends munit.FunSuite:
     var line = -1
     for insn <- m.instructions.asScala do
       insn match
-        case ln: LineNumberNode => line = ln.line
+        case ln: LineNumberNode                                      => line = ln.line
         case call: MethodInsnNode if banned((call.owner, call.name)) =>
           val symbol = s"${call.owner.replace('/', '.')}.${call.name}"
           found += Hit(file, line, s"$className.${m.name}", symbol)
         case _ => ()
+    end for
     found.toSeq
   end hitsInMethod
 
