@@ -61,6 +61,7 @@ class SpecializationFailureAuditSuite extends munit.FunSuite:
       val file = Option(node.sourceFile).getOrElse(node.name)
       val className = node.name.replace('/', '.')
       node.methods.asScala.toSeq.flatMap(hitsInMethod(file, className, _))
+    end if
   end hitsInClass
 
   // Every module we depend on lands its own compiled classes as a plain classpath directory (library
