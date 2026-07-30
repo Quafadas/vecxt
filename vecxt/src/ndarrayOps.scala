@@ -1,5 +1,6 @@
 package vecxt
 
+import scala.annotation.targetName
 import scala.reflect.ClassTag
 
 import vecxt.IntArraysX.*
@@ -568,6 +569,7 @@ object ndarrayOps:
   // load/store, not a ScalaRunTime call. Keep any change to the logic in sync across all six copies (one
   // generic above, five here).
   extension (arr: NDArray[Double])
+    @targetName("applyNDArrayDouble")
     def apply(selectors: RangeExtender*): NDArray[Double] =
       if selectors.length != arr.ndim then
         throw InvalidNDArray(
@@ -656,6 +658,7 @@ object ndarrayOps:
   end extension
 
   extension (arr: NDArray[Float])
+    @targetName("applyNDArrayFloat")
     def apply(selectors: RangeExtender*): NDArray[Float] =
       if selectors.length != arr.ndim then
         throw InvalidNDArray(
@@ -744,6 +747,7 @@ object ndarrayOps:
   end extension
 
   extension (arr: NDArray[Int])
+    @targetName("applyNDArrayInt")
     def apply(selectors: RangeExtender*): NDArray[Int] =
       if selectors.length != arr.ndim then
         throw InvalidNDArray(
@@ -832,6 +836,7 @@ object ndarrayOps:
   end extension
 
   extension (arr: NDArray[Long])
+    @targetName("applyNDArrayLong")
     def apply(selectors: RangeExtender*): NDArray[Long] =
       if selectors.length != arr.ndim then
         throw InvalidNDArray(
@@ -920,6 +925,7 @@ object ndarrayOps:
   end extension
 
   extension (arr: NDArray[Boolean])
+    @targetName("applyNDArrayBoolean")
     def apply(selectors: RangeExtender*): NDArray[Boolean] =
       if selectors.length != arr.ndim then
         throw InvalidNDArray(

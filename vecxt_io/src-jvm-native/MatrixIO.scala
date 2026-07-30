@@ -1,6 +1,7 @@
 package vecxt_io
 
 import vecxt.all.*
+import scala.annotation.targetName
 import scala.math.Numeric
 import scala.reflect.ClassTag
 
@@ -38,6 +39,7 @@ object MatrixIO:
   // ScalaRunTime$.array_apply/array_update inside row's inlined body, then again via genericWrapArray on
   // the resulting Array[A].mkString; these avoid all three at once by construction, not by relabelling.
   extension (m: Matrix[Double])
+    @targetName("writeMatrixDouble")
     def write(path: os.Path, seperator: Char): Unit =
       if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
       else
@@ -51,6 +53,7 @@ object MatrixIO:
   end extension
 
   extension (m: Matrix[Float])
+    @targetName("writeMatrixFloat")
     def write(path: os.Path, seperator: Char): Unit =
       if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
       else
@@ -64,6 +67,7 @@ object MatrixIO:
   end extension
 
   extension (m: Matrix[Int])
+    @targetName("writeMatrixInt")
     def write(path: os.Path, seperator: Char): Unit =
       if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
       else
@@ -77,6 +81,7 @@ object MatrixIO:
   end extension
 
   extension (m: Matrix[Long])
+    @targetName("writeMatrixLong")
     def write(path: os.Path, seperator: Char): Unit =
       if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
       else
@@ -90,6 +95,7 @@ object MatrixIO:
   end extension
 
   extension (m: Matrix[Boolean])
+    @targetName("writeMatrixBoolean")
     def write(path: os.Path, seperator: Char): Unit =
       if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
       else
