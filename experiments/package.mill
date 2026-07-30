@@ -96,6 +96,19 @@ object `package` extends ScalaModule:
       )
     else Task.log.info(s"all methods within $limit bytecodes")
   }
+
+  // Phase 0 of https://github.com/Quafadas/vecxt/issues/105 — a standalone C6a check, ahead of the
+  // rest of the bytecode-audit infrastructure. moduleDeps on `package` (== build.experiments) pulls
+  // in its own compiled classes plus, transitively, vecxt.jvm / vecxtensions.jvm / vecxt_re.jvm /
+  // vecxt_io.jvm as classpath directories, which is every JVM module the plan asks Phase 0 to cover.
+  object test extends ScalaTests, TestModule.Munit:
+    def moduleDeps = Seq(build.experiments)
+    override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"org.scalameta::munit::${build.V.munitVersion}",
+      mvn"org.ow2.asm:asm-tree:9.10.1"
+    )
+  end test
 end `package`
 
 

@@ -82,6 +82,10 @@ jobs:
         if: matrix.project == 'jvm'
         run: ./mill laws.${{ matrix.project }}.test
 
+      - name: Bytecode audit (Phase 0 - C6a specialization-failure scan)
+        if: matrix.project == 'jvm'
+        run: ./mill experiments.test
+
       - name: Doc Gen
         if: matrix.project == 'jvm'
         run: ./mill site.siteGen
