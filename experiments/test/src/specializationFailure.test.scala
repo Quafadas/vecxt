@@ -19,6 +19,10 @@ import org.objectweb.asm.tree.LineNumberNode
   * `scala/reflect/ClassTag.newArray` is deliberately left out: unlike the symbols above, it's the ordinary, non-erasure
   * way to allocate a generic array, and is only a problem inside a hot kernel — that needs the `@HotPath` scoping Phase
   * 1 introduces, so it's deferred rather than flagged here.
+  *
+  * `probe.*` (experiments/src/Kernel.scala, erasure.scala) is excluded from the scanned classpath below, not
+  * whitelisted: those methods are deliberately-generic erasure demonstrations, not library surface, so leaving the
+  * package out of scope is a decision about what counts as audited code, distinct from suppressing a specific finding.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
@@ -52,9 +56,11 @@ class SpecializationFailureAuditSuite extends munit.FunSuite:
   private def hitsInClass(bytes: Array[Byte]): Seq[Hit] =
     val node = new ClassNode(Opcodes.ASM9)
     new ClassReader(bytes).accept(node, ClassReader.SKIP_FRAMES)
-    val file = Option(node.sourceFile).getOrElse(node.name)
-    val className = node.name.replace('/', '.')
-    node.methods.asScala.toSeq.flatMap(hitsInMethod(file, className, _))
+    if node.name.startsWith("probe/") then Seq.empty
+    else
+      val file = Option(node.sourceFile).getOrElse(node.name)
+      val className = node.name.replace('/', '.')
+      node.methods.asScala.toSeq.flatMap(hitsInMethod(file, className, _))
   end hitsInClass
 
   // Every module we depend on lands its own compiled classes as a plain classpath directory (library
