@@ -22,7 +22,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         scala: [3]
-        java: [temurin@17]
+        java: [temurin@25]
         project: [js, jvm, native]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -34,7 +34,7 @@ jobs:
 
       - uses: coursier/setup-action@main
         with:
-          jvm: temurin@17
+          jvm: temurin@25
           apps: scala-cli
 
       - name: Cache Coursier
@@ -113,7 +113,7 @@ jobs:
 
       - uses: coursier/setup-action@main
         with:
-          jvm: temurin@17
+          jvm: temurin@25
           apps: scala-cli
 
       - name: Cache Coursier
@@ -138,7 +138,7 @@ jobs:
     steps:
       - uses: coursier/setup-action@main
         with:
-          jvm: temurin@17
+          jvm: temurin@25
           apps: scala-cli
 
       - name: Cache Coursier
