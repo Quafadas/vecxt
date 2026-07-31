@@ -7,7 +7,7 @@ import vecxt.all.*
   * Each method chains a known number of element-wise operations. Subtracting consecutive sizes gives bytecodes-per-op
   * directly, and `chain16` versus HotSpot's 325 / 8000 thresholds says whether accumulation is a real problem.
   *
-  * Run: mill experiments.bytecodeSizes then grep the CSV for `probe.Kernel`.
+  * Run: mill bytecodeAudit.test then grep out/bytecode-audit/method-sizes.csv for `probe.Kernel`.
   *
   * The methods deliberately return a value derived from the result so nothing is eliminated as dead code, and they take
   * arrays as parameters so no constant folding is possible.

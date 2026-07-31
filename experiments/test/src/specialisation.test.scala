@@ -3,8 +3,8 @@ package vecxt
 import vecxt.all.*
 import vecxt_io.MatrixIO.loadMatrix
 
-/** Runtime proof that specialization survives the API, complementing the bytecode audit in
-  * `specializationFailure.test.scala` (vecxt/issues/105).
+/** Runtime proof that specialization survives the API, complementing check C6a of the bytecode audit in the
+  * `bytecodeAudit` module (vecxt/issues/105).
   *
   * The two checks cover genuinely different failure modes, and only together do they cover both:
   *
