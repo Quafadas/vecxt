@@ -2,6 +2,10 @@ package vecxt
 
 import scala.reflect.ClassTag
 
+import vecxt.annotations.AllocFree
+import vecxt.annotations.HotPath
+import vecxt.annotations.Thin
+
 import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
@@ -24,6 +28,8 @@ object doublearrays:
   final val iota: DoubleVector = DoubleVector.fromArray(spd, Array.tabulate(spdl)(_.toDouble), 0)
 
   /** Zero-allocation: fills a caller-owned buffer. */
+  @HotPath
+  @AllocFree
   def fillLinspace(dest: Array[Double], a: Double, b: Double): Unit =
     val n = dest.length
     if n == 1 then dest(0) = a
@@ -323,6 +329,8 @@ object doublearrays:
       out
     end tanh
 
+    @HotPath
+    @AllocFree
     def `**!`(power: Double): Unit =
       var i = 0
       val bp = DoubleVector.broadcast(spd, power)
@@ -347,6 +355,7 @@ object doublearrays:
       out
     end **
 
+    @HotPath
     def increments: Array[Double] =
       val out = new Array[Double](vec.length)
       val bound = spd.loopBound(vec.length - 2)
@@ -461,6 +470,19 @@ object doublearrays:
 
     inline def variance: Double = variance(VarianceMode.Population)
 
+    /** Deliberately not `@Thin`, and the reason is a measurement worth keeping.
+      *
+      * It was annotated `@Thin` and C3 measured it at 37 bytes against a 35-byte `MaxInlineSize`. The neighbouring
+      * `meanAndVariance(mode)`, which forwards to `meanAndVarianceTwoPass` and nothing else, is 7 bytes. So roughly 30
+      * bytes here is the cost of destructuring the result: `(mean: Double, variance: Double)` is a named tuple, which
+      * erases to a `Tuple2` of boxed Doubles, and reading one field means an unbox — after allocating a pair in order
+      * to discard half of it.
+      *
+      * That makes this a forwarder plus real work, so `@Thin` was the wrong claim rather than the budget being wrong.
+      * Left as a plain `def`. The allocation is the more interesting half and belongs to Phase 2: `variance` allocating
+      * a Tuple2 per call is precisely what check D1 measures, and if it shows up there the fix is a variance path that
+      * does not route through the pair.
+      */
     def variance(mode: VarianceMode): Double =
       meanAndVariance(mode).variance
     end variance
@@ -474,9 +496,11 @@ object doublearrays:
 
     inline def stdDev(mode: VarianceMode): Double = std(mode)
 
+    @Thin
     def meanAndVariance: (mean: Double, variance: Double) =
       meanAndVariance(VarianceMode.Population)
 
+    @Thin
     def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
       meanAndVarianceTwoPass(mode)
     end meanAndVariance
@@ -593,6 +617,8 @@ object doublearrays:
 
     inline def sum: Double = sumSIMD
 
+    @HotPath
+    @AllocFree
     def sumSIMD: Double =
       var i: Int = 0
       var acc = DoubleVector.zero(spd)
@@ -614,6 +640,8 @@ object doublearrays:
 
     inline def product: Double = productSIMD
 
+    @HotPath
+    @AllocFree
     def productSIMD: Double =
       var i: Int = 0
       var acc = DoubleVector.broadcast(spd, 1.0)
@@ -784,6 +812,8 @@ object doublearrays:
       * @return
       *   A new array with values clamped to the specified range.
       */
+    @HotPath
+    @AllocFree
     def `clamp!`(floor: Double, ceil: Double): Unit =
       var i = 0
       var vecCeil = DoubleVector.broadcast(spd, ceil)
@@ -908,6 +938,8 @@ object doublearrays:
       out
     end +
 
+    @HotPath
+    @AllocFree
     def +=(d: Double): Unit =
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0
@@ -946,6 +978,8 @@ object doublearrays:
       out
     end -
 
+    @HotPath
+    @AllocFree
     def `fma!`(multiply: Double, add: Double): Unit =
       var i = 0
       val bound = spd.loopBound(vec.length)
@@ -969,6 +1003,8 @@ object doublearrays:
       out
     end fma
 
+    @HotPath
+    @AllocFree
     def -=(d: Double): Unit =
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0
@@ -1039,6 +1075,8 @@ object doublearrays:
 
     inline def *:*=(d: Array[Double]): Unit = vec.*=(d)
 
+    @HotPath
+    @AllocFree
     def *=(d: Array[Double]): Unit =
       dimCheck(vec, d)
       var i = 0

@@ -82,9 +82,31 @@ jobs:
         if: matrix.project == 'jvm'
         run: ./mill laws.${{ matrix.project }}.test
 
-      - name: Bytecode audit (Phase 0 - C6a specialization-failure scan)
+      # Tier 1 of #105: the static checks (C1/C2/C3/C9, C6a, A1) and the runtime
+      # specialization sweep, which is C6a's other half. Writes out/bytecode-audit/
+      # whether it passes or fails, so the two steps below can publish either way.
+      - name: Bytecode audit and specialization sweep
         if: matrix.project == 'jvm'
-        run: ./mill experiments.test
+        run: ./mill bytecodeAudit.test
+
+      - name: Upload bytecode audit report
+        if: always() && matrix.project == 'jvm'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bytecode-audit
+          path: out/bytecode-audit/
+          if-no-files-found: warn
+
+      # Deltas against the checked-in baseline, in the PR rather than in a job log.
+      # continue-on-error because a fork PR's token cannot write comments, and losing
+      # the comment must not fail the build.
+      - name: Comment bytecode audit on the PR
+        if: always() && matrix.project == 'jvm' && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: bytecode-audit
+          path: out/bytecode-audit/comment.md
 
       - name: Doc Gen
         if: matrix.project == 'jvm'

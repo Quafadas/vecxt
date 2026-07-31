@@ -1,5 +1,6 @@
 package vecxt
 
+import vecxt.annotations.HotPath
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 import vecxt.ndarrayOps.sameAndContiguousMemoryLayout
@@ -14,6 +15,7 @@ object NDArrayDoubleOps:
     * `b.data` using their respective strides. Handles broadcast views (stride-0) correctly. Produces a fresh
     * column-major result.
     */
+  @HotPath
   private[NDArrayDoubleOps] def binaryOpGeneral(
       a: NDArray[Double],
       b: NDArray[Double],
@@ -41,6 +43,7 @@ object NDArrayDoubleOps:
   end binaryOpGeneral
 
   /** Unary op kernel for non-column-major arrays. Produces a fresh column-major result. */
+  @HotPath
   private[NDArrayDoubleOps] def unaryOpGeneral(a: NDArray[Double], f: Double => Double): NDArray[Double] =
     val n = a.numel
     val ndim = a.ndim
@@ -62,6 +65,7 @@ object NDArrayDoubleOps:
   end unaryOpGeneral
 
   /** Binary comparison kernel for arrays with arbitrary strides (same shape). */
+  @HotPath
   private[NDArrayDoubleOps] def compareGeneral(
       a: NDArray[Double],
       b: NDArray[Double],
@@ -89,6 +93,7 @@ object NDArrayDoubleOps:
   end compareGeneral
 
   /** Scalar comparison kernel for non-column-major arrays. */
+  @HotPath
   private[NDArrayDoubleOps] def compareScalarGeneral(
       a: NDArray[Double],
       s: Double,
@@ -117,6 +122,7 @@ object NDArrayDoubleOps:
     *
     * `a` must be contiguous (checked by caller). Iterates in column-major coordinate order.
     */
+  @HotPath
   private[NDArrayDoubleOps] def binaryOpInPlaceGeneral(
       a: NDArray[Double],
       b: NDArray[Double],
@@ -193,7 +199,7 @@ object NDArrayDoubleOps:
     /** Element-wise addition. Operands must have the same shape; use `broadcastTo` or `broadcastPair` first if needed.
       * If either operand is 0-d, it is treated as a scalar and broadcast to the other operand's shape.
       */
-    inline def +(b: NDArray[Double]): NDArray[Double] =
+    def +(b: NDArray[Double]): NDArray[Double] =
       if a.ndim == 0 then b + a.data(a.offset)
       else if b.ndim == 0 then a + b.data(b.offset)
       else
@@ -220,7 +226,7 @@ object NDArrayDoubleOps:
     /** Element-wise subtraction. Operands must have the same shape. If either operand is 0-d, it is treated as a
       * scalar.
       */
-    inline def -(b: NDArray[Double]): NDArray[Double] =
+    def -(b: NDArray[Double]): NDArray[Double] =
       if a.ndim == 0 then (a.data(a.offset): Double) - b
       else if b.ndim == 0 then a - b.data(b.offset)
       else
@@ -246,7 +252,7 @@ object NDArrayDoubleOps:
     /** Element-wise multiplication (Hadamard product). Operands must have the same shape. If either operand is 0-d, it
       * is treated as a scalar.
       */
-    inline def *(b: NDArray[Double]): NDArray[Double] =
+    def *(b: NDArray[Double]): NDArray[Double] =
       if a.ndim == 0 then b * a.data(a.offset)
       else if b.ndim == 0 then a * b.data(b.offset)
       else
@@ -271,7 +277,7 @@ object NDArrayDoubleOps:
 
     /** Element-wise division. Operands must have the same shape. If either operand is 0-d, it is treated as a scalar.
       */
-    inline def /(b: NDArray[Double]): NDArray[Double] =
+    def /(b: NDArray[Double]): NDArray[Double] =
       if a.ndim == 0 then (a.data(a.offset): Double) / b
       else if b.ndim == 0 then a / b.data(b.offset)
       else
@@ -298,59 +304,59 @@ object NDArrayDoubleOps:
     // ── Scalar binary ops ──────────────────────────────────────────────────
 
     /** Add scalar `s` to every element. */
-    inline def +(s: Double): NDArray[Double] =
+    def +(s: Double): NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays.+(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ + s)
 
     /** Subtract scalar `s` from every element. */
-    inline def -(s: Double): NDArray[Double] =
+    def -(s: Double): NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays.-(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ - s)
 
     /** Multiply every element by scalar `s`. */
-    inline def *(s: Double): NDArray[Double] =
+    def *(s: Double): NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays.*(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ * s)
 
     /** Divide every element by scalar `s`. */
-    inline def /(s: Double): NDArray[Double] =
+    def /(s: Double): NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays./(a.data)(s), a.shape, a.strides, 0)
       else unaryOpGeneral(a, _ / s)
 
     // ── Unary ops ──────────────────────────────────────────────────────────
 
     /** Element-wise negation. */
-    inline def neg: NDArray[Double] =
+    def neg: NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays.unary_-(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => -x)
 
     /** Element-wise absolute value. */
-    inline def abs: NDArray[Double] =
+    def abs: NDArray[Double] =
       if a.isContiguous then mkNDArray(flatUnaryOp(a.data, Math.abs), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.abs)
 
     /** Element-wise natural exponential. */
-    inline def exp: NDArray[Double] =
+    def exp: NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays.exp(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.exp)
 
     /** Element-wise natural logarithm. */
-    inline def log: NDArray[Double] =
+    def log: NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays.log(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.log)
 
     /** Element-wise square root. */
-    inline def sqrt: NDArray[Double] =
+    def sqrt: NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays.sqrt(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.sqrt)
 
     /** Element-wise hyperbolic tangent. */
-    inline def tanh: NDArray[Double] =
+    def tanh: NDArray[Double] =
       if a.isContiguous then mkNDArray(flatUnaryOp(a.data, Math.tanh), a.shape, a.strides, 0)
       else unaryOpGeneral(a, Math.tanh)
 
     /** Element-wise sigmoid: `1 / (1 + exp(-x))`. */
-    inline def sigmoid: NDArray[Double] =
+    def sigmoid: NDArray[Double] =
       val sig = (x: Double) => 1.0 / (1.0 + Math.exp(-x))
       if a.isContiguous then mkNDArray(flatUnaryOp(a.data, sig), a.shape, a.strides, 0)
       else unaryOpGeneral(a, sig)
@@ -362,7 +368,7 @@ object NDArrayDoubleOps:
     /** In-place element-wise addition. `a` must be contiguous; operands must have the same shape. If `b` is 0-d, its
       * scalar value is added to every element of `a`.
       */
-    inline def +=(b: NDArray[Double]): Unit =
+    def +=(b: NDArray[Double]): Unit =
       if b.ndim == 0 then a += b.data(b.offset)
       else
         if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
@@ -382,7 +388,7 @@ object NDArrayDoubleOps:
     /** In-place element-wise subtraction. `a` must be contiguous; operands must have the same shape. If `b` is 0-d, its
       * scalar value is subtracted from every element of `a`.
       */
-    inline def -=(b: NDArray[Double]): Unit =
+    def -=(b: NDArray[Double]): Unit =
       if b.ndim == 0 then a -= b.data(b.offset)
       else
         if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
@@ -402,7 +408,7 @@ object NDArrayDoubleOps:
     /** In-place element-wise multiplication. `a` must be contiguous; operands must have the same shape. If `b` is 0-d,
       * every element of `a` is multiplied by `b`'s scalar value.
       */
-    inline def *=(b: NDArray[Double]): Unit =
+    def *=(b: NDArray[Double]): Unit =
       if b.ndim == 0 then a *= b.data(b.offset)
       else
         if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
@@ -422,7 +428,7 @@ object NDArrayDoubleOps:
     /** In-place element-wise division. `a` must be contiguous; operands must have the same shape. If `b` is 0-d, every
       * element of `a` is divided by `b`'s scalar value.
       */
-    inline def /=(b: NDArray[Double]): Unit =
+    def /=(b: NDArray[Double]): Unit =
       if b.ndim == 0 then a /= b.data(b.offset)
       else
         if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
@@ -448,7 +454,7 @@ object NDArrayDoubleOps:
     // ── In-place scalar ops ────────────────────────────────────────────────
 
     /** Add scalar `s` to every element in place. `a` must be contiguous. */
-    inline def +=(s: Double): Unit =
+    def +=(s: Double): Unit =
       if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       end if
       var i = 0
@@ -459,7 +465,7 @@ object NDArrayDoubleOps:
     end +=
 
     /** Subtract scalar `s` from every element in place. `a` must be contiguous. */
-    inline def -=(s: Double): Unit =
+    def -=(s: Double): Unit =
       if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       end if
       var i = 0
@@ -470,7 +476,7 @@ object NDArrayDoubleOps:
     end -=
 
     /** Multiply every element by scalar `s` in place. `a` must be contiguous. */
-    inline def *=(s: Double): Unit =
+    def *=(s: Double): Unit =
       if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       end if
       var i = 0
@@ -481,7 +487,7 @@ object NDArrayDoubleOps:
     end *=
 
     /** Divide every element by scalar `s` in place. `a` must be contiguous. */
-    inline def /=(s: Double): Unit =
+    def /=(s: Double): Unit =
       if !a.isContiguous then throw new UnsupportedOperationException("In-place ops require a contiguous NDArray")
       end if
       var i = 0
@@ -496,7 +502,7 @@ object NDArrayDoubleOps:
     /** Element-wise greater-than. Operands must have the same shape. If either operand is 0-d, it is treated as a
       * scalar.
       */
-    inline def >(b: NDArray[Double]): NDArray[Boolean] =
+    def >(b: NDArray[Double]): NDArray[Boolean] =
       if a.ndim == 0 then b < a.data(a.offset)
       else if b.ndim == 0 then a > b.data(b.offset)
       else
@@ -515,7 +521,7 @@ object NDArrayDoubleOps:
 
     /** Element-wise less-than. Operands must have the same shape. If either operand is 0-d, it is treated as a scalar.
       */
-    inline def <(b: NDArray[Double]): NDArray[Boolean] =
+    def <(b: NDArray[Double]): NDArray[Boolean] =
       if a.ndim == 0 then b > a.data(a.offset)
       else if b.ndim == 0 then a < b.data(b.offset)
       else
@@ -535,7 +541,7 @@ object NDArrayDoubleOps:
     /** Element-wise greater-than-or-equal. Operands must have the same shape. If either operand is 0-d, it is treated
       * as a scalar.
       */
-    inline def >=(b: NDArray[Double]): NDArray[Boolean] =
+    def >=(b: NDArray[Double]): NDArray[Boolean] =
       if a.ndim == 0 then b <= a.data(a.offset)
       else if b.ndim == 0 then a >= b.data(b.offset)
       else
@@ -555,7 +561,7 @@ object NDArrayDoubleOps:
     /** Element-wise less-than-or-equal. Operands must have the same shape. If either operand is 0-d, it is treated as a
       * scalar.
       */
-    inline def <=(b: NDArray[Double]): NDArray[Boolean] =
+    def <=(b: NDArray[Double]): NDArray[Boolean] =
       if a.ndim == 0 then b >= a.data(a.offset)
       else if b.ndim == 0 then a <= b.data(b.offset)
       else
@@ -574,7 +580,7 @@ object NDArrayDoubleOps:
 
     /** Element-wise equality. Operands must have the same shape. If either operand is 0-d, it is treated as a scalar.
       */
-    inline def =:=(b: NDArray[Double]): NDArray[Boolean] =
+    def =:=(b: NDArray[Double]): NDArray[Boolean] =
       if a.ndim == 0 then b =:= a.data(a.offset)
       else if b.ndim == 0 then a =:= b.data(b.offset)
       else
@@ -593,7 +599,7 @@ object NDArrayDoubleOps:
 
     /** Element-wise inequality. Operands must have the same shape. If either operand is 0-d, it is treated as a scalar.
       */
-    inline def !:=(b: NDArray[Double]): NDArray[Boolean] =
+    def !:=(b: NDArray[Double]): NDArray[Boolean] =
       if a.ndim == 0 then b !:= a.data(a.offset)
       else if b.ndim == 0 then a !:= b.data(b.offset)
       else
@@ -613,32 +619,32 @@ object NDArrayDoubleOps:
     // ── Comparison ops (array vs scalar) ──────────────────────────────────
 
     /** Element-wise greater-than scalar. */
-    inline def >(s: Double): NDArray[Boolean] =
+    def >(s: Double): NDArray[Boolean] =
       if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ > _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ > _)
 
     /** Element-wise less-than scalar. */
-    inline def <(s: Double): NDArray[Boolean] =
+    def <(s: Double): NDArray[Boolean] =
       if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ < _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ < _)
 
     /** Element-wise greater-than-or-equal scalar. */
-    inline def >=(s: Double): NDArray[Boolean] =
+    def >=(s: Double): NDArray[Boolean] =
       if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ >= _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ >= _)
 
     /** Element-wise less-than-or-equal scalar. */
-    inline def <=(s: Double): NDArray[Boolean] =
+    def <=(s: Double): NDArray[Boolean] =
       if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ <= _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ <= _)
 
     /** Element-wise equality with scalar. */
-    inline def =:=(s: Double): NDArray[Boolean] =
+    def =:=(s: Double): NDArray[Boolean] =
       if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ == _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ == _)
 
     /** Element-wise inequality with scalar. */
-    inline def !:=(s: Double): NDArray[Boolean] =
+    def !:=(s: Double): NDArray[Boolean] =
       if a.isContiguous then mkNDArray(flatScalarCompare(a.data, s, _ != _), a.shape, a.strides, 0)
       else compareScalarGeneral(a, s, _ != _)
 
@@ -649,18 +655,18 @@ object NDArrayDoubleOps:
   extension (s: Double)
 
     /** Scalar + NDArray[Double]: equivalent to `arr + s`. */
-    inline def +(a: NDArray[Double]): NDArray[Double] = a + s
+    def +(a: NDArray[Double]): NDArray[Double] = a + s
 
     /** Scalar - NDArray[Double]: `s - arr(i)` for each element. */
-    inline def -(a: NDArray[Double]): NDArray[Double] =
+    def -(a: NDArray[Double]): NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays.-(s)(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => s - x)
 
     /** Scalar * NDArray[Double]: equivalent to `arr * s`. */
-    inline def *(a: NDArray[Double]): NDArray[Double] = a * s
+    def *(a: NDArray[Double]): NDArray[Double] = a * s
 
     /** Scalar / NDArray[Double]: `s / arr(i)` for each element. */
-    inline def /(a: NDArray[Double]): NDArray[Double] =
+    def /(a: NDArray[Double]): NDArray[Double] =
       if a.isContiguous then mkNDArray(vecxt.doublearrays./(s)(a.data), a.shape, a.strides, 0)
       else unaryOpGeneral(a, x => s / x)
 

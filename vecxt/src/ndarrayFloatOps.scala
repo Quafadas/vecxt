@@ -1,5 +1,6 @@
 package vecxt
 
+import vecxt.annotations.HotPath
 import scala.annotation.targetName
 
 import vecxt.broadcast.*
@@ -10,6 +11,7 @@ object NDArrayFloatOps:
 
   // ── General-case iteration kernels ──────────────────────────────────────
 
+  @HotPath
   private[NDArrayFloatOps] def binaryOpGeneral(
       a: NDArray[Float],
       b: NDArray[Float],
@@ -56,6 +58,7 @@ object NDArrayFloatOps:
     mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
   end unaryOpGeneral
 
+  @HotPath
   private[NDArrayFloatOps] def compareGeneral(
       a: NDArray[Float],
       b: NDArray[Float],
@@ -82,6 +85,7 @@ object NDArrayFloatOps:
     mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
   end compareGeneral
 
+  @HotPath
   private[NDArrayFloatOps] def compareScalarGeneral(
       a: NDArray[Float],
       s: Float,
@@ -106,6 +110,7 @@ object NDArrayFloatOps:
     mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
   end compareScalarGeneral
 
+  @HotPath
   private[NDArrayFloatOps] def binaryOpInPlaceGeneral(
       a: NDArray[Float],
       b: NDArray[Float],

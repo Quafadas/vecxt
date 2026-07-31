@@ -2,6 +2,9 @@ package vecxt
 
 import scala.reflect.ClassTag
 
+import vecxt.annotations.AllocFree
+import vecxt.annotations.HotPath
+
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.FloatVector
@@ -180,6 +183,7 @@ object intarrays:
       idx
     end logicalIdx
 
+    @HotPath
     def increments: Array[Int] =
       val out = new Array[Int](vec.length)
       val limit = spi.loopBound(vec.length - 2)
@@ -223,6 +227,8 @@ object intarrays:
       out
     end countsToIdx
 
+    @HotPath
+    @AllocFree
     def sumSIMD: Int =
       var i: Int = 0
       var acc = IntVector.zero(spi)
@@ -307,6 +313,8 @@ object intarrays:
 
     inline def stdDev(mode: VarianceMode): Double = std(mode)
 
+    @HotPath
+    @AllocFree
     def dot(vec2: Array[Int]): Int =
       dimCheck(vec, vec2)
       val newVec = Array.ofDim[Int](vec.length)
@@ -337,6 +345,8 @@ object intarrays:
       out
     end -
 
+    @HotPath
+    @AllocFree
     def -=(scalar: Int): Unit =
       var i = 0
       val bound = spi.loopBound(vec.length)
@@ -453,6 +463,8 @@ object intarrays:
       out
     end -
 
+    @HotPath
+    @AllocFree
     def -=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
@@ -478,6 +490,8 @@ object intarrays:
       out
     end +
 
+    @HotPath
+    @AllocFree
     def +=(vec2: Array[Int]): Unit =
       dimCheck(vec, vec2)
       var i = 0
@@ -496,6 +510,8 @@ object intarrays:
       end while
     end +=
 
+    @HotPath
+    @AllocFree
     def minSIMD =
       var i = 0
       var acc = IntVector.broadcast(spi, Int.MaxValue)
@@ -514,6 +530,8 @@ object intarrays:
       temp
     end minSIMD
 
+    @HotPath
+    @AllocFree
     def maxSIMD =
       var i = 0
       var acc = IntVector.broadcast(spi, Int.MinValue)
