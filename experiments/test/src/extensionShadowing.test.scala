@@ -18,7 +18,6 @@ import scala.compiletime.testing.typeChecks
   *     "does this compile" as a boolean instead of failing the build. The probes are deliberately built so that no two
   *     clauses share an erased signature, keeping the fixtures free of the `@targetName` / "clashing exports"
   *     complications that are a separate concern.
-  *
   *   - `shape-coverage:` is the actual guard. It scans vecxt's sources for the precondition of the breakage - a method
   *     name declared in both a generic-receiver and a narrower-receiver extension clause for the same wrapper type,
   *     where the narrower clause declares *fewer* overloads of that name than the generic clause does, i.e. the
@@ -213,12 +212,14 @@ class ExtensionShadowingSuite extends munit.FunSuite:
           val line = s"  [$platform] $wrapper[$elem].$name: ${narrowDecls.size} overload(s) in " +
             s"${where(narrowDecls)} vs ${wideDecls.size} in the generic $wrapper[A] clause(s) at ${where(wideDecls)}"
           if narrowDecls.size < wideDecls.size then problems += line else notes += line
+          end if
         }
       }
     }
 
     if notes.nonEmpty then
       println(s"[shape coverage] names redeclared at both specificity levels, fully covered:\n${notes.mkString("\n")}")
+    end if
 
     assert(
       problems.isEmpty,
