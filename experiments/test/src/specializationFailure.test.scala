@@ -42,9 +42,14 @@ import org.objectweb.asm.tree.LineNumberNode
   *   - Concrete sibling clauses (`extension (arr: NDArray[Double])`) cannot fix it at all. They only *add* overloads;
   *     the generic arm survives and keeps its own finding. They also silently break unrelated call sites -
   *     `extensionShadowing.test.scala` reproduces that and guards against re-introducing it.
-  *   - A shared generic `inline def gather[B](src: Array[B], dst: Array[B])` helper cannot fix it either: an inline def
-  *     is still emitted as an ordinary method with B abstract, so the helper becomes the finding. This is the same
-  *     reason strideMatInstantiateCheck's generic arm showed up until it was addressed directly.
+  *
+  * Note on what this check can and cannot see: an `inline def` body is expanded into its callers rather than emitted
+  * on its own, so a generic inline method is only audited via the non-inline methods it is inlined into.
+  * `ndarrayOps.toArray` has the same generic copy loop that was just fixed and is not reported, because it is inline
+  * and no generic non-inline caller exists in the scanned modules; conversely strideMatInstantiateCheck's generic arm
+  * was reported at `matrix.scala:74`, the non-inline call site it was inlined into, not at its own definition. So a
+  * generic `inline def gather[B]` helper would have been an acceptable way to write the fix above - it was written
+  * out per type for readability, not out of necessity.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
