@@ -28,26 +28,33 @@ object ArrayIO:
   extension (arr: Array[Double])
     def write(path: os.Path, seperator: Char): Unit =
       os.write.over(path, arr.mkString(seperator.toString))
+    // Not `seperator: Char = ','`: Scala disallows more than one overloaded alternative of the same
+    // method declaring a default. A plain forwarder gets the same call-site convenience without it.
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   extension (arr: Array[Float])
     def write(path: os.Path, seperator: Char): Unit =
       os.write.over(path, arr.mkString(seperator.toString))
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   extension (arr: Array[Int])
     def write(path: os.Path, seperator: Char): Unit =
       os.write.over(path, arr.mkString(seperator.toString))
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   extension (arr: Array[Long])
     def write(path: os.Path, seperator: Char): Unit =
       os.write.over(path, arr.mkString(seperator.toString))
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   extension (arr: Array[Boolean])
     def write(path: os.Path, seperator: Char): Unit =
       os.write.over(path, arr.mkString(seperator.toString))
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   def loadArray[A: Numeric: ClassTag](

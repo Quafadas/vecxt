@@ -50,6 +50,11 @@ object MatrixIO:
           row += 1
         end while
         os.write.over(path, lines.mkString("\n"))
+
+    // Not `seperator: Char = ','`: Scala disallows more than one overloaded alternative of the same
+    // method declaring a default. A plain forwarder gets the same call-site convenience without it.
+    @targetName("writeMatrixDoubleDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   extension (m: Matrix[Float])
@@ -64,6 +69,9 @@ object MatrixIO:
           row += 1
         end while
         os.write.over(path, lines.mkString("\n"))
+
+    @targetName("writeMatrixFloatDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   extension (m: Matrix[Int])
@@ -78,6 +86,9 @@ object MatrixIO:
           row += 1
         end while
         os.write.over(path, lines.mkString("\n"))
+
+    @targetName("writeMatrixIntDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   extension (m: Matrix[Long])
@@ -92,6 +103,9 @@ object MatrixIO:
           row += 1
         end while
         os.write.over(path, lines.mkString("\n"))
+
+    @targetName("writeMatrixLongDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   extension (m: Matrix[Boolean])
@@ -106,6 +120,9 @@ object MatrixIO:
           row += 1
         end while
         os.write.over(path, lines.mkString("\n"))
+
+    @targetName("writeMatrixBooleanDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   def loadMatrix[A: Numeric: ClassTag](
