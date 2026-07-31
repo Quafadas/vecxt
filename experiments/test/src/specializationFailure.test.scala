@@ -43,7 +43,9 @@ import org.objectweb.asm.tree.LineNumberNode
   *     `extension (arr: NDArray[Double])` block containing only the selectors-vararg shape made Scala prefer that
   *     narrower block for concrete receivers wholesale - silently breaking `arr(0)`-style single-index access, since
   *     that shape doesn't exist in the narrower block. Fixing this for real means replicating all six shapes across
-  *     five concrete types, not adding one overload.
+  *     five concrete types, not adding one overload. `extensionShadowing.test.scala` characterises that rule and
+  *     guards against re-introducing the breakage; `arrayUtil.printArr` and Native's `Array[A]#apply(Array[Boolean])`
+  *     are the working precedent for the full-coverage version of the fix.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
