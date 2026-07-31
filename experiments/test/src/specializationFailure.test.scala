@@ -42,23 +42,23 @@ import org.objectweb.asm.tree.LineNumberNode
   *   - Concrete sibling clauses (`extension (arr: NDArray[Double])`) cannot fix it at all. They only *add* overloads;
   *     the generic arm survives and keeps its own finding.
   *
-  *     They are also actively harmful, which cost two builds to establish and is worth stating in full. Adding a
-  *     narrow clause that declares only *some* shapes of an overloaded name makes every *other* shape of that name
-  *     unreachable on any receiver the narrow clause matches: Scala resolves `e.m(args)` by rewriting to `m(e)` -
-  *     receiver first, arguments afterwards - picks the most specific receiver, and does not fall back. So a narrow
-  *     `extension (arr: NDArray[Double])` carrying only `apply(selectors*)` breaks `arr(0)` on any concretely-typed
-  *     receiver, because the single-Int shape does not exist in the clause that won. `NDArray#apply` has seven shapes
-  *     across ndarrayOps.scala and ndarrayBooleanIndexing.scala, so the full-coverage version is ~35 methods.
+  * They are also actively harmful, which cost two builds to establish and is worth stating in full. Adding a narrow
+  * clause that declares only *some* shapes of an overloaded name makes every *other* shape of that name unreachable on
+  * any receiver the narrow clause matches: Scala resolves `e.m(args)` by rewriting to `m(e)` - receiver first,
+  * arguments afterwards - picks the most specific receiver, and does not fall back. So a narrow
+  * `extension (arr: NDArray[Double])` carrying only `apply(selectors*)` breaks `arr(0)` on any concretely-typed
+  * receiver, because the single-Int shape does not exist in the clause that won. `NDArray#apply` has seven shapes
+  * across ndarrayOps.scala and ndarrayBooleanIndexing.scala, so the full-coverage version is ~35 methods.
   *
-  *     Two things make this survivable rather than a trap. Adding a narrow clause is only dangerous for an
-  *     *overloaded* name, and it fails loudly - the build stops compiling - so long as some call site in this repo
-  *     uses an uncovered shape. Note the corollary: if none does, it compiles clean here and breaks downstream users
-  *     instead. `arrayUtil.printArr` and Native's `Array[A]#apply(Array[Boolean])` are the working precedent for
-  *     doing it correctly (generic clause plus concrete clauses, one object, every shape covered).
+  * Two things make this survivable rather than a trap. Adding a narrow clause is only dangerous for an *overloaded*
+  * name, and it fails loudly - the build stops compiling - so long as some call site in this repo uses an uncovered
+  * shape. Note the corollary: if none does, it compiles clean here and breaks downstream users instead.
+  * `arrayUtil.printArr` and Native's `Array[A]#apply(Array[Boolean])` are the working precedent for doing it correctly
+  * (generic clause plus concrete clauses, one object, every shape covered).
   *
-  *     `Matrix` is structurally immune: its generic and concrete extension clauses hold disjoint method *names* -
-  *     generic owns apply/update/row/col/diag/transpose, the per-type files own the arithmetic - so no name is ever
-  *     resolved across two receiver-specificity levels. `NDArray` is the same today. Keep it that way.
+  * `Matrix` is structurally immune: its generic and concrete extension clauses hold disjoint method *names* - generic
+  * owns apply/update/row/col/diag/transpose, the per-type files own the arithmetic - so no name is ever resolved across
+  * two receiver-specificity levels. `NDArray` is the same today. Keep it that way.
   *
   * Note on what this check can and cannot see: an `inline def` body is expanded into its callers rather than emitted on
   * its own, so a generic inline method is only audited via the non-inline methods it is inlined into.
