@@ -28,6 +28,18 @@ import org.objectweb.asm.tree.LineNumberNode
   * never on a fast path, not library surface either. `experiments/src/mnist.scala` and `pricing_fun.scala` are excluded
   * on the same reasoning by extension - one-off preprocessing/plotting glue in an experiments script, not reusable
   * library surface, and not currently confirmed by the maintainer, so revisit if that reasoning is wrong.
+  *
+  * Known, deliberately-unfixed hits, left red pending a maintainer decision (see the referenced comments):
+  *   - Matrix.hasSimpleContiguousMemoryLayout and Matrix.layout (matrix.scala) - inside the class's own
+  *     constructor/instance body, not the companion factory, so no overload reaches them.
+  *   - NDArray.dataLength (ndarray.scala) - same reason.
+  *   - NDArray[A]#apply(selectors*)'s gather loop (ndarrayOps.scala) - a concrete-per-type fast path was tried and
+  *     reverted: NDArray's `apply` has six differently-shaped overloads (single/multi-index, indices-array,
+  *     selectors-vararg) sharing one generic `extension [A](arr: NDArray[A])` block, and adding a second, narrower
+  *     `extension (arr: NDArray[Double])` block containing only the selectors-vararg shape made Scala prefer that
+  *     narrower block for concrete receivers wholesale - silently breaking `arr(0)`-style single-index access,
+  *     since that shape doesn't exist in the narrower block. Fixing this for real means replicating all six shapes
+  *     across five concrete types, not adding one overload.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
