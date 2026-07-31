@@ -7,8 +7,8 @@ import vecxt_io.MatrixIO.loadMatrix
   * deliberately (vecxt/issues/105).
   *
   * This one runs the library rather than reading it, which is why it lives beside the static checks rather than in
-  * `experiments`: the two answer the same question about the same code and are the only pair that covers it, so a change
-  * that weakens one should be looking at the other in the same directory.
+  * `experiments`: the two answer the same question about the same code and are the only pair that covers it, so a
+  * change that weakens one should be looking at the other in the same directory.
   *
   * The two cover genuinely different failure modes, and only together do they cover both:
   *
@@ -25,8 +25,8 @@ import vecxt_io.MatrixIO.loadMatrix
   *
   * Everything below is deliberately written out per concrete element type rather than shared through a generic helper.
   * A `def sweep[A](...)` would route every operation through a generic call site, so it would assert that the *generic*
-  * path preserves the element type - not the path a real caller takes. Repetition here is the test being about the right
-  * thing.
+  * path preserves the element type - not the path a real caller takes. Repetition here is the test being about the
+  * right thing.
   */
 class SpecialisationSuite extends munit.FunSuite:
 
