@@ -1,6 +1,7 @@
 package vecxt_io
 
 import vecxt.all.*
+import scala.annotation.targetName
 import scala.math.Numeric
 import scala.reflect.ClassTag
 
@@ -31,6 +32,97 @@ object MatrixIO:
           row += 1
         end while
         os.write.over(path, lines.mkString("\n"))
+  end extension
+
+  // Concrete overloads (vecxt/issues/105, check C6a). Matrix.row is itself `inline`, so a concrete
+  // receiver here specializes through it - the generic version above boxes per element via
+  // ScalaRunTime$.array_apply/array_update inside row's inlined body, then again via genericWrapArray on
+  // the resulting Array[A].mkString; these avoid all three at once by construction, not by relabelling.
+  extension (m: Matrix[Double])
+    @targetName("writeMatrixDouble")
+    def write(path: os.Path, seperator: Char): Unit =
+      if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
+      else
+        val lines = Array.ofDim[String](m.rows)
+        var row = 0
+        while row < m.rows do
+          lines(row) = m.row(row).mkString(seperator.toString)
+          row += 1
+        end while
+        os.write.over(path, lines.mkString("\n"))
+
+    // Not `seperator: Char = ','`: Scala disallows more than one overloaded alternative of the same
+    // method declaring a default. A plain forwarder gets the same call-site convenience without it.
+    @targetName("writeMatrixDoubleDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
+  end extension
+
+  extension (m: Matrix[Float])
+    @targetName("writeMatrixFloat")
+    def write(path: os.Path, seperator: Char): Unit =
+      if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
+      else
+        val lines = Array.ofDim[String](m.rows)
+        var row = 0
+        while row < m.rows do
+          lines(row) = m.row(row).mkString(seperator.toString)
+          row += 1
+        end while
+        os.write.over(path, lines.mkString("\n"))
+
+    @targetName("writeMatrixFloatDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
+  end extension
+
+  extension (m: Matrix[Int])
+    @targetName("writeMatrixInt")
+    def write(path: os.Path, seperator: Char): Unit =
+      if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
+      else
+        val lines = Array.ofDim[String](m.rows)
+        var row = 0
+        while row < m.rows do
+          lines(row) = m.row(row).mkString(seperator.toString)
+          row += 1
+        end while
+        os.write.over(path, lines.mkString("\n"))
+
+    @targetName("writeMatrixIntDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
+  end extension
+
+  extension (m: Matrix[Long])
+    @targetName("writeMatrixLong")
+    def write(path: os.Path, seperator: Char): Unit =
+      if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
+      else
+        val lines = Array.ofDim[String](m.rows)
+        var row = 0
+        while row < m.rows do
+          lines(row) = m.row(row).mkString(seperator.toString)
+          row += 1
+        end while
+        os.write.over(path, lines.mkString("\n"))
+
+    @targetName("writeMatrixLongDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
+  end extension
+
+  extension (m: Matrix[Boolean])
+    @targetName("writeMatrixBoolean")
+    def write(path: os.Path, seperator: Char): Unit =
+      if m.rows == 0 || m.cols == 0 then os.write.over(path, "")
+      else
+        val lines = Array.ofDim[String](m.rows)
+        var row = 0
+        while row < m.rows do
+          lines(row) = m.row(row).mkString(seperator.toString)
+          row += 1
+        end while
+        os.write.over(path, lines.mkString("\n"))
+
+    @targetName("writeMatrixBooleanDefaultSep")
+    def write(path: os.Path): Unit = write(path, ',')
   end extension
 
   def loadMatrix[A: Numeric: ClassTag](

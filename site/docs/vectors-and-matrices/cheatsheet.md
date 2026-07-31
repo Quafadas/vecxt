@@ -23,6 +23,9 @@ import vecxt.all.{*, given}
 | Identity matrix | `Matrix.eye(3)` | `np.eye(3)` | `eye(3)` |
 | Get array dimensions | `m.rows, m.cols` or `m.shape` | `a.shape` | `size(a)` |
 | Number of elements | `m.numel` | `a.size` | `numel(a)` |
+| Element type of backing store | `m.elementClass` | `a.dtype` | `class(a)` |
+
+`elementClass` reports the *runtime* element type, so it is the way to confirm your data is specialised: a `Matrix[Double]` should report `double`, and `java.lang.Object` means the values have been boxed into an `Object[]` somewhere upstream — which every downstream operation then inherits. It describes the representation, not whether your own generic code avoids boxing.
 
 ## Indexing and Slicing
 

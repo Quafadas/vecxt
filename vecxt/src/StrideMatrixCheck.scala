@@ -36,23 +36,20 @@ package vecxt
   *   Starting position in the data array
   */
 object strideMatInstantiateCheck:
-  inline def apply[A](
-      raw: Array[A],
-      rows: Row,
-      cols: Col,
-      rowStride: Int,
-      colStride: Int,
-      offset: Int
-  ) =
+
+  /** All of the above only ever reads a length - never an element - so the concrete/generic split only has to happen
+    * once, here, rather than being duplicated across every overload below.
+    */
+  private def checkLengths(length: Int, rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
 
     // Check basic dimension validity
-    if rows <= 0 || cols <= 0 then throw InvalidMatrix(rows, cols, raw.length)
+    if rows <= 0 || cols <= 0 then throw InvalidMatrix(rows, cols, length)
     end if
 
     // Check offset bounds
-    if offset < 0 || offset >= raw.length then
+    if offset < 0 || offset >= length then
       throw java.lang.IndexOutOfBoundsException(
-        s"Offset $offset is out of bounds for array of size ${raw.length}"
+        s"Offset $offset is out of bounds for array of size $length"
       )
     end if
 
@@ -91,11 +88,34 @@ object strideMatInstantiateCheck:
       )
     end if
 
-    if maxIndex >= raw.length then
+    if maxIndex >= length then
       throw java.lang.IndexOutOfBoundsException(
         s"Matrix with dimensions ($rows, $cols), strides ($rowStride, $colStride), and offset $offset " +
-          s"would access index $maxIndex, but array size is only ${raw.length}"
+          s"would access index $maxIndex, but array size is only $length"
       )
     end if
-  end apply
+  end checkLengths
+
+  // Generic arm: uses `.size` rather than `.length` (vecxt/issues/105, check C6a) - Array#size doesn't route
+  // through scala/runtime/ScalaRunTime$.array_length even when the element type is abstract, unlike #length
+  // (see the comment on Matrix.hasSimpleContiguousMemoryLayout for how this was confirmed). Kept `inline`
+  // regardless, and the concrete overloads below kept too, so a caller with a concretely-typed array
+  // specializes into daload/dastore-shaped bounds math rather than boxed comparisons either way.
+  inline def apply[A](raw: Array[A], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
+
+  def apply(raw: Array[Double], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
+
+  def apply(raw: Array[Float], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
+
+  def apply(raw: Array[Int], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
+
+  def apply(raw: Array[Long], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
+
+  def apply(raw: Array[Boolean], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
 end strideMatInstantiateCheck

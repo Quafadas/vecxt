@@ -42,6 +42,12 @@ object matrix:
 
     val numel: Int = rows * cols
 
+    /** Runtime element type of the backing store - `double` for a specialised `Matrix[Double]`, `java.lang.Object` for
+      * one whose data got boxed into an `Object[]`. See `NDArray#elementClass` for why this is exposed rather than
+      * asserted in the constructor, and `specialisation.test.scala` for what asserts it.
+      */
+    def elementClass: Class[?] = raw.getClass.getComponentType
+
     /** If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or
       * column major, or row major order, with the exact number of elements matching the number of rows and columns.
       *
@@ -49,11 +55,16 @@ object matrix:
       *
       * @return
       */
+    // `.size` rather than `.length` (vecxt/issues/105, check C6a): `raw` is this class's own abstract `A`
+    // here, not a caller's concrete one, so no factory overload reaches this - but Array#size (unlike
+    // #length) doesn't route through ScalaRunTime$.array_length even when the element type is abstract.
+    // Confirmed empirically: Matrix.apply's dim-based overload already used raw.size for this same check
+    // and never showed up as a hit of any kind, unlike the stride-based overload's raw.length.
     val hasSimpleContiguousMemoryLayout: Boolean =
-      (isDenseRowMajor || isDenseColMajor) && raw.length == numel
+      (isDenseRowMajor || isDenseColMajor) && raw.size == numel
 
     def layout: String =
-      s"rows: $rows, cols: $cols, rowStride: $rowStride, colStride: $colStride, offset: $offset, data length: ${raw.length}"
+      s"rows: $rows, cols: $cols, rowStride: $rowStride, colStride: $colStride, offset: $offset, data length: ${raw.size}"
   end Matrix
 
   object Matrix:
@@ -75,6 +86,44 @@ object matrix:
         colStride = colStride,
         offset = offset
       )
+    end apply
+
+    // Concrete overloads of the constructor above (vecxt/issues/105, check C6a): overload resolution
+    // picks these over the generic `apply[A]` whenever the caller already holds a concretely-typed
+    // array, which routes the call into strideMatInstantiateCheck's matching concrete overload instead
+    // of its generic one. This only fixes the check *inside this factory* - Matrix's own constructor
+    // body (`hasSimpleContiguousMemoryLayout`) stays generic regardless, since it's the same single
+    // compiled class either way; see the comment on that field.
+    def apply(raw: Array[Double], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Double] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
+
+    def apply(raw: Array[Float], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Float] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
+
+    def apply(raw: Array[Int], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Int] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
+
+    def apply(raw: Array[Long], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Matrix[Long] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
+    end apply
+
+    def apply(
+        raw: Array[Boolean],
+        rows: Row,
+        cols: Col,
+        rowStride: Int,
+        colStride: Int,
+        offset: Int
+    ): Matrix[Boolean] =
+      strideMatInstantiateCheck(raw, rows, cols, rowStride, colStride, offset)
+      new Matrix(raw = raw, rows = rows, cols = cols, rowStride = rowStride, colStride = colStride, offset = offset)
     end apply
 
     def apply[A](raw: Array[A], dim: RowCol): Matrix[A] =
