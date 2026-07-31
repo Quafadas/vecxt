@@ -213,9 +213,9 @@ object matrixUtil:
 
     /** Renders the matrix as rows of space-separated elements, one row per line, via `toString` on each element.
       *
-      * Debug output, not a serialisation format: no alignment, no truncation of large matrices, and no stable contract on
-      * the result. Reads every element generically and boxes as it goes, which is fine here and would not be on a fast
-      * path.
+      * Debug output, not a serialisation format: no alignment, no truncation of large matrices, and no stable contract
+      * on the result. Reads every element generically and boxes as it goes, which is fine here and would not be on a
+      * fast path.
       */
     def printMat(using ClassTag[A]): String =
       val arrArr =
