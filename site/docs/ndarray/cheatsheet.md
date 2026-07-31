@@ -36,6 +36,9 @@ import vecxt.all.{*, given}
 | Is column-major | `arr.isColMajor` | `a.flags['F_CONTIGUOUS']` | N/A |
 | Is row-major | `arr.isRowMajor` | `a.flags['C_CONTIGUOUS']` | N/A |
 | Is contiguous | `arr.isContiguous` | `a.flags['C_CONTIGUOUS'] or a.flags['F_CONTIGUOUS']` | N/A |
+| Element type of backing store | `arr.elementClass` | `a.dtype` | `class(a)` |
+
+`elementClass` reports the *runtime* element type, so it is the way to confirm your data is specialised: an `NDArray[Double]` should report `double`, and `java.lang.Object` means the values have been boxed into an `Object[]` somewhere upstream — which every downstream operation then inherits. It describes the representation, not whether your own generic code avoids boxing.
 
 ## Indexing
 
