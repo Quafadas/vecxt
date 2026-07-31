@@ -7,16 +7,17 @@ import scala.util.Try
   *
   * One finding here is worth stating up front, because the plan's expected-values table does not anticipate it.
   * **`HugeMethodLimit` is not discoverable on a release JVM.** It is a `develop` flag in HotSpot, as is
-  * `DontCompileHugeMethods` that consumes it, and develop flags are compiled out of product builds: they are absent from
-  * `-XX:+PrintFlagsFinal` and rejected on the command line. So the single sharpest cliff in the whole plan — the one
-  * where a method is never JIT compiled at all — is the one number that cannot be read back from the JVM enforcing it.
+  * `DontCompileHugeMethods` that consumes it, and develop flags are compiled out of product builds: they are absent
+  * from `-XX:+PrintFlagsFinal` and rejected on the command line. So the single sharpest cliff in the whole plan — the
+  * one where a method is never JIT compiled at all — is the one number that cannot be read back from the JVM enforcing
+  * it.
   *
-  * That is handled by splitting the thresholds in two. Flags a product build genuinely exposes must be *discovered*, and
-  * a missing one is a FAIL: a parser that quietly matches nothing is the failure mode the plan's risk table calls out by
-  * name. Flags it does not expose are *assumed*, from the HotSpot source default, and labelled as assumed everywhere
-  * they appear. [[probeHugeMethodLimit]] additionally checks whether the running JVM will accept the flag on the command
-  * line, which distinguishes "our parser missed it" from "this JVM does not have it" — without that, an assumption and a
-  * parser bug look identical in the report.
+  * That is handled by splitting the thresholds in two. Flags a product build genuinely exposes must be *discovered*,
+  * and a missing one is a FAIL: a parser that quietly matches nothing is the failure mode the plan's risk table calls
+  * out by name. Flags it does not expose are *assumed*, from the HotSpot source default, and labelled as assumed
+  * everywhere they appear. [[probeHugeMethodLimit]] additionally checks whether the running JVM will accept the flag on
+  * the command line, which distinguishes "our parser missed it" from "this JVM does not have it" — without that, an
+  * assumption and a parser bug look identical in the report.
   */
 final case class Thresholds(
     discovered: Map[String, Long],
@@ -82,6 +83,7 @@ object Thresholds:
   private def javaExe: os.Path =
     val home = os.Path(sys.props.getOrElse("java.home", sys.error("java.home is not set")))
     home / "bin" / (if scala.util.Properties.isWin then "java.exe" else "java")
+  end javaExe
 
   private def run(args: String*): Option[os.CommandResult] =
     Try(os.proc((javaExe.toString +: args)*).call(check = false, mergeErrIntoOut = true)).toOption
@@ -92,13 +94,13 @@ object Thresholds:
       case _                     => None
     }.toMap
 
-  /** Does this JVM accept `-XX:HugeMethodLimit=`? A product build rejects it (develop flag, compiled out); a debug build
-    * accepts it. Either answer is useful; the point is that the report says which, rather than presenting the assumed
-    * 8000 as though it had been read from the JVM.
+  /** Does this JVM accept `-XX:HugeMethodLimit=`? A product build rejects it (develop flag, compiled out); a debug
+    * build accepts it. Either answer is useful; the point is that the report says which, rather than presenting the
+    * assumed 8000 as though it had been read from the JVM.
     */
   private def probeHugeMethodLimit(): String =
     run("-XX:HugeMethodLimit=8000", "-version") match
-      case None => "could not be probed (the JVM would not start)"
+      case None                       => "could not be probed (the JVM would not start)"
       case Some(r) if r.exitCode == 0 =>
         "accepted on the command line, so this JVM is a debug build and the value above is authoritative"
       case Some(_) =>

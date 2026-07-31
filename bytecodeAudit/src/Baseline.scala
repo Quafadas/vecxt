@@ -5,9 +5,10 @@ package vecxt.audit
   *
   * Two deliberate departures from §1 of the plan, both because of what this environment can and cannot verify:
   *
-  *   1. **One file, not one per JDK major.** The plan keys the baseline filename by JDK major. The JDK major is recorded
-  *      *inside* the file instead, and a mismatch is a WARN. This keeps a JDK bump producing exactly the reviewable diff
-  *      the plan wants, without a filename that has to be guessed before the first run of a new JDK can happen.
+  *   1. **One file, not one per JDK major.** The plan keys the baseline filename by JDK major. The JDK major is
+  *      recorded *inside* the file instead, and a mismatch is a WARN. This keeps a JDK bump producing exactly the
+  *      reviewable diff the plan wants, without a filename that has to be guessed before the first run of a new JDK can
+  *      happen.
   *   2. **Never written by CI.** [[render]] is what `./mill bytecodeAudit.updateBaseline` copies into place, and the
   *      audit prints the proposed content into its report rather than applying it. Thresholds only move in a commit
   *      somebody reviewed.

@@ -6,15 +6,15 @@ import vecxt.all.*
 /** The library's operations, exercised end to end. Two jobs, and the second is the reason it is shaped like this.
   *
   * It is documentation that cannot go stale, and it is the audited model of user code: the C6a specialization scan can
-  * only find a failure on a path something actually calls, and C9 measures emitted bytecode per library operation against
-  * exactly this call set. An operation with no call site here is unaudited.
+  * only find a failure on a path something actually calls, and C9 measures emitted bytecode per library operation
+  * against exactly this call set. An operation with no call site here is unaudited.
   *
   * **One operation group per method, deliberately.** It used to be a single `testCheatsheet` body. With
-  * `-Xmax-inlines:10000` and a few hundred `inline` operations expanded into it, that method was a single enormous one —
-  * and above HotSpot's `HugeMethodLimit` a method is never JIT compiled at all, so it would have run interpreted for the
-  * whole of its life. That is check C1 of https://github.com/Quafadas/vecxt/issues/105, and the plan is explicit about
-  * this file: a 9KB uncompilable entry point is not a representative model of user code, and it masks real regressions in
-  * everything it inlines. Groups are sized so each one stays well inside the budget.
+  * `-Xmax-inlines:10000` and a few hundred `inline` operations expanded into it, that method was a single enormous one
+  * — and above HotSpot's `HugeMethodLimit` a method is never JIT compiled at all, so it would have run interpreted for
+  * the whole of its life. That is check C1 of https://github.com/Quafadas/vecxt/issues/105, and the plan is explicit
+  * about this file: a 9KB uncompilable entry point is not a representative model of user code, and it masks real
+  * regressions in everything it inlines. Groups are sized so each one stays well inside the budget.
   *
   * Each group builds its own fixtures rather than sharing them. Duplicating a five-element array literal costs nothing
   * and keeps the groups independent, so one can be split again without untangling what it borrowed.

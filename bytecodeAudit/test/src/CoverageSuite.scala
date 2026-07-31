@@ -2,8 +2,8 @@ package vecxt.audit
 
 /** What keeps the rest of the audit honest.
   *
-  * Every check here reports green over whatever it was pointed at, so the thing most likely to make the suite useless is
-  * not a bug in a check — it is the scope quietly shrinking. Phase 0 discovered its classpath by walking
+  * Every check here reports green over whatever it was pointed at, so the thing most likely to make the suite useless
+  * is not a bug in a check — it is the scope quietly shrinking. Phase 0 discovered its classpath by walking
   * `java.class.path`, which cannot distinguish "this module is clean" from "this module was never there". The roots are
   * written down in `bytecodeAudit/package.mill` now, and this asserts they arrived.
   *
@@ -55,12 +55,13 @@ class CoverageSuite extends munit.FunSuite:
     )
   }
 
-  /** The exclusions in [[Scope]] were reasoned about in Phase 0, and two of them — `mnist.scala` and `pricing_fun.scala`
-    * — were never confirmed against what the code actually contains. The theory was that any hits there come from
-    * third-party `inline`/macro code (scautable's CSV type inference) expanding into a script, not from vecxt.
+  /** The exclusions in [[Scope]] were reasoned about in Phase 0, and two of them — `mnist.scala` and
+    * `pricing_fun.scala` — were never confirmed against what the code actually contains. The theory was that any hits
+    * there come from third-party `inline`/macro code (scautable's CSV type inference) expanding into a script, not from
+    * vecxt.
     *
-    * Recording the hits turns that theory into evidence, and turns the exclusion from "we assume this is fine" into "this
-    * is what is in there, and it has not changed". It also means an exclusion can no longer hide a *new* failure.
+    * Recording the hits turns that theory into evidence, and turns the exclusion from "we assume this is fine" into
+    * "this is what is in there, and it has not changed". It also means an exclusion can no longer hide a *new* failure.
     */
   test("recorded — the C6a hits inside excluded scopes are the ones already accounted for") {
     val observed = Checks

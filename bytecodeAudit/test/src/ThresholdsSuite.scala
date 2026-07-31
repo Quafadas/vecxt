@@ -3,10 +3,11 @@ package vecxt.audit
 /** §1.0 — the budgets are read off the JVM rather than hardcoded, and this suite is what stops that from silently
   * becoming a no-op.
   *
-  * The plan's risk table is explicit that a parser which quietly matches nothing is worse than no check, so there are two
-  * tests: one against a committed snapshot of `-XX:+PrintFlagsFinal` output, which fails if the parser breaks, and one
-  * against the running JVM, which fails if this JVM does not report what a product HotSpot build is supposed to report.
-  * The snapshot alone would pass on a non-HotSpot JVM; the live one alone could not tell a parser bug from a JVM change.
+  * The plan's risk table is explicit that a parser which quietly matches nothing is worse than no check, so there are
+  * two tests: one against a committed snapshot of `-XX:+PrintFlagsFinal` output, which fails if the parser breaks, and
+  * one against the running JVM, which fails if this JVM does not report what a product HotSpot build is supposed to
+  * report. The snapshot alone would pass on a non-HotSpot JVM; the live one alone could not tell a parser bug from a
+  * JVM change.
   */
 class ThresholdsSuite extends munit.FunSuite:
 
@@ -69,6 +70,7 @@ class ThresholdsSuite extends munit.FunSuite:
         t.hugeMethodLimitProbe.startsWith("accepted"),
         "HugeMethodLimit was read from the JVM but the JVM rejects it on the command line"
       )
+    end if
   }
 
   test("§1.0 — the report header carries everything needed to interpret a run") {

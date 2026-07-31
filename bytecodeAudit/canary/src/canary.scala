@@ -6,21 +6,22 @@ import vecxt.annotations.Thin
 
 /** Fixtures for the Tier 1 checks: some that must pass, some built to fail.
   *
-  * The plan's acceptance criteria ask for both, and for a reason worth restating — "a check that has never been observed
-  * to fail is a check that might not work". The failure mode being guarded against is not a check with a bug, it is a
-  * check that quietly stops matching anything (an ASM upgrade, a Scala codegen change, an annotation that stops reaching
-  * the classfile) and reports green forever.
+  * The plan's acceptance criteria ask for both, and for a reason worth restating — "a check that has never been
+  * observed to fail is a check that might not work". The failure mode being guarded against is not a check with a bug,
+  * it is a check that quietly stops matching anything (an ASM upgrade, a Scala codegen change, an annotation that stops
+  * reaching the classfile) and reports green forever.
   *
   * This module is compiled but is on no audited root, so nothing here can surface as a production finding. It is read
-  * only by `CanarySuite`, which passes these classes and these sources to the same check functions the real audit calls.
+  * only by `CanarySuite`, which passes these classes and these sources to the same check functions the real audit
+  * calls.
   *
   * The C1 canary is not here. A method over 8000 bytes written in Scala is 800 lines of arithmetic; `CanarySuite`
   * synthesizes that classfile with ASM instead, which is exact, instant, and tests the same code path.
   */
 object Canaries:
 
-  /** Positive fixture. `@HotPath`, a real per-element loop, well inside `FreqInlineSize`. Must produce no finding at all
-    * — including from C3, which does not apply, and A1, which must find it in bytecode.
+  /** Positive fixture. `@HotPath`, a real per-element loop, well inside `FreqInlineSize`. Must produce no finding at
+    * all — including from C3, which does not apply, and A1, which must find it in bytecode.
     */
   @HotPath
   @AllocFree
@@ -52,6 +53,7 @@ object Canaries:
   def loopingForwarder(xs: Array[Double]): Int =
     var i = 0
     while i < xs.length do i += 1
+    end while
     i
   end loopingForwarder
 
@@ -67,9 +69,9 @@ object Canaries:
     */
   def erasedLength[A](xs: Array[A]): Int = xs.length
 
-  /** C6a canary for the symbol that does the actual damage: element access through runtime type dispatch, with a box and
-    * an unbox per element. `CanarySuite` asserts the reported line is this one, because `file:line` attribution is what
-    * makes a C6a finding a fix rather than a hunt.
+  /** C6a canary for the symbol that does the actual damage: element access through runtime type dispatch, with a box
+    * and an unbox per element. `CanarySuite` asserts the reported line is this one, because `file:line` attribution is
+    * what makes a C6a finding a fix rather than a hunt.
     */
   def erasedAccess[A](xs: Array[A], i: Int): A = xs(i)
 

@@ -23,13 +23,18 @@ object ClassFile:
     */
   def methodSizes(bytes: Array[Byte]): Seq[(String, String, Int)] =
     var p = 0
-    inline def u1(): Int = { val v = bytes(p) & 0xff; p += 1; v }
-    inline def u2(): Int = { val v = ((bytes(p) & 0xff) << 8) | (bytes(p + 1) & 0xff); p += 2; v }
+    inline def u1(): Int =
+      val v = bytes(p) & 0xff; p += 1; v
+    end u1
+    inline def u2(): Int =
+      val v = ((bytes(p) & 0xff) << 8) | (bytes(p + 1) & 0xff); p += 2; v
+    end u2
     inline def u4(): Int =
       val v = ((bytes(p) & 0xff) << 24) | ((bytes(p + 1) & 0xff) << 16) |
         ((bytes(p + 2) & 0xff) << 8) | (bytes(p + 3) & 0xff)
       p += 4
       v
+    end u4
     inline def skip(n: Int): Unit = p += n
 
     require(u4() == 0xcafebabe, "not a class file")
@@ -45,21 +50,22 @@ object ClassFile:
           val len = u2()
           utf8(i) = new String(bytes, p, len, "UTF-8")
           skip(len)
-        case 7 | 8 | 16 | 19 | 20              => skip(2)
-        case 15                                => skip(3)
+        case 7 | 8 | 16 | 19 | 20               => skip(2)
+        case 15                                 => skip(3)
         case 3 | 4 | 9 | 10 | 11 | 12 | 17 | 18 => skip(4)
-        case 5 | 6                             => skip(8); i += 1 // Long/Double occupy two slots
-        case other                             => sys.error(s"unhandled constant pool tag $other at index $i")
+        case 5 | 6                              => skip(8); i += 1 // Long/Double occupy two slots
+        case other                              => sys.error(s"unhandled constant pool tag $other at index $i")
+      end match
       i += 1
     end while
 
     skip(2 + 2 + 2) // access_flags, this_class, super_class
-    skip(u2() * 2)  // interfaces
+    skip(u2() * 2) // interfaces
 
     def skipAttributes(): Unit =
       var n = u2()
       while n > 0 do
-        skip(2)    // attribute_name_index
+        skip(2) // attribute_name_index
         skip(u4()) // attribute_length + body
         n -= 1
       end while
@@ -88,9 +94,11 @@ object ClassFile:
           codeLen = u4()
           skip(attrLen - 8) // remainder of the Code attribute
         else skip(attrLen)
+        end if
         attrs -= 1
       end while
       if codeLen >= 0 then out += ((name, desc, codeLen))
+      end if
       methods -= 1
     end while
 

@@ -6,9 +6,9 @@ import org.objectweb.asm.Opcodes
 /** Fixtures for every Tier 1 check, positive and negative, run against the same functions the production audit calls.
   *
   * The plan's acceptance criteria require this and give the reason: a check that has never been observed to fail is a
-  * check that might not work. The failure being guarded against is not a wrong finding, it is a check that stops matching
-  * anything after an ASM bump, a Scala codegen change, or an annotation that quietly stops reaching the classfile — and
-  * then reports green forever.
+  * check that might not work. The failure being guarded against is not a wrong finding, it is a check that stops
+  * matching anything after an ASM bump, a Scala codegen change, or an annotation that quietly stops reaching the
+  * classfile — and then reports green forever.
   */
 class CanarySuite extends munit.FunSuite:
 
@@ -97,7 +97,8 @@ class CanarySuite extends munit.FunSuite:
     val fs = Checks.c2(Seq(oversized), thresholds)
     assert(fs.exists(_.severity == Severity.Fail), "an oversized @HotPath method did not FAIL C2")
     assert(
-      Checks.c2(Seq(kernel.copy(size = (thresholds("FreqInlineSize") * 9 / 10).toInt)), thresholds)
+      Checks
+        .c2(Seq(kernel.copy(size = (thresholds("FreqInlineSize") * 9 / 10).toInt)), thresholds)
         .forall(_.severity == Severity.Warn),
       "a @HotPath method at 90% of budget should WARN, not FAIL"
     )

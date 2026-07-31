@@ -66,9 +66,13 @@ object Loader:
 
   private def annotationsOf(m: MethodNode): Set[String] =
     val lists = Option(m.visibleAnnotations).toSeq ++ Option(m.invisibleAnnotations).toSeq
-    lists.flatMap(_.asScala).map(_.desc).collect {
-      case d if d.startsWith(annotationPackage) => d.stripPrefix(annotationPackage).stripSuffix(";")
-    }.toSet
+    lists
+      .flatMap(_.asScala)
+      .map(_.desc)
+      .collect {
+        case d if d.startsWith(annotationPackage) => d.stripPrefix(annotationPackage).stripSuffix(";")
+      }
+      .toSet
   end annotationsOf
 
   def fromBytes(module: String, bytes: Array[Byte]): Seq[MethodInfo] =
@@ -101,11 +105,12 @@ object Loader:
             case ln: LineNumberNode =>
               line = ln.line
               if firstLine < 0 then firstLine = ln.line
+              end if
             case call: MethodInsnNode =>
               calls += CallSite(call.owner.replace('/', '.'), call.name, call.desc, line)
             case _: InvokeDynamicInsnNode => indy += 1
             case j: JumpInsnNode          => if isBackward(j, j.label) then backward = true
-            case s: TableSwitchInsnNode =>
+            case s: TableSwitchInsnNode   =>
               if (s.dflt +: s.labels.asScala.toSeq).exists(isBackward(s, _)) then backward = true
             case s: LookupSwitchInsnNode =>
               if (s.dflt +: s.labels.asScala.toSeq).exists(isBackward(s, _)) then backward = true
@@ -150,8 +155,8 @@ end Loader
   *     ruler.
   *   - `vecxt_re.Plots` — reporting and plotting, never on a fast path.
   *   - `vecxt_io.*` — CSV read/write. Slow while parsing is fine. The one way a specialization failure could leak from
-  *     here into `vecxt` core — `Matrix.row`, `inline`, called generically from `MatrixIO.write` — was checked in Phase 0
-  *     and does not happen.
+  *     here into `vecxt` core — `Matrix.row`, `inline`, called generically from `MatrixIO.write` — was checked in Phase
+  *     0 and does not happen.
   *   - `mnist.scala`, `pricing_fun.scala` — one-off script glue in `experiments`, not reusable surface. Unlike the
   *     others these were never confirmed, only reasoned about, so `RecordedExclusionsSuite` pins what they actually
   *     contain rather than leaving the reasoning untested.

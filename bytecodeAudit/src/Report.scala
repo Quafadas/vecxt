@@ -3,14 +3,14 @@ package vecxt.audit
 /** `report.md`, `report.json`, `comment.md`, `method-sizes.csv` and `baseline-proposed.json`, written to
   * `out/bytecode-audit/`.
   *
-  * The report's header answers the plan's sixth acceptance criterion — JDK version, the discovered C2 thresholds and the
-  * detected vector lane count — so that a report can be interpreted without knowing which runner produced it. The
+  * The report's header answers the plan's sixth acceptance criterion — JDK version, the discovered C2 thresholds and
+  * the detected vector lane count — so that a report can be interpreted without knowing which runner produced it. The
   * annotated-method table is deliberately *complete* rather than failures-only: a kernel at 300 of its 325-byte budget
   * has not failed anything and is the most useful line in the file.
   *
-  * `method-sizes.csv` replaces what `experiments.bytecodeSizes` used to print. That task read classfiles from inside the
-  * build with its own copy of the size reader; there is no reason for two of those now that one of them is a module the
-  * checks and their fixtures share.
+  * `method-sizes.csv` replaces what `experiments.bytecodeSizes` used to print. That task read classfiles from inside
+  * the build with its own copy of the size reader; there is no reason for two of those now that one of them is a module
+  * the checks and their fixtures share.
   */
 object Report:
 
@@ -30,13 +30,15 @@ object Report:
   // ---------------------------------------------------------------------------
 
   /** Every string here is assembled from a line sequence rather than a `stripMargin` block. Deliberate: `stripMargin`
-    * strips the leading `|` from *interpolated* content too, so a markdown table dropped into one loses its first column.
+    * strips the leading `|` from *interpolated* content too, so a markdown table dropped into one loses its first
+    * column.
     */
   private def lines(parts: String*): String = parts.mkString("\n")
 
   private def table(header: String, rows: Seq[String]): String =
     val columns = header.count(_ == '|') - 1
     lines((header +: ("|" + " --- |" * columns) +: rows)*)
+  end table
 
   def header(t: Thresholds): String =
     val lanes = t.vectorLanes
@@ -110,6 +112,7 @@ object Report:
       .take(n)
       .map(m => s"| ${m.size} | `${m.display}` | ${m.module} | `${m.at}` |")
     ("| bytes | method | module | at |" +: "| --- | --- | --- | --- |" +: rows).mkString("\n")
+  end largest
 
   def ratchetTable(result: AuditResult): String =
     val r = result.ratchet
@@ -141,6 +144,7 @@ object Report:
       s"| $module | $classes | ${ms.size} | $skipped |"
     }
     ("| module | classes | methods | excluded by scope |" +: "| --- | --- | --- | --- |" +: rows).mkString("\n")
+  end scopeTable
 
   // ---------------------------------------------------------------------------
 

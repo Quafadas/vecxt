@@ -3,9 +3,9 @@ package vecxt.audit
 /** One `@HotPath` / `@Thin` / `@AllocFree` occurrence as written in the source.
   *
   * The audit reads annotations out of bytecode, which is the only place they can be trusted — but that means an
-  * annotation which never *reached* bytecode is indistinguishable from one that was never written. Since the single most
-  * likely way to write one that never reaches bytecode is to put it on an `inline def`, the source is scanned too, and
-  * check A1 joins the two. See [[Checks.a1]].
+  * annotation which never *reached* bytecode is indistinguishable from one that was never written. Since the single
+  * most likely way to write one that never reaches bytecode is to put it on an `inline def`, the source is scanned too,
+  * and check A1 joins the two. See [[Checks.a1]].
   */
 final case class SourceAnnotation(
     annotation: String,
@@ -57,10 +57,11 @@ object SourceAnnotation:
   private def isComment(line: String): Boolean =
     val t = line.trim
     t.startsWith("*") || t.startsWith("//") || t.startsWith("/*")
+  end isComment
 
-  /** The annotated `def`, looked for on the annotation's own line first and then on the following lines, skipping blanks
-    * and comments. Bounded so that an annotation with no `def` after it reports as unresolved rather than binding to
-    * something far below it.
+  /** The annotated `def`, looked for on the annotation's own line first and then on the following lines, skipping
+    * blanks and comments. Bounded so that an annotation with no `def` after it reports as unresolved rather than
+    * binding to something far below it.
     */
   private def defAfter(lines: IndexedSeq[String], start: Int, rest: String): Option[(String, Boolean)] =
     val candidates = rest +: lines.slice(start + 1, start + 9).filterNot(l => l.trim.isEmpty || isComment(l))
@@ -148,13 +149,13 @@ object Checks:
       )
 
   /** C1 — the hard compile cliff. Above `HugeMethodLimit`, `DontCompileHugeMethods` means the method is never JIT
-    * compiled at all: it runs interpreted for the life of the process. This is the check aggressive `inline` use is most
-    * likely to trip, and the only one where crossing the line costs everything rather than something.
+    * compiled at all: it runs interpreted for the life of the process. This is the check aggressive `inline` use is
+    * most likely to trip, and the only one where crossing the line costs everything rather than something.
     */
   def c1(methods: Seq[MethodInfo], t: Thresholds): Seq[Finding] =
     val huge = t("HugeMethodLimit")
-    val failAt = huge * 7 / 8    // 7000 of 8000 — 12.5% headroom
-    val warnAt = huge * 11 / 16  // 5500 of 8000
+    val failAt = huge * 7 / 8 // 7000 of 8000 — 12.5% headroom
+    val warnAt = huge * 11 / 16 // 5500 of 8000
     methods.flatMap { m =>
       if m.size >= failAt then
         Some(
@@ -248,16 +249,16 @@ object Checks:
     * `extension [A](x: W[A]) def m` is to add `extension (x: W[Double]) def m` beside it. That does not remove the
     * finding: it only *adds* an overload, and the generic arm survives with its erased access intact.
     *
-    * They are also actively harmful. Adding a narrow clause that declares only *some* shapes of an overloaded name makes
-    * every *other* shape unreachable on any receiver the narrow clause matches — Scala resolves `e.m(args)` by rewriting
-    * to `m(e)`, receiver first and arguments afterwards, picks the most specific receiver, and does not fall back. A
-    * narrow `extension (arr: NDArray[Double])` carrying only `apply(selectors*)` therefore breaks `arr(0)` on any
-    * concretely-typed receiver. `NDArray#apply` has seven shapes across `ndarrayOps.scala` and
+    * They are also actively harmful. Adding a narrow clause that declares only *some* shapes of an overloaded name
+    * makes every *other* shape unreachable on any receiver the narrow clause matches — Scala resolves `e.m(args)` by
+    * rewriting to `m(e)`, receiver first and arguments afterwards, picks the most specific receiver, and does not fall
+    * back. A narrow `extension (arr: NDArray[Double])` carrying only `apply(selectors*)` therefore breaks `arr(0)` on
+    * any concretely-typed receiver. `NDArray#apply` has seven shapes across `ndarrayOps.scala` and
     * `ndarrayBooleanIndexing.scala`, so a full-coverage version is around 35 methods.
     *
-    * Two things keep that survivable. It is only a hazard for an *overloaded* name, and it fails loudly — the build stops
-    * compiling — so long as some call site in this repo uses an uncovered shape. Note the corollary: if none does, it
-    * compiles clean here and breaks downstream users instead. `vecxt.arrayUtil.printArr` and Native's
+    * Two things keep that survivable. It is only a hazard for an *overloaded* name, and it fails loudly — the build
+    * stops compiling — so long as some call site in this repo uses an uncovered shape. Note the corollary: if none
+    * does, it compiles clean here and breaks downstream users instead. `vecxt.arrayUtil.printArr` and Native's
     * `Array[A]#apply(Array[Boolean])` are the working precedent for doing it correctly: a generic clause plus concrete
     * clauses, one object, every shape covered.
     *
@@ -266,22 +267,23 @@ object Checks:
     * today.
     *
     * '''A production-side `inline` flag does not work either.''' The originally-planned `inline if boundsCheck == ...`
-    * guard was tried and abandoned: pervasive inlining pushed method sizes past the point where C2 would compile them at
-    * all. That is check C1 above, and it is what motivated bytecode analysis in the first place.
+    * guard was tried and abandoned: pervasive inlining pushed method sizes past the point where C2 would compile them
+    * at all. That is check C1 above, and it is what motivated bytecode analysis in the first place.
     *
-    * What does work: hoist the index arithmetic (which is `Array[Int]`, never abstract) out of the per-element loop, then
-    * type-test the backing array once and copy through a concrete primitive loop. `Array[AnyRef]` covers every reference
-    * element type, so nine cases are exhaustive over JVM array types. `ndarrayOps.apply(selectors*)` is the worked
-    * example.
+    * What does work: hoist the index arithmetic (which is `Array[Int]`, never abstract) out of the per-element loop,
+    * then type-test the backing array once and copy through a concrete primitive loop. `Array[AnyRef]` covers every
+    * reference element type, so nine cases are exhaustive over JVM array types. `ndarrayOps.apply(selectors*)` is the
+    * worked example.
     *
     * ==What this check cannot see==
     *
-    * An `inline def` body is expanded into its callers rather than emitted, so a generic `inline def` is audited only via
-    * whatever non-inline callers exist in scope. `ndarrayOps.toArray` has the same generic copy loop that was fixed in
-    * `apply(selectors*)` and is not reported, purely because nothing generic calls it — a downstream user calling it from
-    * their own generic context would pay the cost in their bytecode. Conversely `strideMatInstantiateCheck`'s generic arm
-    * was reported at the non-inline call site it was inlined into, not at its own definition. [[a1]] makes the same blind
-    * spot explicit for the annotations; for C6a it remains open, and closing it needs TASTy rather than bytecode.
+    * An `inline def` body is expanded into its callers rather than emitted, so a generic `inline def` is audited only
+    * via whatever non-inline callers exist in scope. `ndarrayOps.toArray` has the same generic copy loop that was fixed
+    * in `apply(selectors*)` and is not reported, purely because nothing generic calls it — a downstream user calling it
+    * from their own generic context would pay the cost in their bytecode. Conversely `strideMatInstantiateCheck`'s
+    * generic arm was reported at the non-inline call site it was inlined into, not at its own definition. [[a1]] makes
+    * the same blind spot explicit for the annotations; for C6a it remains open, and closing it needs TASTy rather than
+    * bytecode.
     */
   def c6a(methods: Seq[MethodInfo]): Seq[Finding] =
     val hits =
@@ -310,9 +312,9 @@ object Checks:
     "scala.Predef$" -> "genericWrapArray"
   )
 
-  /** `array_length` is the sentinel: for a statically-known `Array[Double]` the compiler emits the one-byte `arraylength`
-    * instruction, so a call to this can only mean the array arrived erased. It identifies the method to fix, where the
-    * `array_apply`/`array_update` hits identify the lines, which is why it is reported first.
+  /** `array_length` is the sentinel: for a statically-known `Array[Double]` the compiler emits the one-byte
+    * `arraylength` instruction, so a call to this can only mean the array arrived erased. It identifies the method to
+    * fix, where the `array_apply`/`array_update` hits identify the lines, which is why it is reported first.
     */
   private val sentinel = "array_length"
 
@@ -373,8 +375,8 @@ object Checks:
 
   /** A1 — annotation integrity, and the audit's answer to the blind spot Phase 0 left open.
     *
-    * An `inline def` body is expanded into its callers rather than emitted, so it has no bytecode of its own: no size to
-    * measure, no annotation to read. Without this check, `@HotPath` on an `inline def` would be a comment that looks
+    * An `inline def` body is expanded into its callers rather than emitted, so it has no bytecode of its own: no size
+    * to measure, no annotation to read. Without this check, `@HotPath` on an `inline def` would be a comment that looks
     * like a guarantee — the check would pass because there was nothing to check. So every annotation written in source
     * must be found again in bytecode, and an annotation on an `inline def` fails by name.
     *
