@@ -82,13 +82,10 @@ jobs:
         if: matrix.project == 'jvm'
         run: ./mill laws.${{ matrix.project }}.test
 
-      - name: Runtime specialization sweep
-        if: matrix.project == 'jvm'
-        run: ./mill experiments.test
-
-      # Tier 1 of #105. Writes out/bytecode-audit/ whether it passes or fails, so the
-      # two steps below have something to publish either way.
-      - name: Bytecode audit (Tier 1 - C1/C2/C3/C9, C6a, A1)
+      # Tier 1 of #105: the static checks (C1/C2/C3/C9, C6a, A1) and the runtime
+      # specialization sweep, which is C6a's other half. Writes out/bytecode-audit/
+      # whether it passes or fails, so the two steps below can publish either way.
+      - name: Bytecode audit and specialization sweep
         if: matrix.project == 'jvm'
         run: ./mill bytecodeAudit.test
 

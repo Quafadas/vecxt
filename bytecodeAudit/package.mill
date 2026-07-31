@@ -73,8 +73,20 @@ object `package` extends ScalaModule:
     def moduleDeps = Seq(build.vecxt.jvm)
   end canary
 
+  /** The static checks, their canaries, and `specialisation.test.scala` — the runtime sweep asserting that no boxed
+    * backing array escapes the API.
+    *
+    * That sweep is here rather than in `experiments` because it is the other half of C6a, not a separate concern. C6a
+    * cannot see a generic *allocation*: `new Array[A](n)` resolves through `ClassTag[A]`, and whether the result is a
+    * `double[]` or an `Object[]` of boxed values depends on which ClassTag arrived, which bytecode does not record. So one
+    * check reads the library and the other runs it, they cover one question between them, and a change that weakens
+    * either should be looking at the other in the same directory.
+    *
+    * It is why this module's *test* scope depends on `vecxt` while the analyzer in `src` does not: reading classfiles
+    * needs nothing from the library, exercising it needs all of it.
+    */
   object test extends ScalaTests, TestModule.Munit:
-    def moduleDeps = Seq(build.bytecodeAudit)
+    def moduleDeps = Seq(build.bytecodeAudit, build.vecxt.jvm, build.vecxt_io.jvm)
 
     def mvnDeps = super.mvnDeps() ++ Seq(
       mvn"org.scalameta::munit::${build.V.munitVersion}"

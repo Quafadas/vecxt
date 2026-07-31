@@ -24,32 +24,24 @@ object `package` extends ScalaModule:
   )
 
   // ---------------------------------------------------------------------------
-  // Bytecode size reporting lived here (`bytecodeSizes`, `bytecodeCheck`, and a
-  // hand-rolled class file reader). It is now `bytecodeAudit`, which reports the
-  // same numbers — see out/bytecode-audit/method-sizes.csv, same columns plus
-  // annotations and audited scope — and checks them against thresholds read from
-  // the JVM rather than hardcoded.
+  // This module has no tests of its own. It is the audited *subject*: cheatsheet.
+  // scala is the model of user code that C6a scans and C9 measures, and Kernel.
+  // scala is the bytecode-cost probe. Everything that checks it now lives in
+  // `bytecodeAudit`:
   //
   //   ./mill bytecodeAudit.test
   //
-  // Two reasons for the move rather than keeping both. The reader is now shared
-  // by the checks and their fixtures, which a build file cannot be; and there is
-  // no version of this where two copies of a class file parser stay in agreement.
-  //
-  // What remains here is `specialisation.test.scala`: a runtime sweep asserting
-  // no boxed backing array escapes the API. That is deliberately not a bytecode
-  // check — `ClassTag.newArray` allocating an Object[] is invisible to bytecode,
-  // since it depends on which ClassTag arrives — so it stays a test that runs the
-  // library rather than one that reads it.
+  //   - `bytecodeSizes` / `bytecodeCheck` and their hand-rolled class file reader
+  //     are superseded by out/bytecode-audit/method-sizes.csv (same columns plus
+  //     annotations, loop and audited scope), checked against thresholds read off
+  //     the JVM rather than hardcoded. The reader is shared by the checks and
+  //     their fixtures now, which a build file cannot be — and two copies of a
+  //     class file parser do not stay in agreement.
+  //   - `specializationFailure.test.scala` is check C6a.
+  //   - `specialisation.test.scala`, the runtime sweep, moved with it: it is C6a's
+  //     other half rather than a separate concern, since a generic *allocation*
+  //     through `ClassTag[A]` is invisible to bytecode.
   // ---------------------------------------------------------------------------
-
-  object test extends ScalaTests, TestModule.Munit:
-    def moduleDeps = Seq(build.experiments)
-    override def forkArgs = super.forkArgs() ++ build.vecIncubatorFlag
-    def mvnDeps = super.mvnDeps() ++ Seq(
-      mvn"org.scalameta::munit::${build.V.munitVersion}"
-    )
-  end test
 end `package`
 
 /** import io.github.quafadas.table.{*, given} import io.github.quafadas.plots.SetupVegaBrowser.{*, given} import

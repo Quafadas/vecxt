@@ -86,7 +86,7 @@ object Thresholds:
   end javaExe
 
   private def run(args: String*): Option[os.CommandResult] =
-    Try(os.proc((javaExe.toString +: args)*).call(check = false, mergeErrIntoOut = true)).toOption
+    Try(os.proc(javaExe.toString, args).call(check = false, mergeErrIntoOut = true)).toOption
 
   def parseFlags(lines: Seq[String]): Map[String, Long] =
     lines.flatMap {

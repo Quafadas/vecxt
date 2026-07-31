@@ -3,10 +3,14 @@ package vecxt
 import vecxt.all.*
 import vecxt_io.MatrixIO.loadMatrix
 
-/** Runtime proof that specialization survives the API, complementing check C6a of the bytecode audit in the
-  * `bytecodeAudit` module (vecxt/issues/105).
+/** Runtime proof that specialization survives the API — the other half of check C6a, and in the same module as it
+  * deliberately (vecxt/issues/105).
   *
-  * The two checks cover genuinely different failure modes, and only together do they cover both:
+  * This one runs the library rather than reading it, which is why it lives beside the static checks rather than in
+  * `experiments`: the two answer the same question about the same code and are the only pair that covers it, so a change
+  * that weakens one should be looking at the other in the same directory.
+  *
+  * The two cover genuinely different failure modes, and only together do they cover both:
   *
   *   - A generic *element access* (`arr(i)` on an `Array[A]`) is contained: it boxes inside one method and the array
   *     itself stays a real `double[]`. That is what the bytecode scan finds, and it costs one slow loop.
@@ -20,8 +24,9 @@ import vecxt_io.MatrixIO.loadMatrix
   * assert the backing store is still a primitive array after each operation.
   *
   * Everything below is deliberately written out per concrete element type rather than shared through a generic helper.
-  * A `def sweep[A](...)` here would itself be generic code over `Array[A]`, in a module the C6a scan covers - the test
-  * would create the very findings it exists to police.
+  * A `def sweep[A](...)` would route every operation through a generic call site, so it would assert that the *generic*
+  * path preserves the element type - not the path a real caller takes. Repetition here is the test being about the right
+  * thing.
   */
 class SpecialisationSuite extends munit.FunSuite:
 
