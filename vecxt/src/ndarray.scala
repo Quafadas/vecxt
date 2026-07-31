@@ -25,6 +25,21 @@ object ndarray:
     /** True if this is a 0-dimensional (scalar) NDArray. */
     def isScalar: Boolean = shape.length == 0
 
+    /** Runtime element type of the backing store - `double` for a specialised `NDArray[Double]`, `java.lang.Object`
+      * for one whose data got boxed into an `Object[]`.
+      *
+      * Exists to make specialization observable (vecxt/issues/105). A boxed backing store is the one form of
+      * despecialization that is *not* contained: unlike a generic loop, which is merely slow, an `Object[]` is
+      * inherited by every downstream consumer of this array, including the Vector API kernels, and nothing later
+      * can undo it.
+      *
+      * Deliberately a `def` here rather than a check in the constructor: `A` is erased by this point, so the
+      * constructor cannot know what the component type *ought* to be, and a "must be primitive" assertion would
+      * reject legitimate reference element types such as `NDArray[String]`. Asserting it in tests instead also
+      * covers whole call chains rather than one construction site - see `specialisation.test.scala`.
+      */
+    def elementClass: Class[?] = data.getClass.getComponentType
+
     // `.size` rather than `.length` - see the comment on Matrix.hasSimpleContiguousMemoryLayout
     // (vecxt/issues/105, check C6a) for why, and how this was confirmed.
     private val dataLength: Int = data.size
