@@ -504,6 +504,9 @@ object ndarrayOps:
         val n = shapeProduct(newShape)
         val out = new Array[A](n)
 
+        // Resolve every output slot's source index first. This half is entirely type-independent - it only
+        // touches Array[Int] - so it is written once, and the per-type copy loops below stay trivial.
+        val srcIdx = new Array[Int](n)
         var j = 0
         while j < n do
           var posIn = arr.offset
@@ -513,9 +516,95 @@ object ndarrayOps:
             posIn += resolved(k)(coord) * arr.strides(k)
             k += 1
           end while
-          out(j) = arr.data(posIn)
+          srcIdx(j) = posIn
           j += 1
         end while
+
+        // `out(j) = arr.data(posIn)` on an abstract A erases both arrays to Object and routes every single
+        // element through scala.runtime.ScalaRunTime.array_apply/array_update - boxing per element, and no
+        // chance of vectorisation (vecxt/issues/105, check C6a). Type-testing the backing array recovers a
+        // concrete array type, so each branch below compiles to a real primitive load/store.
+        //
+        // The nine cases are exhaustive over JVM array types (Array[AnyRef] covers every reference element
+        // type, including nested arrays and Unit). The nine near-identical loops could be collapsed into one
+        // generic `inline def gather[B](src: Array[B], dst: Array[B])`, expanded once per branch with B
+        // already concrete - `toArray` below shows an inline generic copy loop is not itself a C6a finding,
+        // because an inline body is expanded into its callers rather than emitted for scanning. Written out
+        // explicitly anyway: this method is not inline, so it is the thing being scanned, and being able to
+        // read each branch as a plain primitive copy is worth more here than the brevity.
+        //
+        // Both casts are safe: `arr.data` is an Array[A] and `out` was allocated through ClassTag[A], so the
+        // two always share a runtime element type. The final case cannot be reached by a well-formed NDArray.
+        (arr.data: Any) match
+          case src: Array[Double] =>
+            val dst = out.asInstanceOf[Array[Double]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case src: Array[Float] =>
+            val dst = out.asInstanceOf[Array[Float]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case src: Array[Int] =>
+            val dst = out.asInstanceOf[Array[Int]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case src: Array[Long] =>
+            val dst = out.asInstanceOf[Array[Long]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case src: Array[Boolean] =>
+            val dst = out.asInstanceOf[Array[Boolean]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case src: Array[Byte] =>
+            val dst = out.asInstanceOf[Array[Byte]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case src: Array[Short] =>
+            val dst = out.asInstanceOf[Array[Short]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case src: Array[Char] =>
+            val dst = out.asInstanceOf[Array[Char]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case src: Array[AnyRef] =>
+            val dst = out.asInstanceOf[Array[AnyRef]]
+            var i = 0
+            while i < n do
+              dst(i) = src(srcIdx(i))
+              i += 1
+            end while
+          case other =>
+            throw InvalidNDArray(
+              s"NDArray backing store is not a recognised array type: ${other.getClass.getName}"
+            )
+        end match
+
         mkNDArray(out, newShape, outStrides, 0)
       end if
     end apply

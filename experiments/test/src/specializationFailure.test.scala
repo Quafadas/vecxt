@@ -36,16 +36,15 @@ import org.objectweb.asm.tree.LineNumberNode
   * row is already concrete by the time it reaches vecxt_io. `arrayUtil.printArr` is excluded for the same "not a hot
   * path" reason, on the maintainer's confirmation: it's a debug-only formatter.
   *
-  * Known, deliberately-unfixed hit, left red pending a maintainer decision (see the referenced comment):
-  *   - NDArray[A]#apply(selectors*)'s gather loop (ndarrayOps.scala) - a concrete-per-type fast path was tried and
-  *     reverted: NDArray's `apply` has six differently-shaped overloads (single/multi-index, indices-array,
-  *     selectors-vararg) sharing one generic `extension [A](arr: NDArray[A])` block, and adding a second, narrower
-  *     `extension (arr: NDArray[Double])` block containing only the selectors-vararg shape made Scala prefer that
-  *     narrower block for concrete receivers wholesale - silently breaking `arr(0)`-style single-index access, since
-  *     that shape doesn't exist in the narrower block. Fixing this for real means replicating all six shapes across
-  *     five concrete types, not adding one overload. `extensionShadowing.test.scala` characterises that rule and guards
-  *     against re-introducing the breakage; `arrayUtil.printArr` and Native's `Array[A]#apply(Array[Boolean])` are the
-  *     working precedent for the full-coverage version of the fix.
+  * NDArray[A]#apply(selectors*)'s gather loop (ndarrayOps.scala) was the last outstanding hit, and is now fixed by
+  * manual specialization: the copy dispatches on the backing array's runtime type, so each branch is a concrete
+  * primitive load/store. Two approaches were rejected first, and are worth not re-attempting:
+  *   - Concrete sibling clauses (`extension (arr: NDArray[Double])`) cannot fix it at all. They only *add* overloads;
+  *     the generic arm survives and keeps its own finding. They also silently break unrelated call sites -
+  *     `extensionShadowing.test.scala` reproduces that and guards against re-introducing it.
+  *   - A shared generic `inline def gather[B](src: Array[B], dst: Array[B])` helper cannot fix it either: an inline
+  *     def is still emitted as an ordinary method with B abstract, so the helper becomes the finding. This is the
+  *     same reason strideMatInstantiateCheck's generic arm showed up until it was addressed directly.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
