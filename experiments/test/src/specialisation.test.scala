@@ -8,20 +8,20 @@ import vecxt_io.MatrixIO.loadMatrix
   *
   * The two checks cover genuinely different failure modes, and only together do they cover both:
   *
-  *   - A generic *element access* (`arr(i)` on an `Array[A]`) is contained: it boxes inside one method and the
-  *     array itself stays a real `double[]`. That is what the bytecode scan finds, and it costs one slow loop.
-  *   - A generic *allocation* is not contained. `new Array[A](n)` resolves through `ClassTag[A]`, and if that
-  *     ClassTag ever arrives as `Any`/`AnyRef` the result is an `Object[]` of boxed values. Every downstream
-  *     consumer inherits it - including the Vector API kernels - and nothing later can undo it.
+  *   - A generic *element access* (`arr(i)` on an `Array[A]`) is contained: it boxes inside one method and the array
+  *     itself stays a real `double[]`. That is what the bytecode scan finds, and it costs one slow loop.
+  *   - A generic *allocation* is not contained. `new Array[A](n)` resolves through `ClassTag[A]`, and if that ClassTag
+  *     ever arrives as `Any`/`AnyRef` the result is an `Object[]` of boxed values. Every downstream consumer inherits
+  *     it - including the Vector API kernels - and nothing later can undo it.
   *
-  * The bytecode scan deliberately does not check `ClassTag.newArray`, because it is the ordinary and legitimate
-  * way to allocate a generic array; whether a given call is a problem depends on the ClassTag that reaches it,
-  * which is not visible in the bytecode. So this suite checks the observable consequence instead: for every
-  * primitive element type, assert the backing store is still a primitive array after each operation.
+  * The bytecode scan deliberately does not check `ClassTag.newArray`, because it is the ordinary and legitimate way to
+  * allocate a generic array; whether a given call is a problem depends on the ClassTag that reaches it, which is not
+  * visible in the bytecode. So this suite checks the observable consequence instead: for every primitive element type,
+  * assert the backing store is still a primitive array after each operation.
   *
-  * Everything below is deliberately written out per concrete element type rather than shared through a generic
-  * helper. A `def sweep[A](...)` here would itself be generic code over `Array[A]`, in a module the C6a scan
-  * covers - the test would create the very findings it exists to police.
+  * Everything below is deliberately written out per concrete element type rather than shared through a generic helper.
+  * A `def sweep[A](...)` here would itself be generic code over `Array[A]`, in a module the C6a scan covers - the test
+  * would create the very findings it exists to police.
   */
 class SpecialisationSuite extends munit.FunSuite:
 

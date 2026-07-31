@@ -42,9 +42,9 @@ object matrix:
 
     val numel: Int = rows * cols
 
-    /** Runtime element type of the backing store - `double` for a specialised `Matrix[Double]`, `java.lang.Object`
-      * for one whose data got boxed into an `Object[]`. See `NDArray#elementClass` for why this is exposed rather
-      * than asserted in the constructor, and `specialisation.test.scala` for what asserts it.
+    /** Runtime element type of the backing store - `double` for a specialised `Matrix[Double]`, `java.lang.Object` for
+      * one whose data got boxed into an `Object[]`. See `NDArray#elementClass` for why this is exposed rather than
+      * asserted in the constructor, and `specialisation.test.scala` for what asserts it.
       */
     def elementClass: Class[?] = raw.getClass.getComponentType
 
