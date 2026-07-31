@@ -331,6 +331,10 @@ object Checks:
   /** `array_length` is the sentinel: for a statically-known `Array[Double]` the compiler emits the one-byte
     * `arraylength` instruction, so a call to this can only mean the array arrived erased. It identifies the method to
     * fix, where the `array_apply`/`array_update` hits identify the lines, which is why it is reported first.
+    *
+    * A hit reported against `$anonfun$N` is inside a lambda the compiler lifted out of an enclosing method, and Scala 3
+    * does not always keep the enclosing name — so trust the line, not the method name. It also means a method-name
+    * exclusion in [[Scope]] does not cover the lambdas that method creates.
     */
   private val sentinel = "array_length"
 

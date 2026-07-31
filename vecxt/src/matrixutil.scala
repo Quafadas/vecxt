@@ -216,16 +216,24 @@ object matrixUtil:
       * Debug output, not a serialisation format: no alignment, no truncation of large matrices, and no stable contract
       * on the result. Reads every element generically and boxes as it goes, which is fine here and would not be on a
       * fast path.
+      *
+      * Appends into a `StringBuilder` rather than building nested collections and joining them, so it creates no
+      * intermediate `Seq` per row and no closures.
       */
     def printMat(using ClassTag[A]): String =
-      val arrArr =
-        for i <- 0 until m.rows
-        yield
-          val els =
-            for j <- 0 until m.cols
-            yield m((i, j)).toString()
-          els.mkString(" ")
-      arrArr.mkString("\n")
+      val sb = new StringBuilder
+      var i = 0
+      while i < m.rows do
+        if i > 0 then sb.append('\n')
+        var j = 0
+        while j < m.cols do
+          if j > 0 then sb.append(' ')
+          sb.append(m((i, j)).toString())
+          j += 1
+        end while
+        i += 1
+      end while
+      sb.toString
     end printMat
 
     /** Note that m.submatrix(::, i) will give back a zero-copy matrix with the correct strides.
