@@ -121,9 +121,11 @@ class ExtensionShadowingSuite extends munit.FunSuite:
   )
 
   test("resolution: replica of the reverted NDArray[A]#apply attempt") {
-    // If these all pass, five narrow `extension (arr: NDArray[X])` clauses declaring only the selectors-vararg
-    // shape do NOT break `arr(0)`, and the cheap fix for ndarrayOps.scala:516 is viable - the reverted attempt
-    // must have failed for a different reason than the one it was attributed to.
+    // Measured: the replica DOES reproduce the breakage, even though the simplified `shadowProbe` fixtures - also
+    // one object, also a narrow clause - do not. So the hazard is real, and the `shadowProbe` table above is not
+    // the whole rule: something the replica adds (vararg narrow shape, `@targetName`, five clauses, an `apply`
+    // called via call syntax, a `using ClassTag` generic arm) is what tips it over. The `bisect:` probes below
+    // isolate which.
     val actual = Seq(
       "single Int shape, explicit .apply " -> replicaSingleIndex,
       "single Int shape, nd(0) syntax    " -> replicaCallSyntax,
@@ -131,8 +133,72 @@ class ExtensionShadowingSuite extends munit.FunSuite:
       "the narrow clause's vararg shape  " -> replicaSelectors,
       "element type with no narrow clause" -> replicaUncoveredElem
     )
+    val expected = Seq(
+      // Uncovered shapes are unreachable on a receiver the narrow clause matches ...
+      "single Int shape, explicit .apply " -> false,
+      "single Int shape, nd(0) syntax    " -> false,
+      "two-Int shape, nd(0, 0)           " -> false,
+      // ... while the covered shape, and any element type with no narrow clause, are unaffected.
+      "the narrow clause's vararg shape  " -> true,
+      "element type with no narrow clause" -> true
+    )
+    assertEquals(actual, expected, "the NDArray[A]#apply shadowing replica no longer behaves as recorded here")
+  }
+
+  private val oneNarrowSingleIndex = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.OpsOneNarrow.*; val nd = new Nd(Array(1.0)); nd(0) }"""
+  )
+
+  private val noVarargSingleIndex = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.OpsNoVararg.*; val nd = new Nd(Array(1.0)); nd(0) }"""
+  )
+
+  private val fullSingleIndex = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.OpsFull.*; val nd = new Nd(Array(1.0)); nd(0) }"""
+  )
+
+  private val fullMultiIndex = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.OpsFull.*; val nd = new Nd(Array(1.0)); nd(0, 0) }"""
+  )
+
+  private val fullIndicesArray = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.OpsFull.*; val nd = new Nd(Array(1.0)); nd(Array(0)) }"""
+  )
+
+  private val fullSelectors = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.OpsFull.*; val nd = new Nd(Array(1.0)); nd(0 until 1) }"""
+  )
+
+  private val fullUncoveredElem = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.OpsFull.*; val nd = new Nd(Array("a")); nd(0) }"""
+  )
+
+  test("bisect: which feature of the replica causes the shadowing") {
+    // One variable at a time against `Ops`, whose `nd(0)` is `false`. Whichever of these two is also `false` is
+    // the culprit; whichever is `true` is irrelevant to the bug. Reported as an equality so the answer comes back
+    // in the annotation either way - the expectations are the guess, not the finding.
+    val actual = Seq(
+      "one narrow clause instead of five " -> oneNarrowSingleIndex,
+      "narrow shape not a vararg         " -> noVarargSingleIndex
+    )
+    val expected = Seq(
+      "one narrow clause instead of five " -> false,
+      "narrow shape not a vararg         " -> true
+    )
+    assertEquals(actual, expected, "bisection differs from the recorded cause")
+  }
+
+  test("option (A): a narrow clause covering every shape resolves all of them") {
+    // The premise the ~35-method fix rests on. All five must be `true` for option (A) to be worth writing.
+    val actual = Seq(
+      "single Int shape       " -> fullSingleIndex,
+      "two-Int shape          " -> fullMultiIndex,
+      "Array[Int] shape       " -> fullIndicesArray,
+      "selectors vararg shape " -> fullSelectors,
+      "uncovered element type " -> fullUncoveredElem
+    )
     val expected = actual.map((label, _) => label -> true)
-    assertEquals(actual, expected, "narrow vararg clauses DO hide the generic clause's indexing shapes")
+    assertEquals(actual, expected, "full shape coverage does NOT restore the generic clause's shapes")
   }
 
   // ---------------------------------------------------------------------------
@@ -371,5 +437,65 @@ object ndarrayReplica:
       def apply(selectors: Selector*): Nd[Boolean] = arr
     end extension
   end Ops
+
+  /** `Ops` reproduces the breakage but varies five things at once against the `shadowProbe` fixtures, which do not
+    * break. These three isolate one variable each, so the cause is identified rather than guessed at.
+    */
+
+  /** One narrow clause instead of five - is the count what matters? */
+  object OpsOneNarrow:
+    extension [A](arr: Nd[A])
+      inline def apply(i0: Int): A = ???
+      inline def apply(i0: Int, i1: Int): A = ???
+      inline def apply(indices: Array[Int]): A = ???
+      def apply(selectors: Selector*)(using ClassTag[A]): Nd[A] = arr
+    end extension
+
+    extension (arr: Nd[Double])
+      @targetName("oneNarrowSelectors")
+      def apply(selectors: Selector*): Nd[Double] = arr
+    end extension
+  end OpsOneNarrow
+
+  /** Narrow clause carries a plain, non-numeric parameter rather than a vararg - is the vararg what matters?
+    * `String` rather than a numeric type so `nd(0)` cannot reach it by weak conformance.
+    */
+  object OpsNoVararg:
+    extension [A](arr: Nd[A])
+      inline def apply(i0: Int): A = ???
+      inline def apply(i0: Int, i1: Int): A = ???
+      inline def apply(indices: Array[Int]): A = ???
+      def apply(selectors: Selector*)(using ClassTag[A]): Nd[A] = arr
+    end extension
+
+    extension (arr: Nd[Double])
+      @targetName("noVarargString")
+      def apply(s: String): Nd[Double] = arr
+    end extension
+  end OpsNoVararg
+
+  /** Option (A) from the handoff, in miniature: the narrow clause declares *every* shape the generic clause does. If
+    * the probes against this pass, replicating all seven shapes across the concrete types really does fix
+    * `ndarrayOps.scala:516` - worth knowing before writing ~35 methods that cannot be compiled locally.
+    */
+  object OpsFull:
+    extension [A](arr: Nd[A])
+      inline def apply(i0: Int): A = ???
+      inline def apply(i0: Int, i1: Int): A = ???
+      inline def apply(indices: Array[Int]): A = ???
+      def apply(selectors: Selector*)(using ClassTag[A]): Nd[A] = arr
+    end extension
+
+    extension (arr: Nd[Double])
+      @targetName("fullDouble1")
+      def apply(i0: Int): Double = ???
+      @targetName("fullDouble2")
+      def apply(i0: Int, i1: Int): Double = ???
+      @targetName("fullDoubleArr")
+      def apply(indices: Array[Int]): Double = ???
+      @targetName("fullDoubleSelectors")
+      def apply(selectors: Selector*): Nd[Double] = arr
+    end extension
+  end OpsFull
 
 end ndarrayReplica
