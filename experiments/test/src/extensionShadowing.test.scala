@@ -1,7 +1,9 @@
 package vecxt
 
 import java.io.File
+import scala.annotation.targetName
 import scala.compiletime.testing.typeChecks
+import scala.reflect.ClassTag
 
 /** Companion check to `specializationFailure.test.scala` (Phase 0 of https://github.com/Quafadas/vecxt/issues/105).
   *
@@ -67,11 +69,18 @@ class ExtensionShadowingSuite extends munit.FunSuite:
   }
 
   test("resolution: what a narrower clause does to the generic clause's other shapes") {
-    // The expected column is the rule as observed on `NDArray[A]#apply`: Scala selects the extension method by
-    // *receiver* first and applies the arguments afterwards, without backtracking to a broader clause - hence the
-    // `Found: (0: Int), Required: RangeExtender` the reverted attempt produced. Encoded as an equality rather than
-    // a printout because the CI log is not readable from outside the runner, so an assertion is the only way to
-    // get the answer back; a mismatch prints both columns and is itself the finding.
+    // Measured on CI, not predicted - and the opposite of the "Scala commits to the narrowest matching clause and
+    // will not fall back" story the reverted NDArray attempt was diagnosed with:
+    //
+    //   - Within ONE object, adding a narrow clause is harmless. Both clauses' methods are members of the same
+    //     object, so this is ordinary overload resolution and the argument list does participate in it. Same when
+    //     several objects are funnelled through one `export`-ing aggregator, as `vecxt.all` does.
+    //   - Across TWO separate wildcard imports, the generic clause's extra shapes become unreachable. That is
+    //     plain import shadowing of the name `get` - the second `import` wins and the first is never consulted -
+    //     not anything specific to extension methods.
+    //
+    // So the hazard is import structure, not clause structure. See `resolution: replica ...` below for whether
+    // this is really what bit `NDArray[A]#apply`.
     val actual = Seq(
       "narrow clause in the same object, generic-only shape  " -> sameObjectGenericShape,
       "narrow clause in the same object, narrow shape        " -> sameObjectNarrowShape,
@@ -80,18 +89,50 @@ class ExtensionShadowingSuite extends munit.FunSuite:
       "both re-exported via one object, generic-only shape   " -> reexportedGenericShape
     )
     val expected = Seq(
-      // A shape the narrow clause does not declare is unreachable, even though the generic clause declares it.
-      "narrow clause in the same object, generic-only shape  " -> false,
+      "narrow clause in the same object, generic-only shape  " -> true,
       "narrow clause in the same object, narrow shape        " -> true,
-      // The narrow clause is simply not eligible for a receiver it does not match, so the generic clause applies.
       "narrow clause in the same object, other element type  " -> true,
-      // If either of these two turns out to be `true`, the narrower clause only shadows within its own object, and
-      // a concrete fast path could be added in a *separate* object without replicating every shape - which would
-      // make the NDArray[A]#apply fix far cheaper than option (A). Worth knowing either way.
       "narrow clause in a separate object, generic-only shape" -> false,
-      "both re-exported via one object, generic-only shape   " -> false
+      "both re-exported via one object, generic-only shape   " -> true
     )
-    assertEquals(actual, expected, "extension-method resolution does not behave as the C6a fixes assume")
+    assertEquals(actual, expected, "extension-method resolution no longer behaves as recorded here")
+  }
+
+  // The simplified fixtures above say a same-object narrow clause is harmless, which contradicts the reported
+  // `arr(0)` breakage - so these probe a replica carrying every feature the real attempt had and `shadowProbe`
+  // lacks. See `object ndarrayReplica` at the foot of this file.
+  private val replicaSingleIndex =
+    typeChecks("""{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.Ops.*; new Nd(Array(1.0)).apply(0) }""")
+
+  private val replicaCallSyntax = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.Ops.*; val nd = new Nd(Array(1.0)); nd(0) }"""
+  )
+
+  private val replicaMultiIndex = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.Ops.*; val nd = new Nd(Array(1.0)); nd(0, 0) }"""
+  )
+
+  private val replicaSelectors = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.Ops.*; val nd = new Nd(Array(1.0)); nd(0 until 1) }"""
+  )
+
+  private val replicaUncoveredElem = typeChecks(
+    """{ import vecxt.ndarrayReplica.*; import vecxt.ndarrayReplica.Ops.*; val nd = new Nd(Array("a")); nd(0) }"""
+  )
+
+  test("resolution: replica of the reverted NDArray[A]#apply attempt") {
+    // If these all pass, five narrow `extension (arr: NDArray[X])` clauses declaring only the selectors-vararg
+    // shape do NOT break `arr(0)`, and the cheap fix for ndarrayOps.scala:516 is viable - the reverted attempt
+    // must have failed for a different reason than the one it was attributed to.
+    val actual = Seq(
+      "single Int shape, explicit .apply " -> replicaSingleIndex,
+      "single Int shape, nd(0) syntax    " -> replicaCallSyntax,
+      "two-Int shape, nd(0, 0)           " -> replicaMultiIndex,
+      "the narrow clause's vararg shape  " -> replicaSelectors,
+      "element type with no narrow clause" -> replicaUncoveredElem
+    )
+    val expected = actual.map((label, _) => label -> true)
+    assertEquals(actual, expected, "narrow vararg clauses DO hide the generic clause's indexing shapes")
   }
 
   // ---------------------------------------------------------------------------
@@ -277,3 +318,58 @@ object shadowProbe:
   end Reexported
 
 end shadowProbe
+
+/** A high-fidelity replica of what the reverted `ndarrayOps` attempt actually looked like, because the simplified
+  * `shadowProbe` fixtures say a same-object narrow clause does *not* hide the generic clause's other shapes - which
+  * contradicts the reported breakage. Everything the real attempt had and `shadowProbe` lacks is reproduced here: a
+  * `final class` wrapper, `inline` members, a vararg of a union type, an `Array[Int]` shape that the union also admits,
+  * a `using ClassTag` on the generic vararg arm, and five narrow clauses discriminated by `@targetName`.
+  *
+  * If `nd(0)` resolves here, the reverted attempt failed for some other reason and the cheap one-overload-per-type fix
+  * for `NDArray[A]#apply(selectors*)` is viable after all.
+  */
+object ndarrayReplica:
+
+  type Selector = Range | Array[Int]
+
+  final class Nd[A](val data: Array[A])
+
+  object Ops:
+    // Bodies are `???` deliberately: a real `arr.data(i0)` here is a generic array access, so it would emit the very
+    // ScalaRunTime symbols the sibling C6a suite scans for and show up as a fresh finding in its report. Only the
+    // signatures matter for `typeChecks`.
+    extension [A](arr: Nd[A])
+      inline def apply(i0: Int): A = ???
+      inline def apply(i0: Int, i1: Int): A = ???
+      inline def apply(i0: Int, i1: Int, i2: Int): A = ???
+      inline def apply(indices: Array[Int]): A = ???
+      def apply(selectors: Selector*)(using ClassTag[A]): Nd[A] = arr
+    end extension
+
+    extension (arr: Nd[Double])
+      @targetName("applyDoubleSelectors")
+      def apply(selectors: Selector*): Nd[Double] = arr
+    end extension
+
+    extension (arr: Nd[Float])
+      @targetName("applyFloatSelectors")
+      def apply(selectors: Selector*): Nd[Float] = arr
+    end extension
+
+    extension (arr: Nd[Int])
+      @targetName("applyIntSelectors")
+      def apply(selectors: Selector*): Nd[Int] = arr
+    end extension
+
+    extension (arr: Nd[Long])
+      @targetName("applyLongSelectors")
+      def apply(selectors: Selector*): Nd[Long] = arr
+    end extension
+
+    extension (arr: Nd[Boolean])
+      @targetName("applyBooleanSelectors")
+      def apply(selectors: Selector*): Nd[Boolean] = arr
+    end extension
+  end Ops
+
+end ndarrayReplica
