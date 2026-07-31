@@ -49,19 +49,16 @@ object matrix:
       *
       * @return
       */
-    // `raw.length` here and in `layout` below routes through ScalaRunTime$.array_length (vecxt/issues/105,
-    // check C6a) - unlike Matrix.apply's overloads, this can't be fixed by overloading, because there is
-    // only one compiled Matrix class no matter how many concrete factory overloads construct it: `A` is
-    // this class's own abstract parameter at this point, not a caller's concrete one. `layout` could move
-    // to a `Matrix[Double]`-style extension (same trick used elsewhere) with no behavioural change since
-    // it's already recomputed on every call, but that removes a public instance method from a published
-    // library's binary shape - a call worth making deliberately, not as a side effect of this audit. Both
-    // run once per construction/toString, not per element, so the cost here is the label, not the number.
+    // `.size` rather than `.length` (vecxt/issues/105, check C6a): `raw` is this class's own abstract `A`
+    // here, not a caller's concrete one, so no factory overload reaches this - but Array#size (unlike
+    // #length) doesn't route through ScalaRunTime$.array_length even when the element type is abstract.
+    // Confirmed empirically: Matrix.apply's dim-based overload already used raw.size for this same check
+    // and never showed up as a hit of any kind, unlike the stride-based overload's raw.length.
     val hasSimpleContiguousMemoryLayout: Boolean =
-      (isDenseRowMajor || isDenseColMajor) && raw.length == numel
+      (isDenseRowMajor || isDenseColMajor) && raw.size == numel
 
     def layout: String =
-      s"rows: $rows, cols: $cols, rowStride: $rowStride, colStride: $colStride, offset: $offset, data length: ${raw.length}"
+      s"rows: $rows, cols: $cols, rowStride: $rowStride, colStride: $colStride, offset: $offset, data length: ${raw.size}"
   end Matrix
 
   object Matrix:

@@ -25,11 +25,9 @@ object ndarray:
     /** True if this is a 0-dimensional (scalar) NDArray. */
     def isScalar: Boolean = shape.length == 0
 
-    // Same situation as Matrix.hasSimpleContiguousMemoryLayout (vecxt/issues/105, check C6a): `data.length`
-    // routes through ScalaRunTime$.array_length here because `A` is this class's own abstract parameter,
-    // not a caller's concrete one - no factory-level overload reaches this field. Once per construction,
-    // not per element.
-    private val dataLength: Int = data.length
+    // `.size` rather than `.length` - see the comment on Matrix.hasSimpleContiguousMemoryLayout
+    // (vecxt/issues/105, check C6a) for why, and how this was confirmed.
+    private val dataLength: Int = data.size
 
     val numel: Int =
       var prod = 1
