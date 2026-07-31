@@ -125,7 +125,7 @@ object ndarray:
     inline def fromArray[A](
         data: Array[A]
     ): NDArray[A] =
-      new NDArray(data, Array(data.length), Array(1), 0)
+      new NDArray(data, Array(data.size), Array(1), 0)
 
     /** Create a 0-dimensional (scalar) NDArray holding a single value. */
     inline def scalar[A](value: A)(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
@@ -161,7 +161,9 @@ object ndarray:
 
   end NDArray
 
-  extension [A](arr: NDArray[A]) inline def shapeArray: Array[Int] = arr.shape
+  extension [A](arr: NDArray[A])
+    @Thin
+    def shapeArray: Array[Int] = arr.shape
   end extension
 
   /** Package-private factory — creates NDArray without bounds checking. Used by operations that have already validated

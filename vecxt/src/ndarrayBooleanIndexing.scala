@@ -32,7 +32,7 @@ object NDArrayBooleanIndexing:
         val out = new Array[A](count)
         var j = 0
         i = 0
-        while i < arr.data.length do
+        while i < arr.data.size do
           if mask.data(i) then
             out(j) = arr.data(i)
             j += 1

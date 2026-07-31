@@ -35,9 +35,9 @@ object strideNDArrayCheck:
       i += 1
     end while
 
-    if offset < 0 || (data.length > 0 && offset >= data.length) then
+    if offset < 0 || (data.size > 0 && offset >= data.size) then
       throw java.lang.IndexOutOfBoundsException(
-        s"Offset $offset is out of bounds for array of size ${data.length}"
+        s"Offset $offset is out of bounds for array of size ${data.size}"
       )
     end if
 
@@ -60,10 +60,10 @@ object strideNDArrayCheck:
       )
     end if
 
-    if maxIdx >= data.length then
+    if maxIdx >= data.size then
       throw java.lang.IndexOutOfBoundsException(
         s"NDArray with shape [${shape.mkString(",")}], strides [${strides.mkString(",")}], offset $offset " +
-          s"would access index $maxIdx, but array size is only ${data.length}"
+          s"would access index $maxIdx, but array size is only ${data.size}"
       )
     end if
   end apply
@@ -82,9 +82,9 @@ object dimNDArrayCheck:
       prod *= shape(i)
       i += 1
     end while
-    if prod != data.length then
+    if prod != data.size then
       throw InvalidNDArray(
-        s"Shape [${shape.mkString(",")}] implies $prod elements, but data has ${data.length} elements"
+        s"Shape [${shape.mkString(",")}] implies $prod elements, but data has ${data.size} elements"
       )
     end if
   end apply
