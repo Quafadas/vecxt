@@ -36,12 +36,7 @@ import org.objectweb.asm.tree.LineNumberNode
   * row is already concrete by the time it reaches vecxt_io. `arrayUtil.printArr` is excluded for the same "not a hot
   * path" reason, on the maintainer's confirmation: it's a debug-only formatter.
   *
-  * Known, deliberately-unfixed hits, left red pending a maintainer decision:
-  *   - Matrix.apply's generic arm (matrix.scala) - adding concrete overloads (vecxt/issues/105, check C6a) never
-  *     removes the generic arm's own hit, since the checker scans every compiled method unconditionally and the generic
-  *     arm still exists, unconditionally generic, for any caller that's itself generic over the element type. Same
-  *     story for every other generic-arm-plus-concrete-siblings method in this codebase; it only shows up here because
-  *     vecxt_io and arrayUtil - the other examples of it - are now out of scope above.
+  * Known, deliberately-unfixed hit, left red pending a maintainer decision (see the referenced comment):
   *   - NDArray[A]#apply(selectors*)'s gather loop (ndarrayOps.scala) - a concrete-per-type fast path was tried and
   *     reverted: NDArray's `apply` has six differently-shaped overloads (single/multi-index, indices-array,
   *     selectors-vararg) sharing one generic `extension [A](arr: NDArray[A])` block, and adding a second, narrower

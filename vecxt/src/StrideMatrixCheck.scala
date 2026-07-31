@@ -37,7 +37,7 @@ package vecxt
   */
 object strideMatInstantiateCheck:
 
-  /** All of the above only ever reads `length` - never an element - so the concrete/generic split only has to happen
+  /** All of the above only ever reads a length - never an element - so the concrete/generic split only has to happen
     * once, here, rather than being duplicated across every overload below.
     */
   private def checkLengths(length: Int, rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
@@ -96,26 +96,26 @@ object strideMatInstantiateCheck:
     end if
   end checkLengths
 
-  // Generic arm: Array[A] with A abstract erases to Object, so `raw.length` routes through
-  // scala/runtime/ScalaRunTime$.array_length (see vecxt/issues/105, check C6a). The concrete overloads
-  // below exist so that a caller holding a concretely-typed array - which is every caller reachable from
-  // Matrix.apply's own concrete overloads - never pays that cost. Kept `inline` so a generic caller that
-  // *does* have a concrete type at its own expansion site still specializes away entirely.
+  // Generic arm: uses `.size` rather than `.length` (vecxt/issues/105, check C6a) - Array#size doesn't route
+  // through scala/runtime/ScalaRunTime$.array_length even when the element type is abstract, unlike #length
+  // (see the comment on Matrix.hasSimpleContiguousMemoryLayout for how this was confirmed). Kept `inline`
+  // regardless, and the concrete overloads below kept too, so a caller with a concretely-typed array
+  // specializes into daload/dastore-shaped bounds math rather than boxed comparisons either way.
   inline def apply[A](raw: Array[A], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
-    checkLengths(raw.length, rows, cols, rowStride, colStride, offset)
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
 
   def apply(raw: Array[Double], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
-    checkLengths(raw.length, rows, cols, rowStride, colStride, offset)
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
 
   def apply(raw: Array[Float], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
-    checkLengths(raw.length, rows, cols, rowStride, colStride, offset)
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
 
   def apply(raw: Array[Int], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
-    checkLengths(raw.length, rows, cols, rowStride, colStride, offset)
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
 
   def apply(raw: Array[Long], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
-    checkLengths(raw.length, rows, cols, rowStride, colStride, offset)
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
 
   def apply(raw: Array[Boolean], rows: Row, cols: Col, rowStride: Int, colStride: Int, offset: Int): Unit =
-    checkLengths(raw.length, rows, cols, rowStride, colStride, offset)
+    checkLengths(raw.size, rows, cols, rowStride, colStride, offset)
 end strideMatInstantiateCheck
