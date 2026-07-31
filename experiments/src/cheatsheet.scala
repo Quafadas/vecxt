@@ -27,6 +27,8 @@ object CheatsheetTest:
     arrayCreation()
     matrixCreation()
     indexingAndSlicing()
+    matrixRangeSlicing()
+    matrixReverseSlicing()
     elementWiseOps()
     matrixOps()
     reductions()
@@ -95,7 +97,6 @@ object CheatsheetTest:
   private def indexingAndSlicing(): Unit =
     println("\n--- Indexing and Slicing ---")
     val m = Matrix(Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), 3, 3)
-    val mBig = Matrix.rand(10, 10)
     m.mean
     println("==== m =====")
     println(m.printMat)
@@ -103,16 +104,28 @@ object CheatsheetTest:
 
     println(s"Element at (1, 1): ${m(1, 1)}")
     println(s"Row 0: ${m.row(0).mkString(", ")}")
-    println(s"First 5 rows: ${mBig(0 until 5, ::).printMat}")
-    println(s"Last 5 rows: ${mBig(mBig.rows - 5 until mBig.rows, ::).printMat}")
-    println(s"submatrix: ${mBig(0 to 2, 1 to 3).printMat}")
-    println(s"submatrix: ${m((m.rows - 1 until 0 by -1), ::).printMat}")
-    println(s"submatrix: ${m((m.rows - 1 until 0 by -1), ::).layout}")
     println(s"Column 1: ${m.col(1).mkString(", ")}")
 
     val mt = m.transpose
     println(s"Transposed matrix shape: ${mt.shape}")
   end indexingAndSlicing
+
+  /** Split out of `indexingAndSlicing`, which C1 measured at 11647 bytes — past the point where HotSpot stops JIT
+    * compiling a method at all. `printMat` is what costs: at roughly 1900 bytes per expansion, five of them in one method
+    * is most of that figure on its own, so the range-slicing calls get two methods of their own.
+    */
+  private def matrixRangeSlicing(): Unit =
+    val mBig = Matrix.rand(10, 10)
+    println(s"First 5 rows: ${mBig(0 until 5, ::).printMat}")
+    println(s"Last 5 rows: ${mBig(mBig.rows - 5 until mBig.rows, ::).printMat}")
+    println(s"submatrix: ${mBig(0 to 2, 1 to 3).printMat}")
+  end matrixRangeSlicing
+
+  private def matrixReverseSlicing(): Unit =
+    val m = Matrix(Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), 3, 3)
+    println(s"submatrix: ${m((m.rows - 1 until 0 by -1), ::).printMat}")
+    println(s"submatrix: ${m((m.rows - 1 until 0 by -1), ::).layout}")
+  end matrixReverseSlicing
 
   private def elementWiseOps(): Unit =
     println("\n--- Element-wise Operations ---")

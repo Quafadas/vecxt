@@ -83,9 +83,39 @@ end CoverageSuite
 
 object CoverageSuite:
 
-  /** Populated from the first CI run, deliberately: this is a record of observed fact, and guessing it would defeat the
-    * purpose of recording it.
+  /** What the excluded scopes actually contain, from the first run — observed rather than guessed, which was the point.
+    *
+    * Phase 0's theory about the two unconfirmed exclusions was that any hits in them would be third-party `inline`/macro
+    * code expanding into a script rather than vecxt's own. **That holds for `pricing_fun.scala` and is wrong for
+    * `mnist.scala`.** pricing_fun has exactly one hit, a `genericWrapArray` consistent with scautable's CSV type inference
+    * expanding in — the file contains no type parameters and no `Array[A]` of its own. mnist has four, and `oneHot`,
+    * `oneHotEncode` and the two lambdas are its own generic array writes.
+    *
+    * That does not change the decision — mnist is one-off preprocessing glue and being slow there is fine — but it does
+    * change what the exclusion means. It is now "we accept boxed array writes in this script", not "there is nothing here".
+    * Which is exactly the difference between an exclusion that was reasoned about and one that was measured.
+    *
+    * The rest are the exclusions that were already confirmed, behaving as expected: the deliberate erasure probes, the
+    * debug formatter, the CSV layer, and the plotting lambdas.
     */
-  val recordedExclusionHits: Seq[String] = Seq.empty
+  val recordedExclusionHits: Seq[String] = Seq(
+    "experiments.pricing_fun$package$.pricingFun -> calls scala.Predef$.genericWrapArray",
+    "mnist$package$.dataToCoords$$anonfun$1$$anonfun$1 -> calls scala.runtime.ScalaRunTime$.array_apply",
+    "mnist$package$.mnist$$anonfun$1$$anonfun$2 -> calls scala.Predef$.genericWrapArray",
+    "mnist$package$.oneHot -> calls scala.runtime.ScalaRunTime$.array_update",
+    "mnist$package$.oneHotEncode -> calls scala.runtime.ScalaRunTime$.array_update",
+    "probe.ErasureProbe$.genericAccess -> calls scala.runtime.ScalaRunTime$.array_apply",
+    "probe.Kernel$.genericAccess -> calls scala.runtime.ScalaRunTime$.array_apply",
+    "vecxt.arrayUtil$.printArr -> calls scala.Predef$.genericWrapArray",
+    "vecxt_io.ArrayIO$.write -> calls scala.Predef$.genericWrapArray",
+    "vecxt_io.MatrixIO$.loadMatrix -> calls scala.runtime.ScalaRunTime$.array_update",
+    "vecxt_io.MatrixIO$.write -> calls scala.Predef$.genericWrapArray",
+    "vecxt_io.MatrixIO$.write -> calls scala.runtime.ScalaRunTime$.array_apply",
+    "vecxt_io.MatrixIO$.write -> calls scala.runtime.ScalaRunTime$.array_update",
+    "vecxt_re.Plots$.plotHill$$anonfun$2$$anonfun$1 -> calls scala.Predef$.genericWrapArray",
+    "vecxt_re.Plots$.plotIndex$$anonfun$1$$anonfun$1 -> calls scala.Predef$.genericWrapArray",
+    "vecxt_re.Plots$.plotPickands$$anonfun$2$$anonfun$1 -> calls scala.Predef$.genericWrapArray",
+    "vecxt_re.Plots$.plotPickandsGamma$$anonfun$2$$anonfun$1 -> calls scala.Predef$.genericWrapArray"
+  )
 
 end CoverageSuite

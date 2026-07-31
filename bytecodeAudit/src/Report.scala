@@ -67,7 +67,7 @@ object Report:
   /** Every annotated method with its budget and headroom, worst headroom first. */
   def annotatedTable(result: AuditResult): String =
     val t = result.thresholds
-    val annotated = result.audited.filter(_.annotations.nonEmpty)
+    val annotated = result.primaryAnnotated
     if annotated.isEmpty then "_no annotated methods were found in the audited classpath_"
     else
       def budgetOf(m: MethodInfo): Option[Long] =
@@ -229,7 +229,7 @@ object Report:
       "",
       findingsTable(result.findings),
       "",
-      s"<details><summary>Annotated methods (${result.audited.count(_.annotations.nonEmpty)})</summary>",
+      s"<details><summary>Annotated methods (${result.primaryAnnotated.size})</summary>",
       "",
       annotatedTable(result),
       "",
@@ -280,7 +280,7 @@ object Report:
         "counts" -> ujson.Obj(
           "auditedMethods" -> result.audited.size,
           "excludedMethods" -> result.excluded.size,
-          "annotatedMethods" -> result.audited.count(_.annotations.nonEmpty),
+          "annotatedMethods" -> result.primaryAnnotated.size,
           "fail" -> result.failures.size,
           "warn" -> result.warnings.size
         ),
@@ -304,9 +304,7 @@ object Report:
             )
         ),
         "annotated" -> ujson.Obj.from(
-          result.audited
-            .filter(_.annotations.nonEmpty)
-            .sortBy(_.id)
+          result.primaryAnnotated
             .map(m => m.id -> ujson.Obj("bytes" -> m.size, "annotations" -> ujson.Arr.from(m.annotations.toSeq.sorted)))
         )
       ),

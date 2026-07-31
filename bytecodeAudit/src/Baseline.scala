@@ -19,15 +19,14 @@ end Baseline
 
 object Baseline:
 
-  def annotatedSizes(methods: Seq[MethodInfo]): Map[String, Int] =
-    methods.filter(_.annotations.nonEmpty).map(m => m.id -> m.size).toMap
-
   def of(result: AuditResult): Baseline =
     Baseline(
       jdkMajor = result.thresholds.jdkMajor,
       totalBytes = result.ratchet.totalBytes,
       distinctOps = result.ratchet.distinctOps,
-      annotated = annotatedSizes(result.audited)
+      // primaryAnnotated, not every annotated method: export forwarders would otherwise make this 190 lines of 8-byte
+      // duplicates, which is the opposite of a reviewable diff.
+      annotated = result.primaryAnnotated.map(m => m.id -> m.size).toMap
     )
 
   /** Sorted keys, one method per line — the plan's requirement that a baseline diff be readable. */
