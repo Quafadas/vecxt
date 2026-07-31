@@ -37,9 +37,9 @@ import org.objectweb.asm.tree.LineNumberNode
   *     reverted: NDArray's `apply` has six differently-shaped overloads (single/multi-index, indices-array,
   *     selectors-vararg) sharing one generic `extension [A](arr: NDArray[A])` block, and adding a second, narrower
   *     `extension (arr: NDArray[Double])` block containing only the selectors-vararg shape made Scala prefer that
-  *     narrower block for concrete receivers wholesale - silently breaking `arr(0)`-style single-index access,
-  *     since that shape doesn't exist in the narrower block. Fixing this for real means replicating all six shapes
-  *     across five concrete types, not adding one overload.
+  *     narrower block for concrete receivers wholesale - silently breaking `arr(0)`-style single-index access, since
+  *     that shape doesn't exist in the narrower block. Fixing this for real means replicating all six shapes across
+  *     five concrete types, not adding one overload.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
