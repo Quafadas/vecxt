@@ -271,8 +271,8 @@ final case class AuditResult(
     *
     *   - `export vecxt.all.{*, given}` reproduces it in another file as a forwarder, annotation included. 32 annotated
     *     kernels first reported as 150 rows and a 190-line baseline of `vecxt.all$.sumSIMD` at 8 bytes, which fails the
-    *     plan's requirement that a baseline diff be readable. Removed by keeping only methods whose *own source file* is
-    *     one where that annotation was written.
+    *     plan's requirement that a baseline diff be readable. Removed by keeping only methods whose *own source file*
+    *     is one where that annotation was written.
     *   - The mirror class Scala emits beside every top-level object holds a static forwarder in the same source file.
     *     Removed by then keeping the largest per `(sourceFile, name, descriptor)`, since a forwarder is smaller than
     *     what it forwards to.
