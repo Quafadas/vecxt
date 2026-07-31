@@ -55,6 +55,31 @@ class CoverageSuite extends munit.FunSuite:
     )
   }
 
+  /** The check that would have caught the reporting bug it was written after.
+    *
+    * `primaryAnnotated` deduplicates export forwarders out of the report and the baseline, and its first key was
+    * `(name, descriptor)`. `binaryOpGeneral` exists three times — once per element type — with byte-identical
+    * descriptors, because `NDArray[Double]`, `NDArray[Float]` and `NDArray[Int]` all erase to the same thing. So the
+    * dedup collapsed three real methods into one and silently dropped 7 of 14 annotations. Nothing failed: C2 still
+    * checked all of them, the report simply stopped mentioning them.
+    *
+    * A1 asserts every annotation reaches bytecode. This asserts every annotation reaches the *report*, which is a
+    * separate thing to get wrong.
+    */
+  test("coverage — every annotation written in source appears in the report") {
+    val sites = Audited.result.sourceAnnotations
+      .filterNot(_.isInline)
+      .map(s => (s.file.split('/').last, SourceAnnotation.encode(s.method)))
+      .toSet
+    val reported = Audited.result.primaryAnnotated.map(m => (m.sourceFile, m.name)).toSet
+    val missing = (sites -- reported).toSeq.sorted
+    assert(
+      missing.isEmpty,
+      s"${missing.size} annotated method(s) are checked but never reported, so their sizes are invisible in the " +
+        s"report and absent from the baseline:\n${missing.map((f, n) => s"  $f  $n").mkString("\n")}"
+    )
+  }
+
   /** The exclusions in [[Scope]] were reasoned about in Phase 0, and two of them — `mnist.scala` and
     * `pricing_fun.scala` — were never confirmed against what the code actually contains. The theory was that any hits
     * there come from third-party `inline`/macro code (scautable's CSV type inference) expanding into a script, not from

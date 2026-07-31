@@ -267,24 +267,34 @@ final case class AuditResult(
 
   /** Annotated methods, one row per method that actually does the work.
     *
-    * `export vecxt.all.{*, given}` (and the mirror class Scala emits beside every top-level object) reproduces an
-    * annotated method as a forwarder, and the annotation comes with it. The first run reported 32 annotated kernels as
-    * 150 rows and a 190-line baseline of `vecxt.all$.sumSIMD` at 8 bytes — which fails the plan's requirement that a
-    * baseline diff be readable, and buries the numbers anyone would actually look at.
+    * Two different things duplicate an annotated method, and they need different treatment:
     *
-    * Deduplicated on name and descriptor, keeping the largest, because a forwarder is always smaller than what it
-    * forwards to. Reporting only: C2 and C3 still run over every copy, so a forwarder that somehow broke a budget would
-    * still be a finding. If two genuinely distinct annotated methods ever shared a signature, the smaller would be
-    * checked but not listed.
+    *   - `export vecxt.all.{*, given}` reproduces it in another file as a forwarder, annotation included. 32 annotated
+    *     kernels first reported as 150 rows and a 190-line baseline of `vecxt.all$.sumSIMD` at 8 bytes, which fails the
+    *     plan's requirement that a baseline diff be readable. Removed by keeping only methods whose *own source file* is
+    *     one where that annotation was written.
+    *   - The mirror class Scala emits beside every top-level object holds a static forwarder in the same source file.
+    *     Removed by then keeping the largest per `(sourceFile, name, descriptor)`, since a forwarder is smaller than
+    *     what it forwards to.
+    *
+    * The key has to include the source file, not just name and descriptor. `binaryOpGeneral` in ndarrayDoubleOps,
+    * ndarrayFloatOps and ndarrayIntOps are three distinct methods with byte-identical descriptors, because
+    * `NDArray[Double]`, `NDArray[Float]` and `NDArray[Int]` all erase to `Lvecxt/ndarray$NDArray;`. Keying on the
+    * signature alone collapsed them to one and silently dropped 7 of 14 annotations from the report and the baseline.
+    *
+    * Reporting only. C2 and C3 run over every copy, so nothing here can hide a finding — only a row.
     */
   def primaryAnnotated: Seq[MethodInfo] =
+    val declaredIn: Set[(String, String)] =
+      sourceAnnotations.map(s => (s.file.split('/').last, s.annotation)).toSet
     audited
-      .filter(_.annotations.nonEmpty)
-      .groupBy(m => (m.name, m.descriptor))
+      .filter(m => m.annotations.exists(a => declaredIn.contains((m.sourceFile, a))))
+      .groupBy(m => (m.sourceFile, m.name, m.descriptor))
       .values
       .map(_.maxBy(_.size))
       .toSeq
       .sortBy(_.id)
+  end primaryAnnotated
 end AuditResult
 
 object Audit:

@@ -81,7 +81,9 @@ object Report:
         .reverse
         .map { (m, b) =>
           val used = b.map(bb => f"${m.size * 100.0 / bb}%.0f%% of $bb").getOrElse("n/a (Phase 2, D1)")
-          val ann = m.annotations.toSeq.sorted.map("@" + _).mkString(" ")
+          // Backticked: `@HotPath` bare in a markdown table is an @-mention as far as GitHub is concerned, and the sticky
+          // PR comment goes through its renderer.
+          val ann = m.annotations.toSeq.sorted.map(a => s"`@$a`").mkString(" ")
           s"| `${m.display}` | $ann | ${m.size} | $used | ${if m.hasBackwardBranch then "yes" else "no"} | `${m.at}` |"
         }
       ("| method | annotations | bytes | budget used | loop | at |" +:
