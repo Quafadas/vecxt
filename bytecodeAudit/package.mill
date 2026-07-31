@@ -41,11 +41,15 @@ object `package` extends ScalaModule:
     * proposal a *failed* run wrote, and neither works from a task-scoped directory. Deliberately not `out/bytecodeAudit`,
     * which is Mill's own output directory for this module.
     *
-    * Anchored on `os.pwd`, which is the workspace root for the whole of a Mill evaluation.
+    * Takes the workspace root rather than reading `os.pwd`. The first version used `os.pwd`, which is not the workspace
+    * root inside a task — the build evaluates in a server process — so the report was written somewhere consistent but
+    * wrong. The suite's own "the report was written" assertion passed against that path while CI's artifact upload and PR
+    * comment found nothing, which is the failure mode to avoid: an audit that reports on itself successfully and publishes
+    * nothing.
     */
-  def reportDir: os.Path = os.pwd / "out" / "bytecode-audit"
+  def reportDir(ws: os.Path): os.Path = ws / "out" / "bytecode-audit"
 
-  def baselineFile: os.Path = os.pwd / "bytecode" / "baseline.json"
+  def baselineFile(ws: os.Path): os.Path = ws / "bytecode" / "baseline.json"
 
   /** Adopts the baseline proposal from the last audit run.
     *
@@ -54,13 +58,14 @@ object `package` extends ScalaModule:
     * audit always writes its proposal, and this copies it.
     */
   def updateBaseline() = Task.Command {
-    val proposed = reportDir / "baseline-proposed.json"
+    val target = baselineFile(Task.workspace)
+    val proposed = reportDir(Task.workspace) / "baseline-proposed.json"
     if !os.exists(proposed) then
       sys.error(s"$proposed does not exist — run ./mill bytecodeAudit.test first, then this")
-    os.makeDir.all(baselineFile / os.up)
-    os.copy.over(proposed, baselineFile)
-    Task.log.info(s"baseline adopted from $proposed -> $baselineFile")
-    PathRef(baselineFile)
+    os.makeDir.all(target / os.up)
+    os.copy.over(proposed, target)
+    Task.log.info(s"baseline adopted from $proposed -> $target")
+    PathRef(target)
   }
 
   /** Deliberately-broken fixtures. Compiled, never audited: the whole point is that every check below FAILs on them, and
@@ -112,8 +117,8 @@ object `package` extends ScalaModule:
       super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
         s"-Dvecxt.audit.roots=${roots.map((m, p) => s"$m=$p").mkString(File.pathSeparator)}",
         s"-Dvecxt.audit.sourceRoots=${sourceRoots.mkString(File.pathSeparator)}",
-        s"-Dvecxt.audit.baseline=$baselineFile",
-        s"-Dvecxt.audit.reportDir=$reportDir",
+        s"-Dvecxt.audit.baseline=${baselineFile(Task.workspace)}",
+        s"-Dvecxt.audit.reportDir=${reportDir(Task.workspace)}",
         s"-Dvecxt.audit.canaryClasses=${canary.compile().classes.path}",
         s"-Dvecxt.audit.canarySources=${canary.sources().map(_.path).mkString(File.pathSeparator)}"
       )
