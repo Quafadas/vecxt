@@ -1,5 +1,6 @@
 package vecxt
 
+import vecxt.annotations.HotPath
 import scala.annotation.targetName
 
 import vecxt.broadcast.*
@@ -9,6 +10,7 @@ object NDArrayIntOps:
 
   // ── General-case iteration kernels ──────────────────────────────────────
 
+  @HotPath
   private[NDArrayIntOps] def binaryOpGeneral(
       a: NDArray[Int],
       b: NDArray[Int],
@@ -35,6 +37,7 @@ object NDArrayIntOps:
     mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
   end binaryOpGeneral
 
+  @HotPath
   private[NDArrayIntOps] def unaryOpGeneral(a: NDArray[Int], f: Int => Int): NDArray[Int] =
     val n = a.numel
     val ndim = a.ndim
@@ -55,6 +58,7 @@ object NDArrayIntOps:
     mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
   end unaryOpGeneral
 
+  @HotPath
   private[NDArrayIntOps] def compareGeneral(
       a: NDArray[Int],
       b: NDArray[Int],
@@ -81,6 +85,7 @@ object NDArrayIntOps:
     mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
   end compareGeneral
 
+  @HotPath
   private[NDArrayIntOps] def compareScalarGeneral(
       a: NDArray[Int],
       s: Int,
@@ -105,6 +110,7 @@ object NDArrayIntOps:
     mkNDArray(out, a.shape.clone(), colMajorStrides(a.shape), 0)
   end compareScalarGeneral
 
+  @HotPath
   private[NDArrayIntOps] def binaryOpInPlaceGeneral(
       a: NDArray[Int],
       b: NDArray[Int],

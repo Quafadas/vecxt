@@ -1,5 +1,6 @@
 package vecxt
 
+import vecxt.annotations.HotPath
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 import vecxt.ndarrayOps.sameAndContiguousMemoryLayout
@@ -14,6 +15,7 @@ object NDArrayDoubleOps:
     * `b.data` using their respective strides. Handles broadcast views (stride-0) correctly. Produces a fresh
     * column-major result.
     */
+  @HotPath
   private[NDArrayDoubleOps] def binaryOpGeneral(
       a: NDArray[Double],
       b: NDArray[Double],
@@ -41,6 +43,7 @@ object NDArrayDoubleOps:
   end binaryOpGeneral
 
   /** Unary op kernel for non-column-major arrays. Produces a fresh column-major result. */
+  @HotPath
   private[NDArrayDoubleOps] def unaryOpGeneral(a: NDArray[Double], f: Double => Double): NDArray[Double] =
     val n = a.numel
     val ndim = a.ndim
@@ -62,6 +65,7 @@ object NDArrayDoubleOps:
   end unaryOpGeneral
 
   /** Binary comparison kernel for arrays with arbitrary strides (same shape). */
+  @HotPath
   private[NDArrayDoubleOps] def compareGeneral(
       a: NDArray[Double],
       b: NDArray[Double],
@@ -89,6 +93,7 @@ object NDArrayDoubleOps:
   end compareGeneral
 
   /** Scalar comparison kernel for non-column-major arrays. */
+  @HotPath
   private[NDArrayDoubleOps] def compareScalarGeneral(
       a: NDArray[Double],
       s: Double,
@@ -117,6 +122,7 @@ object NDArrayDoubleOps:
     *
     * `a` must be contiguous (checked by caller). Iterates in column-major coordinate order.
     */
+  @HotPath
   private[NDArrayDoubleOps] def binaryOpInPlaceGeneral(
       a: NDArray[Double],
       b: NDArray[Double],
