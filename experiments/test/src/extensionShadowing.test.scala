@@ -67,24 +67,31 @@ class ExtensionShadowingSuite extends munit.FunSuite:
   }
 
   test("resolution: what a narrower clause does to the generic clause's other shapes") {
-    // Everything here is informational: whatever the answers are, they are the rule the C6a fixes have to live
-    // with. The assertions only pin the two outcomes the fixes actually depend on.
-    val table = Seq(
+    // The expected column is the rule as observed on `NDArray[A]#apply`: Scala selects the extension method by
+    // *receiver* first and applies the arguments afterwards, without backtracking to a broader clause - hence the
+    // `Found: (0: Int), Required: RangeExtender` the reverted attempt produced. Encoded as an equality rather than
+    // a printout because the CI log is not readable from outside the runner, so an assertion is the only way to
+    // get the answer back; a mismatch prints both columns and is itself the finding.
+    val actual = Seq(
       "narrow clause in the same object, generic-only shape  " -> sameObjectGenericShape,
       "narrow clause in the same object, narrow shape        " -> sameObjectNarrowShape,
       "narrow clause in the same object, other element type  " -> sameObjectUnrelatedElem,
       "narrow clause in a separate object, generic-only shape" -> twoObjectsGenericShape,
       "both re-exported via one object, generic-only shape   " -> reexportedGenericShape
     )
-    val report =
-      table.map((label, ok) => s"  $label  ->  ${if ok then "compiles" else "DOES NOT COMPILE"}").mkString("\n")
-
-    assert(sameObjectNarrowShape, s"the narrow clause's own shape must resolve:\n$report")
-    assert(sameObjectUnrelatedElem, s"a non-matching element type must fall through to the generic clause:\n$report")
-
-    // Reported, not asserted: this is the observation the shape-coverage guard below is derived from, and it is
-    // the thing to re-read if that guard ever looks over-strict or over-lax.
-    println(s"[extension resolution] shapes visible to a concretely-typed receiver:\n$report")
+    val expected = Seq(
+      // A shape the narrow clause does not declare is unreachable, even though the generic clause declares it.
+      "narrow clause in the same object, generic-only shape  " -> false,
+      "narrow clause in the same object, narrow shape        " -> true,
+      // The narrow clause is simply not eligible for a receiver it does not match, so the generic clause applies.
+      "narrow clause in the same object, other element type  " -> true,
+      // If either of these two turns out to be `true`, the narrower clause only shadows within its own object, and
+      // a concrete fast path could be added in a *separate* object without replicating every shape - which would
+      // make the NDArray[A]#apply fix far cheaper than option (A). Worth knowing either way.
+      "narrow clause in a separate object, generic-only shape" -> false,
+      "both re-exported via one object, generic-only shape   " -> false
+    )
+    assertEquals(actual, expected, "extension-method resolution does not behave as the C6a fixes assume")
   }
 
   // ---------------------------------------------------------------------------
