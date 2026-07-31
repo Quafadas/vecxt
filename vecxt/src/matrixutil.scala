@@ -225,9 +225,11 @@ object matrixUtil:
       var i = 0
       while i < m.rows do
         if i > 0 then sb.append('\n')
+        end if
         var j = 0
         while j < m.cols do
           if j > 0 then sb.append(' ')
+          end if
           sb.append(m((i, j)).toString())
           j += 1
         end while
