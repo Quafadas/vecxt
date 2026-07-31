@@ -157,11 +157,12 @@ end Loader
   *   - `vecxt_io.*` — CSV read/write. Slow while parsing is fine. The one way a specialization failure could leak from
   *     here into `vecxt` core — `Matrix.row`, `inline`, called generically from `MatrixIO.write` — was checked in Phase
   *     0 and does not happen.
-  *   - `mnist.scala`, `pricing_fun.scala`, `inv_test.scala` — one-off script glue in `experiments`, not reusable surface.
-  *     Unlike the others these were never confirmed, only reasoned about, so `CoverageSuite.recordedExclusionHits` pins
-  *     what they actually contain — and found that the reasoning was half wrong. `pricing_fun`'s single hit is
-  *     third-party expansion as theorised; `mnist`'s four are its own generic array writes. The decision stands, but it
-  *     now means "boxed writes are acceptable in this script" rather than "there is nothing here".
+  *   - `mnist.scala`, `pricing_fun.scala`, `inv_test.scala` — one-off script glue in `experiments`, not reusable
+  *     surface. Unlike the others these were never confirmed, only reasoned about, so
+  *     `CoverageSuite.recordedExclusionHits` pins what they actually contain — and found that the reasoning was half
+  *     wrong. `pricing_fun`'s single hit is third-party expansion as theorised; `mnist`'s four are its own generic
+  *     array writes. The decision stands, but it now means "boxed writes are acceptable in this script" rather than
+  *     "there is nothing here".
   */
 object Scope:
 
@@ -169,21 +170,22 @@ object Scope:
 
   /** `inv_test.scala` joins `mnist.scala` and `pricing_fun.scala` on the same reasoning, and on evidence: C1 measured
     * `inv_test$package$.inv_test` at 12278 bytes. It is an `@main` script that runs a matrix inversion once against
-    * numbers copied out of a scipy session — being uncompilable is the correct outcome for it, and giving it a size budget
-    * would only invite splitting a script for the audit's benefit.
+    * numbers copied out of a scipy session — being uncompilable is the correct outcome for it, and giving it a size
+    * budget would only invite splitting a script for the audit's benefit.
     */
   val excludedSourceFiles: Set[String] = Set("mnist.scala", "pricing_fun.scala", "inv_test.scala")
 
   /** Method-level exclusions, where a whole class or file would be too coarse.
     *
-    *   - `vecxt.arrayUtil.printArr` — excluded wholesale in Phase 0 as a package, for this one debug-only formatter whose
-    *     generic arm formats an `Array[A]`. A package-prefix exclusion would silently exempt anything added to that object
-    *     later, which is the opposite of what an audit is for, so it is narrowed to the method that earned it.
-    *   - `vecxt_re.*.plot` / `.plotCdf` — chart builders, excluded for the same reason `vecxt_re.Plots` is: reporting code
-    *     that runs once to produce a spec, never on a fast path. C1 found `Pareto.plot` at 28790 bytes and `Empirical.plot`
-    *     and `Mixed.plot` in the warn band. For a method that builds one chart, never being JIT compiled is not a cost
-    *     worth restructuring for — but note this is an exclusion of *plotting*, not of `vecxt_re`, so the distribution
-    *     sampling these classes also contain stays audited.
+    *   - `vecxt.arrayUtil.printArr` — excluded wholesale in Phase 0 as a package, for this one debug-only formatter
+    *     whose generic arm formats an `Array[A]`. A package-prefix exclusion would silently exempt anything added to
+    *     that object later, which is the opposite of what an audit is for, so it is narrowed to the method that earned
+    *     it.
+    *   - `vecxt_re.*.plot` / `.plotCdf` — chart builders, excluded for the same reason `vecxt_re.Plots` is: reporting
+    *     code that runs once to produce a spec, never on a fast path. C1 found `Pareto.plot` at 28790 bytes and
+    *     `Empirical.plot` and `Mixed.plot` in the warn band. For a method that builds one chart, never being JIT
+    *     compiled is not a cost worth restructuring for — but note this is an exclusion of *plotting*, not of
+    *     `vecxt_re`, so the distribution sampling these classes also contain stays audited.
     */
   val excludedMethods: Set[(String, String)] = Set(
     "vecxt.arrayUtil" -> "printArr",
@@ -259,14 +261,14 @@ final case class AuditResult(
   /** Annotated methods, one row per method that actually does the work.
     *
     * `export vecxt.all.{*, given}` (and the mirror class Scala emits beside every top-level object) reproduces an
-    * annotated method as a forwarder, and the annotation comes with it. The first run reported 32 annotated kernels as 150
-    * rows and a 190-line baseline of `vecxt.all$.sumSIMD` at 8 bytes — which fails the plan's requirement that a baseline
-    * diff be readable, and buries the numbers anyone would actually look at.
+    * annotated method as a forwarder, and the annotation comes with it. The first run reported 32 annotated kernels as
+    * 150 rows and a 190-line baseline of `vecxt.all$.sumSIMD` at 8 bytes — which fails the plan's requirement that a
+    * baseline diff be readable, and buries the numbers anyone would actually look at.
     *
-    * Deduplicated on name and descriptor, keeping the largest, because a forwarder is always smaller than what it forwards
-    * to. Reporting only: C2 and C3 still run over every copy, so a forwarder that somehow broke a budget would still be a
-    * finding. If two genuinely distinct annotated methods ever shared a signature, the smaller would be checked but not
-    * listed.
+    * Deduplicated on name and descriptor, keeping the largest, because a forwarder is always smaller than what it
+    * forwards to. Reporting only: C2 and C3 still run over every copy, so a forwarder that somehow broke a budget would
+    * still be a finding. If two genuinely distinct annotated methods ever shared a signature, the smaller would be
+    * checked but not listed.
     */
   def primaryAnnotated: Seq[MethodInfo] =
     audited

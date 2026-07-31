@@ -111,8 +111,8 @@ object CheatsheetTest:
   end indexingAndSlicing
 
   /** Split out of `indexingAndSlicing`, which C1 measured at 11647 bytes — past the point where HotSpot stops JIT
-    * compiling a method at all. `printMat` is what costs: at roughly 1900 bytes per expansion, five of them in one method
-    * is most of that figure on its own, so the range-slicing calls get two methods of their own.
+    * compiling a method at all. `printMat` is what costs: at roughly 1900 bytes per expansion, five of them in one
+    * method is most of that figure on its own, so the range-slicing calls get two methods of their own.
     */
   private def matrixRangeSlicing(): Unit =
     val mBig = Matrix.rand(10, 10)

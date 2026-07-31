@@ -85,15 +85,15 @@ object CoverageSuite:
 
   /** What the excluded scopes actually contain, from the first run — observed rather than guessed, which was the point.
     *
-    * Phase 0's theory about the two unconfirmed exclusions was that any hits in them would be third-party `inline`/macro
-    * code expanding into a script rather than vecxt's own. **That holds for `pricing_fun.scala` and is wrong for
-    * `mnist.scala`.** pricing_fun has exactly one hit, a `genericWrapArray` consistent with scautable's CSV type inference
-    * expanding in — the file contains no type parameters and no `Array[A]` of its own. mnist has four, and `oneHot`,
-    * `oneHotEncode` and the two lambdas are its own generic array writes.
+    * Phase 0's theory about the two unconfirmed exclusions was that any hits in them would be third-party
+    * `inline`/macro code expanding into a script rather than vecxt's own. **That holds for `pricing_fun.scala` and is
+    * wrong for `mnist.scala`.** pricing_fun has exactly one hit, a `genericWrapArray` consistent with scautable's CSV
+    * type inference expanding in — the file contains no type parameters and no `Array[A]` of its own. mnist has four,
+    * and `oneHot`, `oneHotEncode` and the two lambdas are its own generic array writes.
     *
     * That does not change the decision — mnist is one-off preprocessing glue and being slow there is fine — but it does
-    * change what the exclusion means. It is now "we accept boxed array writes in this script", not "there is nothing here".
-    * Which is exactly the difference between an exclusion that was reasoned about and one that was measured.
+    * change what the exclusion means. It is now "we accept boxed array writes in this script", not "there is nothing
+    * here". Which is exactly the difference between an exclusion that was reasoned about and one that was measured.
     *
     * The rest are the exclusions that were already confirmed, behaving as expected: the deliberate erasure probes, the
     * debug formatter, the CSV layer, and the plotting lambdas.

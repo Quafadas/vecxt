@@ -475,13 +475,13 @@ object doublearrays:
       * It was annotated `@Thin` and C3 measured it at 37 bytes against a 35-byte `MaxInlineSize`. The neighbouring
       * `meanAndVariance(mode)`, which forwards to `meanAndVarianceTwoPass` and nothing else, is 7 bytes. So roughly 30
       * bytes here is the cost of destructuring the result: `(mean: Double, variance: Double)` is a named tuple, which
-      * erases to a `Tuple2` of boxed Doubles, and reading one field means an unbox — after allocating a pair in order to
-      * discard half of it.
+      * erases to a `Tuple2` of boxed Doubles, and reading one field means an unbox — after allocating a pair in order
+      * to discard half of it.
       *
       * That makes this a forwarder plus real work, so `@Thin` was the wrong claim rather than the budget being wrong.
-      * Left as a plain `def`. The allocation is the more interesting half and belongs to Phase 2: `variance` allocating a
-      * Tuple2 per call is precisely what check D1 measures, and if it shows up there the fix is a variance path that does
-      * not route through the pair.
+      * Left as a plain `def`. The allocation is the more interesting half and belongs to Phase 2: `variance` allocating
+      * a Tuple2 per call is precisely what check D1 measures, and if it shows up there the fix is a variance path that
+      * does not route through the pair.
       */
     def variance(mode: VarianceMode): Double =
       meanAndVariance(mode).variance

@@ -28,14 +28,15 @@ object SourceAnnotation:
 
   /** Scala method names, in the three shapes they come in, tried in that order.
     *
-    * The name cannot be matched as "everything up to a delimiter". The first version of this used a lazy `\S+?` stopping
-    * at `(`, `[`, `:` or `=`, which reads `def -=(scalar: Int)` as a method called `-`, because the `=` that ends the name
-    * is also the delimiter. A1 reported 22 false positives and named every one of them, which is the check working: a
-    * mis-read name resolves to no emitted method and fails loudly rather than matching something by accident.
+    * The name cannot be matched as "everything up to a delimiter". The first version of this used a lazy `\S+?`
+    * stopping at `(`, `[`, `:` or `=`, which reads `def -=(scalar: Int)` as a method called `-`, because the `=` that
+    * ends the name is also the delimiter. A1 reported 22 false positives and named every one of them, which is the
+    * check working: a mis-read name resolves to no emitted method and fails loudly rather than matching something by
+    * accident.
     *
     * So: a backquoted name, or an operator (a run of operator characters — `-=`, `=:=`), or an alphanumeric identifier,
-    * optionally with an `_`-joined operator suffix (`unary_-`). The suffixed alternative comes first because the plain one
-    * would otherwise match `unary_` and stop.
+    * optionally with an `_`-joined operator suffix (`unary_-`). The suffixed alternative comes first because the plain
+    * one would otherwise match `unary_` and stop.
     */
   private val op = """[-~=<>!#%^&|*/+:\\?@]"""
   private val ident = """[A-Za-z_$][A-Za-z0-9_$]*"""
