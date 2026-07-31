@@ -2,6 +2,8 @@ package vecxt
 
 import scala.annotation.publicInBinary
 
+import vecxt.annotations.Thin
+
 object ndarray:
 
   /** Don't mutate the shape or strides arrays after creating an NDArray. Dervived fields will be wrong.
@@ -165,7 +167,8 @@ object ndarray:
   /** Package-private factory — creates NDArray without bounds checking. Used by operations that have already validated
     * invariants (slice, transpose, etc.).
     */
-  private[vecxt] inline def mkNDArray[A](
+  @Thin
+  private[vecxt] def mkNDArray[A](
       data: Array[A],
       shape: Array[Int],
       strides: Array[Int],
@@ -173,7 +176,7 @@ object ndarray:
   ): NDArray[A] = new NDArray(data, shape, strides, offset)
 
   // Compute column-major strides for a given shape
-  private[vecxt] inline def colMajorStrides(shape: Array[Int]): Array[Int] =
+  private[vecxt] def colMajorStrides(shape: Array[Int]): Array[Int] =
     val strides = new Array[Int](shape.length)
     if shape.length > 0 then
       strides(0) = 1
@@ -187,7 +190,7 @@ object ndarray:
   end colMajorStrides
 
   // Product of shape elements
-  private[vecxt] inline def shapeProduct(shape: Array[Int]): Int =
+  private[vecxt] def shapeProduct(shape: Array[Int]): Int =
     var prod = 1
     var i = 0
     while i < shape.length do
