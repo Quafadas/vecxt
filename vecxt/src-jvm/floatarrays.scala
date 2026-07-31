@@ -2,6 +2,9 @@ package vecxt
 
 import scala.reflect.ClassTag
 
+import vecxt.annotations.AllocFree
+import vecxt.annotations.HotPath
+
 import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
@@ -268,6 +271,8 @@ object floatarrays:
     inline def `tanh!`: Unit =
       unaryFloatOp(VectorOperators.TANH)
 
+    @HotPath
+    @AllocFree
     def `**!`(power: Float): Unit =
       var i = 0
       val bp = FloatVector.broadcast(spf, power)
@@ -292,6 +297,8 @@ object floatarrays:
       out
     end **
 
+    @HotPath
+    @AllocFree
     def `fma!`(multiply: Float, add: Float): Unit =
       var i = 0
       val bound = spf.loopBound(vec.length)
@@ -367,6 +374,8 @@ object floatarrays:
 
     end `clampFloatOp!`
 
+    @HotPath
+    @AllocFree
     def `clamp!`(floor: Float, ceil: Float): Unit =
       var i = 0
       val vecCeil = FloatVector.broadcast(spf, ceil)
@@ -464,6 +473,8 @@ object floatarrays:
     inline def minSIMD: Float =
       reduceFloatOp(VectorOperators.MIN, Float.MaxValue)
 
+    @HotPath
+    @AllocFree
     def sumSIMD: Float =
       var i: Int = 0
       var acc = FloatVector.zero(spf)
@@ -483,6 +494,8 @@ object floatarrays:
 
     inline def sum: Float = sumSIMD
 
+    @HotPath
+    @AllocFree
     def productSIMD: Float =
       var i: Int = 0
       var acc = FloatVector.broadcast(spf, 1.0f)
@@ -597,6 +610,7 @@ object floatarrays:
 
     inline def norm: Float = blas.snrm2(vec.length, vec, 1)
 
+    @HotPath
     def increments: Array[Float] =
       val out = new Array[Float](vec.length)
 
@@ -674,6 +688,8 @@ object floatarrays:
       out
     end +
 
+    @HotPath
+    @AllocFree
     def +=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.saxpy(vec.length, 1.0f, vec2, 1, vec, 1)
@@ -713,6 +729,8 @@ object floatarrays:
       out
     end +
 
+    @HotPath
+    @AllocFree
     def +=(d: Float): Unit =
       val inc = FloatVector.broadcast(spf, d)
       var i = 0
@@ -751,6 +769,8 @@ object floatarrays:
       out
     end -
 
+    @HotPath
+    @AllocFree
     def -=(d: Float): Unit =
       val inc = FloatVector.broadcast(spf, d)
       var i = 0
@@ -811,6 +831,8 @@ object floatarrays:
     //   vec.clone().tap(_ *= d)
     // end *
 
+    @HotPath
+    @AllocFree
     def *=(d: Array[Float]): Unit =
       dimCheck(vec, d)
       var i = 0
@@ -861,6 +883,8 @@ object floatarrays:
       out
     end /
 
+    @HotPath
+    @AllocFree
     def *=(d: Float): Unit =
       var i = 0
       val bound = spf.loopBound(vec.length)
