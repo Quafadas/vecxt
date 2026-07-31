@@ -107,6 +107,9 @@ object CoverageSuite:
     "probe.ErasureProbe$.genericAccess -> calls scala.runtime.ScalaRunTime$.array_apply",
     "probe.Kernel$.genericAccess -> calls scala.runtime.ScalaRunTime$.array_apply",
     "vecxt.arrayUtil$.printArr -> calls scala.Predef$.genericWrapArray",
+    // New, and the point of de-inlining it: this access existed all along, expanded into every caller where no check
+    // could see it. It is now emitted once, in a method excluded by name.
+    "vecxt.matrixUtil$.printMat -> calls scala.runtime.ScalaRunTime$.array_apply",
     "vecxt_io.ArrayIO$.write -> calls scala.Predef$.genericWrapArray",
     "vecxt_io.MatrixIO$.loadMatrix -> calls scala.runtime.ScalaRunTime$.array_update",
     "vecxt_io.MatrixIO$.write -> calls scala.Predef$.genericWrapArray",

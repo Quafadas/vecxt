@@ -181,6 +181,11 @@ object Scope:
     *     whose generic arm formats an `Array[A]`. A package-prefix exclusion would silently exempt anything added to
     *     that object later, which is the opposite of what an audit is for, so it is narrowed to the method that earned
     *     it.
+    *   - `vecxt.matrixUtil.printMat` — the same decision for the same kind of method, arrived at from the other
+    *     direction. `printArr` was already a plain `def` and had to be excluded; `printMat` was `inline`, so its generic
+    *     access was invisible here and cost around a thousand bytes at every call site instead. De-inlining it traded a
+    *     caller-side expansion nobody was measuring for a boxing finding, which is the trade this audit exists to make
+    *     visible: a debug formatter is allowed to box, and is not allowed to tax the method that prints from it.
     *   - `vecxt_re.*.plot` / `.plotCdf` — chart builders, excluded for the same reason `vecxt_re.Plots` is: reporting
     *     code that runs once to produce a spec, never on a fast path. C1 found `Pareto.plot` at 28790 bytes and
     *     `Empirical.plot` and `Mixed.plot` in the warn band. For a method that builds one chart, never being JIT
@@ -189,6 +194,7 @@ object Scope:
     */
   val excludedMethods: Set[(String, String)] = Set(
     "vecxt.arrayUtil" -> "printArr",
+    "vecxt.matrixUtil" -> "printMat",
     "vecxt_re." -> "plot",
     "vecxt_re." -> "plotCdf"
   )

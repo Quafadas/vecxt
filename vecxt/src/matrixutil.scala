@@ -211,7 +211,31 @@ object matrixUtil:
       newArr
     end row
 
-    inline def printMat(using ClassTag[A]): String =
+    /** Deliberately not `inline`, and the audit is why.
+      *
+      * It was, and C1 measured the cost: two nested `for`/`yield` over Ranges — closures, builders, a boxed collection of
+      * boxed strings — duplicated into every call site, on the order of a thousand bytes each. Five calls in one
+      * cheatsheet method came to 11647 bytes, past the point where HotSpot stops JIT compiling a method at all.
+      *
+      * `inline` bought nothing here. There is no `inline` parameter and no compile-time constant; the only load-bearing
+      * reason would be the "concrete type where elements are touched" clause, making `A` concrete at `m((i, j))` so the
+      * array access specialises — and the very next thing this body does is call `.toString()`, which boxes anyway.
+      * Specialising an access to avoid boxing and then immediately boxing is not a reason to duplicate a kilobyte per call
+      * site.
+      *
+      * What matters is not this method's own speed — it is a debug formatter and nothing calls it in a loop — but that
+      * inline expansion is a tax on the *enclosing* method. A debug print added inside a method that also holds a hot loop
+      * charges that loop for the formatting.
+      *
+      * Emitted rather than expanded, the generic element access is now visible to check C6a, which reports it: `m((i, j))`
+      * on a `Matrix[A]` erases to `ScalaRunTime.array_apply`. That is accepted here for the same reason and by the same
+      * decision as `vecxt.arrayUtil.printArr`, its sibling — a debug-only formatter is allowed to box — and it is recorded
+      * as a method-scoped exclusion in `Scope.excludedMethods` rather than suppressed.
+      *
+      * Note the enclosing `extension [@specialized(Double, Boolean, Int) A]`: Scala 3 dropped `@specialized`, so that
+      * annotation states an intent the compiler will not honour. Which is the whole reason C6a exists.
+      */
+    def printMat(using ClassTag[A]): String =
       val arrArr =
         for i <- 0 until m.rows
         yield
