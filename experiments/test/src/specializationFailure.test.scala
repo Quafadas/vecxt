@@ -42,9 +42,9 @@ import org.objectweb.asm.tree.LineNumberNode
   *   - Concrete sibling clauses (`extension (arr: NDArray[Double])`) cannot fix it at all. They only *add* overloads;
   *     the generic arm survives and keeps its own finding. They also silently break unrelated call sites -
   *     `extensionShadowing.test.scala` reproduces that and guards against re-introducing it.
-  *   - A shared generic `inline def gather[B](src: Array[B], dst: Array[B])` helper cannot fix it either: an inline
-  *     def is still emitted as an ordinary method with B abstract, so the helper becomes the finding. This is the
-  *     same reason strideMatInstantiateCheck's generic arm showed up until it was addressed directly.
+  *   - A shared generic `inline def gather[B](src: Array[B], dst: Array[B])` helper cannot fix it either: an inline def
+  *     is still emitted as an ordinary method with B abstract, so the helper becomes the finding. This is the same
+  *     reason strideMatInstantiateCheck's generic arm showed up until it was addressed directly.
   */
 class SpecializationFailureAuditSuite extends munit.FunSuite:
 
