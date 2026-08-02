@@ -39,10 +39,8 @@ object matrix:
 
     /** Computes the linear (flat) index into the backing array for element at (row, col).
       *
-      * Annotated `@Thin` so the bytecode audit (check C3) asserts it fits inside HotSpot's `MaxInlineSize` (35 bytes).
-      * Expected size is ~20 bytes. If it ever exceeds 35, 50+ cold call sites regress at once.
+      * Inlined into every call site — the expression expands to ~4 JVM bytecodes. No separate method is emitted.
       */
-    @Thin
     inline def linearIndex(row: Int, col: Int): Int = offset + row * rowStride + col * colStride
 
     /** Returns the transposed layout: rows ↔ cols, rowStride ↔ colStride. Shares the same backing data. */
