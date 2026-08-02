@@ -62,20 +62,19 @@ class LayoutTest extends FunSuite:
   test("linearIndex — col-major agrees with hand-written arithmetic"):
     val l = colMajorLayout(3, 4)
     for i <- 0 until 3 do
-      for j <- 0 until 4 do
-        assertEquals(l.linearIndex(i, j), l.offset + i * l.rowStride + j * l.colStride)
+      for j <- 0 until 4 do assertEquals(l.linearIndex(i, j), l.offset + i * l.rowStride + j * l.colStride)
+    end for
 
   test("linearIndex — row-major agrees with hand-written arithmetic"):
     val l = rowMajorLayout(3, 4)
     for i <- 0 until 3 do
-      for j <- 0 until 4 do
-        assertEquals(l.linearIndex(i, j), l.offset + i * l.rowStride + j * l.colStride)
+      for j <- 0 until 4 do assertEquals(l.linearIndex(i, j), l.offset + i * l.rowStride + j * l.colStride)
+    end for
 
   test("linearIndex — strided layout agrees with hand-written arithmetic"):
     val l = Layout(3, 4, 2, 6, 1, 3 * 4 * 2 * 3)
-    for i <- 0 until 3 do
-      for j <- 0 until 4 do
-        assertEquals(l.linearIndex(i, j), 1 + i * 2 + j * 6)
+    for i <- 0 until 3 do for j <- 0 until 4 do assertEquals(l.linearIndex(i, j), 1 + i * 2 + j * 6)
+    end for
 
   test("linearIndex — with offset"):
     val l = Layout(2, 2, 1, 2, 5, 14)
@@ -88,9 +87,8 @@ class LayoutTest extends FunSuite:
     val l = colMajorLayout(3, 4)
     val lt = l.transpose
     // After transpose: rows = 4, cols = 3; accessing (j, i) in transposed == (i, j) in original
-    for i <- 0 until 3 do
-      for j <- 0 until 4 do
-        assertEquals(lt.linearIndex(j, i), l.linearIndex(i, j))
+    for i <- 0 until 3 do for j <- 0 until 4 do assertEquals(lt.linearIndex(j, i), l.linearIndex(i, j))
+    end for
 
   test("linearIndex — negative strides (reversed view)"):
     // row-reversed view: start at index 2, rowStride = -1, one column
@@ -102,9 +100,8 @@ class LayoutTest extends FunSuite:
   test("linearIndex — zero row stride (broadcast rows)"):
     val l = Layout(4, 3, 0, 1, 0, 3)
     // All rows point to the same slice
-    for i <- 0 until 4 do
-      for j <- 0 until 3 do
-        assertEquals(l.linearIndex(i, j), j)
+    for i <- 0 until 4 do for j <- 0 until 3 do assertEquals(l.linearIndex(i, j), j)
+    end for
 
   // ─── transpose ──────────────────────────────────────────────────────────────
 
@@ -125,9 +122,8 @@ class LayoutTest extends FunSuite:
   test("transpose.linearIndex(j, i) == linearIndex(i, j) (property)"):
     val l = colMajorLayout(4, 6)
     val lt = l.transpose
-    for i <- 0 until 4 do
-      for j <- 0 until 6 do
-        assertEquals(lt.linearIndex(j, i), l.linearIndex(i, j))
+    for i <- 0 until 4 do for j <- 0 until 6 do assertEquals(lt.linearIndex(j, i), l.linearIndex(i, j))
+    end for
 
   // ─── withDataLength ─────────────────────────────────────────────────────────
 
