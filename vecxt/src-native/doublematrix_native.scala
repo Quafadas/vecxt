@@ -25,8 +25,8 @@ object NativeDoubleMatrix:
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            val mIdx = m.offset + i * m.rowStride + j * m.colStride
-            val bIdx = bmat.offset + i * bmat.rowStride + j * bmat.colStride
+            val mIdx = m.layout.linearIndex(i, j)
+            val bIdx = bmat.layout.linearIndex(i, j)
             newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0.0
             j += 1
           end while
@@ -91,7 +91,7 @@ object NativeDoubleMatrix:
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            val srcIdx = m.layout.linearIndex(i, j)
             newArr(i + j * m.rows) = m.raw(srcIdx) >= d
             j += 1
           end while
@@ -107,7 +107,7 @@ object NativeDoubleMatrix:
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            val srcIdx = m.layout.linearIndex(i, j)
             newArr(i + j * m.rows) = m.raw(srcIdx) > d
             j += 1
           end while
@@ -125,7 +125,7 @@ object NativeDoubleMatrix:
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            val srcIdx = m.layout.linearIndex(i, j)
             newArr(i + j * m.rows) = m.raw(srcIdx) <= d
             j += 1
           end while
@@ -143,7 +143,7 @@ object NativeDoubleMatrix:
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            val srcIdx = m.offset + i * m.rowStride + j * m.colStride
+            val srcIdx = m.layout.linearIndex(i, j)
             newArr(i + j * m.rows) = m.raw(srcIdx) < d
             j += 1
           end while
