@@ -6,25 +6,25 @@ import java.io.File
 /** Tier 1 of https://github.com/Quafadas/vecxt/issues/105 — static bytecode analysis.
   *
   * Phase 0 landed C6a as a munit test in `experiments.test`, deliberately ahead of any infrastructure. Phase 1 is that
-  * infrastructure: HotSpot threshold discovery (§1.0), the `@HotPath`/`@Thin`/`@AllocFree` annotations, checks C1, C2, C3
-  * and C9, a checked-in baseline, and a report. C6a moves here with them, so that the exclusion list, the report and the
-  * checks are one thing rather than three.
+  * infrastructure: HotSpot threshold discovery (§1.0), the `@HotPath`/`@Thin`/`@AllocFree` annotations, checks C1, C2,
+  * C3 and C9, a checked-in baseline, and a report. C6a moves here with them, so that the exclusion list, the report and
+  * the checks are one thing rather than three.
   *
-  * The checks run as munit tests rather than as a Mill task, which is worth explaining because the plan describes a task.
-  * Two reasons, and the second is the load-bearing one:
+  * The checks run as munit tests rather than as a Mill task, which is worth explaining because the plan describes a
+  * task. Two reasons, and the second is the load-bearing one:
   *
-  *   - The analyzer is ordinary module code, so the checks and their canary fixtures call exactly the same functions. An
-  *     analyzer living in a build file can only be exercised by running the build, which is the reason the plan's own
-  *     acceptance criteria ask for canaries that are *verified* to fail.
-  *   - A failing test produces a JUnit report, which CI turns into check-run annotations against the diff. A failing Mill
-  *     task produces console output. When a finding has to travel from CI back to whoever is reading the PR, the first is
-  *     the channel that works.
+  *   - The analyzer is ordinary module code, so the checks and their canary fixtures call exactly the same functions.
+  *     An analyzer living in a build file can only be exercised by running the build, which is the reason the plan's
+  *     own acceptance criteria ask for canaries that are *verified* to fail.
+  *   - A failing test produces a JUnit report, which CI turns into check-run annotations against the diff. A failing
+  *     Mill task produces console output. When a finding has to travel from CI back to whoever is reading the PR, the
+  *     first is the channel that works.
   *
-  * The report is still written to a fixed directory on every run (pass or fail) for CI to upload and to post as a sticky
-  * PR comment, so the task-shaped outputs the plan asks for all exist — see `reportDir` below.
+  * The report is still written to a fixed directory on every run (pass or fail) for CI to upload and to post as a
+  * sticky PR comment, so the task-shaped outputs the plan asks for all exist — see `reportDir` below.
   *
-  *   ./mill bytecodeAudit.test # run every check, write out/bytecode-audit/
-  *   ./mill bytecodeAudit.updateBaseline # adopt the proposal the last run wrote
+  * ./mill bytecodeAudit.test # run every check, write out/bytecode-audit/ ./mill bytecodeAudit.updateBaseline # adopt
+  * the proposal the last run wrote
   */
 object `package` extends ScalaModule:
 
@@ -38,14 +38,14 @@ object `package` extends ScalaModule:
   )
 
   /** Where the report lands. Not `Task.dest`: CI has to find it without asking Mill, `updateBaseline` has to find the
-    * proposal a *failed* run wrote, and neither works from a task-scoped directory. Deliberately not `out/bytecodeAudit`,
-    * which is Mill's own output directory for this module.
+    * proposal a *failed* run wrote, and neither works from a task-scoped directory. Deliberately not
+    * `out/bytecodeAudit`, which is Mill's own output directory for this module.
     *
     * Takes the workspace root rather than reading `os.pwd`. The first version used `os.pwd`, which is not the workspace
     * root inside a task — the build evaluates in a server process — so the report was written somewhere consistent but
-    * wrong. The suite's own "the report was written" assertion passed against that path while CI's artifact upload and PR
-    * comment found nothing, which is the failure mode to avoid: an audit that reports on itself successfully and publishes
-    * nothing.
+    * wrong. The suite's own "the report was written" assertion passed against that path while CI's artifact upload and
+    * PR comment found nothing, which is the failure mode to avoid: an audit that reports on itself successfully and
+    * publishes nothing.
     */
   def reportDir(ws: os.Path): os.Path = ws / "out" / "bytecode-audit"
 
@@ -57,10 +57,10 @@ object `package` extends ScalaModule:
     * guess at the API a third time, this uses `sources()`, which this file already calls and which resolves to
     * `<workspace>/bytecodeAudit/src`.
     *
-    * The `require` is the point. The previous two attempts were both wrong *silently*: the report went to a path that was
-    * consistent enough for the suite's own "was it written" assertion to pass, while CI's upload and PR comment found
-    * nothing. A derivation that cannot be checked is how that happens twice, so this one asserts it landed somewhere with a
-    * `build.mill` in it.
+    * The `require` is the point. The previous two attempts were both wrong *silently*: the report went to a path that
+    * was consistent enough for the suite's own "was it written" assertion to pass, while CI's upload and PR comment
+    * found nothing. A derivation that cannot be checked is how that happens twice, so this one asserts it landed
+    * somewhere with a `build.mill` in it.
     */
   private def workspaceOf(sourceDirs: Seq[os.Path]): os.Path =
     val src = sourceDirs
@@ -74,23 +74,23 @@ object `package` extends ScalaModule:
   /** Adopts the baseline proposal from the last audit run.
     *
     * Deliberately does not depend on the audit task. The audit FAILs when the baseline is missing or the ratchet has
-    * moved, and a command that ran the audit first could never be used to fix that — Mill would refuse to run it. So the
-    * audit always writes its proposal, and this copies it.
+    * moved, and a command that ran the audit first could never be used to fix that — Mill would refuse to run it. So
+    * the audit always writes its proposal, and this copies it.
     */
   def updateBaseline() = Task.Command {
     val ws = workspaceOf(sources().map(_.path))
     val target = baselineFile(ws)
     val proposed = reportDir(ws) / "baseline-proposed.json"
-    if !os.exists(proposed) then
-      sys.error(s"$proposed does not exist — run ./mill bytecodeAudit.test first, then this")
+    if !os.exists(proposed) then sys.error(s"$proposed does not exist — run ./mill bytecodeAudit.test first, then this")
+    end if
     os.makeDir.all(target / os.up)
     os.copy.over(proposed, target)
     Task.log.info(s"baseline adopted from $proposed -> $target")
     PathRef(target)
   }
 
-  /** Deliberately-broken fixtures. Compiled, never audited: the whole point is that every check below FAILs on them, and
-    * a check that has never been observed to fail might not work.
+  /** Deliberately-broken fixtures. Compiled, never audited: the whole point is that every check below FAILs on them,
+    * and a check that has never been observed to fail might not work.
     *
     * Not on any audited root, so nothing here can leak into a production finding.
     */
@@ -104,8 +104,8 @@ object `package` extends ScalaModule:
     *
     * That sweep is here rather than in `experiments` because it is the other half of C6a, not a separate concern. C6a
     * cannot see a generic *allocation*: `new Array[A](n)` resolves through `ClassTag[A]`, and whether the result is a
-    * `double[]` or an `Object[]` of boxed values depends on which ClassTag arrived, which bytecode does not record. So one
-    * check reads the library and the other runs it, they cover one question between them, and a change that weakens
+    * `double[]` or an `Object[]` of boxed values depends on which ClassTag arrived, which bytecode does not record. So
+    * one check reads the library and the other runs it, they cover one question between them, and a change that weakens
     * either should be looking at the other in the same directory.
     *
     * It is why this module's *test* scope depends on `vecxt` while the analyzer in `src` does not: reading classfiles
@@ -121,8 +121,8 @@ object `package` extends ScalaModule:
     /** The audit's scope, handed over as system properties.
       *
       * Explicit roots rather than walking `java.class.path` the way Phase 0 did. A classpath walk cannot distinguish
-      * "this module is clean" from "this module was never on the classpath", so coverage could shrink silently; with the
-      * roots written down here, `CoverageSuite` can assert the set is the intended one.
+      * "this module is clean" from "this module was never on the classpath", so coverage could shrink silently; with
+      * the roots written down here, `CoverageSuite` can assert the set is the intended one.
       */
     override def forkArgs = Task {
       val roots = Seq(

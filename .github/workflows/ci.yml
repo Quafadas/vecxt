@@ -89,6 +89,14 @@ jobs:
         if: matrix.project == 'jvm'
         run: ./mill bytecodeAudit.test
 
+      # Tier 2 of #105: dynamic JIT assertions. D1 measures allocation per @AllocFree kernel
+      # (target 0 bytes/op once warm). D3 reports the selected SIMD species. D4 checks SIMD vs
+      # scalar correctness. D6 is the harness canary — a deliberately non-intrinsifiable kernel
+      # that must allocate, proving the measurement infrastructure is live.
+      - name: JIT audit (D1/D3/D4/D6)
+        if: matrix.project == 'jvm'
+        run: ./mill jitAudit.test
+
       - name: Upload bytecode audit report
         if: always() && matrix.project == 'jvm'
         uses: actions/upload-artifact@v4
