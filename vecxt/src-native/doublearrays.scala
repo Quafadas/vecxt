@@ -595,10 +595,10 @@ object doublearrays:
 
     def stdDev(mode: VarianceMode): Double = std(mode)
 
-    def meanAndVariance: (mean: Double, variance: Double) =
+    def meanAndVariance: MeanAndVariance =
       meanAndVariance(VarianceMode.Population)
 
-    def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVariance(mode: VarianceMode): MeanAndVariance =
       var mean = 0.0
       var m2 = 0.0
       var i = 0
@@ -615,7 +615,7 @@ object doublearrays:
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (mean, m2 / denom)
+      MeanAndVariance(mean, m2 / denom)
     end meanAndVariance
 
     def mean: Double = vec.sumSIMD / vec.length

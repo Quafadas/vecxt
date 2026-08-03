@@ -632,10 +632,10 @@ object floatarrays:
       meanAndVariance(mode).variance
     end variance
 
-    def meanAndVariance: (mean: Float, variance: Float) =
+    def meanAndVariance: MeanAndVarianceF =
       meanAndVariance(VarianceMode.Population)
 
-    def meanAndVariance(mode: VarianceMode): (mean: Float, variance: Float) =
+    def meanAndVariance(mode: VarianceMode): MeanAndVarianceF =
       var mean = 0.0
       var m2 = 0.0
       var i = 0
@@ -651,7 +651,7 @@ object floatarrays:
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (mean.toFloat, (m2 / denom).toFloat)
+      MeanAndVarianceF(mean.toFloat, (m2 / denom).toFloat)
     end meanAndVariance
 
     def std: Float = std(VarianceMode.Population)

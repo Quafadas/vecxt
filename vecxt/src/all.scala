@@ -16,6 +16,8 @@ object all:
   export vecxt.IntArraysX.*
 
   export vecxt.VarianceMode
+  export vecxt.MeanAndVariance
+  export vecxt.MeanAndVarianceF
   export vecxt.ComparisonOp
 
   // matricies

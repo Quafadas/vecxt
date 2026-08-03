@@ -290,19 +290,25 @@ object intarrays:
     @Thin
     def variance: Double = variance(VarianceMode.Population)
 
-    /** Deliberately not `@Thin`, for the reason recorded at length on `doublearrays.variance(mode)`: C3 measures this
-      * shape at 37 bytes against a 35-byte `MaxInlineSize`, and ~30 of them are the cost of destructuring a named
-      * tuple. It is a forwarder plus real work, so `@Thin` is the wrong claim rather than the budget being wrong.
+    /** `@Thin` now that [[vecxt.MeanAndVariance]] has replaced the named tuple — see the history on
+      * `doublearrays.variance(mode)`, where C3 measured the tuple-destructuring version at 37 bytes against a 35-byte
+      * `MaxInlineSize`.
+      *
+      * Not `@AllocFree`, unlike the `doublearrays` twin: this one routes through the `intarrays` copy of
+      * `meanAndVarianceTwoPass`, which allocates a `new Array[Double](spdl)` scratch buffer per call to widen Ints into
+      * Double lanes. That buffer, not the result object, is what stops the path being allocation-free, and removing it
+      * is its own piece of work.
       */
+    @Thin
     def variance(mode: VarianceMode): Double =
       meanAndVariance(mode).variance
 
     @Thin
-    def meanAndVariance: (mean: Double, variance: Double) =
+    def meanAndVariance: MeanAndVariance =
       meanAndVariance(VarianceMode.Population)
 
     @Thin
-    def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVariance(mode: VarianceMode): MeanAndVariance =
       meanAndVarianceTwoPass(mode)
     end meanAndVariance
 
@@ -311,7 +317,7 @@ object intarrays:
       * VarianceBenchmark.var_simd_welford 1000 thrpt 3 436244.559 ± 6158.585 ops/s 231]
       * VarianceBenchmark.var_simd_welford 100000 thrpt 3 4187.715 ± 203.266 ops/s
       */
-    def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVarianceTwoPass(mode: VarianceMode): MeanAndVariance =
       val μ = vec.mean
       val μVec = DoubleVector.broadcast(spd, μ)
 
@@ -344,7 +350,7 @@ object intarrays:
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (μ, sumSqDiff / denom)
+      MeanAndVariance(μ, sumSqDiff / denom)
     end meanAndVarianceTwoPass
 
     @Thin
