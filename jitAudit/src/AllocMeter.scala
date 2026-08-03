@@ -29,8 +29,14 @@ object AllocMeter:
 
   /** Measures the total heap bytes allocated by {@code body} over {@code reps} iterations, after {@code warmup} warm-up
     * calls. Returns -1 if per-thread allocation tracking is not available.
+    *
+    * Declared {@code inline} so that each call site gets its own specialised measurement loop and the JIT sees the
+    * kernel body directly rather than through a megamorphic {@code Function0.apply()} call. Without inlining, fourteen
+    * different closures sharing the same call site inside {@code measureAlloc} produce a megamorphic dispatch that C2
+    * will not inline through, which means the Vector API calls inside the body are opaque to the compiler and SIMD
+    * intrinsics cannot be applied. {@code inline} makes each call site monomorphic.
     */
-  def measureAlloc(warmup: Int = 20_000, reps: Int = 100_000)(body: => Unit): Long =
+  inline def measureAlloc(warmup: Int = 20_000, reps: Int = 100_000)(inline body: => Unit): Long =
     bean match
       case None    => -1L
       case Some(b) =>

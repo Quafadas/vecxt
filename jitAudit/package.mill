@@ -26,7 +26,7 @@ import mill.*, scalalib.*
   * produce results that look like allocation from interpreted code. {@code --add-modules jdk.incubator.vector} exposes
   * the Vector API.
   *
-  * Usage: {@code ./mill jitAudit.test}
+  * Usage: {@code ./mill jitAudit.test} (D1/D3/D4/D6) and {@code ./mill jitAudit.eaOffTest} (EA-off cross-check)
   */
 object `package` extends ScalaModule:
 
@@ -50,5 +50,37 @@ object `package` extends ScalaModule:
       )
     }
   end test
+
+  /** EA-off cross-check for D1: runs the same fourteen kernels as D1Suite with escape analysis disabled ({@code
+    * -XX:-DoEscapeAnalysis}).
+    *
+    * HotSpot Vector API intrinsics lower Vector API calls to SIMD machine instructions at the {@code VectorSupport}
+    * layer, bypassing heap allocation entirely and independently of EA. Correctly intrinsified kernels therefore still
+    * show ≤ 8 bytes/op with EA off. The value of this cross-check is the regression guard: if a kernel degrades to the
+    * software fallback path (where {@code DoubleVector} objects are real heap objects), EA-off exposes the allocation
+    * that EA would otherwise scalarise — making the regression visible here even if D1Suite (with EA enabled) continues
+    * to pass.
+    *
+    * Run with: {@code ./mill jitAudit.eaOffTest}
+    */
+  object eaOffTest extends ScalaTests, TestModule.Munit:
+    def moduleDeps = Seq(build.jitAudit, build.vecxt.jvm)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"org.scalameta::munit::${build.V.munitVersion}"
+    )
+
+    override def forkArgs = Task {
+      super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
+        "-Xbatch",
+        "-XX:+UnlockDiagnosticVMOptions",
+        // Disable escape analysis. With EA off, kernels on the software fallback path
+        // (SIMD intrinsics not applied) will show allocation because their Vector objects
+        // are not scalarised. Correctly intrinsified kernels still show zero allocation
+        // because VectorSupport intrinsics bypass heap allocation independently of EA.
+        "-XX:-DoEscapeAnalysis"
+      )
+    }
+  end eaOffTest
 
 end `package`

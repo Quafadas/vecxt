@@ -14,8 +14,21 @@ import vecxt.all.{*, given}
   * practice this is zero on Temurin 25, but the epsilon provides one Object-header's worth of headroom. A
   * {@code DoubleVector} object failing to scalarize would be ≥ 64 bytes — an order of magnitude above the threshold.
   *
-  * Tests are skipped (not failed) when {@code ThreadMXBean} allocation tracking is not supported. The pinned CI runner
-  * (Temurin 25) always supports it; a local non-HotSpot JVM might not.
+  * Tests that return a value (the five pure reductions: {@code sumSIMD}, {@code productSIMD}) store their result into a
+  * {@code @volatile} field so that C2 cannot dead-code-eliminate the computation. Without a sink, a kernel whose result
+  * is discarded is pure (no observable side effects) and C2 is free to eliminate the entire loop body, giving zero
+  * measured allocation not because the vectors were scalarized but because nothing ran. The nine in-place mutations
+  * ({@code +=}, {@code -=}, etc.) write to an array, which is a visible side effect, so they are not exposed to this
+  * hazard.
+  *
+  * {@code assertAllocFree} is declared {@code inline} so that each of the fourteen call sites gets its own specialised
+  * measurement loop inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a
+  * shared megamorphic {@code Function0.apply()} call that C2 would not inline through, preventing SIMD
+  * intrinsification.
+  *
+  * Tests are skipped (not failed) when {@code ThreadMXBean} allocation tracking is not supported and we are not on CI.
+  * On CI (environment variable {@code CI} is set) a missing bean is a hard failure, because a guardrail that silently
+  * becomes a no-op is indistinguishable from a passing guardrail.
   */
 class D1Suite extends FunSuite:
 
@@ -24,33 +37,46 @@ class D1Suite extends FunSuite:
   private val Warmup = 20_000
   private val Reps = 100_000
 
-  private def assertAllocFree(label: String)(body: => Unit): Unit =
+  // Volatile sinks for pure-reduction results. Storing into a @volatile field is an observable
+  // side effect that prevents C2 from dead-code-eliminating the reduction body. Primitive-typed
+  // fields avoid boxing (no allocation per store).
+  @volatile private var doubleSink: Double = 0.0
+  @volatile private var floatSink: Float = 0.0f
+  @volatile private var intSink: Int = 0
+
+  private inline def assertAllocFree(label: String)(inline body: => Unit): Unit =
     val total = AllocMeter.measureAlloc(Warmup, Reps)(body)
-    if total < 0L then println(s"[D1] skip $label — ThreadMXBean allocation tracking not available on this JVM")
-    else
-      val perOp = total.toDouble / Reps
-      assert(
-        perOp <= Eps,
-        s"D1 github.com/Quafadas/vecxt/issues/105: $label allocated ${perOp.toLong} bytes/op " +
-          s"(total $total bytes over $Reps iterations). " +
-          s"A DoubleVector failing to scalarize is ≥ 64 bytes/op. " +
-          s"Check that jdk.incubator.vector is on the module path and that " +
-          s"the species field is static final, not a method parameter."
+    // Hard-fail in CI: a missing bean means the guardrail has silently become a no-op.
+    if total < 0L && sys.env.contains("CI") then
+      fail(
+        s"[D1] $label: CI detected but ThreadMXBean allocation tracking is unavailable. " +
+          "The pinned runner (Temurin 25) must support per-thread allocation tracking. " +
+          "Check JVM configuration or the runner image."
       )
     end if
+    assume(total >= 0L, s"[D1] skip $label — ThreadMXBean allocation tracking not available on this JVM")
+    val perOp = total.toDouble / Reps
+    assert(
+      perOp <= Eps,
+      s"D1 github.com/Quafadas/vecxt/issues/105: $label allocated ${perOp.toLong} bytes/op " +
+        s"(total $total bytes over $Reps iterations). " +
+        s"A DoubleVector failing to scalarize is ≥ 64 bytes/op. " +
+        s"Check that jdk.incubator.vector is on the module path and that " +
+        s"the species field is static final, not a method parameter."
+    )
   end assertAllocFree
 
   // ── Double ──────────────────────────────────────────────────────────────────
 
   test("D1: doublearrays.sumSIMD") {
     val arr = Array.tabulate(N)(_.toDouble)
-    assertAllocFree("doublearrays.sumSIMD") { arr.sumSIMD; () }
+    assertAllocFree("doublearrays.sumSIMD") { doubleSink = arr.sumSIMD }
   }
 
   test("D1: doublearrays.productSIMD") {
     // Values close to 1.0 to avoid overflow/underflow across many calls.
     val arr = Array.fill(N)(1.0001)
-    assertAllocFree("doublearrays.productSIMD") { arr.productSIMD; () }
+    assertAllocFree("doublearrays.productSIMD") { doubleSink = arr.productSIMD }
   }
 
   test("D1: doublearrays.+=(Double)") {
@@ -65,7 +91,10 @@ class D1Suite extends FunSuite:
 
   test("D1: doublearrays.*=(Array[Double])") {
     val arr = Array.fill(N)(2.0)
-    val arr2 = Array.fill(N)(0.5)
+    // Multiplier of 1.0 keeps the array values stable across 120,000 iterations.
+    // Using 0.5 would drive values to denormals by iteration ~1,100 and then to zero,
+    // so the measured workload would be overwhelmingly operating on zeros.
+    val arr2 = Array.fill(N)(1.0)
     assertAllocFree("doublearrays.*=(Array[Double])")(arr *= arr2)
   }
 
@@ -88,12 +117,12 @@ class D1Suite extends FunSuite:
 
   test("D1: floatarrays.sumSIMD") {
     val arr = Array.tabulate(N)(_.toFloat)
-    assertAllocFree("floatarrays.sumSIMD") { arr.sumSIMD; () }
+    assertAllocFree("floatarrays.sumSIMD") { floatSink = arr.sumSIMD }
   }
 
   test("D1: floatarrays.productSIMD") {
     val arr = Array.fill(N)(1.0001f)
-    assertAllocFree("floatarrays.productSIMD") { arr.productSIMD; () }
+    assertAllocFree("floatarrays.productSIMD") { floatSink = arr.productSIMD }
   }
 
   test("D1: floatarrays.fma!") {
@@ -115,7 +144,7 @@ class D1Suite extends FunSuite:
 
   test("D1: intarrays.sumSIMD") {
     val arr = Array.tabulate(N)(i => i % 1000)
-    assertAllocFree("intarrays.sumSIMD") { arr.sumSIMD; () }
+    assertAllocFree("intarrays.sumSIMD") { intSink = arr.sumSIMD }
   }
 
 end D1Suite
