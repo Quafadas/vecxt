@@ -38,16 +38,10 @@ object DoubleMatrix:
     def *=(d: Double): Unit =
       if m.hasSimpleContiguousMemoryLayout then m.raw.multInPlace(d)
       else
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val idx = m.layout.linearIndex(i, j)
-            m.raw(idx) = m.raw(idx) * d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) * d
+        }
 
     def *(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.*(m.raw)(n), m.layout)
@@ -58,16 +52,10 @@ object DoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) / n
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) / n
+        }
         Matrix[Double](newArr, m.rows, m.cols)
     end /
 
@@ -75,16 +63,10 @@ object DoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.+(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) + n
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) + n
+        }
         Matrix[Double](newArr, m.rows, m.cols)
       end if
 
@@ -103,17 +85,11 @@ object DoubleMatrix:
           i += 1
         end while
       else
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val idx = m.layout.linearIndex(i, j)
-            val idxOther = other.layout.linearIndex(i, j)
-            newArr(i * m.cols + j) = math.max(m.raw(idx), other.raw(idxOther))
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          val idxOther = other.layout.linearIndex(i, j)
+          newArr(i * m.cols + j) = math.max(m.raw(idx), other.raw(idxOther))
+        }
       end if
       Matrix[Double](newArr, m.rows, m.cols)
     end maximum
@@ -122,16 +98,10 @@ object DoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.-(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) - n
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) - n
+        }
         Matrix[Double](newArr, m.rows, m.cols)
     end -
 
@@ -144,17 +114,11 @@ object DoubleMatrix:
         Matrix(newArr, m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val mIdx = m.layout.linearIndex(i, j)
-            val m2Idx = m2.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(mIdx) + m2.raw(m2Idx)
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val mIdx = m.layout.linearIndex(i, j)
+          val m2Idx = m2.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(mIdx) + m2.raw(m2Idx)
+        }
         Matrix[Double](newArr, m.rows, m.cols)
       end if
     end +:+
@@ -210,17 +174,11 @@ object DoubleMatrix:
         Matrix(newArr, m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val mIdx = m.layout.linearIndex(i, j)
-            val m2Idx = m2.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(mIdx) / m2.raw(m2Idx)
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val mIdx = m.layout.linearIndex(i, j)
+          val m2Idx = m2.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(mIdx) / m2.raw(m2Idx)
+        }
         Matrix[Double](newArr, m.rows, m.cols)
       end if
     end /:/
@@ -233,17 +191,11 @@ object DoubleMatrix:
         Matrix(newArr, m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val mIdx = m.layout.linearIndex(i, j)
-            val m2Idx = m2.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(mIdx) - m2.raw(m2Idx)
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val mIdx = m.layout.linearIndex(i, j)
+          val m2Idx = m2.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(mIdx) - m2.raw(m2Idx)
+        }
         Matrix[Double](newArr, m.rows, m.cols)
       end if
     end -:-
@@ -256,45 +208,27 @@ object DoubleMatrix:
     def `exp!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`exp!`(m.raw)
       else
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val idx = m.layout.linearIndex(i, j)
-            m.raw(idx) = Math.exp(m.raw(idx))
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = Math.exp(m.raw(idx))
+        }
 
     def `log!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`log!`(m.raw)
       else
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val idx = m.layout.linearIndex(i, j)
-            m.raw(idx) = Math.log(m.raw(idx))
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = Math.log(m.raw(idx))
+        }
 
     def exp: Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.exp(m.raw), m.shape)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = Math.exp(m.raw(srcIdx))
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = Math.exp(m.raw(srcIdx))
+        }
         Matrix[Double](newArr, m.rows, m.cols)
 
     def log: Matrix[Double] =
@@ -302,94 +236,60 @@ object DoubleMatrix:
       else
         // allocate a fresh column-major matrix (rowStride=1, colStride=rows)
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = Math.log(m.raw(srcIdx))
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = Math.log(m.raw(srcIdx))
+        }
         Matrix[Double](newArr, m.rows, m.cols)
 
     def `sqrt!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`sqrt!`(m.raw)
-      end if
-      var i = 0
-      while i < m.rows do
-        var j = 0
-        while j < m.cols do
+      else
+        m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
           m.raw(idx) = Math.sqrt(m.raw(idx))
-          j += 1
-        end while
-        i += 1
-      end while
+        }
+      end if
     end `sqrt!`
 
     def sqrt: Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.sqrt(m.raw), m.shape)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = Math.sqrt(m.raw(srcIdx))
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = Math.sqrt(m.raw(srcIdx))
+        }
         Matrix[Double](newArr, m.rows, m.cols)
 
     def sin =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.sin(m.raw), m.shape)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = Math.sin(m.raw(srcIdx))
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = Math.sin(m.raw(srcIdx))
+        }
         Matrix[Double](newArr, m.rows, m.cols)
 
     def `sin!` =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`sin!`(m.raw)
-      end if
-      var i = 0
-      while i < m.rows do
-        var j = 0
-        while j < m.cols do
+      else
+        m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
           m.raw(idx) = Math.sin(m.raw(idx))
-          j += 1
-        end while
-        i += 1
-      end while
+        }
+      end if
     end `sin!`
 
     def cos =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.cos(m.raw), m.shape)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = Math.cos(m.raw(srcIdx))
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = Math.cos(m.raw(srcIdx))
+        }
         Matrix[Double](newArr, m.rows, m.cols)
 
     def `cos!` = vecxt.doublearrays.`cos!`(m.raw)
