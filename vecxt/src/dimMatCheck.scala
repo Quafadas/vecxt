@@ -18,7 +18,7 @@ end sameDimMatCheck
   */
 object sameDenseElementWiseMemoryLayoutCheck:
   def apply[A, B](a: Matrix[A], b: Matrix[B]): Boolean =
-    a.isDenseColMajor && b.isDenseColMajor && a.rowStride == b.rowStride || a.isDenseRowMajor && b.isDenseRowMajor && a.colStride == b.colStride
+    a.layout.sameElementOrderAs(b.layout)
 end sameDenseElementWiseMemoryLayoutCheck
 
 object indexCheckMat:

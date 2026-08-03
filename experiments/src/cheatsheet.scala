@@ -124,7 +124,7 @@ object CheatsheetTest:
   private def matrixReverseSlicing(): Unit =
     val m = Matrix(Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), 3, 3)
     println(s"submatrix: ${m((m.rows - 1 until 0 by -1), ::).printMat}")
-    println(s"submatrix: ${m((m.rows - 1 until 0 by -1), ::).layout}")
+    println(s"submatrix: ${m((m.rows - 1 until 0 by -1), ::).layoutString}")
   end matrixReverseSlicing
 
   private def elementWiseOps(): Unit =
