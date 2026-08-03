@@ -1,6 +1,6 @@
 {
   "jdkMajor": 25,
-  "c9": { "totalBytes": 46714, "distinctOps": 177 },
+  "c9": { "totalBytes": 51103, "distinctOps": 178 },
   "annotated": {
     "vecxt.NDArrayDoubleOps$.binaryOpGeneral(Lvecxt/ndarray$NDArray;Lvecxt/ndarray$NDArray;Lscala/Function2;)Lvecxt/ndarray$NDArray;": 186,
     "vecxt.NDArrayDoubleOps$.binaryOpInPlaceGeneral(Lvecxt/ndarray$NDArray;Lvecxt/ndarray$NDArray;Lscala/Function2;)V": 153,
@@ -35,7 +35,7 @@
     "vecxt.floatarrays$.$times$eq([F[F)V": 84,
     "vecxt.floatarrays$.$times$times$bang([FF)V": 85,
     "vecxt.floatarrays$.clamp$bang([FFF)V": 172,
-    "vecxt.floatarrays$.fma$bang([FFF)V": 79,
+    "vecxt.floatarrays$.fma$bang([FFF)V": 80,
     "vecxt.floatarrays$.increments([F)[F": 97,
     "vecxt.floatarrays$.productSIMD([F)F": 82,
     "vecxt.floatarrays$.sumSIMD([F)F": 81,
