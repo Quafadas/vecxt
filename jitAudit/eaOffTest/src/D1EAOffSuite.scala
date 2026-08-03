@@ -5,44 +5,40 @@ import vecxt.all.{*, given}
 
 /** D1 EA-off cross-check — guards against undetected SIMD→software regression.
   *
-  * Runs the same fourteen kernels as {@link D1Suite} with escape analysis disabled
-  * ({@code -XX:-DoEscapeAnalysis}). This provides a check that is strictly stronger than
-  * D1Suite alone, for the following reason:
+  * Runs the same fourteen kernels as {@link D1Suite} with escape analysis disabled ({@code -XX:-DoEscapeAnalysis}).
+  * This provides a check that is strictly stronger than D1Suite alone, for the following reason:
   *
   * '''Original design intent vs. reality:'''
   *
-  * The original design assumed that EA was required for zero allocation in Vector API kernels
-  * (i.e. that EA scalarises transient {@code Vector} objects), and that EA-off would therefore
-  * force those kernels to allocate ≥ 64 bytes/op. In practice, HotSpot Vector API intrinsics
-  * lower {@code fromArray}/{@code add}/etc. to SIMD machine instructions at the
-  * {@code VectorSupport} layer, bypassing heap allocation <em>entirely independently of EA</em>.
-  * A properly intrinsified kernel allocates zero bytes regardless of whether EA is enabled or
-  * disabled, because the {@code DoubleVector} objects never reach the heap in the first place.
+  * The original design assumed that EA was required for zero allocation in Vector API kernels (i.e. that EA scalarises
+  * transient {@code Vector} objects), and that EA-off would therefore force those kernels to allocate ≥ 64 bytes/op. In
+  * practice, HotSpot Vector API intrinsics lower {@code fromArray}/{@code add}/etc. to SIMD machine instructions at the
+  * {@code VectorSupport} layer, bypassing heap allocation <em>entirely independently of EA</em>. A properly
+  * intrinsified kernel allocates zero bytes regardless of whether EA is enabled or disabled, because the
+  * {@code DoubleVector} objects never reach the heap in the first place.
   *
   * '''What this cross-check actually proves:'''
   *
   * Consider the two paths a Vector API kernel can follow:
-  *   1. '''SIMD intrinsics path''' — C2 applies {@code VectorSupport} intrinsics; {@code Vector}
-  *      objects are replaced by SIMD instructions; no heap allocation occurs regardless of EA.
-  *   2. '''Software fallback path''' — intrinsics are not applied (wrong species, missing module,
-  *      C2 profile-data loss, etc.); the Java {@code DoubleVector} methods run interpreted or via
-  *      C1, creating real heap objects; EA normally scalarises these objects so D1Suite still
-  *      passes; but with EA <em>disabled</em> the objects are heap-allocated and allocation is
-  *      visible.
+  *   1. '''SIMD intrinsics path''' — C2 applies {@code VectorSupport} intrinsics; {@code Vector} objects are replaced
+  *      by SIMD instructions; no heap allocation occurs regardless of EA.
+  *   2. '''Software fallback path''' — intrinsics are not applied (wrong species, missing module, C2 profile-data loss,
+  *      etc.); the Java {@code DoubleVector} methods run interpreted or via C1, creating real heap objects; EA normally
+  *      scalarises these objects so D1Suite still passes; but with EA <em>disabled</em> the objects are heap-allocated
+  *      and allocation is visible.
   *
-  * D1Suite cannot distinguish paths (1) and (2) when EA is enabled, because EA masks the
-  * software fallback. D1EAOffSuite asserts the same ≤ 8 bytes threshold under EA-off: if a
-  * kernel has regressed to the software fallback path, D1EAOffSuite fails here while D1Suite
-  * would continue to pass.
+  * D1Suite cannot distinguish paths (1) and (2) when EA is enabled, because EA masks the software fallback.
+  * D1EAOffSuite asserts the same ≤ 8 bytes threshold under EA-off: if a kernel has regressed to the software fallback
+  * path, D1EAOffSuite fails here while D1Suite would continue to pass.
   *
   * '''DCE guard:'''
   *
-  * Pure reductions store their results into {@code @volatile} fields, preventing C2 from
-  * dead-code-eliminating the computation (a volatile store is a visible side-effect that C2
-  * cannot remove). This is the same technique used in D1Suite and is independent of EA.
+  * Pure reductions store their results into {@code @volatile} fields, preventing C2 from dead-code-eliminating the
+  * computation (a volatile store is a visible side-effect that C2 cannot remove). This is the same technique used in
+  * D1Suite and is independent of EA.
   *
-  * Tests are skipped off-CI when {@code ThreadMXBean} allocation tracking is not available.
-  * On CI ({@code CI} environment variable set) a missing bean is a hard failure.
+  * Tests are skipped off-CI when {@code ThreadMXBean} allocation tracking is not available. On CI ({@code CI}
+  * environment variable set) a missing bean is a hard failure.
   */
 class D1EAOffSuite extends FunSuite:
 
