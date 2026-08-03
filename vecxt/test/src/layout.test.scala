@@ -243,4 +243,115 @@ class LayoutTest extends FunSuite:
     val m = Matrix(raw, l)
     assertEquals(m.layoutString, l.toString)
 
+  // ─── generated layouts (hand-rolled, no scalacheck) ──────────────────────────
+
+  // Small dimension/stride/offset tuples, deliberately excluding zero strides —
+  // those are broadcast layouts and are deliberately non-injective; tested separately below.
+  private def generatedLayouts: Seq[Layout] =
+    for
+      rows <- 1 to 4
+      cols <- 1 to 4
+      rowStride <- Seq(1, 2, 3)
+      offset <- Seq(0, 1, 5)
+    yield
+      val colStride = rowStride * rows
+      val dataLength = offset + rowStride * (rows - 1) + colStride * (cols - 1) + 1
+      Layout(rows, cols, rowStride, colStride, offset, dataLength)
+
+  private def generatedBroadcastLayouts: Seq[Layout] =
+    for
+      rows <- 1 to 4
+      cols <- 1 to 4
+    yield
+      // rowStride == 0 : every row aliases the same slice, deliberately non-injective
+      Layout(rows, cols, 0, 1, 0, cols)
+
+  // ─── linearIndex injectivity ──────────────────────────────────────────────────
+
+  test("linearIndex is injective over generated non-broadcast layouts"):
+    for l <- generatedLayouts do
+      val indices =
+        for
+          i <- 0 until l.rows
+          j <- 0 until l.cols
+        yield l.linearIndex(i, j)
+      assertEquals(
+        indices.distinct.size,
+        l.numel,
+        s"layout $l produced ${indices.distinct.size} distinct indices for numel=${l.numel}"
+      )
+    end for
+
+  test("linearIndex is deliberately non-injective for broadcast (zero-stride) layouts"):
+    for l <- generatedBroadcastLayouts if l.rows > 1 do
+      val indices =
+        for
+          i <- 0 until l.rows
+          j <- 0 until l.cols
+        yield l.linearIndex(i, j)
+      assert(
+        indices.distinct.size < l.numel,
+        s"expected broadcast layout $l to alias indices, but all ${l.numel} were distinct"
+      )
+    end for
+
+  // ─── linearIndex in-bounds ────────────────────────────────────────────────────
+
+  test("linearIndex stays within [0, dataLength) for generated layouts"):
+    for l <- (generatedLayouts ++ generatedBroadcastLayouts) do
+      for
+        i <- 0 until l.rows
+        j <- 0 until l.cols
+      do
+        val idx = l.linearIndex(i, j)
+        assert(idx >= 0, s"layout $l produced negative index $idx at ($i, $j)")
+        assert(
+          idx < l.dataLength,
+          s"layout $l produced out-of-bounds index $idx at ($i, $j), dataLength=${l.dataLength}"
+        )
+      end for
+    end for
+
+  // ─── submatrix offset composition ─────────────────────────────────────────────
+
+  // Mirrors the arithmetic in MatrixInstance.submatrix:
+  // newOffset = m.offset + newRows.head * m.rowStride + newCols.head * m.colStride
+  private def contiguousSubLayout(l: Layout, rowStart: Int, rowSpan: Int, colStart: Int, colSpan: Int): Layout =
+    val newOffset = l.offset + rowStart * l.rowStride + colStart * l.colStride
+    Layout(rowSpan, colSpan, l.rowStride, l.colStride, newOffset, l.dataLength)
+  end contiguousSubLayout
+
+  test("submatrix of a submatrix equals the composed submatrix directly"):
+    for l <- generatedLayouts if l.rows >= 3 && l.cols >= 3 do
+      // First take rows [1, rows), cols [1, cols) — a contiguous sub-view
+      val sub1 = contiguousSubLayout(l, 1, l.rows - 1, 1, l.cols - 1)
+      // Then take rows [1, rows-1) of *that sub-view* — i.e. rows [2, rows) of the original
+      val sub2 = contiguousSubLayout(sub1, 1, sub1.rows - 1, 1, sub1.cols - 1)
+
+      // Directly composed: rows [2, rows-1), cols [2, cols-1) of the original
+      val direct = contiguousSubLayout(l, 2, l.rows - 2, 2, l.cols - 2)
+
+      assertEquals(sub2.offset, direct.offset)
+      assertEquals(sub2.rowStride, direct.rowStride)
+      assertEquals(sub2.colStride, direct.colStride)
+      assertEquals(sub2.rows, direct.rows)
+      assertEquals(sub2.cols, direct.cols)
+    end for
+
+  // ─── transpose round-trip over generated layouts ──────────────────────────────
+
+  test("transpose.transpose == original over generated layouts"):
+    for l <- (generatedLayouts ++ generatedBroadcastLayouts) do assertEquals(l.transpose.transpose, l)
+    end for
+
+  test("transpose.linearIndex(j, i) == linearIndex(i, j) over generated layouts"):
+    for l <- generatedLayouts do
+      val lt = l.transpose
+      for
+        i <- 0 until l.rows
+        j <- 0 until l.cols
+      do assertEquals(lt.linearIndex(j, i), l.linearIndex(i, j))
+      end for
+    end for
+
 end LayoutTest
