@@ -21,10 +21,9 @@ import vecxt.all.{*, given}
   * ({@code +=}, {@code -=}, {@code abs!}, etc.) write to an array, which is a visible side effect, so they are not
   * exposed to this hazard.
   *
-  * {@code assertAllocFree} is declared {@code inline} so that each call site gets its own specialised
-  * measurement loop inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a
-  * shared megamorphic {@code Function0.apply()} call that C2 would not inline through, preventing SIMD
-  * intrinsification.
+  * {@code assertAllocFree} is declared {@code inline} so that each call site gets its own specialised measurement loop
+  * inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a shared megamorphic
+  * {@code Function0.apply()} call that C2 would not inline through, preventing SIMD intrinsification.
   *
   * Tests are skipped (not failed) when {@code ThreadMXBean} allocation tracking is not supported and we are not on CI.
   * On CI (environment variable {@code CI} is set) a missing bean is a hard failure, because a guardrail that silently
