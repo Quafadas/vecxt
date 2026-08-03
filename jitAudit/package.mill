@@ -1,0 +1,86 @@
+package build.jitAudit
+
+import mill.*, scalalib.*
+
+/** Tier 2 of https://github.com/Quafadas/vecxt/issues/105 — dynamic JIT assertions.
+  *
+  * Unlike Tier 1 (static bytecode analysis), this tier asks whether C2 *actually* intrinsified the Vector API
+  * operations and scalarized the transient {@code Vector} objects. It uses deterministic, property-based measurements
+  * rather than timing:
+  *
+  *   - D1: {@code ThreadMXBean.getThreadAllocatedBytes} per {@code @AllocFree} kernel. For a correctly JIT-compiled
+  *     kernel the Vector objects are eliminated by escape analysis and zero bytes are allocated per operation. A
+  *     DoubleVector failing to scalarize is ≥ 64 bytes per op — unmissable.
+  *   - D3: Vector species discovery. Reports the selected species and lane count; hard-asserts we are not silently on
+  *     {@code SPECIES_64} (which would mean the incubator module is absent or species resolution failed entirely).
+  *   - D4: SIMD vs scalar differential correctness. Each kernel is run against a simple sequential reference
+  *     implementation. In-place mutations must be bit-identical; reductions allow a documented floating-point tolerance
+  *     (FP addition is not associative, so a lane-parallel reduction and a left-to-right accumulation differ by a
+  *     rounding-error bound proportional to {@code n * eps_machine}).
+  *   - D6: Harness canary. A deliberately non-intrinsifiable kernel (species passed as a method parameter rather than
+  *     from a static-final field) must allocate under D1. This guards against the whole dynamic tier silently becoming
+  *     a no-op — a harness whose canary passes is a harness that cannot be trusted.
+  *
+  * Run flags matter. {@code -Xbatch} forces foreground JIT compilation: the compiler runs on the calling thread before
+  * a method is invoked for the first time. Without it, a measurement loop could race the background compiler and
+  * produce results that look like allocation from interpreted code. {@code --add-modules jdk.incubator.vector} exposes
+  * the Vector API.
+  *
+  * Usage: {@code ./mill jitAudit.test} (D1/D3/D4/D6) and {@code ./mill jitAudit.eaOffTest} (EA-off cross-check)
+  */
+object `package` extends ScalaModule:
+
+  def scalaVersion = build.V.scalaVersion
+
+  object test extends ScalaTests, TestModule.Munit:
+    def moduleDeps = Seq(build.jitAudit, build.vecxt.jvm)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"org.scalameta::munit::${build.V.munitVersion}"
+    )
+
+    override def forkArgs = Task {
+      super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
+        // Foreground compilation: the JIT compiles each method on the calling thread the first
+        // time it is invoked. Without -Xbatch a measurement loop races the background compiler
+        // and the first several iterations run interpreted, which produces noise that looks like
+        // allocation even in a kernel that will eventually scalarize correctly.
+        "-Xbatch",
+        "-XX:+UnlockDiagnosticVMOptions"
+      )
+    }
+  end test
+
+  /** EA-off cross-check for D1: runs the same fourteen kernels as D1Suite with escape analysis disabled ({@code
+    * -XX:-DoEscapeAnalysis}).
+    *
+    * HotSpot Vector API intrinsics lower Vector API calls to SIMD machine instructions at the {@code VectorSupport}
+    * layer, bypassing heap allocation entirely and independently of EA. Correctly intrinsified kernels therefore still
+    * show ≤ 8 bytes/op with EA off. The value of this cross-check is the regression guard: if a kernel degrades to the
+    * software fallback path (where {@code DoubleVector} objects are real heap objects), EA-off exposes the allocation
+    * that EA would otherwise scalarise — making the regression visible here even if D1Suite (with EA enabled) continues
+    * to pass.
+    *
+    * Run with: {@code ./mill jitAudit.eaOffTest}
+    */
+  object eaOffTest extends ScalaTests, TestModule.Munit:
+    def moduleDeps = Seq(build.jitAudit, build.vecxt.jvm)
+
+    def mvnDeps = super.mvnDeps() ++ Seq(
+      mvn"org.scalameta::munit::${build.V.munitVersion}"
+    )
+
+    override def forkArgs = Task {
+      super.forkArgs() ++ build.vecIncubatorFlag ++ Seq(
+        "-Xbatch",
+        "-XX:+UnlockDiagnosticVMOptions",
+        // Disable escape analysis. With EA off, kernels on the software fallback path
+        // (SIMD intrinsics not applied) will show allocation because their Vector objects
+        // are not scalarised. Correctly intrinsified kernels still show zero allocation
+        // because VectorSupport intrinsics bypass heap allocation independently of EA.
+        "-XX:-DoEscapeAnalysis"
+      )
+    }
+  end eaOffTest
+
+end `package`
