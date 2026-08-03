@@ -5,11 +5,16 @@ import vecxt.all.{*, given}
 
 /** D1 — Allocation-free kernels.
   *
-  * Per {@code @AllocFree} kernel: warm up 20,000 iterations, run a first 100,000-iteration window to absorb any
-  * remaining compilation burst (two-pass ops like {@code variance} need more time to fully compile than single-pass
-  * ops), then measure a definitive 100,000-iteration window and assert that bytes/op is below a small epsilon. For a
-  * correctly JIT-compiled kernel, C2's escape analysis eliminates the transient {@code Vector} objects and the
-  * allocation count is genuinely zero in the definitive window.
+  * Per {@code @AllocFree} kernel: run a single loop of {@code warmup + reps + reps} iterations and assert that bytes/op
+  * in the final {@code reps} window is below a small epsilon. For a correctly JIT-compiled kernel, C2's escape analysis
+  * eliminates the transient {@code Vector} objects and the allocation count is genuinely zero.
+  *
+  * The measurement uses a single loop (see {@link AllocMeter#measureAlloc} for the full rationale). The short version:
+  * a JNI call to {@code getThreadAllocatedBytes} between a warmup loop and a measurement loop triggers a safepoint that
+  * can deoptimise the compiled test-method frame. The measurement loop then restarts from interpreted code and runs
+  * ~16–23 unoptimised calls (each allocating ~82 KB of unscalarised {@code DoubleVector} objects for a two-pass
+  * operation) before C2 re-OSR-compiles — exactly the spurious 1.3–1.5 MB burst seen in CI. Calling
+  * {@code getThreadAllocatedBytes} inside the already-compiled loop avoids the deoptimisation entirely.
   *
   * Epsilon = 8 bytes/op rationale: the TLAB accounting counter is exact, but the surrounding measurement infrastructure
   * (two calls to {@code getThreadAllocatedBytes}, thread-local state in the bean) contributes a small constant. In

@@ -4,21 +4,28 @@ import java.lang.management.ManagementFactory
 
 /** Allocation measurement via {@code com.sun.management.ThreadMXBean}.
   *
-  * Calls {@code getThreadAllocatedBytes} before and after a hot loop to determine how many heap bytes the current
-  * thread allocated during those iterations. For a correctly JIT-compiled {@code @AllocFree} kernel, the {@code Vector}
-  * objects are eliminated by escape analysis and the count is zero. A {@code DoubleVector} that fails to scalarize is
-  * roughly 64–128 bytes (header + lane storage), so any real allocation failure is far above the noise floor.
+  * Calls {@code getThreadAllocatedBytes} at two points within a single hot loop to determine how many heap bytes the
+  * current thread allocated during the measurement window. For a correctly JIT-compiled {@code @AllocFree} kernel, the
+  * {@code Vector} objects are eliminated by escape analysis and the count is zero. A {@code DoubleVector} that fails to
+  * scalarize is roughly 64–128 bytes (header + lane storage), so any real allocation failure is far above the noise
+  * floor.
   *
-  * The counter is a TLAB accounting value: it is exact for allocation events, but the measurement call itself has a
-  * small constant overhead (typically zero on HotSpot, but not guaranteed). The harness therefore:
-  *   1. Runs a warmup phase (default 20,000 iterations) to let C2 begin compiling the path.
-  *   2. Runs a first measurement window of {@code reps} iterations to absorb any remaining compilation burst. Two-pass
-  *      operations (e.g. {@code variance}) need longer to fully compile than single-pass ops; without this extra window
-  *      a bounded allocation spike from the interpreted/C1 phase leaks into the result.
-  *   3. Measures a second (definitive) window of {@code reps} iterations and returns the byte delta.
+  * <h3>Why a single loop?</h3>
   *
-  * This two-window design takes the slope {@code (alloc(2N) − alloc(N)) / N}, which cancels any fixed compilation-burst
-  * offset that is present in the first window but absent in the second.
+  * The naive design — warmup loop, then measurement loop — has a critical flaw on loaded CI runners. The JNI call to
+  * {@code getThreadAllocatedBytes} between the two loops triggers a JVM safepoint. At that safepoint, HotSpot can
+  * deoptimise the compiled test-method frame (e.g., due to a biased-lock revocation, class redefinition, or GC
+  * callback). When the measurement loop then starts, it begins in interpreted or C1 mode and runs roughly
+  * {@code OSR_threshold / inner_loop_iters} iterations before C2 re-OSR-compiles the loop. For {@code variance(mode)},
+  * which makes two SIMD passes over a 1024-element array, that is roughly 16–23 interpreted calls × ~82 KB of
+  * unscalarised {@code DoubleVector} objects per call = 1.3–1.5 MB of spurious allocation in the measurement window,
+  * regardless of how many warmup iterations preceded it.
+  *
+  * The single-loop design eliminates the inter-loop safepoint hazard. {@code getThreadAllocatedBytes} is called once
+  * inside the already-compiled loop at iteration {@code warmup + reps} (a predictable always-not-taken branch that C2
+  * treats as a one-shot side exit). By the time that branch fires, OSR compilation is long finished and the code has
+  * been running in steady-state C2 for {@code reps} compiled iterations. The second call at loop exit lands outside the
+  * hot path and its safepoint is harmless.
   *
   * Returns -1 when the bean is unavailable (e.g., non-HotSpot JVMs that do not support per-thread allocation tracking).
   * Callers should skip, not fail, in that case — the pinned CI runner (Temurin 25) always supports it.
@@ -32,42 +39,36 @@ object AllocMeter:
     end if
   end bean
 
-  /** Measures the total heap bytes allocated by {@code body} over {@code reps} iterations of the definitive window,
-    * after a warmup phase and a first measurement window.
+  /** Measures the total heap bytes allocated by {@code body} over the final {@code reps} iterations of a single
+    * {@code warmup + reps + reps} iteration loop. Returns -1 if per-thread allocation tracking is not available.
     *
-    * Design: warmup → first window (reps iters, result discarded) → definitive window (reps iters, result returned).
-    * The first window ensures C2 has finished compiling even two-pass operations before measurement begins, so any
-    * bounded compilation-burst allocation is absorbed there and excluded from the returned value. The returned delta
-    * therefore represents only steady-state per-op allocation. Dividing by {@code reps} yields bytes/op.
+    * The first {@code warmup} iterations allow C2 to OSR-compile the loop and the kernel under test. The next
+    * {@code reps} iterations are a steady-state settling window: the compiled loop is already hot, and any
+    * compilation-related burst that happened during warmup is well behind us. The final {@code reps} iterations are
+    * measured: {@code getThreadAllocatedBytes} is captured inside the compiled loop at iteration {@code warmup + reps}
+    * — a one-shot conditional that C2 optimises to a cold branch — and the delta to the post-loop call yields the
+    * measurement. Dividing by {@code reps} gives bytes/op.
     *
     * Declared {@code inline} so that each call site gets its own specialised measurement loop and the JIT sees the
-    * kernel body directly rather than through a megamorphic {@code Function0.apply()} call. Without inlining, fourteen
+    * kernel body directly rather than through a megamorphic {@code Function0.apply()} call. Without inlining, many
     * different closures sharing the same call site inside {@code measureAlloc} produce a megamorphic dispatch that C2
-    * will not inline through, which means the Vector API calls inside the body are opaque to the compiler and SIMD
-    * intrinsics cannot be applied. {@code inline} makes each call site monomorphic.
+    * will not inline through, preventing SIMD intrinsification.
     */
   inline def measureAlloc(warmup: Int = 20_000, reps: Int = 100_000)(inline body: => Unit): Long =
     bean match
       case None    => -1L
       case Some(b) =>
         val tid = Thread.currentThread().threadId()
-        // Warmup: let C2 begin compiling the path before measuring.
+        // Single loop: warmup iters (OSR compiles here), then reps settling iters, then reps measured iters.
+        // getThreadAllocatedBytes is called INSIDE the compiled loop to avoid the inter-loop safepoint that
+        // deoptimises the method frame and restarts the JIT-compile burst in the measurement window.
+        val measureStart = warmup + reps
+        val total = warmup + reps + reps
+        var before = 0L
         var i = 0
-        while i < warmup do
-          body
-          i += 1
-        end while
-        // First measurement window: absorbs any remaining compilation burst for two-pass ops.
-        // The result is intentionally discarded; this pass acts as additional targeted warmup.
-        i = 0
-        while i < reps do
-          body
-          i += 1
-        end while
-        // Definitive measurement window: C2 is fully compiled, steady-state allocation only.
-        val before = b.getThreadAllocatedBytes(tid)
-        i = 0
-        while i < reps do
+        while i < total do
+          if i == measureStart then before = b.getThreadAllocatedBytes(tid)
+          end if
           body
           i += 1
         end while
