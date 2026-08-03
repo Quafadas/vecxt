@@ -21,7 +21,7 @@ import vecxt.all.{*, given}
   * ({@code +=}, {@code -=}, {@code abs!}, etc.) write to an array, which is a visible side effect, so they are not
   * exposed to this hazard.
   *
-  * {@code assertAllocFree} is declared {@code inline} so that each of the nineteen call sites gets its own specialised
+  * {@code assertAllocFree} is declared {@code inline} so that each call site gets its own specialised
   * measurement loop inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a
   * shared megamorphic {@code Function0.apply()} call that C2 would not inline through, preventing SIMD
   * intrinsification.
@@ -180,6 +180,51 @@ class D1Suite extends FunSuite:
     val arr = Array.tabulate(N)(i => i % 100)
     val arr2 = Array.tabulate(N)(i => (i + 1) % 100)
     assertAllocFree("intarrays.dot") { intSink = arr.dot(arr2) }
+  }
+
+  // ── probes: the named-tuple return, measured rather than asserted ────────────
+
+  /** Record-and-report. D3 sets the precedent for this in the same module: it reports the selected lane count and
+    * hard-asserts only the thing that is genuinely a requirement, on the grounds that asserting a number nobody has
+    * measured yet makes CI a coin toss rather than a guardrail.
+    *
+    * The number these probes are after: `doublearrays.variance(mode)` reads one field out of the
+    * `(mean: Double, variance: Double)` named tuple that `meanAndVarianceTwoPass` returns, and throws the other half
+    * away. The pair is dead on that path, so if C2 inlines the kernel then escape analysis should scalarize it and the
+    * cost of the named tuple is confined to bytecode — 37 bytes against `MaxInlineSize`, which is why neither
+    * `variance(mode)` is `@Thin` (see `doublearrays.scala:510` and `intarrays.scala:293`). If instead it allocates ~32
+    * bytes/op, the pair is real per-call garbage on a statistics path, and replacing it with a `final class` of two
+    * primitive fields pays for the API churn at its ~10 destructuring call sites.
+    *
+    * `doublearrays` is the right subject: its `meanAndVarianceTwoPass` allocates nothing but the returned pair, so the
+    * measurement isolates it. The `intarrays` copy allocates a `new Array[Double](spdl)` scratch buffer per call, which
+    * would swamp the signal — and is worth fixing on its own account.
+    *
+    * Asserts that the measurement happened, never what it says. Promote to `assertAllocFree` once there is a number to
+    * hold the line at.
+    */
+  private inline def reportAlloc(label: String)(inline body: => Unit): Unit =
+    val total = AllocMeter.measureAlloc(Warmup, Reps)(body)
+    // Same reasoning as assertAllocFree: on CI a missing bean means the probe measured nothing at all.
+    if total < 0L && sys.env.contains("CI") then
+      fail(s"[D1-probe] $label: CI detected but ThreadMXBean allocation tracking is unavailable")
+    end if
+    assume(total >= 0L, s"[D1-probe] skip $label — ThreadMXBean allocation tracking not available on this JVM")
+    println(f"[D1-probe] $label: ${total.toDouble / Reps}%.2f bytes/op (total $total over $Reps iterations)")
+  end reportAlloc
+
+  test("D1-probe: doublearrays.variance(mode) — is the discarded pair scalarized?") {
+    val arr = Array.tabulate(N)(i => (i % 100).toDouble)
+    reportAlloc("doublearrays.variance(Population)") {
+      doubleSink = arr.variance(VarianceMode.Population)
+    }
+  }
+
+  test("D1-probe: doublearrays.meanAndVariance(mode) — the pair read by the caller") {
+    val arr = Array.tabulate(N)(i => (i % 100).toDouble)
+    reportAlloc("doublearrays.meanAndVariance(Population)") {
+      doubleSink = arr.meanAndVariance(VarianceMode.Population).variance
+    }
   }
 
 end D1Suite
