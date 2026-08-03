@@ -290,7 +290,10 @@ object intarrays:
     @Thin
     def variance: Double = variance(VarianceMode.Population)
 
-    @Thin
+    /** Deliberately not `@Thin`, for the reason recorded at length on `doublearrays.variance(mode)`: C3 measures this
+      * shape at 37 bytes against a 35-byte `MaxInlineSize`, and ~30 of them are the cost of destructuring a named
+      * tuple. It is a forwarder plus real work, so `@Thin` is the wrong claim rather than the budget being wrong.
+      */
     def variance(mode: VarianceMode): Double =
       meanAndVariance(mode).variance
 
