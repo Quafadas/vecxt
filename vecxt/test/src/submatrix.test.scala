@@ -65,4 +65,19 @@ class SubmatrixTest extends FunSuite:
       // assertMatrixEquals(result, expected)
     end for
 
+  test("Non-contiguous submatrix elementwise ops respect offset"):
+    val mat1 = Matrix.fromRows[Double](
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0),
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 6.0,
+      Array[Double](1.0, 4.0, 2.0, 5.0, 3.0, 6.0) + 12.0
+    )
+
+    val submat = mat1.submatrix(1 to 2, 1 to 2) // non-zero offset, non-dense view
+    val submatCopy = submat.deepCopy
+
+    assertMatrixEquals(submat + 1.0, submatCopy + 1.0)
+    assertMatrixEquals(submat - 1.0, submatCopy - 1.0)
+    assertMatrixEquals(submat +:+ submatCopy, submatCopy +:+ submatCopy)
+    assertMatrixEquals(submat -:- submatCopy, submatCopy -:- submatCopy)
+
 end SubmatrixTest
