@@ -14,14 +14,14 @@ import vecxt.all.{*, given}
   * practice this is zero on Temurin 25, but the epsilon provides one Object-header's worth of headroom. A
   * {@code DoubleVector} object failing to scalarize would be ≥ 64 bytes — an order of magnitude above the threshold.
   *
-  * Tests that return a value (the five pure reductions: {@code sumSIMD}, {@code productSIMD}) store their result into a
+  * Tests that return a value (the six pure reductions: {@code sumSIMD}, {@code productSIMD}) store their result into a
   * {@code @volatile} field so that C2 cannot dead-code-eliminate the computation. Without a sink, a kernel whose result
   * is discarded is pure (no observable side effects) and C2 is free to eliminate the entire loop body, giving zero
   * measured allocation not because the vectors were scalarized but because nothing ran. The thirteen in-place mutations
   * ({@code +=}, {@code -=}, {@code abs!}, etc.) write to an array, which is a visible side effect, so they are not
   * exposed to this hazard.
   *
-  * {@code assertAllocFree} is declared {@code inline} so that each of the eighteen call sites gets its own specialised
+  * {@code assertAllocFree} is declared {@code inline} so that each of the nineteen call sites gets its own specialised
   * measurement loop inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a
   * shared megamorphic {@code Function0.apply()} call that C2 would not inline through, preventing SIMD
   * intrinsification.
@@ -171,6 +171,15 @@ class D1Suite extends FunSuite:
   test("D1: intarrays.sumSIMD") {
     val arr = Array.tabulate(N)(i => i % 1000)
     assertAllocFree("intarrays.sumSIMD") { intSink = arr.sumSIMD }
+  }
+
+  // `dot` has carried @AllocFree since #107 without ever being measured, and it was not alloc-free: the body opened
+  // with an `Array.ofDim[Int](vec.length)` that nothing read. Removing the dead allocation makes the annotation true;
+  // this test is what stops it drifting back.
+  test("D1: intarrays.dot") {
+    val arr = Array.tabulate(N)(i => i % 100)
+    val arr2 = Array.tabulate(N)(i => (i + 1) % 100)
+    assertAllocFree("intarrays.dot") { intSink = arr.dot(arr2) }
   }
 
 end D1Suite

@@ -4,6 +4,7 @@ import scala.reflect.ClassTag
 
 import vecxt.annotations.AllocFree
 import vecxt.annotations.HotPath
+import vecxt.annotations.Thin
 
 import jdk.incubator.vector.ByteVector
 import jdk.incubator.vector.DoubleVector
@@ -27,31 +28,50 @@ object intarrays:
 
   extension (vec: Array[Int])
 
-    inline def =:=(num: Array[Int]): Array[Boolean] =
+    // `logicalIdx` keeps `inline` — the comparison operator has to reach C2 as a constant, and the `inline op match`
+    // that picks the scalar tail is a compile error if it cannot reduce. These six do not need it: each writes its
+    // operator literally at its own definition site, so the reduction still happens inside the emitted body. What
+    // `inline` bought was a copy of the SIMD loop and the selected tail in every caller.
+    //
+    // `@HotPath`, not `@Thin`: the expanded `logicalIdx` brings a loop with it, and the budget that matters is
+    // `FreqInlineSize`. No `@AllocFree` — every one of them returns a fresh `Array[Boolean]`.
+    @HotPath
+    def =:=(num: Array[Int]): Array[Boolean] =
       logicalIdx(VectorOperators.EQ, num)
 
-    inline def !:=(num: Array[Int]): Array[Boolean] =
+    @HotPath
+    def !:=(num: Array[Int]): Array[Boolean] =
       logicalIdx(VectorOperators.NE, num)
 
-    inline def <(num: Array[Int]): Array[Boolean] =
+    @HotPath
+    def <(num: Array[Int]): Array[Boolean] =
       logicalIdx(VectorOperators.LT, num)
 
-    inline def <=(num: Array[Int]): Array[Boolean] =
+    @HotPath
+    def <=(num: Array[Int]): Array[Boolean] =
       logicalIdx(VectorOperators.LE, num)
 
-    inline def >(num: Array[Int]): Array[Boolean] =
+    @HotPath
+    def >(num: Array[Int]): Array[Boolean] =
       logicalIdx(VectorOperators.GT, num)
 
-    inline def >=(num: Array[Int]): Array[Boolean] =
+    @HotPath
+    def >=(num: Array[Int]): Array[Boolean] =
       logicalIdx(VectorOperators.GE, num)
 
-    inline def gte(num: Array[Int]): Array[Boolean] = >=(num)
+    // The named aliases are `@Thin` rather than `@HotPath`: now that the operator forms above are emitted, each of
+    // these is one real call and carries no loop of its own.
+    @Thin
+    def gte(num: Array[Int]): Array[Boolean] = >=(num)
 
-    inline def lte(num: Array[Int]): Array[Boolean] = <=(num)
+    @Thin
+    def lte(num: Array[Int]): Array[Boolean] = <=(num)
 
-    inline def lt(num: Array[Int]): Array[Boolean] = <(num)
+    @Thin
+    def lt(num: Array[Int]): Array[Boolean] = <(num)
 
-    inline def gt(num: Array[Int]): Array[Boolean] = >(num)
+    @Thin
+    def gt(num: Array[Int]): Array[Boolean] = >(num)
 
     inline def logicalIdx(
         inline op: VectorOperators.Comparison,
@@ -105,31 +125,42 @@ object intarrays:
       idx
     end logicalIdx
 
-    inline def =:=(num: Int): Array[Boolean] =
+    // The scalar-argument mirror of the block above, same reasoning throughout.
+    @HotPath
+    def =:=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.EQ, num)
 
-    inline def !:=(num: Int): Array[Boolean] =
+    @HotPath
+    def !:=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.NE, num)
 
-    inline def <(num: Int): Array[Boolean] =
+    @HotPath
+    def <(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.LT, num)
 
-    inline def <=(num: Int): Array[Boolean] =
+    @HotPath
+    def <=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.LE, num)
 
-    inline def >(num: Int): Array[Boolean] =
+    @HotPath
+    def >(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.GT, num)
 
-    inline def >=(num: Int): Array[Boolean] =
+    @HotPath
+    def >=(num: Int): Array[Boolean] =
       logicalIdx(VectorOperators.GE, num)
 
-    inline def gte(num: Int): Array[Boolean] = >=(num)
+    @Thin
+    def gte(num: Int): Array[Boolean] = >=(num)
 
-    inline def lte(num: Int): Array[Boolean] = <=(num)
+    @Thin
+    def lte(num: Int): Array[Boolean] = <=(num)
 
-    inline def lt(num: Int): Array[Boolean] = <(num)
+    @Thin
+    def lt(num: Int): Array[Boolean] = <(num)
 
-    inline def gt(num: Int): Array[Boolean] = >(num)
+    @Thin
+    def gt(num: Int): Array[Boolean] = >(num)
 
     inline def logicalIdx(
         inline op: VectorOperators.Comparison,
@@ -208,7 +239,8 @@ object intarrays:
 
     end increments
 
-    inline def countsToIdx: Array[Int] =
+    @HotPath
+    def countsToIdx: Array[Int] =
       var total = vec.sumSIMD
       var i = 0
       val out = new Array[Int](total)
@@ -247,19 +279,27 @@ object intarrays:
       temp
     end sumSIMD
 
-    inline def mean: Double =
+    // The statistics surface is forwarders all the way down to `meanAndVarianceTwoPass`, which was already a plain
+    // `def` and does the work. `inline` on the forwarders duplicated the chain into every caller to save calls that
+    // C2 makes free anyway, each one being well inside `MaxInlineSize`.
+    @Thin
+    def mean: Double =
       sumSIMD / vec.length.toDouble
     end mean
 
-    inline def variance: Double = variance(VarianceMode.Population)
+    @Thin
+    def variance: Double = variance(VarianceMode.Population)
 
-    inline def variance(mode: VarianceMode): Double =
+    @Thin
+    def variance(mode: VarianceMode): Double =
       meanAndVariance(mode).variance
 
-    inline def meanAndVariance: (mean: Double, variance: Double) =
+    @Thin
+    def meanAndVariance: (mean: Double, variance: Double) =
       meanAndVariance(VarianceMode.Population)
 
-    inline def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+    @Thin
+    def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
       meanAndVarianceTwoPass(mode)
     end meanAndVariance
 
@@ -304,20 +344,23 @@ object intarrays:
       (μ, sumSqDiff / denom)
     end meanAndVarianceTwoPass
 
-    inline def std: Double = std(VarianceMode.Population)
+    @Thin
+    def std: Double = std(VarianceMode.Population)
 
-    inline def std(mode: VarianceMode): Double =
+    @Thin
+    def std(mode: VarianceMode): Double =
       Math.sqrt(vec.variance(mode))
 
-    inline def stdDev: Double = stdDev(VarianceMode.Population)
+    @Thin
+    def stdDev: Double = stdDev(VarianceMode.Population)
 
-    inline def stdDev(mode: VarianceMode): Double = std(mode)
+    @Thin
+    def stdDev(mode: VarianceMode): Double = std(mode)
 
     @HotPath
     @AllocFree
     def dot(vec2: Array[Int]): Int =
       dimCheck(vec, vec2)
-      val newVec = Array.ofDim[Int](vec.length)
       var i = 0
       var acc = IntVector.zero(spi)
       val bound = spi.loopBound(vec.length)
@@ -338,7 +381,12 @@ object intarrays:
       temp
     end dot
 
-    inline def -(vec2: Array[Int]): Array[Int] =
+    // `dimCheck` + `clone` + delegate to the annotated in-place kernel. The estimate is ~25 bytecodes, so `@Thin`
+    // should hold, but this shape sits closer to `MaxInlineSize` (35) than anything else in the file — if C3 rejects
+    // one of these three, the number it reports is the answer for the whole `dimCheck`-and-delegate population, not a
+    // reason to put `inline` back.
+    @Thin
+    def -(vec2: Array[Int]): Array[Int] =
       dimCheck(vec, vec2)
       val out = vec.clone
       out -= vec2
@@ -457,7 +505,8 @@ object intarrays:
       result
     end *
 
-    inline def -(scalar: Int): Array[Int] =
+    @Thin
+    def -(scalar: Int): Array[Int] =
       val out = vec.clone()
       out -= scalar
       out
@@ -483,7 +532,8 @@ object intarrays:
       end while
     end -=
 
-    inline def +(vec2: Array[Int]): Array[Int] =
+    @Thin
+    def +(vec2: Array[Int]): Array[Int] =
       dimCheck(vec, vec2)
       val out = vec.clone
       out += vec2
