@@ -14,32 +14,20 @@ object JsDoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) >= d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) >= d
+        }
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     def >(d: Double): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) > d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) > d
+        }
         Matrix[Boolean](newArr, m.rows, m.cols)
       end if
     end >
@@ -48,16 +36,10 @@ object JsDoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) <= d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) <= d
+        }
         Matrix[Boolean](newArr, m.rows, m.cols)
       end if
     end <=
@@ -66,16 +48,10 @@ object JsDoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) < d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) < d
+        }
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     def *:*(bmat: Matrix[Boolean]): Matrix[Double] =
@@ -90,17 +66,11 @@ object JsDoubleMatrix:
         Matrix[Double](newArr, (m.rows, m.cols))
       else
         val newArr = Array.ofDim[Double](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val mIdx = m.layout.linearIndex(i, j)
-            val bIdx = bmat.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0.0
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val mIdx = m.layout.linearIndex(i, j)
+          val bIdx = bmat.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0.0
+        }
         Matrix[Double](newArr, m.rows, m.cols)
       end if
     end *:*
@@ -109,15 +79,9 @@ object JsDoubleMatrix:
 
       assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")
 
-      var i = 0
-      while i < m.rows do
-        var j = 0
-        while j < m.cols do
-          m(i, j) = m(i, j) + arr(j)
-          j += 1
-        end while
-        i += 1
-      end while
+      m.layout.foreach2D { (i, j) =>
+        m(i, j) = m(i, j) + arr(j)
+      }
 
     end +=
 

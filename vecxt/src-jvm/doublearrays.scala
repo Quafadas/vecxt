@@ -637,6 +637,30 @@ object doublearrays:
       temp
     end sumSIMD
 
+    /** Segment overload of [[sumSIMD]]: sums `len` elements starting at `from`. Whole-array `sumSIMD` above is now a
+      * thin forwarder in spirit — kept separate (rather than rewritten to call this) since it is
+      * `@HotPath`/`@AllocFree` audited and must stay a self-contained kernel; this overload follows the identical
+      * vector-body/scalar-tail shape so both stay in lockstep.
+      */
+    def sumSIMD(from: Int, len: Int): Double =
+      var i: Int = from
+      var acc = DoubleVector.zero(spd)
+      val end = from + len
+      val bound = from + spd.loopBound(len)
+
+      while i < bound do
+        acc = acc.add(DoubleVector.fromArray(spd, vec, i))
+        i += spdl
+      end while
+
+      var temp = acc.reduceLanes(VectorOperators.ADD)
+      while i < end do
+        temp += vec(i)
+        i += 1
+      end while
+      temp
+    end sumSIMD
+
     inline def product: Double = productSIMD
 
     @HotPath
@@ -903,6 +927,12 @@ object doublearrays:
 
     inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
 
+    /** Segment overload of [[norm]]: computes the Euclidean norm of `len` elements starting at `from`, without
+      * materialising the segment into its own array. Unlocks SIMD (via BLAS) for a strided view whose unit-stride axis
+      * exposes contiguous column/row segments — see `Layout.contiguousSegments`.
+      */
+    inline def norm(from: Int, len: Int): Double = blas.dnrm2(len, vec, from, 1)
+
     inline def -(vec2: Array[Double]): Array[Double] =
       dimCheck(vec, vec2)
       val out = vec.clone
@@ -935,6 +965,31 @@ object doublearrays:
         i = i + 1
       end while
       out
+    end +
+
+    /** Segment overload of [[+]]: reads `len` elements starting at `from`, adds `d`, and writes the result into `dest`
+      * starting at `destFrom`. Lets a caller (e.g. a strided `Matrix` view whose unit-stride axis exposes contiguous
+      * column/row segments) route each segment through this SIMD kernel directly into its final position in a freshly
+      * allocated destination array, without a separate segment-materialising copy.
+      */
+    def +(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
+      val shift = destFrom - from
+      val inc = DoubleVector.broadcast(spd, d)
+      var i = from
+      val end = from + len
+      val bound = from + spd.loopBound(len)
+      while i < bound do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .add(inc)
+          .intoArray(dest, i + shift)
+        i += spdl
+      end while
+
+      while i < end do
+        dest(i + shift) = vec(i) + d
+        i = i + 1
+      end while
     end +
 
     @HotPath
@@ -975,6 +1030,27 @@ object doublearrays:
         i = i + 1
       end while
       out
+    end -
+
+    /** Segment overload of [[-]]: mirrors [[+]]'s `(d, from, len, dest, destFrom)` overload. */
+    def -(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
+      val shift = destFrom - from
+      val inc = DoubleVector.broadcast(spd, d)
+      var i = from
+      val end = from + len
+      val bound = from + spd.loopBound(len)
+      while i < bound do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .sub(inc)
+          .intoArray(dest, i + shift)
+        i += spdl
+      end while
+
+      while i < end do
+        dest(i + shift) = vec(i) - d
+        i = i + 1
+      end while
     end -
 
     @HotPath
@@ -1050,6 +1126,9 @@ object doublearrays:
 
     inline def multInPlace(d: Double) = vec *= d
 
+    /** Segment overload of [[multInPlace]]: scales `len` elements starting at `from` in place. */
+    inline def multInPlace(d: Double, from: Int, len: Int): Unit = vec.*=(d, from, len)
+
     def *(d: Array[Double]): Array[Double] =
       dimCheck(vec, d)
       val out = new Array[Double](vec.length)
@@ -1119,14 +1198,52 @@ object doublearrays:
       vec
     end /=
 
+    /** Segment overload of [[/=]]: divides `len` elements starting at `from` in place by `d`. */
+    inline def /=(d: Double, from: Int, len: Int): Unit =
+      blas.dscal(len, 1.0 / d, vec, from, 1)
+    end /=
+
     inline def /(d: Double): Array[Double] =
       val out = vec.clone
       out /= d
       out
     end /
 
+    /** Segment overload of [[/]]: reads `len` elements starting at `from`, divides by `d`, and writes the result into
+      * `dest` starting at `destFrom`. Mirrors the `(d, from, len, dest, destFrom)` shape of [[+]] and [[-]] — scales by
+      * the reciprocal via `DoubleVector` rather than `blas.dscal`, since `dscal` only scales in place and cannot target
+      * a separate destination array.
+      */
+    def /(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
+      val shift = destFrom - from
+      val recip = DoubleVector.broadcast(spd, 1.0 / d)
+      var i = from
+      val end = from + len
+      val bound = from + spd.loopBound(len)
+      while i < bound do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .mul(recip)
+          .intoArray(dest, i + shift)
+        i += spdl
+      end while
+
+      while i < end do
+        dest(i + shift) = vec(i) / d
+        i = i + 1
+      end while
+    end /
+
     inline def *=(d: Double): Unit =
       blas.dscal(vec.length, d, vec, 1)
+    end *=
+
+    /** Segment overload of [[*=]]: scales `len` elements starting at `from` in place by `d`. This is what unlocks SIMD
+      * (via BLAS `dscal`) for a strided matrix view whose unit-stride axis exposes contiguous segments — each segment
+      * is `(offset + axisIdx * strideOfOtherAxis, contiguousLen)`.
+      */
+    inline def *=(d: Double, from: Int, len: Int): Unit =
+      blas.dscal(len, d, vec, from, 1)
     end *=
 
     inline def *(d: Double): Array[Double] =
