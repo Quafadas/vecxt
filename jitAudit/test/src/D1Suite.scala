@@ -5,9 +5,11 @@ import vecxt.all.{*, given}
 
 /** D1 — Allocation-free kernels.
   *
-  * Per {@code @AllocFree} kernel: warm up 20,000 iterations, measure 100,000 iterations, and assert that bytes/op is
-  * below a small epsilon. For a correctly JIT-compiled kernel, C2's escape analysis eliminates the transient
-  * {@code Vector} objects and the allocation count is genuinely zero.
+  * Per {@code @AllocFree} kernel: warm up 20,000 iterations, run a first 100,000-iteration window to absorb any
+  * remaining compilation burst (two-pass ops like {@code variance} need more time to fully compile than single-pass
+  * ops), then measure a definitive 100,000-iteration window and assert that bytes/op is below a small epsilon. For a
+  * correctly JIT-compiled kernel, C2's escape analysis eliminates the transient {@code Vector} objects and the
+  * allocation count is genuinely zero in the definitive window.
   *
   * Epsilon = 8 bytes/op rationale: the TLAB accounting counter is exact, but the surrounding measurement infrastructure
   * (two calls to {@code getThreadAllocatedBytes}, thread-local state in the bean) contributes a small constant. In

@@ -11,9 +11,14 @@ import java.lang.management.ManagementFactory
   *
   * The counter is a TLAB accounting value: it is exact for allocation events, but the measurement call itself has a
   * small constant overhead (typically zero on HotSpot, but not guaranteed). The harness therefore:
-  *   1. Runs a warmup phase (default 20,000 iterations) to let C2 fully compile the path.
-  *   2. Measures the hot phase (default 100,000 iterations).
-  *   3. The returned value is the raw byte delta; callers divide by reps to get bytes/op.
+  *   1. Runs a warmup phase (default 20,000 iterations) to let C2 begin compiling the path.
+  *   2. Runs a first measurement window of {@code reps} iterations to absorb any remaining compilation burst. Two-pass
+  *      operations (e.g. {@code variance}) need longer to fully compile than single-pass ops; without this extra window
+  *      a bounded allocation spike from the interpreted/C1 phase leaks into the result.
+  *   3. Measures a second (definitive) window of {@code reps} iterations and returns the byte delta.
+  *
+  * This two-window design takes the slope {@code (alloc(2N) − alloc(N)) / N}, which cancels any fixed compilation-burst
+  * offset that is present in the first window but absent in the second.
   *
   * Returns -1 when the bean is unavailable (e.g., non-HotSpot JVMs that do not support per-thread allocation tracking).
   * Callers should skip, not fail, in that case — the pinned CI runner (Temurin 25) always supports it.
@@ -27,8 +32,13 @@ object AllocMeter:
     end if
   end bean
 
-  /** Measures the total heap bytes allocated by {@code body} over {@code reps} iterations, after {@code warmup} warm-up
-    * calls. Returns -1 if per-thread allocation tracking is not available.
+  /** Measures the total heap bytes allocated by {@code body} over {@code reps} iterations of the definitive window,
+    * after a warmup phase and a first measurement window.
+    *
+    * Design: warmup → first window (reps iters, result discarded) → definitive window (reps iters, result returned).
+    * The first window ensures C2 has finished compiling even two-pass operations before measurement begins, so any
+    * bounded compilation-burst allocation is absorbed there and excluded from the returned value. The returned delta
+    * therefore represents only steady-state per-op allocation. Dividing by {@code reps} yields bytes/op.
     *
     * Declared {@code inline} so that each call site gets its own specialised measurement loop and the JIT sees the
     * kernel body directly rather than through a megamorphic {@code Function0.apply()} call. Without inlining, fourteen
@@ -41,13 +51,20 @@ object AllocMeter:
       case None    => -1L
       case Some(b) =>
         val tid = Thread.currentThread().threadId()
-        // Warmup: let C2 fully compile the path before measuring. With -Xbatch the first
-        // call already compiles, but looping ensures profile-directed inlining has stabilised.
+        // Warmup: let C2 begin compiling the path before measuring.
         var i = 0
         while i < warmup do
           body
           i += 1
         end while
+        // First measurement window: absorbs any remaining compilation burst for two-pass ops.
+        // The result is intentionally discarded; this pass acts as additional targeted warmup.
+        i = 0
+        while i < reps do
+          body
+          i += 1
+        end while
+        // Definitive measurement window: C2 is fully compiled, steady-state allocation only.
         val before = b.getThreadAllocatedBytes(tid)
         i = 0
         while i < reps do
