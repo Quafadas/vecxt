@@ -10,7 +10,6 @@ import mill.contrib.scoverage.ScoverageModule
 object `package` extends Module:
   trait VecxtModule extends PlatformScalaModule with build.VecxtPublishModule:
     def mvnDeps = super.mvnDeps() ++ Seq(
-
     )
     trait VecxtTest extends ScalaTests, TestModule.Munit:
       def mvnDeps = super.mvnDeps() ++ Seq(

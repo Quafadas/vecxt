@@ -22,7 +22,7 @@ object MatrixInstance:
         m.raw(row * m.cols + col) = value
       else
         // General case: arbitrary offset/stride
-        m.raw(m.offset + row * m.rowStride + col * m.colStride) = value
+        m.raw(m.layout.linearIndex(row, col)) = value
       end if
     end update
 
@@ -166,10 +166,10 @@ object MatrixInstance:
       // inline if boundsCheck == BoundsCheck.DoBoundsCheck.yes then
       // println(s"Element index for ($row, $col) in matrix with shape ${m.shape} is being checked")
       // println(s"Offset: ${m.offset}, Row stride: ${m.rowStride}, Col stride: ${m.colStride}")
-      // println(s"Calculated index: ${m.offset + row * m.rowStride + col * m.colStride}")
-      // println(s"element: ${m.raw(m.offset + row * m.rowStride + col * m.colStride)}")
+      // println(s"Calculated index: ${m.layout.linearIndex(row, col)}")
+      // println(s"element: ${m.raw(m.layout.linearIndex(row, col))}")
       // end if
-      m.offset + row * m.rowStride + col * m.colStride
+      m.layout.linearIndex(row, col)
 
     end elementIndex
 
@@ -182,7 +182,7 @@ object MatrixInstance:
         m.raw(row * m.cols + col)
       else
         // General case: arbitrary offset/stride
-        m.raw(m.offset + row * m.rowStride + col * m.colStride)
+        m.raw(m.layout.linearIndex(row, col))
       end if
     end apply
 
@@ -216,7 +216,7 @@ object MatrixInstance:
         val newRowsSpan = newRows.last - newRows.head + 1
         val newColsSpan = newCols.last - newCols.head + 1
 
-        val newOffset = m.offset + newRows.head * m.rowStride + newCols.head * m.colStride
+        val newOffset = m.layout.linearIndex(newRows.head, newCols.head)
         Matrix(
           raw = m.raw,
           rows = newRowsSpan,

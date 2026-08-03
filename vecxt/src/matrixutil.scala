@@ -142,14 +142,7 @@ object matrixUtil:
       * //       [2, 4]]
       *   }}}
       */
-    def transpose: Matrix[A] = Matrix(
-      raw = m.raw,
-      rows = m.cols, // swap dimensions
-      cols = m.rows,
-      rowStride = m.colStride, // swap strides
-      colStride = m.rowStride,
-      offset = m.offset // same offset
-    )
+    def transpose: Matrix[A] = Matrix.mkMatrix(m.raw, m.layout.transpose)
 
     inline def diag(using ClassTag[A]): Array[A] =
       val minDim = Math.min(m.rows, m.cols)
