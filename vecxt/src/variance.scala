@@ -17,9 +17,9 @@ end VarianceMode
   * Replaces the named tuple `(mean: Double, variance: Double)`, and the reason is measured rather than assumed
   * (vecxt/issues/105):
   *
-  *   - A named tuple erases to `scala.Tuple2`, so reading one field costs an unbox. Check C3 measured
-  *     `variance(mode)` — whose whole body is `meanAndVariance(mode).variance` — at 37 bytes against a 35-byte
-  *     `MaxInlineSize`, roughly 30 of them being the destructuring.
+  *   - A named tuple erases to `scala.Tuple2`, so reading one field costs an unbox. Check C3 measured `variance(mode)`
+  *     — whose whole body is `meanAndVariance(mode).variance` — at 37 bytes against a 35-byte `MaxInlineSize`, roughly
+  *     30 of them being the destructuring.
   *   - Check D1 measured 59.33 bytes/op allocated when a caller reads the pair. Notably it measured **zero** for
   *     `variance(mode)`, where the pair is dead and escape analysis scalarizes it — so the allocation is real only for
   *     callers who actually want both numbers, which is every caller of `meanAndVariance`.
