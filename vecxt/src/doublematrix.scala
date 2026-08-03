@@ -75,18 +75,17 @@ object DoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.+(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        m.raw.copyToArray(newArr)
-        val newMat = Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)
         var i = 0
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            newMat(i, j) = m(i, j) + n
+            val srcIdx = m.layout.linearIndex(i, j)
+            newArr(i + j * m.rows) = m.raw(srcIdx) + n
             j += 1
           end while
           i += 1
         end while
-        newMat
+        Matrix[Double](newArr, m.rows, m.cols)
       end if
 
     end +
@@ -123,18 +122,17 @@ object DoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.-(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        m.raw.copyToArray(newArr)
-        val newMat = Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)
         var i = 0
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            newMat(i, j) = m(i, j) - n
+            val srcIdx = m.layout.linearIndex(i, j)
+            newArr(i + j * m.rows) = m.raw(srcIdx) - n
             j += 1
           end while
           i += 1
         end while
-        newMat
+        Matrix[Double](newArr, m.rows, m.cols)
     end -
 
     // TODO: +:+=
@@ -146,18 +144,18 @@ object DoubleMatrix:
         Matrix(newArr, m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        m.raw.copyToArray(newArr)
-        val newMat = Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)
         var i = 0
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            newMat(i, j) = newMat(i, j) + m2(i, j)
+            val mIdx = m.layout.linearIndex(i, j)
+            val m2Idx = m2.layout.linearIndex(i, j)
+            newArr(i + j * m.rows) = m.raw(mIdx) + m2.raw(m2Idx)
             j += 1
           end while
           i += 1
         end while
-        newMat
+        Matrix[Double](newArr, m.rows, m.cols)
       end if
     end +:+
 
@@ -235,18 +233,18 @@ object DoubleMatrix:
         Matrix(newArr, m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        m.raw.copyToArray(newArr)
-        val newMat = Matrix[Double](newArr, m.rows, m.cols, m.rowStride, m.colStride, m.offset)
         var i = 0
         while i < m.rows do
           var j = 0
           while j < m.cols do
-            newMat(i, j) = newMat(i, j) - m2(i, j)
+            val mIdx = m.layout.linearIndex(i, j)
+            val m2Idx = m2.layout.linearIndex(i, j)
+            newArr(i + j * m.rows) = m.raw(mIdx) - m2.raw(m2Idx)
             j += 1
           end while
           i += 1
         end while
-        newMat
+        Matrix[Double](newArr, m.rows, m.cols)
       end if
     end -:-
     def -(m2: Matrix[Double]): Matrix[Double] = m -:- m2
