@@ -163,8 +163,8 @@ class DifferentMemoryLayoutTests extends FunSuite:
     // println("against")
     // println(matMul2.printMat)
 
-    // println(checkAgainst2.layout)
-    // println(matMul2.layout)
+    // println(checkAgainst2.layoutString)
+    // println(matMul2.layoutString)
 
     for i <- 0 until checkAgainst2.rows do
       for j <- 0 until checkAgainst2.cols do assertEqualsDouble(checkAgainst2(i, j), matMul2(i, j), 0.00001, (i, j))

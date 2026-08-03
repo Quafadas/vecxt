@@ -86,7 +86,7 @@ import scala.annotation.targetName
       s"pixelData shape: ${pixelData.shape}, pixelData rows: ${pixelData.rows}, pixelData cols: ${pixelData.cols}, pixelData rowStride: ${pixelData.rowStride}, pixelData colStride: ${pixelData.colStride} pixelData offset: ${pixelData.offset}"
     )
 
-    println(s"x layout ${pixelData.layout}")
+    println(s"x layout ${pixelData.layoutString}")
 
     println(s"weight1 shape: ${weight1.shape}, weight1 rows: ${weight1.rows}, weight1 cols: ${weight1.cols}")
     println(s"weight2 shape: ${weight2.shape}, weight2 rows: ${weight2.rows}, weight2 cols: ${weight2.cols}")
@@ -160,8 +160,8 @@ def foward_prop(w1: Matrix[Double], b1: Array[Double], w2: Matrix[Double], b2: A
   // println(s"weight1 shape: ${w1.shape}, weight1 rows: ${w1.rows}, weight1 cols: ${w1.cols}")
   // println(s"weight2 shape: ${w2.shape}, weight2 rows: ${w2.rows}, weight2 cols: ${w2.cols}")
 
-  // println(s"m:  ${x.layout}")
-  // println(s"b: ${w1.layout}")
+  // println(s"m:  ${x.layoutString}")
+  // println(s"b: ${w1.layoutString}")
   val z1 = (x @@ w1)
   // z1 += b1
   z1.mapRowsInPlace(r => r.tap(_ += b1))
@@ -239,8 +239,8 @@ def back_prop(
   val m_inv = 1.0 / m
   // println(s"m: $m, m_inv: $m_inv")
   // println(s"Y shape: ${Y.shape}, Y rows: ${Y.rows}, Y cols: ${Y.cols} y colStride: ${Y.colStride}, y rowStride: ${Y.rowStride}, y offset: ${Y.offset}")
-  // println(a2.layout)
-  // println(Y.layout)
+  // println(a2.layoutString)
+  // println(Y.layoutString)
 
   val dz2 = a2 - Y
   val dw2 = m_inv * (a1.transpose @@ dz2)

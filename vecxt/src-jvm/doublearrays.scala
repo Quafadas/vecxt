@@ -330,7 +330,6 @@ object doublearrays:
     end tanh
 
     @HotPath
-    @AllocFree
     def `**!`(power: Double): Unit =
       var i = 0
       val bp = DoubleVector.broadcast(spd, power)
