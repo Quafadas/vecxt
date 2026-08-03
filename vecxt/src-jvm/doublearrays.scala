@@ -167,163 +167,201 @@ object doublearrays:
       end if
     end unaryOp
 
-    inline def unary_- : Array[Double] =
+    @HotPath
+    def unary_- : Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.NEG)
       out
     end unary_-
 
-    inline def -! : Unit =
+    @HotPath
+    @AllocFree
+    def -! : Unit =
       unaryOp(VectorOperators.NEG)
 
-    inline def abs: Array[Double] =
+    @HotPath
+    def abs: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.ABS)
       out
     end abs
 
-    inline def `abs!`: Unit =
+    @HotPath
+    @AllocFree
+    def `abs!`: Unit =
       unaryOp(VectorOperators.ABS)
 
-    inline def acos: Array[Double] =
+    @HotPath
+    def acos: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.ACOS)
       out
     end acos
 
-    inline def `acos!`: Unit =
+    @HotPath
+    def `acos!`: Unit =
       unaryOp(VectorOperators.ACOS)
 
-    inline def asin: Array[Double] =
+    @HotPath
+    def asin: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.ASIN)
       out
     end asin
 
-    inline def `asin!`: Unit =
+    @HotPath
+    def `asin!`: Unit =
       unaryOp(VectorOperators.ASIN)
 
-    inline def atan: Array[Double] =
+    @HotPath
+    def atan: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.ATAN)
       out
     end atan
 
-    inline def `atan!`: Unit =
+    @HotPath
+    def `atan!`: Unit =
       unaryOp(VectorOperators.ATAN)
 
-    inline def cbrt: Array[Double] =
+    @HotPath
+    def cbrt: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.CBRT)
       out
     end cbrt
 
-    inline def `cbrt!`: Unit =
+    @HotPath
+    def `cbrt!`: Unit =
       unaryOp(VectorOperators.CBRT)
 
-    inline def cos: Array[Double] =
+    @HotPath
+    def cos: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.COS)
       out
     end cos
 
-    inline def `cos!`: Unit =
+    @HotPath
+    def `cos!`: Unit =
       unaryOp(VectorOperators.COS)
 
-    inline def cosh: Array[Double] =
+    @HotPath
+    def cosh: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.COSH)
       out
     end cosh
 
-    inline def `cosh!`: Unit =
+    @HotPath
+    def `cosh!`: Unit =
       unaryOp(VectorOperators.COSH)
 
-    inline def exp: Array[Double] =
+    @HotPath
+    def exp: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.EXP)
       out
     end exp
 
-    inline def `exp!`: Unit =
+    @HotPath
+    def `exp!`: Unit =
       unaryOp(VectorOperators.EXP)
 
-    inline def expm1: Array[Double] =
+    @HotPath
+    def expm1: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.EXPM1)
       out
     end expm1
 
-    inline def `expm1!`: Unit =
+    @HotPath
+    def `expm1!`: Unit =
       unaryOp(VectorOperators.EXPM1)
 
-    inline def log: Array[Double] =
+    @HotPath
+    def log: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG)
       out
     end log
 
-    inline def `log!`: Unit =
+    @HotPath
+    def `log!`: Unit =
       unaryOp(VectorOperators.LOG)
 
-    inline def log10: Array[Double] =
+    @HotPath
+    def log10: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG10)
       out
     end log10
 
-    inline def `log10!`: Unit =
+    @HotPath
+    def `log10!`: Unit =
       unaryOp(VectorOperators.LOG10)
 
-    inline def log1p: Array[Double] =
+    @HotPath
+    def log1p: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG1P)
       out
     end log1p
 
-    inline def `log1p!`: Unit =
+    @HotPath
+    def `log1p!`: Unit =
       unaryOp(VectorOperators.LOG1P)
 
-    inline def sqrt: Array[Double] =
+    @HotPath
+    def sqrt: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.SQRT)
       out
     end sqrt
 
-    inline def `sqrt!`: Unit =
+    @HotPath
+    def `sqrt!`: Unit =
       unaryOp(VectorOperators.SQRT)
 
-    inline def sin: Array[Double] =
+    @HotPath
+    def sin: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.SIN)
       out
     end sin
 
-    inline def `sin!`: Unit =
+    @HotPath
+    def `sin!`: Unit =
       unaryOp(VectorOperators.SIN)
 
-    inline def sinh: Array[Double] =
+    @HotPath
+    def sinh: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.SINH)
       out
     end sinh
 
-    inline def `sinh!`: Unit =
+    @HotPath
+    def `sinh!`: Unit =
       unaryOp(VectorOperators.SINH)
 
-    inline def `tan!`: Unit =
+    @HotPath
+    def `tan!`: Unit =
       unaryOp(VectorOperators.TAN)
 
-    inline def tan: Array[Double] =
+    @HotPath
+    def tan: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.TAN)
       out
     end tan
 
-    inline def `tanh!`: Unit =
+    @HotPath
+    def `tanh!`: Unit =
       unaryOp(VectorOperators.TANH)
 
-    inline def tanh: Array[Double] =
+    @HotPath
+    def tanh: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.TANH)
       out
