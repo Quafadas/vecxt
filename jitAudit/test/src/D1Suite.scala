@@ -17,11 +17,11 @@ import vecxt.all.{*, given}
   * Tests that return a value (the five pure reductions: {@code sumSIMD}, {@code productSIMD}) store their result into a
   * {@code @volatile} field so that C2 cannot dead-code-eliminate the computation. Without a sink, a kernel whose result
   * is discarded is pure (no observable side effects) and C2 is free to eliminate the entire loop body, giving zero
-  * measured allocation not because the vectors were scalarized but because nothing ran. The nine in-place mutations
-  * ({@code +=}, {@code -=}, etc.) write to an array, which is a visible side effect, so they are not exposed to this
-  * hazard.
+  * measured allocation not because the vectors were scalarized but because nothing ran. The thirteen in-place mutations
+  * ({@code +=}, {@code -=}, {@code abs!}, etc.) write to an array, which is a visible side effect, so they are not
+  * exposed to this hazard.
   *
-  * {@code assertAllocFree} is declared {@code inline} so that each of the fourteen call sites gets its own specialised
+  * {@code assertAllocFree} is declared {@code inline} so that each of the eighteen call sites gets its own specialised
   * measurement loop inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a
   * shared megamorphic {@code Function0.apply()} call that C2 would not inline through, preventing SIMD
   * intrinsification.
@@ -113,6 +113,22 @@ class D1Suite extends FunSuite:
     assertAllocFree("doublearrays.fillLinspace")(fillLinspace(dest, 0.0, 1.0))
   }
 
+  // The two in-place unary kernels that carry @AllocFree. NEG and ABS are intrinsified
+  // lanewise operations, so the DoubleVector temporaries and the masked-tail VectorMask are
+  // expected to scalarize. The transcendental members of the same family (exp!, log!, sin!, …)
+  // are deliberately *not* annotated and not measured here — #110 already found `**!` allocating
+  // for what is most likely the same reason, and asserting zero for an operation that falls back
+  // to a software path would be asserting a hope.
+  test("D1: doublearrays.-!") {
+    val arr = Array.fill(N)(1.0)
+    assertAllocFree("doublearrays.-!")(arr.`-!`)
+  }
+
+  test("D1: doublearrays.abs!") {
+    val arr = Array.tabulate(N)(i => if i % 2 == 0 then i.toDouble else -i.toDouble)
+    assertAllocFree("doublearrays.abs!")(arr.`abs!`)
+  }
+
   // ── Float ───────────────────────────────────────────────────────────────────
 
   test("D1: floatarrays.sumSIMD") {
@@ -138,6 +154,16 @@ class D1Suite extends FunSuite:
   test("D1: floatarrays.-=(Float)") {
     val arr = Array.fill(N)(5.0f)
     assertAllocFree("floatarrays.-=(Float)")(arr -= 0.1f)
+  }
+
+  test("D1: floatarrays.-!") {
+    val arr = Array.fill(N)(1.0f)
+    assertAllocFree("floatarrays.-!")(arr.`-!`)
+  }
+
+  test("D1: floatarrays.abs!") {
+    val arr = Array.tabulate(N)(i => if i % 2 == 0 then i.toFloat else -i.toFloat)
+    assertAllocFree("floatarrays.abs!")(arr.`abs!`)
   }
 
   // ── Int ─────────────────────────────────────────────────────────────────────
