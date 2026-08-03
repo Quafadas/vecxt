@@ -214,6 +214,13 @@ class LayoutTest extends FunSuite:
     intercept[IllegalArgumentException]:
       Matrix(raw, l)
 
+  test("Matrix.apply(raw, layout) throws when stride/offset exceeds array bounds"):
+    // 2×2 layout with rowStride=60 — accessing (1, 0) yields index 60, beyond array size 4
+    val raw = Array.tabulate(4)(_.toDouble)
+    val l = Layout(2, 2, 60, 1, 0, 4)
+    intercept[IndexOutOfBoundsException]:
+      Matrix(raw, l)
+
   // ─── Matrix forwarders ──────────────────────────────────────────────────────
 
   test("Matrix forwarders delegate to layout"):

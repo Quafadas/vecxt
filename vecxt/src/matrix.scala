@@ -1,6 +1,5 @@
 package vecxt
 import scala.annotation.publicInBinary
-import vecxt.annotations.Thin
 
 object matrix:
 
@@ -207,7 +206,8 @@ object matrix:
 
     /** Constructs a checked `Matrix` from an existing [[Layout]]. Throws `IllegalArgumentException` if
       * `raw.size != layout.dataLength` — that mismatch would mean the array is too small (or too large) for the layout
-      * that was promised at construction time.
+      * that was promised at construction time. Also delegates to [[strideMatInstantiateCheck]] to verify that every
+      * element reachable via the layout's strides and offset falls within `raw`'s bounds.
       */
     def apply[A](raw: Array[A], layout: Layout): Matrix[A] =
       if raw.size != layout.dataLength then
@@ -215,6 +215,7 @@ object matrix:
           s"raw array length ${raw.size} does not match layout.dataLength ${layout.dataLength}"
         )
       end if
+      strideMatInstantiateCheck(raw, layout.rows, layout.cols, layout.rowStride, layout.colStride, layout.offset)
       new Matrix(raw, layout)
     end apply
 
