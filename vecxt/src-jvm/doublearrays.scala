@@ -563,7 +563,7 @@ object doublearrays:
       * VarianceBenchmark.var_simd_welford 100000 thrpt 3 4187.715 ± 203.266 ops/s
       */
     private def meanAndVarianceWelfordSIMD(mode: VarianceMode): MeanAndVariance =
-      if vec.length == 0 then (0.0, 0.0)
+      if vec.length == 0 then MeanAndVariance(0.0, 0.0)
       else
         // Per-lane accumulators
         var laneMeans = DoubleVector.zero(spd)
