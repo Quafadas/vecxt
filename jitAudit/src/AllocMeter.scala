@@ -4,28 +4,29 @@ import java.lang.management.ManagementFactory
 
 /** Allocation measurement via {@code com.sun.management.ThreadMXBean}.
   *
-  * Calls {@code getThreadAllocatedBytes} at two points within a single hot loop to determine how many heap bytes the
-  * current thread allocated during the measurement window. For a correctly JIT-compiled {@code @AllocFree} kernel, the
-  * {@code Vector} objects are eliminated by escape analysis and the count is zero. A {@code DoubleVector} that fails to
-  * scalarize is roughly 64–128 bytes (header + lane storage), so any real allocation failure is far above the noise
-  * floor.
+  * Uses a slope approach: captures allocation over two consecutive windows of length {@code reps} and {@code 2*reps}
+  * within a single hot loop, then returns {@code max(0, alloc_2N − alloc_N)}. Dividing the returned value by
+  * {@code reps} yields the steady-state bytes/op.
+  *
+  * <h3>Why the slope?</h3>
+  *
+  * A bounded JIT-compilation burst — unscalarised {@code DoubleVector} objects from the interpreted/C1 phase of a
+  * callee that reaches its own compile threshold during the measurement window — contributes a fixed lump sum to the
+  * first measurement window ({@code alloc_N}) but does not recur in the second ({@code alloc_2N}). Taking the
+  * difference cancels it:
+  *
+  * <pre> alloc_N = burst + N × per_op alloc_2N = 2N × per_op (burst is over, steady state) slope = (alloc_2N − alloc_N)
+  * / N = per_op − burst/N </pre>
+  *
+  * When {@code per_op = 0} (correctly scalarised), {@code slope ≤ 0}; the {@code max(0, …)} clamp returns zero. When a
+  * {@code DoubleVector} fails to scalarise ({@code per_op ≈ 64+ bytes}), {@code slope = per_op − burst/N}. With the
+  * observed CI burst of ≈1.5 MB over {@code N = 100 000} iterations ({@code burst/N ≈ 15 bytes/op}), a scalarisation
+  * failure still produces {@code slope ≈ 64 − 15 = 49 bytes/op}, well above the 8-byte epsilon.
   *
   * <h3>Why a single loop?</h3>
   *
-  * The naive design — warmup loop, then measurement loop — has a critical flaw on loaded CI runners. The JNI call to
-  * {@code getThreadAllocatedBytes} between the two loops triggers a JVM safepoint. At that safepoint, HotSpot can
-  * deoptimise the compiled test-method frame (e.g., due to a biased-lock revocation, class redefinition, or GC
-  * callback). When the measurement loop then starts, it begins in interpreted or C1 mode and runs roughly
-  * {@code OSR_threshold / inner_loop_iters} iterations before C2 re-OSR-compiles the loop. For {@code variance(mode)},
-  * which makes two SIMD passes over a 1024-element array, that is roughly 16–23 interpreted calls × ~82 KB of
-  * unscalarised {@code DoubleVector} objects per call = 1.3–1.5 MB of spurious allocation in the measurement window,
-  * regardless of how many warmup iterations preceded it.
-  *
-  * The single-loop design eliminates the inter-loop safepoint hazard. {@code getThreadAllocatedBytes} is called once
-  * inside the already-compiled loop at iteration {@code warmup + reps} (a predictable always-not-taken branch that C2
-  * treats as a one-shot side exit). By the time that branch fires, OSR compilation is long finished and the code has
-  * been running in steady-state C2 for {@code reps} compiled iterations. The second call at loop exit lands outside the
-  * hot path and its safepoint is harmless.
+  * Both windows sit inside the same already-compiled loop, so there is no inter-window safepoint that could deoptimise
+  * the test-method frame and restart the JIT-compile burst in the second window.
   *
   * Returns -1 when the bean is unavailable (e.g., non-HotSpot JVMs that do not support per-thread allocation tracking).
   * Callers should skip, not fail, in that case — the pinned CI runner (Temurin 25) always supports it.
@@ -39,15 +40,15 @@ object AllocMeter:
     end if
   end bean
 
-  /** Measures the total heap bytes allocated by {@code body} over the final {@code reps} iterations of a single
-    * {@code warmup + reps + reps} iteration loop. Returns -1 if per-thread allocation tracking is not available.
+  /** Measures steady-state heap allocation using a slope approach. Returns {@code max(0, alloc_2N − alloc_N)} where
+    * {@code alloc_N} is bytes allocated in the first {@code reps}-iteration window and {@code alloc_2N} is bytes
+    * allocated in the following {@code 2*reps}-iteration window. Returns -1 if per-thread allocation tracking is not
+    * available.
     *
-    * The first {@code warmup} iterations allow C2 to OSR-compile the loop and the kernel under test. The next
-    * {@code reps} iterations are a steady-state settling window: the compiled loop is already hot, and any
-    * compilation-related burst that happened during warmup is well behind us. The final {@code reps} iterations are
-    * measured: {@code getThreadAllocatedBytes} is captured inside the compiled loop at iteration {@code warmup + reps}
-    * — a one-shot conditional that C2 optimises to a cold branch — and the delta to the post-loop call yields the
-    * measurement. Dividing by {@code reps} gives bytes/op.
+    * A bounded JIT-compilation burst lands in {@code alloc_N} but not {@code alloc_2N}; the difference cancels it so a
+    * truly alloc-free kernel returns zero. Steady-state per-op allocation (e.g. from a real scalarisation failure)
+    * appears in both windows proportionally and survives the subtraction. Callers divide the returned value by
+    * {@code reps} to obtain bytes/op.
     *
     * Declared {@code inline} so that each call site gets its own specialised measurement loop and the JIT sees the
     * kernel body directly rather than through a megamorphic {@code Function0.apply()} call. Without inlining, many
@@ -59,20 +60,30 @@ object AllocMeter:
       case None    => -1L
       case Some(b) =>
         val tid = Thread.currentThread().threadId()
-        // Single loop: warmup iters (OSR compiles here), then reps settling iters, then reps measured iters.
-        // getThreadAllocatedBytes is called INSIDE the compiled loop to avoid the inter-loop safepoint that
-        // deoptimises the method frame and restarts the JIT-compile burst in the measurement window.
-        val measureStart = warmup + reps
-        val total = warmup + reps + reps
-        var before = 0L
+        // Single loop: warmup iters (OSR compiles here), then window1 (reps iters), then window2 (2*reps iters).
+        // Three getThreadAllocatedBytes checkpoints, all fired as cold one-shot branches inside the compiled loop:
+        //   before1 at window1 start, before2 at window2 start, after2 outside the loop.
+        // alloc_N  = before2 - before1  (reps iterations; may include a JIT-compilation burst)
+        // alloc_2N = after2  - before2  (2*reps iterations; steady-state, burst is over)
+        // returned = max(0, alloc_2N - alloc_N)  →  slope * reps, burst-cancelled
+        val window1Start = warmup
+        val window2Start = warmup + reps
+        val total = warmup + reps + 2 * reps // warmup + 3 * reps
+        var before1 = 0L
+        var before2 = 0L
         var i = 0
         while i < total do
-          if i == measureStart then before = b.getThreadAllocatedBytes(tid)
+          if i == window1Start then before1 = b.getThreadAllocatedBytes(tid)
+          end if
+          if i == window2Start then before2 = b.getThreadAllocatedBytes(tid)
           end if
           body
           i += 1
         end while
-        b.getThreadAllocatedBytes(tid) - before
+        val after2 = b.getThreadAllocatedBytes(tid)
+        val alloc1 = before2 - before1 // reps iterations
+        val alloc2 = after2 - before2 // 2*reps iterations
+        math.max(0L, alloc2 - alloc1) // slope * reps; negative means burst-only, clamp to zero
   end measureAlloc
 
 end AllocMeter

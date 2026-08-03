@@ -37,6 +37,10 @@ import vecxt.all.{*, given}
   * computation (a volatile store is a visible side-effect that C2 cannot remove). This is the same technique used in
   * D1Suite and is independent of EA.
   *
+  * The slope approach in {@link AllocMeter} (see its class-level Scaladoc) applies here too: a bounded burst from the
+  * EA-off run lands in the first measurement window and cancels in the slope, so only steady-state allocation is
+  * reported.
+  *
   * Tests are skipped off-CI when {@code ThreadMXBean} allocation tracking is not available. On CI ({@code CI}
   * environment variable set) a missing bean is a hard failure.
   */

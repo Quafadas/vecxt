@@ -5,21 +5,16 @@ import vecxt.all.{*, given}
 
 /** D1 — Allocation-free kernels.
   *
-  * Per {@code @AllocFree} kernel: run a single loop of {@code warmup + reps + reps} iterations and assert that bytes/op
-  * in the final {@code reps} window is below a small epsilon. For a correctly JIT-compiled kernel, C2's escape analysis
-  * eliminates the transient {@code Vector} objects and the allocation count is genuinely zero.
+  * Per {@code @AllocFree} kernel: assert that the steady-state bytes/op returned by {@link AllocMeter#measureAlloc} is
+  * at most {@code Eps}. {@link AllocMeter} uses a slope approach — {@code max(0, alloc_2N − alloc_N)} — so a bounded
+  * JIT-compilation burst that lands in the first measurement window but not the second is cancelled by the subtraction,
+  * and the callers see zero.
   *
-  * The measurement uses a single loop (see {@link AllocMeter#measureAlloc} for the full rationale). The short version:
-  * a JNI call to {@code getThreadAllocatedBytes} between a warmup loop and a measurement loop triggers a safepoint that
-  * can deoptimise the compiled test-method frame. The measurement loop then restarts from interpreted code and runs
-  * ~16–23 unoptimised calls (each allocating ~82 KB of unscalarised {@code DoubleVector} objects for a two-pass
-  * operation) before C2 re-OSR-compiles — exactly the spurious 1.3–1.5 MB burst seen in CI. Calling
-  * {@code getThreadAllocatedBytes} inside the already-compiled loop avoids the deoptimisation entirely.
-  *
-  * Epsilon = 8 bytes/op rationale: the TLAB accounting counter is exact, but the surrounding measurement infrastructure
-  * (two calls to {@code getThreadAllocatedBytes}, thread-local state in the bean) contributes a small constant. In
-  * practice this is zero on Temurin 25, but the epsilon provides one Object-header's worth of headroom. A
-  * {@code DoubleVector} object failing to scalarize would be ≥ 64 bytes — an order of magnitude above the threshold.
+  * Epsilon = 8 bytes/op rationale: for a correctly JIT-compiled kernel the slope is exactly zero. The epsilon provides
+  * headroom equal to one object header, accounting for any residual TLAB-accounting noise. A {@code DoubleVector}
+  * failing to scalarise would be ≥ 64 bytes in the raw window; after burst-cancellation the slope for a single
+  * unscalarised vector per call is roughly {@code 64 − burst/reps ≈ 49 bytes/op} on CI (with the observed burst of ~1.5
+  * MB over 100 000 iterations), still comfortably above the 8-byte threshold.
   *
   * Tests that return a value (the six pure reductions: {@code sumSIMD}, {@code productSIMD}) store their result into a
   * {@code @volatile} field so that C2 cannot dead-code-eliminate the computation. Without a sink, a kernel whose result
