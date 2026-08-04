@@ -237,6 +237,18 @@ class MatrixExtensionSuite extends FunSuite:
     assertEqualsDouble(s(2, 1), Math.sqrt(8.0), 1e-10)
   }
 
+  test("sqrt! on submatrix (non-contiguous layout) does not mutate elements outside the view") {
+    val base = Matrix[Double](Array.tabulate[Double](9)(_.toDouble), 3, 3)
+    val sub = base(::, Array(1, 2))
+    sub.`sqrt!`
+    assertEqualsDouble(sub(0, 0), Math.sqrt(3.0), 1e-10)
+    assertEqualsDouble(sub(2, 1), Math.sqrt(8.0), 1e-10)
+    // col 0 of base is untouched — proves in-place on the view only
+    assertEqualsDouble(base(0, 0), 0.0, 1e-10)
+    assertEqualsDouble(base(1, 0), 1.0, 1e-10)
+    assertEqualsDouble(base(2, 0), 2.0, 1e-10)
+  }
+
   test("sqrt on submatrix yields correct result") {
     val result = subMatrix.sqrt
     assertEqualsDouble(result(0, 0), Math.sqrt(3.0), 1e-10)
@@ -258,11 +270,42 @@ class MatrixExtensionSuite extends FunSuite:
     assertEqualsDouble(s(2, 1), Math.sin(8.0), 1e-10)
   }
 
+  test("sin! on submatrix (non-contiguous layout) does not mutate elements outside the view") {
+    val base = Matrix[Double](Array.tabulate[Double](9)(_.toDouble), 3, 3)
+    val sub = base(::, Array(1, 2))
+    sub.`sin!`
+    assertEqualsDouble(sub(0, 0), Math.sin(3.0), 1e-10)
+    assertEqualsDouble(sub(2, 1), Math.sin(8.0), 1e-10)
+    // col 0 of base is untouched — proves in-place on the view only
+    assertEqualsDouble(base(0, 0), 0.0, 1e-10)
+    assertEqualsDouble(base(1, 0), 1.0, 1e-10)
+    assertEqualsDouble(base(2, 0), 2.0, 1e-10)
+  }
+
   test("cos on submatrix yields correct result") {
     val result = subMatrix.cos
     assertEqualsDouble(result(0, 0), Math.cos(3.0), 1e-10)
     assertEqualsDouble(result(2, 1), Math.cos(8.0), 1e-10)
     assertEqualsDouble(subMatrix(0, 0), 3.0, 1e-10) // original unchanged
+  }
+
+  test("cos! on submatrix mutates in place") {
+    val s = subMatrix
+    s.`cos!`
+    assertEqualsDouble(s(0, 0), Math.cos(3.0), 1e-10)
+    assertEqualsDouble(s(2, 1), Math.cos(8.0), 1e-10)
+  }
+
+  test("cos! on submatrix (non-contiguous layout) does not mutate elements outside the view") {
+    val base = Matrix[Double](Array.tabulate[Double](9)(_.toDouble), 3, 3)
+    val sub = base(::, Array(1, 2))
+    sub.`cos!`
+    assertEqualsDouble(sub(0, 0), Math.cos(3.0), 1e-10)
+    assertEqualsDouble(sub(2, 1), Math.cos(8.0), 1e-10)
+    // col 0 of base is untouched — proves in-place on the view only
+    assertEqualsDouble(base(0, 0), 0.0, 1e-10)
+    assertEqualsDouble(base(1, 0), 1.0, 1e-10)
+    assertEqualsDouble(base(2, 0), 2.0, 1e-10)
   }
 
   test("*:* on submatrix with bool mask yields correct result") {
