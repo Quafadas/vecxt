@@ -10,9 +10,15 @@ import vecxt.ndarray.NDArray
   *   - Offset is >= 0 and < data.length
   *   - Strides are non-zero (except 0 for broadcast dims of size 1)
   *   - All corner combinations of indices stay within [0, data.length)
+  *
+  * All three checks in this file are plain `def`s despite being generic. They read `data.size` — deliberately, because
+  * `.size` does not route an abstract element type through `ScalaRunTime$.array_length` the way `.length` does — and
+  * everything else they touch is `shape`, `strides` or `indices`, all `Array[Int]`. So there is nothing here that
+  * `inline` was protecting, which makes them unlike `dimCheck`'s generic arms: those reach `a.length` on an `Array[A]`
+  * and stay `inline` for exactly the reason these do not need to.
   */
 object strideNDArrayCheck:
-  inline def apply[A](
+  def apply[A](
       data: Array[A],
       shape: Array[Int],
       strides: Array[Int],
@@ -71,7 +77,7 @@ end strideNDArrayCheck
 
 /** dimNDArrayCheck validates that the product of shape dimensions equals data.length. */
 object dimNDArrayCheck:
-  inline def apply[A](
+  def apply[A](
       data: Array[A],
       shape: Array[Int]
   ): Unit =
@@ -112,7 +118,7 @@ case class InvalidNDArray(message: String) extends Exception(message)
 
 /** indexNDArrayCheck validates element-access indices against the NDArray's shape. */
 object indexNDArrayCheck:
-  inline def apply[A](arr: NDArray[A], indices: Array[Int]): Unit =
+  def apply[A](arr: NDArray[A], indices: Array[Int]): Unit =
     if indices.length != arr.ndim then
       throw InvalidNDArray(
         s"Rank mismatch: expected ${arr.ndim} indices, got ${indices.length}"

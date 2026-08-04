@@ -11,7 +11,9 @@ object ArrayIO:
   private inline def splitLine(line: String, seperator: Char): Array[String] =
     line.split(java.util.regex.Pattern.quote(seperator.toString), -1).map(_.trim)
 
-  private inline def parseValue[A: Numeric](value: String): A =
+  // Generic, but there is no array in sight: it summons `Numeric[A]` and parses a `String`. `inline` here was the
+  // "a type parameter is in scope" reflex rather than anything C6a could ever have reported.
+  private def parseValue[A: Numeric](value: String): A =
     summon[Numeric[A]]
       .parseString(value)
       .getOrElse(
