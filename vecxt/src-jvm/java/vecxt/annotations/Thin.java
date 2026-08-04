@@ -15,6 +15,24 @@ import java.lang.annotation.Target;
  * called</i>. That is the property that makes the public API zero-cost at a cold or lukewarm call
  * site, where {@code FreqInlineSize} does not apply yet.
  *
+ * <p><b>The budget is in bytecodes and says nothing about the compiled form.</b> Measured on a
+ * {@code LogCompilation} run: {@code vecxt.all.clamp!} is an eleven-bytecode {@code export}
+ * forwarder whose {@code c2} nmethod is 1696 bytes of machine code, because C2 inlined the kernel
+ * into it — 68% of {@code InlineSmallCode}. It would satisfy this annotation's 35-byte budget by a
+ * factor of three while being one of the largest compiled methods in the library.
+ *
+ * <p>Two reasons that matters more here than for {@link HotPath}. Forwarders are where the
+ * bytecode-to-machine-code ratio is most extreme, precisely because the body they forward to gets
+ * pulled in. And the {@code vecxt.all} export forwarders are excluded from the checked-in baseline
+ * by {@code Audit.primaryAnnotated} — deliberately, to keep the baseline readable — so their
+ * compiled size is unmeasured twice over.
+ *
+ * <p>Unverified, and worth confirming in the HotSpot source before relying on either answer: whether
+ * the {@code MaxTrivialSize}/{@code MaxInlineSize} fast paths let a small callee bypass the
+ * {@code InlineSmallCode} veto. If they do, the forwarder above is a curiosity. If they do not, a
+ * small forwarder with a large nmethod stops being inlinable, and this annotation is asserting the
+ * wrong quantity for exactly the methods it was written for.
+ *
  * <p>It also asserts the method contains no backward branch. A loop in a forwarder means the method
  * does per-element work, so the annotation is simply the wrong one — {@link HotPath} is.
  *

@@ -5,8 +5,15 @@ import vecxt.all.{*, given}
 
 /** D1 EA-off cross-check — guards against undetected SIMD→software regression.
   *
-  * Runs the same fourteen kernels as {@link D1Suite} with escape analysis disabled ({@code -XX:-DoEscapeAnalysis}).
-  * This provides a check that is strictly stronger than D1Suite alone, for the following reason:
+  * Runs {@link D1Suite}'s kernels with escape analysis disabled ({@code -XX:-DoEscapeAnalysis}), plus a canary for the
+  * flag itself. This is a check D1Suite cannot make, for the reason set out below.
+  *
+  * <p>Coverage is every {@code @AllocFree} kernel except {@code variance(mode)}, which appears here as the flag canary
+  * instead — see its comment. The two suites cannot be factored into a shared collection: the assertion helpers have to
+  * stay {@code inline} so each call site gets a monomorphic measurement loop, and driving the kernels from a
+  * {@code List[() => Unit]} would reintroduce the megamorphic {@code Function0.apply()} dispatch that stops C2 inlining
+  * through to the Vector API calls. So the two lists are kept in step by hand, and drifting apart is a real hazard:
+  * this suite sat at fourteen kernels while D1Suite grew to twenty-nine.
   *
   * '''Original design intent vs. reality:'''
   *
@@ -30,6 +37,19 @@ import vecxt.all.{*, given}
   * D1Suite cannot distinguish paths (1) and (2) when EA is enabled, because EA masks the software fallback.
   * D1EAOffSuite asserts the same ≤ 8 bytes threshold under EA-off: if a kernel has regressed to the software fallback
   * path, D1EAOffSuite fails here while D1Suite would continue to pass.
+  *
+  * <p>How much that is worth depends on how reliably EA rescues a software-path kernel, and the honest answer is "not
+  * always". D6's canary — species from a method parameter — is a software-path kernel that allocates with EA
+  * <em>enabled</em>, so D1Suite catches it unaided. The gap this suite closes is therefore narrower than "detects lost
+  * intrinsification": it is the fallbacks whose objects happen not to escape, which EA removes and D1Suite then reads
+  * as a pass. Worth having, and cheap, but not a substitute for confirming intrinsification directly.
+  *
+  * '''Why the flag canary is not optional:'''
+  *
+  * Every kernel assertion here reads "still zero with EA off", which is exactly what a run with EA still <em>on</em>
+  * would produce. Without a test that fails when the flag is absent, this entire scope passes whether or not
+  * {@code -XX:-DoEscapeAnalysis} reached the JVM — the same "silently became a no-op" hazard D6 exists to prevent for
+  * D1Suite. The canary is the first test in the file.
   *
   * '''DCE guard:'''
   *
@@ -80,6 +100,48 @@ class D1EAOffSuite extends FunSuite:
     )
   end assertAllocFreeWithEAOff
 
+  /** The inverted assertion, used by exactly one test: the flag canary below.
+    *
+    * Every other assertion in this suite reads "still zero with EA off", which is indistinguishable from "the flag was
+    * silently dropped and EA is on". This is the assertion that tells those two apart.
+    */
+  private inline def assertAllocatesWithEAOff(label: String)(inline body: => Unit): Unit =
+    val total = AllocMeter.measureAlloc(Warmup, Reps)(body)
+    if total < 0L && sys.env.contains("CI") then
+      fail(s"[D1-EAOff] $label: CI detected but ThreadMXBean allocation tracking is unavailable.")
+    end if
+    assume(total >= 0L, s"[D1-EAOff] skip $label — ThreadMXBean allocation tracking not available on this JVM")
+    val perOp = total.toDouble / Reps
+    assert(
+      perOp > Eps,
+      s"D1-EAOff github.com/Quafadas/vecxt/issues/105: $label allocated ${perOp.toLong} bytes/op with " +
+        s"-XX:-DoEscapeAnalysis, and was expected to allocate. This is the flag canary, not a kernel check: " +
+        s"the allocation it looks for is one escape analysis would have removed, so measuring zero here means " +
+        s"EA is still on and -XX:-DoEscapeAnalysis did not take effect. Every other assertion in this suite " +
+        s"is then passing for the wrong reason. Check this scope's forkArgs before believing any of them."
+    )
+  end assertAllocatesWithEAOff
+
+  // ── The flag canary ─────────────────────────────────────────────────────────
+
+  /** Proves `-XX:-DoEscapeAnalysis` reached the JVM. Without this the whole scope is unfalsifiable — the absence of
+    * such a check is the most likely reason the CI step for it sat commented out.
+    *
+    * `variance(mode)` is the one kernel in D1Suite whose zero comes from escape analysis rather than from
+    * intrinsification. Its body reads one field out of the [[vecxt.MeanAndVariance]] that `meanAndVarianceTwoPass`
+    * returns and discards the other, so the object is dead and EA removes it — D1Suite measures 0 bytes/op. That object
+    * is an ordinary `final class`, not a `Vector`, so nothing intrinsifies it away. With EA off it must reach the heap.
+    *
+    * Which is also why it is absent from the kernel assertions below rather than merely inverted here: asserting "≤ 8
+    * bytes/op with EA off" for an EA-dependent kernel would be asserting the opposite of what the flag does.
+    */
+  test("D1-EAOff canary: doublearrays.variance(mode) must allocate with EA off") {
+    val arr = Array.tabulate(N)(i => (i % 100).toDouble)
+    assertAllocatesWithEAOff("doublearrays.variance(mode)") {
+      doubleSink = arr.variance(VarianceMode.Population)
+    }
+  }
+
   // ── Double ──────────────────────────────────────────────────────────────────
 
   test("D1-EAOff: doublearrays.sumSIMD") {
@@ -123,6 +185,20 @@ class D1EAOffSuite extends FunSuite:
     assertAllocFreeWithEAOff("doublearrays.fillLinspace")(fillLinspace(dest, 0.0, 1.0))
   }
 
+  // The two in-place unary kernels. NEG and ABS are intrinsified lanewise operations and the masked
+  // tail's VectorMask is `_VectorFromBitsCoerced`, so nothing here depends on EA — which is exactly
+  // what makes them worth asserting with EA off. The transcendentals (exp!, log!, …) are not
+  // annotated @AllocFree and so are not measured in either suite.
+  test("D1-EAOff: doublearrays.-!") {
+    val arr = Array.fill(N)(1.0)
+    assertAllocFreeWithEAOff("doublearrays.-!")(arr.`-!`)
+  }
+
+  test("D1-EAOff: doublearrays.abs!") {
+    val arr = Array.tabulate(N)(i => if i % 2 == 0 then i.toDouble else -i.toDouble)
+    assertAllocFreeWithEAOff("doublearrays.abs!")(arr.`abs!`)
+  }
+
   // ── Float ───────────────────────────────────────────────────────────────────
 
   test("D1-EAOff: floatarrays.sumSIMD") {
@@ -150,11 +226,76 @@ class D1EAOffSuite extends FunSuite:
     assertAllocFreeWithEAOff("floatarrays.-=(Float)")(arr -= 0.1f)
   }
 
+  test("D1-EAOff: floatarrays.-!") {
+    val arr = Array.fill(N)(1.0f)
+    assertAllocFreeWithEAOff("floatarrays.-!")(arr.`-!`)
+  }
+
+  test("D1-EAOff: floatarrays.abs!") {
+    val arr = Array.tabulate(N)(i => if i % 2 == 0 then i.toFloat else -i.toFloat)
+    assertAllocFreeWithEAOff("floatarrays.abs!")(arr.`abs!`)
+  }
+
+  test("D1-EAOff: floatarrays.clamp!") {
+    val arr = Array.tabulate(N)(i => (i % 10).toFloat)
+    assertAllocFreeWithEAOff("floatarrays.clamp!")(arr.`clamp!`(2.0f, 7.0f))
+  }
+
+  test("D1-EAOff: floatarrays.+=(Array[Float])") {
+    val arr = Array.fill(N)(1.0f)
+    val arr2 = Array.fill(N)(0.0f)
+    assertAllocFreeWithEAOff("floatarrays.+=(Array[Float])")(arr += arr2)
+  }
+
+  test("D1-EAOff: floatarrays.*=(Array[Float])") {
+    val arr = Array.fill(N)(2.0f)
+    val arr2 = Array.fill(N)(1.0f)
+    assertAllocFreeWithEAOff("floatarrays.*=(Array[Float])")(arr *= arr2)
+  }
+
+  test("D1-EAOff: floatarrays.*=(Float)") {
+    val arr = Array.fill(N)(2.0f)
+    assertAllocFreeWithEAOff("floatarrays.*=(Float)")(arr *= 1.0f)
+  }
+
   // ── Int ─────────────────────────────────────────────────────────────────────
 
   test("D1-EAOff: intarrays.sumSIMD") {
     val arr = Array.tabulate(N)(i => i % 1000)
     assertAllocFreeWithEAOff("intarrays.sumSIMD") { intSink = arr.sumSIMD }
+  }
+
+  test("D1-EAOff: intarrays.dot") {
+    val arr = Array.tabulate(N)(i => i % 100)
+    val arr2 = Array.tabulate(N)(i => (i + 1) % 100)
+    assertAllocFreeWithEAOff("intarrays.dot") { intSink = arr.dot(arr2) }
+  }
+
+  test("D1-EAOff: intarrays.minSIMD") {
+    val arr = Array.tabulate(N)(i => i % 1000)
+    assertAllocFreeWithEAOff("intarrays.minSIMD") { intSink = arr.minSIMD }
+  }
+
+  test("D1-EAOff: intarrays.maxSIMD") {
+    val arr = Array.tabulate(N)(i => i % 1000)
+    assertAllocFreeWithEAOff("intarrays.maxSIMD") { intSink = arr.maxSIMD }
+  }
+
+  test("D1-EAOff: intarrays.+=(Array[Int])") {
+    val arr = Array.fill(N)(1)
+    val arr2 = Array.fill(N)(0)
+    assertAllocFreeWithEAOff("intarrays.+=(Array[Int])")(arr += arr2)
+  }
+
+  test("D1-EAOff: intarrays.-=(Array[Int])") {
+    val arr = Array.fill(N)(1)
+    val arr2 = Array.fill(N)(0)
+    assertAllocFreeWithEAOff("intarrays.-=(Array[Int])")(arr -= arr2)
+  }
+
+  test("D1-EAOff: intarrays.-=(Int)") {
+    val arr = Array.fill(N)(1)
+    assertAllocFreeWithEAOff("intarrays.-=(Int)")(arr -= 0)
   }
 
 end D1EAOffSuite
