@@ -98,8 +98,18 @@ object ndarray:
 
   object NDArray:
 
+    // The factories are generic in signature only. They allocate `Array[A]` through `ClassTag` and build `Array[Int]`
+    // shapes and strides; none of them reads or writes an element. The policy is explicit that these are different
+    // questions — "a method taking `using ClassTag[A]` can *allocate* `Array[A]` without `inline`; reading `arr(i)`
+    // with `A` abstract still boxes."
+    //
+    // The two checked overloads expand `strideNDArrayCheck` / `dimNDArrayCheck`, which are safe to bring along: both
+    // read `data.size`, not `data.length`, and `.size` does not route through `ScalaRunTime$.array_length` for an
+    // abstract element type. That was already a deliberate choice in NDArrayCheck.scala, and it is what makes
+    // de-inlining these two safe rather than a gamble.
+    //
     // Primary constructor — full control
-    inline def apply[A](
+    def apply[A](
         data: Array[A],
         shape: Array[Int],
         strides: Array[Int],
@@ -109,11 +119,11 @@ object ndarray:
       new NDArray(data, shape, strides, offset)
     end apply
 
-    inline def empty[A]()(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
+    def empty[A]()(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
       new NDArray(Array.empty[A], Array(0), Array(1), 0)
 
     // Convenience: column-major from data + shape
-    inline def apply[A](
+    def apply[A](
         data: Array[A],
         shape: Array[Int]
     ): NDArray[A] =
@@ -122,16 +132,16 @@ object ndarray:
     end apply
 
     // 1D from flat array
-    inline def fromArray[A](
+    def fromArray[A](
         data: Array[A]
     ): NDArray[A] =
       new NDArray(data, Array(data.size), Array(1), 0)
 
     /** Create a 0-dimensional (scalar) NDArray holding a single value. */
-    inline def scalar[A](value: A)(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
+    def scalar[A](value: A)(using ct: scala.reflect.ClassTag[A]): NDArray[A] =
       new NDArray(Array(value), Array.emptyIntArray, Array.emptyIntArray, 0)
 
-    inline def zeros[A](
+    def zeros[A](
         shape: Array[Int]
     )(using oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
       shapeCheck(shape)
@@ -140,7 +150,7 @@ object ndarray:
       new NDArray(data, shape.clone(), colMajorStrides(shape), 0)
     end zeros
 
-    inline def ones[A](
+    def ones[A](
         shape: Array[Int]
     )(using oz: OneAndZero[A], ct: scala.reflect.ClassTag[A]): NDArray[A] =
       shapeCheck(shape)
@@ -149,7 +159,7 @@ object ndarray:
       new NDArray(data, shape.clone(), colMajorStrides(shape), 0)
     end ones
 
-    inline def fill[A](
+    def fill[A](
         shape: Array[Int],
         value: A
     )(using ct: scala.reflect.ClassTag[A]): NDArray[A] =

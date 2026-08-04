@@ -24,7 +24,9 @@ trait Rand[T]:
 
   /** Gets n samples from the distribution into a specified collection type.
     */
-  inline def sampleTo[C](n: Int)(using factory: scala.collection.Factory[T, C]): C =
+  // Generic in the *collection* type, not in an array element type — it drives a `Builder`, so there is no erased
+  // array access for `inline` to have been protecting.
+  def sampleTo[C](n: Int)(using factory: scala.collection.Factory[T, C]): C =
     val builder = factory.newBuilder
     builder.sizeHint(n)
     var i = 0
