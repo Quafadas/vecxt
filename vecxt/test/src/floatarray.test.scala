@@ -534,13 +534,13 @@ class FloatArrayExtensionSuite extends munit.FunSuite:
 
   test("float meanAndVariance") {
     val v1 = Array[Float](2.0f, 4.0f, 4.0f, 4.0f, 5.0f, 5.0f, 7.0f, 9.0f)
-    val (m, v) = v1.meanAndVariance
-    assertEqualsDouble(m.toDouble, 5.0, 0.01)
-    assertEqualsDouble(v.toDouble, 4.0, 0.01)
+    val pop = v1.meanAndVariance
+    assertEqualsDouble(pop.mean.toDouble, 5.0, 0.01)
+    assertEqualsDouble(pop.variance.toDouble, 4.0, 0.01)
 
-    val (ms, vs) = v1.meanAndVariance(VarianceMode.Sample)
-    assertEqualsDouble(ms.toDouble, 5.0, 0.01)
-    assertEqualsDouble(vs.toDouble, 32.0 / 7.0, 0.01)
+    val sample = v1.meanAndVariance(VarianceMode.Sample)
+    assertEqualsDouble(sample.mean.toDouble, 5.0, 0.01)
+    assertEqualsDouble(sample.variance.toDouble, 32.0 / 7.0, 0.01)
   }
 
   test("float spearmansRankCorrelation") {

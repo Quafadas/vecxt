@@ -5,26 +5,27 @@ import vecxt.all.{*, given}
 
 /** D1 — Allocation-free kernels.
   *
-  * Per {@code @AllocFree} kernel: warm up 20,000 iterations, measure 100,000 iterations, and assert that bytes/op is
-  * below a small epsilon. For a correctly JIT-compiled kernel, C2's escape analysis eliminates the transient
-  * {@code Vector} objects and the allocation count is genuinely zero.
+  * Per {@code @AllocFree} kernel: assert that the steady-state bytes/op returned by {@link AllocMeter#measureAlloc} is
+  * at most {@code Eps}. {@link AllocMeter} uses a slope approach — {@code max(0, alloc_2N − alloc_N)} — so a bounded
+  * JIT-compilation burst that lands in the first measurement window but not the second is cancelled by the subtraction,
+  * and the callers see zero.
   *
-  * Epsilon = 8 bytes/op rationale: the TLAB accounting counter is exact, but the surrounding measurement infrastructure
-  * (two calls to {@code getThreadAllocatedBytes}, thread-local state in the bean) contributes a small constant. In
-  * practice this is zero on Temurin 25, but the epsilon provides one Object-header's worth of headroom. A
-  * {@code DoubleVector} object failing to scalarize would be ≥ 64 bytes — an order of magnitude above the threshold.
+  * Epsilon = 8 bytes/op rationale: for a correctly JIT-compiled kernel the slope is exactly zero. The epsilon provides
+  * headroom equal to one object header, accounting for any residual TLAB-accounting noise. A {@code DoubleVector}
+  * failing to scalarise would be ≥ 64 bytes in the raw window; after burst-cancellation the slope for a single
+  * unscalarised vector per call is roughly {@code 64 − burst/reps ≈ 49 bytes/op} on CI (with the observed burst of ~1.5
+  * MB over 100 000 iterations), still comfortably above the 8-byte threshold.
   *
-  * Tests that return a value (the five pure reductions: {@code sumSIMD}, {@code productSIMD}) store their result into a
+  * Tests that return a value (the six pure reductions: {@code sumSIMD}, {@code productSIMD}) store their result into a
   * {@code @volatile} field so that C2 cannot dead-code-eliminate the computation. Without a sink, a kernel whose result
   * is discarded is pure (no observable side effects) and C2 is free to eliminate the entire loop body, giving zero
   * measured allocation not because the vectors were scalarized but because nothing ran. The thirteen in-place mutations
   * ({@code +=}, {@code -=}, {@code abs!}, etc.) write to an array, which is a visible side effect, so they are not
   * exposed to this hazard.
   *
-  * {@code assertAllocFree} is declared {@code inline} so that each of the eighteen call sites gets its own specialised
-  * measurement loop inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a
-  * shared megamorphic {@code Function0.apply()} call that C2 would not inline through, preventing SIMD
-  * intrinsification.
+  * {@code assertAllocFree} is declared {@code inline} so that each call site gets its own specialised measurement loop
+  * inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a shared megamorphic
+  * {@code Function0.apply()} call that C2 would not inline through, preventing SIMD intrinsification.
   *
   * Tests are skipped (not failed) when {@code ThreadMXBean} allocation tracking is not supported and we are not on CI.
   * On CI (environment variable {@code CI} is set) a missing bean is a hard failure, because a guardrail that silently
@@ -129,6 +130,18 @@ class D1Suite extends FunSuite:
     assertAllocFree("doublearrays.abs!")(arr.`abs!`)
   }
 
+  // `variance(mode)` reads one field out of the `MeanAndVariance` that `meanAndVarianceTwoPass` returns and discards
+  // the other, so the result object is dead and escape analysis scalarizes it. Measured at 0.00 bytes/op while the
+  // return type was still a named tuple; this holds the line now that it is a `final class`, and would catch a
+  // restructuring that lets the result escape. The `intarrays` twin is deliberately absent — its copy of
+  // `meanAndVarianceTwoPass` allocates a lane-widening scratch buffer per call.
+  test("D1: doublearrays.variance(mode)") {
+    val arr = Array.tabulate(N)(i => (i % 100).toDouble)
+    assertAllocFree("doublearrays.variance(mode)") {
+      doubleSink = arr.variance(VarianceMode.Population)
+    }
+  }
+
   // ── Float ───────────────────────────────────────────────────────────────────
 
   test("D1: floatarrays.sumSIMD") {
@@ -171,6 +184,15 @@ class D1Suite extends FunSuite:
   test("D1: intarrays.sumSIMD") {
     val arr = Array.tabulate(N)(i => i % 1000)
     assertAllocFree("intarrays.sumSIMD") { intSink = arr.sumSIMD }
+  }
+
+  // `dot` has carried @AllocFree since #107 without ever being measured, and it was not alloc-free: the body opened
+  // with an `Array.ofDim[Int](vec.length)` that nothing read. Removing the dead allocation makes the annotation true;
+  // this test is what stops it drifting back.
+  test("D1: intarrays.dot") {
+    val arr = Array.tabulate(N)(i => i % 100)
+    val arr2 = Array.tabulate(N)(i => (i + 1) % 100)
+    assertAllocFree("intarrays.dot") { intSink = arr.dot(arr2) }
   }
 
 end D1Suite

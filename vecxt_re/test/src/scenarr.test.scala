@@ -43,7 +43,9 @@ class ScenarrSuite extends FunSuite:
 
     // freq = [3,1,1]
     val freqArr = sortedScen.freq
-    val (m, v) = freqArr.meanAndVariance(VarianceMode.Sample)
+    val stats = freqArr.meanAndVariance(VarianceMode.Sample)
+    val m = stats.mean
+    val v = stats.variance
     val expectedCluster = (v - m) / (m * m)
     val expectedVMR = v / m
 

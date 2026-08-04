@@ -51,8 +51,8 @@ case class Scenario(
     *     mean-scaled excess dispersion; under NB, it targets 1 / k.
     */
   lazy val clusterCoeff: Double =
-    val (m, v) = freq.meanAndVariance(VarianceMode.Sample)
-    (v - m) / Math.pow(m, 2)
+    val stats = freq.meanAndVariance(VarianceMode.Sample)
+    (stats.variance - stats.mean) / Math.pow(stats.mean, 2)
   end clusterCoeff
 
   /** Computes the variance-to-mean ratio (dispersion) based on the frequency data. This metric is calculated by
@@ -61,8 +61,8 @@ case class Scenario(
     * 1 = poisson distributed > 1 => overdispersed... but careful with sample size.
     */
   lazy val varianceMeanRatio =
-    val (m, v) = freq.meanAndVariance(VarianceMode.Sample)
-    v / m
+    val stats = freq.meanAndVariance(VarianceMode.Sample)
+    stats.variance / stats.mean
   end varianceMeanRatio
 
   lazy val hasOccurence: Boolean = events.nonEmpty

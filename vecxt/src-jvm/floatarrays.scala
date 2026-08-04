@@ -588,14 +588,14 @@ object floatarrays:
 
     inline def mean: Float = vec.sumSIMD / vec.length
 
-    inline def meanAndVariance: (mean: Float, variance: Float) =
+    inline def meanAndVariance: MeanAndVarianceF =
       meanAndVariance(VarianceMode.Population)
 
-    inline def meanAndVariance(mode: VarianceMode): (mean: Float, variance: Float) =
+    inline def meanAndVariance(mode: VarianceMode): MeanAndVarianceF =
       meanAndVarianceTwoPass(mode)
     end meanAndVariance
 
-    def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Float, variance: Float) =
+    def meanAndVarianceTwoPass(mode: VarianceMode): MeanAndVarianceF =
       val μ = vec.mean.toDouble
       val μVec = FloatVector.broadcast(spf, μ.toFloat)
 
@@ -622,7 +622,7 @@ object floatarrays:
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (μ.toFloat, (sumSqDiff / denom).toFloat)
+      MeanAndVarianceF(μ.toFloat, (sumSqDiff / denom).toFloat)
     end meanAndVarianceTwoPass
 
     inline def variance: Float = variance(VarianceMode.Population)
