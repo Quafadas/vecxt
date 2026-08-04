@@ -29,12 +29,17 @@ import java.lang.annotation.Target;
  * {@code FreqInlineSize}'s 325. A kernel can satisfy this annotation and still be one C2 declines
  * to inline.
  *
- * <p>Bytecode analysis cannot see that, so C2 asserts what it can. The compiled size is check D2's
- * business: it reads {@code stub_offset - insts_offset} off {@code LogCompilation}'s {@code c2}
- * {@code <nmethod>} elements. Until D2 lands, a kernel in the upper part of the
- * {@code FreqInlineSize} range should be treated as unverified rather than safe. See
- * {@code site/docs/blog/2026-07-28-Inlining.md}, "The limit that is not measured in bytecodes",
- * for the measurements.
+ * <p>Bytecode analysis cannot see that, so C2 asserts what it can, and <b>nothing measures the
+ * compiled size</b>. Check D2 would have — by reading {@code stub_offset - insts_offset} off
+ * {@code LogCompilation}'s {@code c2} {@code <nmethod>} elements — and was deliberately not built;
+ * {@code jitAudit/package.mill} records why. So a kernel in the upper part of the
+ * {@code FreqInlineSize} range is unverified rather than safe, and will stay that way.
+ *
+ * <p>What does cover it, indirectly: a kernel that stops being inlined also stops having its
+ * {@code Vector} temporaries scalarised, which {@code jitAudit}'s D1 and its EA-off cross-check
+ * measure as allocation. That catches the consequence rather than the cause, and only for kernels
+ * carrying {@link AllocFree}. See {@code site/docs/blog/2026-07-28-Inlining.md}, "The limit that is
+ * not measured in bytecodes", for the measurements behind this note.
  *
  * <p><b>Only meaningful on a method that is actually emitted.</b> An {@code inline def} body is
  * expanded into its callers instead of being compiled on its own, so it has no bytecode to measure

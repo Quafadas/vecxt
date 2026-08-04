@@ -5,7 +5,12 @@ import vecxt.all.{*, given}
 
 /** D1 EA-off cross-check — guards against undetected SIMD→software regression.
   *
-  * Runs the same fourteen kernels as {@link D1Suite} with escape analysis disabled ({@code -XX:-DoEscapeAnalysis}).
+  * Runs a subset of {@link D1Suite}'s kernels with escape analysis disabled ({@code -XX:-DoEscapeAnalysis}). The two
+  * lists have drifted — D1Suite covers every {@code @AllocFree} method and this one predates several of them. They
+  * cannot be factored into a shared collection: {@code assertAllocFree} has to stay {@code inline} so each call site
+  * gets a monomorphic measurement loop, and driving the kernels from a {@code List[() => Unit]} would reintroduce the
+  * megamorphic {@code Function0.apply()} dispatch that stops C2 inlining through to the Vector API calls. So parity is
+  * maintained by hand or not at all.
   * This provides a check that is strictly stronger than D1Suite alone, for the following reason:
   *
   * '''Original design intent vs. reality:'''

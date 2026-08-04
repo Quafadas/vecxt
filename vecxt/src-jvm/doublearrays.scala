@@ -528,11 +528,12 @@ object doublearrays:
       * The zero depends on C2 inlining `meanAndVarianceTwoPass` into this method, because that is where the
       * `MeanAndVariance` is constructed and escape analysis only runs after C2's own inlining. A `LogCompilation` run
       * puts that method at 1688 bytes of machine code — 68% of `InlineSmallCode` (2500), the budget above which C2
-      * declines to inline an already-compiled callee. Nothing measures that number today; see check D2.
+      * declines to inline an already-compiled callee. Nothing measures that number, and nothing will: check D2 would
+      * have, and was deliberately not built (see `jitAudit/package.mill`).
       *
-      * So if `meanAndVarianceTwoPass` grows past the limit, the pair starts escaping, and the symptom is *this* test
-      * failing with a message about allocation rather than about inlining. If that happens, look at the callee's
-      * compiled size before looking at anything here.
+      * So if `meanAndVarianceTwoPass` grows past the limit, the pair starts escaping, and the symptom is D1 failing on
+      * *this* method with a message about allocation rather than about inlining. That indirection is the accepted cost
+      * of not building D2. If it happens, look at the callee's compiled size before looking at anything here.
       */
     @Thin
     @AllocFree
