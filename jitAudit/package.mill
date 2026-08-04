@@ -26,6 +26,43 @@ import mill.*, scalalib.*
   * produce results that look like allocation from interpreted code. {@code --add-modules jdk.incubator.vector} exposes
   * the Vector API.
   *
+  * ==What was deliberately not built: D2 and D5==
+  *
+  * The plan specified two further checks in this tier, both of which work by running with
+  * {@code -XX:+LogCompilation} and parsing the XML: D2 confirms Vector API intrinsics were applied by looking for
+  * {@code <intrinsic id='_Vector...'>} entries, and D5 counts {@code <uncommon_trap>} and recompilation events. Neither
+  * is implemented, and the decision is not "not yet" — it is that the cost/benefit does not work. Recorded here rather
+  * than left as an absence, because an unexplained gap in a checklist reads as an oversight.
+  *
+  * A probe run settled the feasibility question and then undermined the case:
+  *
+  *   - The format is available. {@code <intrinsic>} is emitted, self-describing ({@code id='_VectorBinaryOp'}), and a
+  *     Mill test fork produces a complete log. So D2 is buildable.
+  *   - But the vocabulary is JDK-internal with no compatibility contract, and the plan's own guessed list of
+  *     {@code inline_fail} reason strings was wrong in five places when checked against a real log. Intrinsic ids drift
+  *     the same way.
+  *   - The drift is indistinguishable from the regression. A renamed intrinsic id makes the observed set shrink, and a
+  *     shrinking set is exactly what losing vectorisation looks like. There is no invariant to violate and no
+  *     cross-check, so the check cannot tell a JDK upgrade from a real finding.
+  *   - {@code <intrinsic>} carries no method attribution, so attributing one to a kernel needs a stack-tracking parser
+  *     over the {@code <task>}/{@code <parse>} nesting — several hundred lines whose input has no contract.
+  *   - And pinning the JDK to protect the check inverts the relationship, while the Vector API is still an incubator
+  *     module whose finalisation will force these kernels to be rewritten anyway.
+  *
+  * The line that fell out of it: every check in this tier that is worth having depends on a *public* API — D1 on
+  * {@code ThreadMXBean}, D3 on {@code VectorSpecies}, D4 on arithmetic, and {@code eaOffTest} on a product-grade
+  * {@code -XX:} flag. D2 and D5 are the two that would have depended on the JVM's diagnostic output instead. That is
+  * the dividing line, not the amount of work.
+  *
+  * Part of D2's ground is covered already, and more cheaply: {@code eaOffTest} asks whether the SIMD intrinsics
+  * actually applied by looking at an observable consequence rather than at the compiler's log. Only part — see that
+  * scope's Scaladoc for what it does and does not reach, and for why its CI step had been switched off.
+  *
+  * One thing was learned and kept: bytecode size predicts machine-code size poorly (measured 7–10× for vectorised code
+  * with a masked tail), so {@code InlineSmallCode} can bind before {@code FreqInlineSize} does. That is recorded in
+  * {@code HotPath.java}, {@code Thin.java} and the inlining blog post, where it costs nothing to maintain. Banking the
+  * finding without building the instrument was the point.
+  *
   * Usage: {@code ./mill jitAudit.test} (D1/D3/D4/D6) and {@code ./mill jitAudit.eaOffTest} (EA-off cross-check)
   */
 object `package` extends ScalaModule:
@@ -51,8 +88,8 @@ object `package` extends ScalaModule:
     }
   end test
 
-  /** EA-off cross-check for D1: runs the same fourteen kernels as D1Suite with escape analysis disabled ({@code
-    * -XX:-DoEscapeAnalysis}).
+  /** EA-off cross-check for D1: runs D1Suite's kernels with escape analysis disabled ({@code -XX:-DoEscapeAnalysis}),
+    * plus a canary for the flag itself.
     *
     * HotSpot Vector API intrinsics lower Vector API calls to SIMD machine instructions at the {@code VectorSupport}
     * layer, bypassing heap allocation entirely and independently of EA. Correctly intrinsified kernels therefore still
@@ -60,6 +97,23 @@ object `package` extends ScalaModule:
     * software fallback path (where {@code DoubleVector} objects are real heap objects), EA-off exposes the allocation
     * that EA would otherwise scalarise — making the regression visible here even if D1Suite (with EA enabled) continues
     * to pass.
+    *
+    * ==How this relates to the unbuilt D2==
+    *
+    * It covers part of the same ground, from an observable consequence and a product-grade {@code -XX:} flag rather
+    * than from a JDK-internal XML vocabulary. D1 with EA on cannot distinguish "the SIMD intrinsics were applied"
+    * from "they were not, and EA scalarised the software-path objects instead" — both read as zero. This scope can.
+    *
+    * Only part, though, and the earlier framing of it as "what replaces D2" was too strong. It relies on EA being what
+    * rescues a software-path kernel, and that is not always so: D6's canary is a software-path kernel that allocates
+    * with EA *enabled*, so D1Suite catches that one unaided. What this scope adds is the fallbacks whose objects happen
+    * not to escape. Cheap and worth having; not a full substitute for confirming intrinsification directly, which
+    * nothing here does.
+    *
+    * It sat commented out of CI from #110, and the reason turned out to be structural: it had no canary. Every
+    * assertion in it reads "still zero with EA off", which is precisely what a run with EA still on produces — so the
+    * scope passed whether or not the flag reached the JVM. #121 adds a canary that fails when the flag is absent,
+    * brings the kernel list up to parity with D1Suite, and re-enables the CI step.
     *
     * Run with: {@code ./mill jitAudit.eaOffTest}
     */

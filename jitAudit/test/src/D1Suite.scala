@@ -16,12 +16,18 @@ import vecxt.all.{*, given}
   * unscalarised vector per call is roughly {@code 64 − burst/reps ≈ 49 bytes/op} on CI (with the observed burst of ~1.5
   * MB over 100 000 iterations), still comfortably above the 8-byte threshold.
   *
-  * Tests that return a value (the six pure reductions: {@code sumSIMD}, {@code productSIMD}) store their result into a
-  * {@code @volatile} field so that C2 cannot dead-code-eliminate the computation. Without a sink, a kernel whose result
-  * is discarded is pure (no observable side effects) and C2 is free to eliminate the entire loop body, giving zero
-  * measured allocation not because the vectors were scalarized but because nothing ran. The thirteen in-place mutations
-  * ({@code +=}, {@code -=}, {@code abs!}, etc.) write to an array, which is a visible side effect, so they are not
-  * exposed to this hazard.
+  * Tests that return a value (the reductions — {@code sumSIMD}, {@code productSIMD}, {@code dot}, {@code minSIMD},
+  * {@code maxSIMD}, {@code variance}) store their result into a {@code @volatile} field so that C2 cannot
+  * dead-code-eliminate the computation. Without a sink, a kernel whose result is discarded is pure (no observable side
+  * effects) and C2 is free to eliminate the entire loop body, giving zero measured allocation not because the vectors
+  * were scalarized but because nothing ran. The in-place mutations ({@code +=}, {@code -=}, {@code abs!}, etc.) write
+  * to an array, which is a visible side effect, so they are not exposed to this hazard.
+  *
+  * <p>Coverage is deliberately every method carrying {@code @AllocFree}, and the two are kept in step by hand: an
+  * annotation with no test here is an assertion nobody has checked, which is how {@code intarrays.dot} carried
+  * {@code @AllocFree} through two releases while allocating a dead array per call, and how {@code **!} kept it until
+  * #110 measured it. The list is written out rather than driven from a collection on purpose — see the note on
+  * {@code assertAllocFree} below.
   *
   * {@code assertAllocFree} is declared {@code inline} so that each call site gets its own specialised measurement loop
   * inside {@code AllocMeter.measureAlloc}. Without inlining the body would be dispatched through a shared megamorphic
@@ -179,6 +185,30 @@ class D1Suite extends FunSuite:
     assertAllocFree("floatarrays.abs!")(arr.`abs!`)
   }
 
+  test("D1: floatarrays.clamp!") {
+    val arr = Array.tabulate(N)(i => (i % 10).toFloat)
+    assertAllocFree("floatarrays.clamp!")(arr.`clamp!`(2.0f, 7.0f))
+  }
+
+  test("D1: floatarrays.+=(Array[Float])") {
+    val arr = Array.fill(N)(1.0f)
+    val arr2 = Array.fill(N)(0.0f) // adding zero keeps the values stable across the measurement windows
+    assertAllocFree("floatarrays.+=(Array[Float])")(arr += arr2)
+  }
+
+  test("D1: floatarrays.*=(Array[Float])") {
+    val arr = Array.fill(N)(2.0f)
+    // See doublearrays.*= — a multiplier of 1.0 avoids driving the array to denormals and then to
+    // zero partway through, which would make most of the measured workload operate on zeros.
+    val arr2 = Array.fill(N)(1.0f)
+    assertAllocFree("floatarrays.*=(Array[Float])")(arr *= arr2)
+  }
+
+  test("D1: floatarrays.*=(Float)") {
+    val arr = Array.fill(N)(2.0f)
+    assertAllocFree("floatarrays.*=(Float)")(arr *= 1.0f)
+  }
+
   // ── Int ─────────────────────────────────────────────────────────────────────
 
   test("D1: intarrays.sumSIMD") {
@@ -193,6 +223,33 @@ class D1Suite extends FunSuite:
     val arr = Array.tabulate(N)(i => i % 100)
     val arr2 = Array.tabulate(N)(i => (i + 1) % 100)
     assertAllocFree("intarrays.dot") { intSink = arr.dot(arr2) }
+  }
+
+  test("D1: intarrays.minSIMD") {
+    val arr = Array.tabulate(N)(i => i % 1000)
+    assertAllocFree("intarrays.minSIMD") { intSink = arr.minSIMD }
+  }
+
+  test("D1: intarrays.maxSIMD") {
+    val arr = Array.tabulate(N)(i => i % 1000)
+    assertAllocFree("intarrays.maxSIMD") { intSink = arr.maxSIMD }
+  }
+
+  test("D1: intarrays.+=(Array[Int])") {
+    val arr = Array.fill(N)(1)
+    val arr2 = Array.fill(N)(0) // adding zero keeps the values from overflowing across the windows
+    assertAllocFree("intarrays.+=(Array[Int])")(arr += arr2)
+  }
+
+  test("D1: intarrays.-=(Array[Int])") {
+    val arr = Array.fill(N)(1)
+    val arr2 = Array.fill(N)(0)
+    assertAllocFree("intarrays.-=(Array[Int])")(arr -= arr2)
+  }
+
+  test("D1: intarrays.-=(Int)") {
+    val arr = Array.fill(N)(1)
+    assertAllocFree("intarrays.-=(Int)")(arr -= 0)
   }
 
 end D1Suite
