@@ -109,166 +109,204 @@ object floatarrays:
       end if
     end unaryFloatOp
 
-    inline def unary_- : Array[Float] =
+    @HotPath
+    def unary_- : Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.NEG)
       out
     end unary_-
 
-    inline def `-!`: Unit =
+    @HotPath
+    @AllocFree
+    def `-!`: Unit =
       unaryFloatOp(VectorOperators.NEG)
 
-    inline def abs: Array[Float] =
+    @HotPath
+    def abs: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.ABS)
       out
     end abs
 
-    inline def `abs!`: Unit =
+    @HotPath
+    @AllocFree
+    def `abs!`: Unit =
       unaryFloatOp(VectorOperators.ABS)
 
-    inline def acos: Array[Float] =
+    @HotPath
+    def acos: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.ACOS)
       out
     end acos
 
-    inline def `acos!`: Unit =
+    @HotPath
+    def `acos!`: Unit =
       unaryFloatOp(VectorOperators.ACOS)
 
-    inline def asin: Array[Float] =
+    @HotPath
+    def asin: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.ASIN)
       out
     end asin
 
-    inline def `asin!`: Unit =
+    @HotPath
+    def `asin!`: Unit =
       unaryFloatOp(VectorOperators.ASIN)
 
-    inline def atan: Array[Float] =
+    @HotPath
+    def atan: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.ATAN)
       out
     end atan
 
-    inline def `atan!`: Unit =
+    @HotPath
+    def `atan!`: Unit =
       unaryFloatOp(VectorOperators.ATAN)
 
-    inline def cbrt: Array[Float] =
+    @HotPath
+    def cbrt: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.CBRT)
       out
     end cbrt
 
-    inline def `cbrt!`: Unit =
+    @HotPath
+    def `cbrt!`: Unit =
       unaryFloatOp(VectorOperators.CBRT)
 
-    inline def cos: Array[Float] =
+    @HotPath
+    def cos: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.COS)
       out
     end cos
 
-    inline def `cos!`: Unit =
+    @HotPath
+    def `cos!`: Unit =
       unaryFloatOp(VectorOperators.COS)
 
-    inline def cosh: Array[Float] =
+    @HotPath
+    def cosh: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.COSH)
       out
     end cosh
 
-    inline def `cosh!`: Unit =
+    @HotPath
+    def `cosh!`: Unit =
       unaryFloatOp(VectorOperators.COSH)
 
-    inline def exp: Array[Float] =
+    @HotPath
+    def exp: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.EXP)
       out
     end exp
 
-    inline def `exp!`: Unit =
+    @HotPath
+    def `exp!`: Unit =
       unaryFloatOp(VectorOperators.EXP)
 
-    inline def expm1: Array[Float] =
+    @HotPath
+    def expm1: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.EXPM1)
       out
     end expm1
 
-    inline def `expm1!`: Unit =
+    @HotPath
+    def `expm1!`: Unit =
       unaryFloatOp(VectorOperators.EXPM1)
 
-    inline def log: Array[Float] =
+    @HotPath
+    def log: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.LOG)
       out
     end log
 
-    inline def `log!`: Unit =
+    @HotPath
+    def `log!`: Unit =
       unaryFloatOp(VectorOperators.LOG)
 
-    inline def log10: Array[Float] =
+    @HotPath
+    def log10: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.LOG10)
       out
     end log10
 
-    inline def `log10!`: Unit =
+    @HotPath
+    def `log10!`: Unit =
       unaryFloatOp(VectorOperators.LOG10)
 
-    inline def log1p: Array[Float] =
+    @HotPath
+    def log1p: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.LOG1P)
       out
     end log1p
 
-    inline def `log1p!`: Unit =
+    @HotPath
+    def `log1p!`: Unit =
       unaryFloatOp(VectorOperators.LOG1P)
 
-    inline def sqrt: Array[Float] =
+    @HotPath
+    def sqrt: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.SQRT)
       out
     end sqrt
 
-    inline def `sqrt!`: Unit =
+    @HotPath
+    def `sqrt!`: Unit =
       unaryFloatOp(VectorOperators.SQRT)
 
-    inline def sin: Array[Float] =
+    @HotPath
+    def sin: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.SIN)
       out
     end sin
 
-    inline def `sin!`: Unit =
+    @HotPath
+    def `sin!`: Unit =
       unaryFloatOp(VectorOperators.SIN)
 
-    inline def sinh: Array[Float] =
+    @HotPath
+    def sinh: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.SINH)
       out
     end sinh
 
-    inline def `sinh!`: Unit =
+    @HotPath
+    def `sinh!`: Unit =
       unaryFloatOp(VectorOperators.SINH)
 
-    inline def tan: Array[Float] =
+    @HotPath
+    def tan: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.TAN)
       out
     end tan
 
-    inline def `tan!`: Unit =
+    @HotPath
+    def `tan!`: Unit =
       unaryFloatOp(VectorOperators.TAN)
 
-    inline def tanh: Array[Float] =
+    @HotPath
+    def tanh: Array[Float] =
       val out = vec.clone()
       out.unaryFloatOp(VectorOperators.TANH)
       out
     end tanh
 
-    inline def `tanh!`: Unit =
+    @HotPath
+    def `tanh!`: Unit =
       unaryFloatOp(VectorOperators.TANH)
 
     @HotPath
@@ -550,14 +588,14 @@ object floatarrays:
 
     inline def mean: Float = vec.sumSIMD / vec.length
 
-    inline def meanAndVariance: (mean: Float, variance: Float) =
+    inline def meanAndVariance: MeanAndVarianceF =
       meanAndVariance(VarianceMode.Population)
 
-    inline def meanAndVariance(mode: VarianceMode): (mean: Float, variance: Float) =
+    inline def meanAndVariance(mode: VarianceMode): MeanAndVarianceF =
       meanAndVarianceTwoPass(mode)
     end meanAndVariance
 
-    def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Float, variance: Float) =
+    def meanAndVarianceTwoPass(mode: VarianceMode): MeanAndVarianceF =
       val μ = vec.mean.toDouble
       val μVec = FloatVector.broadcast(spf, μ.toFloat)
 
@@ -584,7 +622,7 @@ object floatarrays:
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (μ.toFloat, (sumSqDiff / denom).toFloat)
+      MeanAndVarianceF(μ.toFloat, (sumSqDiff / denom).toFloat)
     end meanAndVarianceTwoPass
 
     inline def variance: Float = variance(VarianceMode.Population)

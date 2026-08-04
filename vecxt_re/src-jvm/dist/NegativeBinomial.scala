@@ -152,7 +152,9 @@ object NegativeBinomial:
     require(observations.forall(_ >= 0), "all observations must be non-negative")
 
     val n = observations.length.toDouble
-    val (xbar, variance) = observations.meanAndVariance
+    val stats = observations.meanAndVariance
+    val xbar = stats.mean
+    val variance = stats.variance
     val sumX = observations.sumSIMD.toDouble
 
     require(xbar > 0, "mean must be positive for NB fitting")

@@ -142,10 +142,10 @@ object intarrays:
       vec.meanAndVariance(mode).variance
     end variance
 
-    def meanAndVariance: (mean: Double, variance: Double) =
+    def meanAndVariance: MeanAndVariance =
       meanAndVariance(VarianceMode.Population)
 
-    def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVariance(mode: VarianceMode): MeanAndVariance =
       var mean = 0.0
       var m2 = 0.0
       var i = 0
@@ -161,7 +161,7 @@ object intarrays:
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (mean, m2 / denom)
+      MeanAndVariance(mean, m2 / denom)
     end meanAndVariance
 
     def std: Double = std(VarianceMode.Population)

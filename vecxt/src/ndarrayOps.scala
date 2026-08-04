@@ -2,6 +2,8 @@ package vecxt
 
 import scala.reflect.ClassTag
 
+import vecxt.annotations.Thin
+
 import vecxt.IntArraysX.*
 import vecxt.ndarray.*
 import vecxt.rangeExtender.MatrixRange.*
@@ -230,7 +232,22 @@ object ndarrayOps:
       *
       * The returned NDArray shares the backing `data` — mutation through the view is visible in the original.
       */
-    inline def slice(dim: Int, start: Int, end: Int): NDArray[A] =
+    // ── View constructors: generic in signature, never touching an element ──
+    //
+    // These seven were `inline` because `A` is in scope, which is the wrong question — the policy in
+    // site/docs/blog/2026-07-28-Inlining.md asks whether a method is generic *at the point where it touches an
+    // element*. None of them touches one: they read and build `shape` and `strides`, which are `Array[Int]` and never
+    // abstract, then hand `arr.data` on by reference. `arraylength` and `iaload` throughout, no `ScalaRunTime`.
+    //
+    // `reshape` and `flatten` are deliberately still `inline` and sit a few methods below. Both call `arr.toArray`,
+    // which is the generic copy loop that does touch elements — de-inlining a caller of a generic `inline` helper
+    // *exposes* that helper's erased access at the caller's emission point, which is how C6a reported
+    // `strideMatInstantiateCheck`'s generic arm. Those two wait until `toArray` is fixed.
+    //
+    // No `@HotPath` or `@Thin` here except on the one-call forwarder. The loops below run once per *dimension*, not
+    // once per element, so `@HotPath` would be the wrong claim, and a loop of any kind rules out `@Thin`. The
+    // annotation vocabulary has no slot for shape arithmetic, and inventing one is not this change's job.
+    def slice(dim: Int, start: Int, end: Int): NDArray[A] =
 
       if dim < 0 || dim >= arr.ndim then throw InvalidNDArray(s"Dimension $dim out of range [0, ${arr.ndim})")
       end if
@@ -251,7 +268,7 @@ object ndarrayOps:
     // ── Transpose / T ──────────────────────────────────────────────────────
 
     /** Swap the two axes of a 2D NDArray (zero-copy view). */
-    inline def T: NDArray[A] =
+    def T: NDArray[A] =
       if arr.ndim != 2 then throw InvalidNDArray(s"T requires ndim=2, got ndim=${arr.ndim}")
       end if
       mkNDArray(
@@ -266,7 +283,7 @@ object ndarrayOps:
       *
       * `perm` must be a permutation of `0 until ndim`.
       */
-    inline def transpose(perm: Array[Int]): NDArray[A] =
+    def transpose(perm: Array[Int]): NDArray[A] =
 
       if perm.length != arr.ndim then
         throw InvalidNDArray(
@@ -325,7 +342,7 @@ object ndarrayOps:
     // ── Squeeze / Unsqueeze ────────────────────────────────────────────────
 
     /** Remove all dimensions of size 1 (zero-copy view). */
-    inline def squeeze: NDArray[A] =
+    def squeeze: NDArray[A] =
       var count = 0
       var i = 0
       while i < arr.ndim do
@@ -349,7 +366,7 @@ object ndarrayOps:
     end squeeze
 
     /** Remove dimension `dim`, which must have size 1 (zero-copy view). */
-    inline def squeeze(dim: Int): NDArray[A] =
+    def squeeze(dim: Int): NDArray[A] =
 
       if dim < 0 || dim >= arr.ndim then throw InvalidNDArray(s"Dimension $dim out of range [0, ${arr.ndim})")
       end if
@@ -377,7 +394,7 @@ object ndarrayOps:
       *
       * `dim` must be in `[0, ndim]`.
       */
-    inline def unsqueeze(dim: Int): NDArray[A] =
+    def unsqueeze(dim: Int): NDArray[A] =
 
       if dim < 0 || dim > arr.ndim then throw InvalidNDArray(s"Dimension $dim out of range [0, ${arr.ndim}]")
       end if
@@ -404,7 +421,8 @@ object ndarrayOps:
     end unsqueeze
 
     /** Alias for `unsqueeze`. */
-    inline def expandDims(dim: Int): NDArray[A] =
+    @Thin
+    def expandDims(dim: Int): NDArray[A] =
       arr.unsqueeze(dim)
 
     // ── Flatten ────────────────────────────────────────────────────────────

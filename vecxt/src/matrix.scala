@@ -1,6 +1,8 @@
 package vecxt
 import scala.annotation.publicInBinary
 
+import vecxt.annotations.Thin
+
 object matrix:
 
   /** Describes the memory layout of a [[Matrix]]: dimensions, strides, offset, and the length of the backing array.
@@ -38,9 +40,12 @@ object matrix:
 
     /** Computes the linear (flat) index into the backing array for element at (row, col).
       *
-      * Inlined into every call site — the expression expands to ~4 JVM bytecodes. No separate method is emitted.
+      * A plain `def`, not `inline`: three field reads and some integer arithmetic is well inside `MaxInlineSize`, so C2
+      * inlines it at every call site including the cold ones, with better information than the compiler has. `@Thin` is
+      * what asserts that (vecxt/issues/105, check C3) rather than leaving it to a comment.
       */
-    inline def linearIndex(row: Int, col: Int): Int = offset + row * rowStride + col * colStride
+    @Thin
+    def linearIndex(row: Int, col: Int): Int = offset + row * rowStride + col * colStride
 
     /** Returns the axis that carries unit stride, i.e. the axis along which consecutive indices are adjacent in the
       * backing array: `0` if `rowStride == 1` (rows), `1` if `colStride == 1` (cols), or `-1` if neither axis is
@@ -178,14 +183,34 @@ object matrix:
       val raw: Array[A],
       val layout: Layout
   ):
-    inline def rows: Row = layout.rows
-    inline def cols: Col = layout.cols
-    inline def rowStride: Int = layout.rowStride
-    inline def colStride: Int = layout.colStride
-    inline def offset: Int = layout.offset
-    inline def numel: Int = layout.numel
-    inline def isDenseColMajor: Boolean = layout.isDenseColMajor
-    inline def isDenseRowMajor: Boolean = layout.isDenseRowMajor
+    // Plain `def`s, not `inline`. Each is one field read on `layout` reaching one field read on `Layout` — both
+    // `final class`, so both getters are trivial and monomorphic by construction. `inline` here bought nothing the JIT
+    // could not recover and spent C2's inlining budget in every caller that touched a matrix, which is the case
+    // site/docs/blog/2026-07-28-Inlining.md rules out ("do not use `inline` merely to avoid a call"). `@Thin` asserts
+    // what the comment used to claim: inside `MaxInlineSize`, no backward branch (vecxt/issues/105, check C3).
+    @Thin
+    def rows: Row = layout.rows
+
+    @Thin
+    def cols: Col = layout.cols
+
+    @Thin
+    def rowStride: Int = layout.rowStride
+
+    @Thin
+    def colStride: Int = layout.colStride
+
+    @Thin
+    def offset: Int = layout.offset
+
+    @Thin
+    def numel: Int = layout.numel
+
+    @Thin
+    def isDenseColMajor: Boolean = layout.isDenseColMajor
+
+    @Thin
+    def isDenseRowMajor: Boolean = layout.isDenseRowMajor
 
     /** If the matrix is dense and contiguous, it means that the data is stored in a single block of memory in row or
       * column major order, with the exact number of elements matching the number of rows and columns.
@@ -196,7 +221,8 @@ object matrix:
       * `layout.dataLength` at construction time (vecxt/issues/105, check C6a): every checked factory reads `raw.size`
       * once and stores it in the `Layout`, so this predicate is no longer generic — it reads only `Int` fields.
       */
-    inline def hasSimpleContiguousMemoryLayout: Boolean = layout.hasSimpleContiguousMemoryLayout
+    @Thin
+    def hasSimpleContiguousMemoryLayout: Boolean = layout.hasSimpleContiguousMemoryLayout
 
     /** Runtime element type of the backing store - `double` for a specialised `Matrix[Double]`, `java.lang.Object` for
       * one whose data got boxed into an `Object[]`. See `NDArray#elementClass` for why this is exposed rather than

@@ -167,163 +167,201 @@ object doublearrays:
       end if
     end unaryOp
 
-    inline def unary_- : Array[Double] =
+    @HotPath
+    def unary_- : Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.NEG)
       out
     end unary_-
 
-    inline def -! : Unit =
+    @HotPath
+    @AllocFree
+    def -! : Unit =
       unaryOp(VectorOperators.NEG)
 
-    inline def abs: Array[Double] =
+    @HotPath
+    def abs: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.ABS)
       out
     end abs
 
-    inline def `abs!`: Unit =
+    @HotPath
+    @AllocFree
+    def `abs!`: Unit =
       unaryOp(VectorOperators.ABS)
 
-    inline def acos: Array[Double] =
+    @HotPath
+    def acos: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.ACOS)
       out
     end acos
 
-    inline def `acos!`: Unit =
+    @HotPath
+    def `acos!`: Unit =
       unaryOp(VectorOperators.ACOS)
 
-    inline def asin: Array[Double] =
+    @HotPath
+    def asin: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.ASIN)
       out
     end asin
 
-    inline def `asin!`: Unit =
+    @HotPath
+    def `asin!`: Unit =
       unaryOp(VectorOperators.ASIN)
 
-    inline def atan: Array[Double] =
+    @HotPath
+    def atan: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.ATAN)
       out
     end atan
 
-    inline def `atan!`: Unit =
+    @HotPath
+    def `atan!`: Unit =
       unaryOp(VectorOperators.ATAN)
 
-    inline def cbrt: Array[Double] =
+    @HotPath
+    def cbrt: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.CBRT)
       out
     end cbrt
 
-    inline def `cbrt!`: Unit =
+    @HotPath
+    def `cbrt!`: Unit =
       unaryOp(VectorOperators.CBRT)
 
-    inline def cos: Array[Double] =
+    @HotPath
+    def cos: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.COS)
       out
     end cos
 
-    inline def `cos!`: Unit =
+    @HotPath
+    def `cos!`: Unit =
       unaryOp(VectorOperators.COS)
 
-    inline def cosh: Array[Double] =
+    @HotPath
+    def cosh: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.COSH)
       out
     end cosh
 
-    inline def `cosh!`: Unit =
+    @HotPath
+    def `cosh!`: Unit =
       unaryOp(VectorOperators.COSH)
 
-    inline def exp: Array[Double] =
+    @HotPath
+    def exp: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.EXP)
       out
     end exp
 
-    inline def `exp!`: Unit =
+    @HotPath
+    def `exp!`: Unit =
       unaryOp(VectorOperators.EXP)
 
-    inline def expm1: Array[Double] =
+    @HotPath
+    def expm1: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.EXPM1)
       out
     end expm1
 
-    inline def `expm1!`: Unit =
+    @HotPath
+    def `expm1!`: Unit =
       unaryOp(VectorOperators.EXPM1)
 
-    inline def log: Array[Double] =
+    @HotPath
+    def log: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG)
       out
     end log
 
-    inline def `log!`: Unit =
+    @HotPath
+    def `log!`: Unit =
       unaryOp(VectorOperators.LOG)
 
-    inline def log10: Array[Double] =
+    @HotPath
+    def log10: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG10)
       out
     end log10
 
-    inline def `log10!`: Unit =
+    @HotPath
+    def `log10!`: Unit =
       unaryOp(VectorOperators.LOG10)
 
-    inline def log1p: Array[Double] =
+    @HotPath
+    def log1p: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.LOG1P)
       out
     end log1p
 
-    inline def `log1p!`: Unit =
+    @HotPath
+    def `log1p!`: Unit =
       unaryOp(VectorOperators.LOG1P)
 
-    inline def sqrt: Array[Double] =
+    @HotPath
+    def sqrt: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.SQRT)
       out
     end sqrt
 
-    inline def `sqrt!`: Unit =
+    @HotPath
+    def `sqrt!`: Unit =
       unaryOp(VectorOperators.SQRT)
 
-    inline def sin: Array[Double] =
+    @HotPath
+    def sin: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.SIN)
       out
     end sin
 
-    inline def `sin!`: Unit =
+    @HotPath
+    def `sin!`: Unit =
       unaryOp(VectorOperators.SIN)
 
-    inline def sinh: Array[Double] =
+    @HotPath
+    def sinh: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.SINH)
       out
     end sinh
 
-    inline def `sinh!`: Unit =
+    @HotPath
+    def `sinh!`: Unit =
       unaryOp(VectorOperators.SINH)
 
-    inline def `tan!`: Unit =
+    @HotPath
+    def `tan!`: Unit =
       unaryOp(VectorOperators.TAN)
 
-    inline def tan: Array[Double] =
+    @HotPath
+    def tan: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.TAN)
       out
     end tan
 
-    inline def `tanh!`: Unit =
+    @HotPath
+    def `tanh!`: Unit =
       unaryOp(VectorOperators.TANH)
 
-    inline def tanh: Array[Double] =
+    @HotPath
+    def tanh: Array[Double] =
       val out = vec.clone()
       out.unaryOp(VectorOperators.TANH)
       out
@@ -469,19 +507,24 @@ object doublearrays:
 
     inline def variance: Double = variance(VarianceMode.Population)
 
-    /** Deliberately not `@Thin`, and the reason is a measurement worth keeping.
+    /** `@Thin` again, and the history is the point.
       *
-      * It was annotated `@Thin` and C3 measured it at 37 bytes against a 35-byte `MaxInlineSize`. The neighbouring
-      * `meanAndVariance(mode)`, which forwards to `meanAndVarianceTwoPass` and nothing else, is 7 bytes. So roughly 30
-      * bytes here is the cost of destructuring the result: `(mean: Double, variance: Double)` is a named tuple, which
-      * erases to a `Tuple2` of boxed Doubles, and reading one field means an unbox — after allocating a pair in order
-      * to discard half of it.
+      * This was annotated `@Thin`, C3 measured it at 37 bytes against a 35-byte `MaxInlineSize`, and the annotation
+      * came off with a note that ~30 of those bytes were the cost of destructuring a named tuple: reading one field out
+      * of `(mean: Double, variance: Double)` meant an unbox out of a `Tuple2`. The same note guessed that the
+      * allocation was the more interesting half and left it to check D1.
       *
-      * That makes this a forwarder plus real work, so `@Thin` was the wrong claim rather than the budget being wrong.
-      * Left as a plain `def`. The allocation is the more interesting half and belongs to Phase 2: `variance` allocating
-      * a Tuple2 per call is precisely what check D1 measures, and if it shows up there the fix is a variance path that
-      * does not route through the pair.
+      * D1 answered both. `variance(mode)` allocated **zero** bytes/op — the pair is dead here, so escape analysis
+      * scalarizes it — while a caller that actually reads the pair allocated 59.33 bytes/op. So the tuple was never
+      * costing this method anything at runtime; it was costing it 37 bytes of bytecode, and costing every real caller
+      * of `meanAndVariance` an object per call.
+      *
+      * [[vecxt.MeanAndVariance]] replaced the tuple for the second reason and fixes this one as a side effect: a field
+      * read off a `final class` with primitive fields is an `invokevirtual`, not an unbox. `@AllocFree` records the
+      * measured zero so a future restructuring that lets the result escape is caught rather than discovered.
       */
+    @Thin
+    @AllocFree
     def variance(mode: VarianceMode): Double =
       meanAndVariance(mode).variance
     end variance
@@ -496,11 +539,11 @@ object doublearrays:
     inline def stdDev(mode: VarianceMode): Double = std(mode)
 
     @Thin
-    def meanAndVariance: (mean: Double, variance: Double) =
+    def meanAndVariance: MeanAndVariance =
       meanAndVariance(VarianceMode.Population)
 
     @Thin
-    def meanAndVariance(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVariance(mode: VarianceMode): MeanAndVariance =
       meanAndVarianceTwoPass(mode)
     end meanAndVariance
 
@@ -519,8 +562,8 @@ object doublearrays:
       * VarianceBenchmark.var_simd_welford 1000 thrpt 3 436244.559 ± 6158.585 ops/s 231]
       * VarianceBenchmark.var_simd_welford 100000 thrpt 3 4187.715 ± 203.266 ops/s
       */
-    private def meanAndVarianceWelfordSIMD(mode: VarianceMode): (mean: Double, variance: Double) =
-      if vec.length == 0 then (0.0, 0.0)
+    private def meanAndVarianceWelfordSIMD(mode: VarianceMode): MeanAndVariance =
+      if vec.length == 0 then MeanAndVariance(0.0, 0.0)
       else
         // Per-lane accumulators
         var laneMeans = DoubleVector.zero(spd)
@@ -576,13 +619,13 @@ object doublearrays:
           case VarianceMode.Population => vec.length.toDouble
           case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-        (globalMean, globalM2 / denom)
+        MeanAndVariance(globalMean, globalM2 / denom)
       end if
     end meanAndVarianceWelfordSIMD
 
     /** Two-pass variance calculation (legacy, for comparison). First pass computes mean, second pass computes variance.
       */
-    def meanAndVarianceTwoPass(mode: VarianceMode): (mean: Double, variance: Double) =
+    def meanAndVarianceTwoPass(mode: VarianceMode): MeanAndVariance =
       val μ = vec.mean
       val l = spd.length()
       var tmp = DoubleVector.zero(spd)
@@ -609,7 +652,7 @@ object doublearrays:
         case VarianceMode.Population => vec.length.toDouble
         case VarianceMode.Sample     => (vec.length - 1).toDouble
 
-      (μ, sumSqDiff / denom)
+      MeanAndVariance(μ, sumSqDiff / denom)
     end meanAndVarianceTwoPass
 
     inline def mean: Double = vec.sumSIMD / vec.length

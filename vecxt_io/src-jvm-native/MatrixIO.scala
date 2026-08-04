@@ -14,7 +14,8 @@ object MatrixIO:
   private inline def splitLine(line: String, seperator: Char): Array[String] =
     line.split(java.util.regex.Pattern.quote(seperator.toString), -1).map(_.trim)
 
-  private inline def parseValue[A: Numeric](value: String): A =
+  // See ArrayIO.parseValue: generic in `A`, but it touches no array at all.
+  private def parseValue[A: Numeric](value: String): A =
     summon[Numeric[A]]
       .parseString(value)
       .getOrElse(
