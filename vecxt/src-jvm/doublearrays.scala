@@ -1309,7 +1309,8 @@ object doublearrays:
     @AllocFree
     def /(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
       val shift = destFrom - from
-      val recip = DoubleVector.broadcast(spd, 1.0 / d)
+      val recipScalar = 1.0 / d
+      val recip = DoubleVector.broadcast(spd, recipScalar)
       var i = from
       val end = from + len
       val bound = from + spd.loopBound(len)
@@ -1322,7 +1323,7 @@ object doublearrays:
       end while
 
       while i < end do
-        dest(i + shift) = vec(i) / d
+        dest(i + shift) = vec(i) * recipScalar
         i = i + 1
       end while
     end /

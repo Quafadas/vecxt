@@ -622,6 +622,11 @@ object doublearrays:
 
     def sumSIMD: Double = sum
 
+    inline def sumSIMD(from: Int, len: Int): Double =
+      scala.compiletime.error(
+        "sumSIMD(from, len) is JVM-only (vecxt.jvm doublearrays). Use the whole-array sumSIMD, or slice the array first."
+      )
+
     def sum: Double =
       var sum = 0.0
       var i = 0;
@@ -657,6 +662,11 @@ object doublearrays:
     end unary_-
 
     def norm: Double = blas.cblas_dnrm2(vec.length, vec.at(0), 1)
+
+    inline def norm(from: Int, len: Int): Double =
+      scala.compiletime.error(
+        "norm(from, len) is JVM-only (vecxt.jvm doublearrays). Use the whole-array norm, or slice the array first."
+      )
 
     def dot(v1: Array[Double]): Double =
       dimCheck(vec, v1)
@@ -702,11 +712,21 @@ object doublearrays:
     def add(d: Array[Double]): Array[Double] = vec + d
     def multInPlace(d: Double): Unit = vec *= d
 
+    inline def multInPlace(d: Double, from: Int, len: Int): Unit =
+      scala.compiletime.error(
+        "multInPlace(d, from, len) is JVM-only (vecxt.jvm doublearrays). Use the whole-array multInPlace, or slice the array first."
+      )
+
     def -(d: Double): Array[Double] =
       val out = vec.clone()
       out -= d
       out
     end -
+
+    inline def -(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
+      scala.compiletime.error(
+        "-(d, from, len, dest, destFrom) is JVM-only (vecxt.jvm doublearrays). Use the whole-array -, or slice the array first."
+      )
 
     def -=(d: Double): Unit =
       var i = 0
@@ -722,6 +742,11 @@ object doublearrays:
       out
     end +
 
+    inline def +(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
+      scala.compiletime.error(
+        "+(d, from, len, dest, destFrom) is JVM-only (vecxt.jvm doublearrays). Use the whole-array +, or slice the array first."
+      )
+
     def +=(d: Double): Unit =
       var i = 0
       while i < vec.length do
@@ -734,6 +759,11 @@ object doublearrays:
       blas.cblas_dscal(vec.length, d, vec.at(0), 1)
     end *=
 
+    inline def *=(d: Double, from: Int, len: Int): Unit =
+      scala.compiletime.error(
+        "*=(d, from, len) is JVM-only (vecxt.jvm doublearrays). Use the whole-array *=, or slice the array first."
+      )
+
     def *(d: Double): Array[Double] =
       val out = vec.clone
       out *= d
@@ -743,11 +773,21 @@ object doublearrays:
     def /=(d: Double): Unit =
       blas.cblas_dscal(vec.length, 1 / d, vec.at(0), 1)
 
+    inline def /=(d: Double, from: Int, len: Int): Unit =
+      scala.compiletime.error(
+        "/=(d, from, len) is JVM-only (vecxt.jvm doublearrays). Use the whole-array /=, or slice the array first."
+      )
+
     def /(d: Double) =
       val out = vec.clone
       out /= d
       out
     end /
+
+    inline def /(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
+      scala.compiletime.error(
+        "/(d, from, len, dest, destFrom) is JVM-only (vecxt.jvm doublearrays). Use the whole-array /, or slice the array first."
+      )
 
     def covariance(thatVector: Array[Double]): Double =
       val μThis = vec.mean

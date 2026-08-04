@@ -124,13 +124,17 @@ class MatrixExtensionSuite extends FunSuite:
   }
 
   test("element-wise maximum - non-contiguous layout") {
-    // Create matrices with non-standard strides
+    // Create matrices with non-standard strides (dense row-major: rowStride=3, colStride=1)
     val mat1 = Matrix[Double](Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3, 3, 1, 0)
     val mat2 = Matrix[Double](Array(6.0, 5.0, 4.0, 3.0, 2.0, 1.0), 2, 3, 3, 1, 0)
     val result = mat1.maximum(mat2)
 
-    // Expected result: element-wise max
-    val expected = Matrix[Double](Array(6.0, 5.0, 4.0, 4.0, 5.0, 6.0), 2, 3)
+    // Expected result: element-wise max, built via fromRows so it's unambiguous regardless of the
+    // result's own backing memory order (row- or col-major).
+    val expected = Matrix.fromRows[Double](
+      Array(6.0, 5.0, 4.0),
+      Array(4.0, 5.0, 6.0)
+    )
     assertMatrixEquals(result, expected)
   }
 
@@ -141,6 +145,30 @@ class MatrixExtensionSuite extends FunSuite:
     )
     val result = mat1.maximum(mat1)
     assertMatrixEquals(result, mat1)
+  }
+
+  test("element-wise maximum - transposed (genuinely non-dense) view, non-square, distinct values") {
+    // A transposed view is neither dense row-major nor dense col-major (rowStride/colStride are
+    // swapped relative to a fresh dense layout of the same shape), so this exercises the
+    // `foreach2D` branch of `maximum` rather than the `sameDenseElementWiseMemoryLayoutCheck` fast path.
+    val base = Matrix.fromRows[Double](
+      Array(1.0, 2.0, 3.0),
+      Array(4.0, 5.0, 6.0)
+    )
+    val mat1 = base.transpose // 3 rows x 2 cols, non-contiguous view
+    val mat2 = Matrix.fromRows[Double](
+      Array(9.0, 1.0),
+      Array(2.0, 8.0),
+      Array(7.0, 3.0)
+    )
+    val result = mat1.maximum(mat2)
+
+    val expected = Matrix.fromRows[Double](
+      Array(9.0, 4.0),
+      Array(2.0, 8.0),
+      Array(7.0, 6.0)
+    )
+    assertMatrixEquals(result, expected)
   }
 
   test("Some urnary ops") {

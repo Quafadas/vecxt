@@ -95,9 +95,9 @@ class DoubleArraysSegmentSuite extends munit.FunSuite:
 
   test("/(d, from, len, dest, destFrom) writes the segment divided by d into dest at destFrom") {
     val vec = backing()
-    val expectedSlice = vec.slice(from, from + segLen)./(2.0)
+    val expectedSlice = vec.slice(from, from + segLen)./(3.0)
     val dest = Array.ofDim[Double](segLen)
-    vec./(2.0, from, segLen, dest, 0)
+    vec./(3.0, from, segLen, dest, 0)
     assertEquals(dest.toList, expectedSlice.toList)
   }
 

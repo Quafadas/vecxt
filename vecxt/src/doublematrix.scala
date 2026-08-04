@@ -52,9 +52,10 @@ object DoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
+        val recip = 1.0 / n
         m.layout.foreach2D { (i, j) =>
           val srcIdx = m.layout.linearIndex(i, j)
-          newArr(i + j * m.rows) = m.raw(srcIdx) / n
+          newArr(i + j * m.rows) = m.raw(srcIdx) * recip
         }
         Matrix[Double](newArr, m.rows, m.cols)
     end /
@@ -74,24 +75,28 @@ object DoubleMatrix:
 
     def maximum(other: Matrix[Double]) =
       sameDimMatCheck(m, other)
-      val newArr = Array.ofDim[Double](m.numel)
 
       // TODO: SIMD optimization
       if sameDenseElementWiseMemoryLayoutCheck(m, other) then
+        val newArr = Array.ofDim[Double](m.numel)
         var i = 0
         val bound = m.numel
         while i < bound do
           newArr(i) = math.max(m.raw(i), other.raw(i))
           i += 1
         end while
+        // newArr is filled in m's own element order (row- or col-major), so it must be wrapped with m's
+        // layout, not always assumed column-major — see `+:+` for the same pattern.
+        Matrix(newArr, m.layout)
       else
+        val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
           val idxOther = other.layout.linearIndex(i, j)
-          newArr(i * m.cols + j) = math.max(m.raw(idx), other.raw(idxOther))
+          newArr(i + j * m.rows) = math.max(m.raw(idx), other.raw(idxOther))
         }
+        Matrix[Double](newArr, m.rows, m.cols)
       end if
-      Matrix[Double](newArr, m.rows, m.cols)
     end maximum
 
     def -(n: Double): Matrix[Double] =
