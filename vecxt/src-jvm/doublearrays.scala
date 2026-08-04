@@ -937,7 +937,16 @@ object doublearrays:
       maxVal + Math.log(sumExp)
     end logSumExp
 
-    inline def `cumsum!`: Unit =
+    /** The one kernel in this file whose `@AllocFree` does not depend on intrinsification.
+      *
+      * A prefix sum carries a dependency — `vec(i)` needs the value just written to `vec(i - 1)` — so it cannot be
+      * vectorised and there is no Vector API here at all. Nothing to intrinsify, therefore nothing whose failure to
+      * intrinsify could leave a `DoubleVector` on the heap. Every other `@AllocFree` in this file is contingent on C2
+      * applying `VectorSupport` intrinsics; this one is true because the body allocates nothing, full stop.
+      */
+    @HotPath
+    @AllocFree
+    def `cumsum!`: Unit =
       var i = 1
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
@@ -945,27 +954,48 @@ object doublearrays:
       end while
     end `cumsum!`
 
-    inline def cumsum: Array[Double] =
+    @Thin
+    def cumsum: Array[Double] =
       val out = vec.clone()
       out.`cumsum!`
       out
     end cumsum
 
-    inline def dot(v1: Array[Double]): Double =
+    /** `@Thin`, not `@HotPath`, and the distinction is the annotation's own wording.
+      *
+      * `@HotPath` describes "code that runs once per element". The per-element loop here is inside netlib's `ddot`, not
+      * in this method — what this method does is name the operation and dispatch to it, which is exactly `@Thin`'s
+      * definition. C3's no-backward-branch assertion is satisfied for the same reason, and would fail if someone ever
+      * open-coded the loop back into it, which is the right outcome.
+      *
+      * Not `@AllocFree`. `blas` is `JavaBLAS.getInstance`, so this is a call into a third-party pure-Java
+      * implementation. Whether it allocates is not visible from here and has never been measured, and the annotation
+      * exists to record measurements rather than expectations — the two that turned out to be false (`**!`, and
+      * `intarrays.dot`) were both applied by inspection. Same for `norm` and the array-argument `-=` below.
+      */
+    @Thin
+    def dot(v1: Array[Double]): Double =
       dimCheck(vec, v1)
       blas.ddot(vec.length, vec, 1, v1, 1)
     end dot
 
-    inline def norm: Double = blas.dnrm2(vec.length, vec, 1)
+    @Thin
+    def norm: Double = blas.dnrm2(vec.length, vec, 1)
 
-    inline def -(vec2: Array[Double]): Array[Double] =
+    @Thin
+    def -(vec2: Array[Double]): Array[Double] =
       dimCheck(vec, vec2)
       val out = vec.clone
       out -= vec2
       out
     end -
 
-    inline def -=(vec2: Array[Double]): Unit =
+    /** Note the asymmetry with the scalar overload below, which is `@HotPath @AllocFree`: that one is a hand-written
+      * Vector API loop, this one delegates the whole operation to `daxpy`. Same name, different implementations, so
+      * different annotations. Not an inconsistency to tidy up.
+      */
+    @Thin
+    def -=(vec2: Array[Double]): Unit =
       dimCheck(vec, vec2)
       blas.daxpy(vec.length, -1.0, vec2, 1, vec, 1)
     end -=

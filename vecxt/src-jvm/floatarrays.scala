@@ -4,6 +4,7 @@ import scala.reflect.ClassTag
 
 import vecxt.annotations.AllocFree
 import vecxt.annotations.HotPath
+import vecxt.annotations.Thin
 
 import vecxt.matrix.Matrix
 
@@ -640,12 +641,18 @@ object floatarrays:
 
     inline def stdDev(mode: VarianceMode): Float = std(mode)
 
-    inline def dot(v1: Array[Float]): Float =
+    /** `@Thin` rather than `@HotPath`, and not `@AllocFree`. See the doublearrays twin for the reasoning: the
+      * per-element loop is inside netlib's `sdot`, not here, and whether that third-party code allocates has never been
+      * measured.
+      */
+    @Thin
+    def dot(v1: Array[Float]): Float =
       dimCheck(vec, v1)
       blas.sdot(vec.length, vec, 1, v1, 1)
     end dot
 
-    inline def norm: Float = blas.snrm2(vec.length, vec, 1)
+    @Thin
+    def norm: Float = blas.snrm2(vec.length, vec, 1)
 
     @HotPath
     def increments: Array[Float] =
@@ -669,7 +676,12 @@ object floatarrays:
       out
     end increments
 
-    inline def `cumsum!`: Unit =
+    /** A prefix sum carries a dependency, so it cannot be vectorised and there is no Vector API here at all. That makes
+      * this `@AllocFree` unconditional rather than contingent on C2 applying intrinsics — see the doublearrays twin.
+      */
+    @HotPath
+    @AllocFree
+    def `cumsum!`: Unit =
       var i = 1
       while i < vec.length do
         vec(i) = vec(i - 1) + vec(i)
@@ -677,7 +689,8 @@ object floatarrays:
       end while
     end `cumsum!`
 
-    inline def cumsum: Array[Float] =
+    @Thin
+    def cumsum: Array[Float] =
       val out = vec.clone()
       out.`cumsum!`
       out
@@ -706,14 +719,19 @@ object floatarrays:
       (maxVal + Math.log(sumExp)).toFloat
     end logSumExp
 
-    inline def -(vec2: Array[Float]): Array[Float] =
+    @Thin
+    def -(vec2: Array[Float]): Array[Float] =
       dimCheck(vec, vec2)
       val out = vec.clone
       out -= vec2
       out
     end -
 
-    inline def -=(vec2: Array[Float]): Unit =
+    /** Asymmetric with the scalar overload, which is `@HotPath @AllocFree`: that one is a hand-written Vector API loop,
+      * this one delegates to `saxpy`. Same name, different implementations, different annotations.
+      */
+    @Thin
+    def -=(vec2: Array[Float]): Unit =
       dimCheck(vec, vec2)
       blas.saxpy(vec.length, -1.0f, vec2, 1, vec, 1)
     end -=
