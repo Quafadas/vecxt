@@ -522,6 +522,17 @@ object doublearrays:
       * [[vecxt.MeanAndVariance]] replaced the tuple for the second reason and fixes this one as a side effect: a field
       * read off a `final class` with primitive fields is an `invokevirtual`, not an unbox. `@AllocFree` records the
       * measured zero so a future restructuring that lets the result escape is caught rather than discovered.
+      *
+      * ==What the `@AllocFree` here is load-bearing on==
+      *
+      * The zero depends on C2 inlining `meanAndVarianceTwoPass` into this method, because that is where the
+      * `MeanAndVariance` is constructed and escape analysis only runs after C2's own inlining. A `LogCompilation` run
+      * puts that method at 1688 bytes of machine code — 68% of `InlineSmallCode` (2500), the budget above which C2
+      * declines to inline an already-compiled callee. Nothing measures that number today; see check D2.
+      *
+      * So if `meanAndVarianceTwoPass` grows past the limit, the pair starts escaping, and the symptom is *this* test
+      * failing with a message about allocation rather than about inlining. If that happens, look at the callee's
+      * compiled size before looking at anything here.
       */
     @Thin
     @AllocFree
