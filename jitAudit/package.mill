@@ -54,8 +54,9 @@ import mill.*, scalalib.*
   * {@code -XX:} flag. D2 and D5 are the two that would have depended on the JVM's diagnostic output instead. That is
   * the dividing line, not the amount of work.
   *
-  * What replaces D2 is already here and cheaper: {@code eaOffTest} answers the same question — did the SIMD intrinsics
-  * actually apply — from the observable consequence rather than from the compiler's log. See its Scaladoc below.
+  * Part of D2's ground is covered already, and more cheaply: {@code eaOffTest} asks whether the SIMD intrinsics
+  * actually applied by looking at an observable consequence rather than at the compiler's log. Only part — see that
+  * scope's Scaladoc for what it does and does not reach, and for why its CI step had been switched off.
   *
   * One thing was learned and kept: bytecode size predicts machine-code size poorly (measured 7–10× for vectorised code
   * with a masked tail), so {@code InlineSmallCode} can bind before {@code FreqInlineSize} does. That is recorded in
@@ -87,8 +88,8 @@ object `package` extends ScalaModule:
     }
   end test
 
-  /** EA-off cross-check for D1: runs a subset of D1Suite's kernels with escape analysis disabled ({@code
-    * -XX:-DoEscapeAnalysis}).
+  /** EA-off cross-check for D1: runs D1Suite's kernels with escape analysis disabled ({@code -XX:-DoEscapeAnalysis}),
+    * plus a canary for the flag itself.
     *
     * HotSpot Vector API intrinsics lower Vector API calls to SIMD machine instructions at the {@code VectorSupport}
     * layer, bypassing heap allocation entirely and independently of EA. Correctly intrinsified kernels therefore still
@@ -97,19 +98,22 @@ object `package` extends ScalaModule:
     * that EA would otherwise scalarise — making the regression visible here even if D1Suite (with EA enabled) continues
     * to pass.
     *
-    * ==This is what replaces D2==
+    * ==How this relates to the unbuilt D2==
     *
-    * Worth stating plainly, because the scope is easy to mistake for a nice-to-have and is currently commented out of
-    * the CI workflow. D1 with EA on cannot distinguish "the SIMD intrinsics were applied" from "they were not, and
-    * EA scalarised the software-path objects instead" — both read as zero. This scope can: on the software path with
-    * EA off, the objects reach the heap and the allocation is visible.
+    * It covers part of the same ground, from an observable consequence and a product-grade {@code -XX:} flag rather
+    * than from a JDK-internal XML vocabulary. D1 with EA on cannot distinguish "the SIMD intrinsics were applied"
+    * from "they were not, and EA scalarised the software-path objects instead" — both read as zero. This scope can.
     *
-    * That is the same question D2 was specified to answer by parsing {@code -XX:+LogCompilation} output, answered from
-    * an observable consequence and a product-grade {@code -XX:} flag instead of from a JDK-internal XML vocabulary. It
-    * is already written, and it does not need a parser anyone has to maintain across JDK upgrades.
+    * Only part, though, and the earlier framing of it as "what replaces D2" was too strong. It relies on EA being what
+    * rescues a software-path kernel, and that is not always so: D6's canary is a software-path kernel that allocates
+    * with EA *enabled*, so D1Suite catches that one unaided. What this scope adds is the fallbacks whose objects happen
+    * not to escape. Cheap and worth having; not a full substitute for confirming intrinsification directly, which
+    * nothing here does.
     *
-    * Two known gaps. The kernel list here has drifted behind D1Suite's, and the CI step is disabled — so today it
-    * protects nothing. Both are worth fixing before reaching for anything more elaborate.
+    * It sat commented out of CI from #110, and the reason turned out to be structural: it had no canary. Every
+    * assertion in it reads "still zero with EA off", which is precisely what a run with EA still on produces — so the
+    * scope passed whether or not the flag reached the JVM. #121 adds a canary that fails when the flag is absent,
+    * brings the kernel list up to parity with D1Suite, and re-enables the CI step.
     *
     * Run with: {@code ./mill jitAudit.eaOffTest}
     */

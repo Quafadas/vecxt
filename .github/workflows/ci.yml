@@ -97,14 +97,17 @@ jobs:
         if: matrix.project == 'jvm'
         run: ./mill jitAudit.test
 
-      # D1 EA-off cross-check: runs the same kernels with -XX:-DoEscapeAnalysis. HotSpot Vector
-      # API intrinsics bypass heap allocation independently of EA, so kernels still show ~0
-      # bytes/op. The value: if any kernel regresses to the software fallback path (SIMD
-      # intrinsics not applied), EA-off reveals it — software-path Vector objects are not
-      # scalarised without EA, making the regression visible here even if D1Suite still passes.
-      # - name: JIT audit EA-off cross-check (SIMD intrinsics independent of EA)
-      #  if: matrix.project == 'jvm'
-      #  run: ./mill jitAudit.eaOffTest
+      # D1 EA-off cross-check: the same kernels under -XX:-DoEscapeAnalysis. HotSpot Vector API
+      # intrinsics bypass heap allocation independently of EA, so an intrinsified kernel still
+      # shows ~0 bytes/op. The value: a kernel that regressed to the software fallback path
+      # allocates real objects, and EA normally scalarises those — so D1Suite reads a pass while
+      # this step fails.
+      #
+      # Was commented out from #110 until #121. It had no canary, so it passed whether or not the
+      # flag reached the JVM, which is not a check. It has one now — see D1EAOffSuite.
+      - name: JIT audit EA-off cross-check (SIMD intrinsics independent of EA)
+        if: matrix.project == 'jvm'
+        run: ./mill jitAudit.eaOffTest
 
       - name: Upload bytecode audit report
         if: always() && matrix.project == 'jvm'
