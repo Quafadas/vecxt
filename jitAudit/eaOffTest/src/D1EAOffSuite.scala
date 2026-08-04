@@ -132,8 +132,8 @@ class D1EAOffSuite extends FunSuite:
     * returns and discards the other, so the object is dead and EA removes it — D1Suite measures 0 bytes/op. That object
     * is an ordinary `final class`, not a `Vector`, so nothing intrinsifies it away. With EA off it must reach the heap.
     *
-    * Which is also why it is absent from the kernel assertions below rather than merely inverted here: asserting
-    * "≤ 8 bytes/op with EA off" for an EA-dependent kernel would be asserting the opposite of what the flag does.
+    * Which is also why it is absent from the kernel assertions below rather than merely inverted here: asserting "≤ 8
+    * bytes/op with EA off" for an EA-dependent kernel would be asserting the opposite of what the flag does.
     */
   test("D1-EAOff canary: doublearrays.variance(mode) must allocate with EA off") {
     val arr = Array.tabulate(N)(i => (i % 100).toDouble)
