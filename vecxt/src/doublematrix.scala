@@ -292,7 +292,15 @@ object DoubleMatrix:
         }
         Matrix[Double](newArr, m.rows, m.cols)
 
-    def `cos!` = vecxt.doublearrays.`cos!`(m.raw)
+    def `cos!`: Unit =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`cos!`(m.raw)
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = Math.cos(m.raw(idx))
+        }
+      end if
+    end `cos!`
 
     def tan =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.tan(m.raw), m.shape)

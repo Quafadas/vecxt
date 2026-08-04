@@ -182,6 +182,14 @@ class D1Suite extends FunSuite:
     }
   }
 
+  // A prefix sum carries a dependency, so it cannot be vectorised and there is no Vector API in the body at all.
+  // That makes this the only @AllocFree kernel in the library whose zero is unconditional rather than contingent on
+  // C2 applying intrinsics — worth having measured precisely because it is the control case for all the others.
+  test("D1: doublearrays.cumsum!") {
+    val arr = Array.fill(N)(1.0)
+    assertAllocFree("doublearrays.cumsum!")(arr.`cumsum!`)
+  }
+
   // ── Float ───────────────────────────────────────────────────────────────────
 
   test("D1: floatarrays.sumSIMD") {
@@ -241,6 +249,11 @@ class D1Suite extends FunSuite:
   test("D1: floatarrays.*=(Float)") {
     val arr = Array.fill(N)(2.0f)
     assertAllocFree("floatarrays.*=(Float)")(arr *= 1.0f)
+  }
+
+  test("D1: floatarrays.cumsum!") {
+    val arr = Array.fill(N)(1.0f)
+    assertAllocFree("floatarrays.cumsum!")(arr.`cumsum!`)
   }
 
   // ── Int ─────────────────────────────────────────────────────────────────────

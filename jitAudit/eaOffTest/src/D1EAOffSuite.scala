@@ -199,6 +199,13 @@ class D1EAOffSuite extends FunSuite:
     assertAllocFreeWithEAOff("doublearrays.abs!")(arr.`abs!`)
   }
 
+  // The control case: no Vector API in the body, so this cannot be on the software fallback path and its zero does not
+  // depend on either intrinsification or EA. If this one ever fails, the harness is wrong, not the kernel.
+  test("D1-EAOff: doublearrays.cumsum!") {
+    val arr = Array.fill(N)(1.0)
+    assertAllocFreeWithEAOff("doublearrays.cumsum!")(arr.`cumsum!`)
+  }
+
   // ── Float ───────────────────────────────────────────────────────────────────
 
   test("D1-EAOff: floatarrays.sumSIMD") {
@@ -256,6 +263,11 @@ class D1EAOffSuite extends FunSuite:
   test("D1-EAOff: floatarrays.*=(Float)") {
     val arr = Array.fill(N)(2.0f)
     assertAllocFreeWithEAOff("floatarrays.*=(Float)")(arr *= 1.0f)
+  }
+
+  test("D1-EAOff: floatarrays.cumsum!") {
+    val arr = Array.fill(N)(1.0f)
+    assertAllocFreeWithEAOff("floatarrays.cumsum!")(arr.`cumsum!`)
   }
 
   // ── Int ─────────────────────────────────────────────────────────────────────
