@@ -316,17 +316,18 @@ object DoubleMatrix:
 
     def `sqrt!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`sqrt!`(m.raw)
-      end if
-      var i = 0
-      while i < m.rows do
-        var j = 0
-        while j < m.cols do
-          val idx = m.layout.linearIndex(i, j)
-          m.raw(idx) = Math.sqrt(m.raw(idx))
-          j += 1
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = m.layout.linearIndex(i, j)
+            m.raw(idx) = Math.sqrt(m.raw(idx))
+            j += 1
+          end while
+          i += 1
         end while
-        i += 1
-      end while
+      end if
     end `sqrt!`
 
     def sqrt: Matrix[Double] =
@@ -363,17 +364,18 @@ object DoubleMatrix:
 
     def `sin!` =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`sin!`(m.raw)
-      end if
-      var i = 0
-      while i < m.rows do
-        var j = 0
-        while j < m.cols do
-          val idx = m.layout.linearIndex(i, j)
-          m.raw(idx) = Math.sin(m.raw(idx))
-          j += 1
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = m.layout.linearIndex(i, j)
+            m.raw(idx) = Math.sin(m.raw(idx))
+            j += 1
+          end while
+          i += 1
         end while
-        i += 1
-      end while
+      end if
     end `sin!`
 
     def cos =
@@ -392,7 +394,21 @@ object DoubleMatrix:
         end while
         Matrix[Double](newArr, m.rows, m.cols)
 
-    def `cos!` = vecxt.doublearrays.`cos!`(m.raw)
+    def `cos!`: Unit =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`cos!`(m.raw)
+      else
+        var i = 0
+        while i < m.rows do
+          var j = 0
+          while j < m.cols do
+            val idx = m.layout.linearIndex(i, j)
+            m.raw(idx) = Math.cos(m.raw(idx))
+            j += 1
+          end while
+          i += 1
+        end while
+      end if
+    end `cos!`
 
     def tan =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.tan(m.raw), m.shape)
