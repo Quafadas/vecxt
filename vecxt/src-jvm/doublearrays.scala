@@ -685,6 +685,8 @@ object doublearrays:
       * `@HotPath`/`@AllocFree` audited and must stay a self-contained kernel; this overload follows the identical
       * vector-body/scalar-tail shape so both stay in lockstep.
       */
+    @HotPath
+    @AllocFree
     def sumSIMD(from: Int, len: Int): Double =
       var i: Int = from
       var acc = DoubleVector.zero(spd)
@@ -1015,6 +1017,8 @@ object doublearrays:
       * column/row segments) route each segment through this SIMD kernel directly into its final position in a freshly
       * allocated destination array, without a separate segment-materialising copy.
       */
+    @HotPath
+    @AllocFree
     def +(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
       val shift = destFrom - from
       val inc = DoubleVector.broadcast(spd, d)
@@ -1076,6 +1080,8 @@ object doublearrays:
     end -
 
     /** Segment overload of [[-]]: mirrors [[+]]'s `(d, from, len, dest, destFrom)` overload. */
+    @HotPath
+    @AllocFree
     def -(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
       val shift = destFrom - from
       val inc = DoubleVector.broadcast(spd, d)
@@ -1257,6 +1263,8 @@ object doublearrays:
       * the reciprocal via `DoubleVector` rather than `blas.dscal`, since `dscal` only scales in place and cannot target
       * a separate destination array.
       */
+    @HotPath
+    @AllocFree
     def /(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
       val shift = destFrom - from
       val recip = DoubleVector.broadcast(spd, 1.0 / d)

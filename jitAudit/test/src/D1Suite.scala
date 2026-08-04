@@ -114,6 +114,40 @@ class D1Suite extends FunSuite:
     assertAllocFree("doublearrays.fillLinspace")(fillLinspace(dest, 0.0, 1.0))
   }
 
+  // ── Offset/length segment kernels (Phase D, #108/#109 follow-up) ────────────
+  // These mirror the whole-array kernels above but operate on a `(from, len)` sub-range,
+  // letting a strided Matrix view route a contiguous column/row segment through SIMD/BLAS
+  // without materialising it first. Same alloc-free expectation as their whole-array twins.
+
+  test("D1: doublearrays.sumSIMD(from, len)") {
+    val arr = Array.tabulate(N)(_.toDouble)
+    assertAllocFree("doublearrays.sumSIMD(from, len)") { doubleSink = arr.sumSIMD(8, N - 16) }
+  }
+
+  test("D1: doublearrays.+(d, from, len, dest, destFrom)") {
+    val arr = Array.fill(N)(1.0)
+    val dest = new Array[Double](N)
+    assertAllocFree("doublearrays.+(d, from, len, dest, destFrom)") {
+      arr.+(0.1, 8, N - 16, dest, 0)
+    }
+  }
+
+  test("D1: doublearrays.-(d, from, len, dest, destFrom)") {
+    val arr = Array.fill(N)(5.0)
+    val dest = new Array[Double](N)
+    assertAllocFree("doublearrays.-(d, from, len, dest, destFrom)") {
+      arr.-(0.1, 8, N - 16, dest, 0)
+    }
+  }
+
+  test("D1: doublearrays./(d, from, len, dest, destFrom)") {
+    val arr = Array.fill(N)(5.0)
+    val dest = new Array[Double](N)
+    assertAllocFree("doublearrays./(d, from, len, dest, destFrom)") {
+      arr./(2.0, 8, N - 16, dest, 0)
+    }
+  }
+
   // The two in-place unary kernels that carry @AllocFree. NEG and ABS are intrinsified
   // lanewise operations, so the DoubleVector temporaries and the masked-tail VectorMask are
   // expected to scalarize. The transcendental members of the same family (exp!, log!, sin!, …)
