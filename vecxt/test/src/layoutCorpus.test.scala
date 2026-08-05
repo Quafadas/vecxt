@@ -262,9 +262,9 @@ class LayoutCorpusSuite extends FunSuite:
     m.raw(m.layout.offset + i * m.layout.rowStride + j * m.layout.colStride)
 
   /** Mirrors `assertLogicallyEqual` but for `Matrix[Boolean]` results — used by the comparison operators
-    * (`>=`/`>`/`<=`/`<`), which had the same `m.shape` mislabeling bug as exp/log/sqrt/sin/cos/tan/unary_-/**: their
-    * fast path wrapped the result with `m.shape` (always column-major) instead of `m.layout`, silently transposing
-    * the result for a dense row-major view.
+    * (`>=`/`>`/`<=`/`<`), which had the same `m.shape` mislabeling bug as exp/log/sqrt/sin/cos/tan/unary_- and the
+    * power operator: their fast path wrapped the result with `m.shape` (always column-major) instead of `m.layout`,
+    * silently transposing the result for a dense row-major view.
     */
   private def assertLogicallyEqualBool(got: Matrix[Boolean], want: Matrix[Boolean], clue: String)(implicit
       loc: munit.Location
