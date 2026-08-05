@@ -212,7 +212,7 @@ object DoubleMatrix:
     def -(m2: Matrix[Double]): Matrix[Double] = m -:- m2
 
     def unary_- : Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.doublearrays.unary_-(m.raw), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.doublearrays.unary_-(m.raw), m.layout)
       else ???
 
     def `exp!`: Unit =
@@ -232,7 +232,7 @@ object DoubleMatrix:
         }
 
     def exp: Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.exp(m.raw), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.exp(m.raw), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -242,7 +242,7 @@ object DoubleMatrix:
         Matrix[Double](newArr, m.rows, m.cols)
 
     def log: Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.log(m.raw), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.log(m.raw), m.layout)
       else
         // allocate a fresh column-major matrix (rowStride=1, colStride=rows)
         val newArr = Array.ofDim[Double](m.numel)
@@ -263,7 +263,7 @@ object DoubleMatrix:
     end `sqrt!`
 
     def sqrt: Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.sqrt(m.raw), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.sqrt(m.raw), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -273,7 +273,7 @@ object DoubleMatrix:
         Matrix[Double](newArr, m.rows, m.cols)
 
     def sin =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.sin(m.raw), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.sin(m.raw), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -293,7 +293,7 @@ object DoubleMatrix:
     end `sin!`
 
     def cos =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.cos(m.raw), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.cos(m.raw), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -313,7 +313,7 @@ object DoubleMatrix:
     end `cos!`
 
     def tan =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.tan(m.raw), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.tan(m.raw), m.layout)
       else ???
 
     def `tan!` =
@@ -325,7 +325,7 @@ object DoubleMatrix:
       else ???
 
     def **(power: Double): Matrix[Double] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.**(m.raw)(power), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.**(m.raw)(power), m.layout)
       else ???
 
     private inline def reduceAlongDimension(
