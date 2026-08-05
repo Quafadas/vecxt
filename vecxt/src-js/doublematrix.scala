@@ -75,6 +75,25 @@ object JsDoubleMatrix:
       end if
     end *:*
 
+    def *:*=(bmat: Matrix[Boolean]): Unit =
+      sameDimMatCheck(m, bmat)
+      if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
+        var i = 0
+        while i < m.raw.length do
+          if !bmat.raw(i) then m.raw(i) = 0.0
+          end if
+          i += 1
+        end while
+      else
+        m.layout.foreach2D { (i, j) =>
+          val mIdx = m.layout.linearIndex(i, j)
+          val bIdx = bmat.layout.linearIndex(i, j)
+          if !bmat.raw(bIdx) then m.raw(mIdx) = 0.0
+          end if
+        }
+      end if
+    end *:*=
+
     def +=(arr: Array[Double]): Unit =
 
       assert(arr.length == m.cols, s"Array length ${arr.length} != expected ${m.cols}")

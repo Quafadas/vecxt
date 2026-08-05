@@ -92,7 +92,7 @@ object JvmFloatMatrix:
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
         // Preserve m's own orientation: deepCopy defaults to column-major, which would mismatch bmat's
         // orientation whenever m (and hence bmat, per the check above) is dense row-major, sending the
-        // `*:*=` below into its `else ???` fallback instead of the fast path both were just confirmed to share.
+        // `*:*=` below into its slower foreach2D fallback instead of the fast path both were just confirmed to share.
         val copy = m.deepCopy(asRowMajor = m.isDenseRowMajor)
         copy *:*= bmat
         copy
@@ -124,7 +124,13 @@ object JvmFloatMatrix:
           end if
           i += 1
         end while
-      else ???
+      else
+        m.layout.foreach2D { (i, j) =>
+          val mIdx = m.layout.linearIndex(i, j)
+          val bIdx = bmat.layout.linearIndex(i, j)
+          if !bmat.raw(bIdx) then m.raw(mIdx) = 0.0f
+          end if
+        }
       end if
     end *:*=
 
