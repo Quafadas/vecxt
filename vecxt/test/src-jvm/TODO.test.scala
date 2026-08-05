@@ -29,24 +29,6 @@ class TODO extends FunSuite:
       left.`matmulInPlace!`(right, out, alpha = 1.0f, beta = 0.0f)
     }
 
-  test("*:*= throws for unsupported non-matching Float and Boolean layouts"):
-    val base = Matrix.fromRows[Float](
-      Array[Float](1.0f, 2.0f, 3.0f, 4.0f),
-      Array[Float](5.0f, 6.0f, 7.0f, 8.0f),
-      Array[Float](9.0f, 10.0f, 11.0f, 12.0f)
-    )
-    val sub = base(Range.Inclusive(0, 2, 1), Range.Inclusive(1, 2, 1))
-
-    val mask = Matrix.fromRows[Boolean](
-      Array[Boolean](false, true),
-      Array[Boolean](true, false),
-      Array[Boolean](false, true)
-    )
-
-    intercept[NotImplementedError] {
-      sub *:*= mask
-    }
-
   test("matrix-vector multiply throws for non-column-major Float matrices"):
     val rowMajor = Matrix[Float](
       Array[Float](1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f),

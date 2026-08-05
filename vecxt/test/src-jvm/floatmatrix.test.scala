@@ -130,6 +130,34 @@ class FloatMatrixJvmSuite extends FunSuite:
       )
     )
 
+  test("*:*= on offset Float view uses general layout path"):
+    // Regression: *:*='s non-fast-path branch used to be `???` (vecxt/src-jvm/floatmatrix.scala). `sub` has a
+    // nonzero offset (it's `base`'s columns 1..2), so it misses the dense/offset-0 fast path and exercises the
+    // foreach2D fallback directly.
+    val base = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f, 3.0f, 4.0f),
+      Array[Float](5.0f, 6.0f, 7.0f, 8.0f),
+      Array[Float](9.0f, 10.0f, 11.0f, 12.0f)
+    )
+    val sub = base(Range.Inclusive(0, 2, 1), Range.Inclusive(1, 2, 1))
+
+    val mask = Matrix.fromRows[Boolean](
+      Array[Boolean](false, true),
+      Array[Boolean](true, false),
+      Array[Boolean](false, true)
+    )
+
+    sub *:*= mask
+
+    assertFloatMatrixEquals(
+      sub,
+      Matrix.fromRows[Float](
+        Array[Float](0.0f, 3.0f),
+        Array[Float](6.0f, 0.0f),
+        Array[Float](0.0f, 11.0f)
+      )
+    )
+
   test("comparison operators on offset Float view return expected masks"):
     val base = Matrix.fromRows[Float](
       Array[Float](1.0f, 2.0f, 3.0f, 4.0f),
