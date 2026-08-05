@@ -90,7 +90,10 @@ object JvmFloatMatrix:
     def *:*(bmat: Matrix[Boolean]): Matrix[Float] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
-        val copy = m.deepCopy
+        // Preserve m's own orientation: deepCopy defaults to column-major, which would mismatch bmat's
+        // orientation whenever m (and hence bmat, per the check above) is dense row-major, sending the
+        // `*:*=` below into its `else ???` fallback instead of the fast path both were just confirmed to share.
+        val copy = m.deepCopy(asRowMajor = m.isDenseRowMajor)
         copy *:*= bmat
         copy
       else
@@ -158,7 +161,7 @@ object JvmFloatMatrix:
     end *
 
     def >=(d: Float): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -169,7 +172,7 @@ object JvmFloatMatrix:
 
     @targetName("floatmatrixGT")
     def >(d: Float): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -180,7 +183,7 @@ object JvmFloatMatrix:
 
     @targetName("floatmatrixLE")
     def <=(d: Float): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<=(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -191,7 +194,7 @@ object JvmFloatMatrix:
 
     @targetName("floatmatrixLT")
     def <(d: Float): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>

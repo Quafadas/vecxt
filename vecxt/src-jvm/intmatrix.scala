@@ -21,7 +21,7 @@ object JvmIntMatrix:
     def /(d: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Double](vecxt.intarrays./(i)(d), m.shape)
+        Matrix[Double](vecxt.intarrays./(i)(d), m.layout)
       else ???
     end /
 
@@ -29,35 +29,35 @@ object JvmIntMatrix:
     def /(d: Float): Matrix[Float] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Float](vecxt.intarrays./(i)(d), m.shape)
+        Matrix[Float](vecxt.intarrays./(i)(d), m.layout)
       else ???
     end /
 
     def >=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Boolean](m.raw.gte(d), m.shape)
+        Matrix[Boolean](m.raw.gte(d), m.layout)
       else ???
     end >=
 
     def >(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Boolean](m.raw.gt(d), m.shape)
+        Matrix[Boolean](m.raw.gt(d), m.layout)
       else ???
     end >
 
     def <=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Boolean](m.raw.lte(d), m.shape)
+        Matrix[Boolean](m.raw.lte(d), m.layout)
       else ???
     end <=
 
     def <(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
-        Matrix[Boolean](m.raw.lt(d), m.shape)
+        Matrix[Boolean](m.raw.lt(d), m.layout)
       else ???
     end <
 
@@ -87,7 +87,10 @@ object JvmIntMatrix:
     def *:*(bmat: Matrix[Boolean]): Matrix[Int] =
       sameDimMatCheck(m, bmat)
       if sameDenseElementWiseMemoryLayoutCheck(m, bmat) then
-        val copy = m.deepCopy
+        // Preserve m's own orientation: deepCopy defaults to column-major, which would mismatch bmat's
+        // orientation whenever m (and hence bmat, per the check above) is dense row-major, sending the
+        // `*:*=` below into its `else ???` fallback instead of the fast path both were just confirmed to share.
+        val copy = m.deepCopy(asRowMajor = m.isDenseRowMajor)
         copy *:*= bmat
         copy
       else

@@ -122,6 +122,31 @@ class LayoutCorpusSuite extends FunSuite:
     Matrix[Double](out, Layout(m.rows, m.cols, m.cols, 1, 0, m.rows * m.cols))
   end denseCopy
 
+  /** The set of raw-array indices reachable through `m`'s own `(row, col)` coordinates, i.e. "inside the view". Any raw
+    * index not in this set is memory the view does not own.
+    */
+  private def reachableIndices(m: Matrix[Double]): Set[Int] =
+    (for
+      i <- 0 until m.rows
+      j <- 0 until m.cols
+    yield m.layout.linearIndex(i, j)).toSet
+  end reachableIndices
+
+  /** Asserts every raw-array slot NOT reachable via `m`'s own `(offset, rowStride, colStride)` is bit-for-bit unchanged
+    * from `before`. This is a different assertion from `op(view) == op(copy)`: it catches an in-place op that corrupts
+    * memory outside the view it was called on — the vecxt/pull/123 bug class (missing `else`, or a fast path that
+    * mutates the whole backing array when the view doesn't own all of it) — which `op(view) == op(copy)` alone cannot
+    * detect, since that property only inspects the view's own coordinates.
+    */
+  private def assertOutsideViewUntouched(m: Matrix[Double], before: Array[Double], clue: String)(implicit
+      loc: munit.Location
+  ): Unit =
+    val reachable = reachableIndices(m)
+    for idx <- before.indices if !reachable.contains(idx) do
+      assertEqualsDouble(m.raw(idx), before(idx), 0.0, s"$clue: raw($idx) outside the view was mutated")
+    end for
+  end assertOutsideViewUntouched
+
   test("maximum(other) — op(view) == op(copy) over the full layout-kind corpus") {
     for m <- corpus do
       val copy = denseCopy(m)
@@ -152,6 +177,237 @@ class LayoutCorpusSuite extends FunSuite:
     for m <- corpus do
       val copy = denseCopy(m)
       assertLogicallyEqual(m./(3.0), copy./(3.0), s"/(3.0) on $m")
+    end for
+  }
+
+  test("*(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqual(m.*(3.0), copy.*(3.0), s"*(3.0) on $m")
+    end for
+  }
+
+  test("+:+ — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val other = denseCopy(m).+(1.0) // same shape, distinct offset values
+      val otherView = m.+(1.0)
+      assertLogicallyEqual(m.+:+(otherView), copy.+:+(other), s"+:+ on $m")
+    end for
+  }
+
+  test("-:- — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val other = denseCopy(m).+(1.0)
+      val otherView = m.+(1.0)
+      assertLogicallyEqual(m.-:-(otherView), copy.-:-(other), s"-:- on $m")
+    end for
+  }
+
+  test("/:/ — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val other = denseCopy(m).+(1.0)
+      val otherView = m.+(1.0)
+      assertLogicallyEqual(m./:/(otherView), copy./:/(other), s"/:/ on $m")
+    end for
+  }
+
+  test("*:* (boolean mask) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      // The mask shares m's own layout — not always column-major, as a freshly built one (e.g. via the (rows, cols)
+      // factory) would be — so `sameDenseElementWiseMemoryLayoutCheck` reaches the fast path for BOTH dense
+      // orientations, not just column-major. This matters because on JS/Native that fast path used to fill its
+      // result array in m's own storage order, then wrap it with a hardcoded column-major layout — silently
+      // transposing the result whenever m was dense row-major.
+      //
+      // "want" is computed directly from the independent model oracle rather than by calling `.*:*` on
+      // `denseCopy(m)`: when m is dense row-major, `denseCopy` builds a layout that is structurally identical to
+      // m's own, so a row-major-shaped mask would make m and its copy take the exact same fast path and cancel out
+      // an identical bug on both sides — precisely the failure mode this file's top comment warns about.
+      val mModel = model(m)
+      val mask = Matrix[Boolean](Array.tabulate(m.layout.dataLength)(i => i % 2 == 0), m.layout)
+      val maskModel = modelBool(mask)
+      val wantArr = Array.ofDim[Double](m.rows * m.cols)
+      for
+        i <- 0 until m.rows
+        j <- 0 until m.cols
+      do wantArr(i + j * m.rows) = if maskModel(i, j) then mModel(i, j) else 0.0
+      end for
+      val want = Matrix[Double](wantArr, m.rows, m.cols)
+      assertLogicallyEqual(m.*:*(mask), want, s"*:* on $m")
+    end for
+  }
+
+  test("exp — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqual(m.exp, copy.exp, s"exp on $m")
+    end for
+  }
+
+  test("log — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqual(m.log, copy.log, s"log on $m")
+    end for
+  }
+
+  test("sqrt — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqual(m.sqrt, copy.sqrt, s"sqrt on $m")
+    end for
+  }
+
+  test("sin — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqual(m.sin, copy.sin, s"sin on $m")
+    end for
+  }
+
+  test("cos — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqual(m.cos, copy.cos, s"cos on $m")
+    end for
+  }
+
+  /** The oracle for `Matrix[Boolean]` results — mirrors `model` above but for comparison-operator output. */
+  private def modelBool(m: Matrix[Boolean])(i: Int, j: Int): Boolean =
+    m.raw(m.layout.offset + i * m.layout.rowStride + j * m.layout.colStride)
+
+  /** Mirrors `assertLogicallyEqual` but for `Matrix[Boolean]` results — used by the comparison operators
+    * (`>=`/`>`/`<=`/`<`), which had the same `m.shape` mislabeling bug as exp/log/sqrt/sin/cos/tan/unary_- and the
+    * power operator: their fast path wrapped the result with `m.shape` (always column-major) instead of `m.layout`,
+    * silently transposing the result for a dense row-major view.
+    */
+  private def assertLogicallyEqualBool(got: Matrix[Boolean], want: Matrix[Boolean], clue: String)(implicit
+      loc: munit.Location
+  ): Unit =
+    assertEquals(got.rows, want.rows, s"$clue: row count mismatch")
+    assertEquals(got.cols, want.cols, s"$clue: col count mismatch")
+    val gotModel = modelBool(got)
+    val wantModel = modelBool(want)
+    for
+      i <- 0 until want.rows
+      j <- 0 until want.cols
+    do assertEquals(gotModel(i, j), wantModel(i, j), s"$clue at ($i, $j)")
+    end for
+  end assertLogicallyEqualBool
+
+  test(">=(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqualBool(m.>=(3.0), copy.>=(3.0), s">= on $m")
+    end for
+  }
+
+  test(">(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqualBool(m.>(3.0), copy.>(3.0), s"> on $m")
+    end for
+  }
+
+  test("<=(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqualBool(m.<=(3.0), copy.<=(3.0), s"<= on $m")
+    end for
+  }
+
+  test("<(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqualBool(m.<(3.0), copy.<(3.0), s"< on $m")
+    end for
+  }
+
+  // ---------------------------------------------------------------------------------------------------------------
+  // In-place (`!`/`=`) operations. These carry a second property the tests above don't check: elements outside the
+  // view — raw-array slots not reachable via (offset, rowStride, colStride) — must be untouched. That's exactly the
+  // vecxt/pull/123 bug class (fixed there for sqrt!/sin!/cos!, with no gate to stop the same bug recurring in a
+  // fourth method), so every in-place op below asserts both properties: the mutated view matches op(copy), and
+  // everything outside the view is bit-for-bit unchanged.
+  // ---------------------------------------------------------------------------------------------------------------
+
+  test("*= (scalar) in-place — in-view matches op(copy), out-of-view untouched") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      copy.*=(3.0)
+      m.*=(3.0)
+      assertLogicallyEqual(m, copy, s"*= on $m")
+      assertOutsideViewUntouched(m, before, s"*= on $m")
+    end for
+  }
+
+  test("exp! in-place — in-view matches op(copy), out-of-view untouched") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      copy.`exp!`
+      m.`exp!`
+      assertLogicallyEqual(m, copy, s"exp! on $m")
+      assertOutsideViewUntouched(m, before, s"exp! on $m")
+    end for
+  }
+
+  test("log! in-place — in-view matches op(copy), out-of-view untouched") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      copy.`log!`
+      m.`log!`
+      assertLogicallyEqual(m, copy, s"log! on $m")
+      assertOutsideViewUntouched(m, before, s"log! on $m")
+    end for
+  }
+
+  test("sqrt! in-place — in-view matches op(copy), out-of-view untouched") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      copy.`sqrt!`
+      m.`sqrt!`
+      assertLogicallyEqual(m, copy, s"sqrt! on $m")
+      assertOutsideViewUntouched(m, before, s"sqrt! on $m")
+    end for
+  }
+
+  test("sin! in-place — in-view matches op(copy), out-of-view untouched") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      copy.`sin!`
+      m.`sin!`
+      assertLogicallyEqual(m, copy, s"sin! on $m")
+      assertOutsideViewUntouched(m, before, s"sin! on $m")
+    end for
+  }
+
+  test("cos! in-place — in-view matches op(copy), out-of-view untouched") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      copy.`cos!`
+      m.`cos!`
+      assertLogicallyEqual(m, copy, s"cos! on $m")
+      assertOutsideViewUntouched(m, before, s"cos! on $m")
+    end for
+  }
+
+  test("update(fct, value) in-place — in-view matches op(copy), out-of-view untouched") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      copy.update((x: Double) => x > 3.0, -1.0)
+      m.update((x: Double) => x > 3.0, -1.0)
+      assertLogicallyEqual(m, copy, s"update(fct, value) on $m")
+      assertOutsideViewUntouched(m, before, s"update(fct, value) on $m")
     end for
   }
 

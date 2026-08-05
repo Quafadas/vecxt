@@ -18,7 +18,7 @@ object NativeDoubleMatrix:
           newArr(i) = if bmat.raw(i) then m.raw(i) else 0.0
           i += 1
         end while
-        Matrix[Double](newArr, (m.rows, m.cols))
+        Matrix[Double](newArr, m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -72,7 +72,7 @@ object NativeDoubleMatrix:
     end +=
 
     def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -82,7 +82,7 @@ object NativeDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -94,7 +94,7 @@ object NativeDoubleMatrix:
     end >
 
     def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -106,7 +106,7 @@ object NativeDoubleMatrix:
     end <=
 
     def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
