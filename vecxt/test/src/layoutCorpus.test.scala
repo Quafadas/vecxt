@@ -122,8 +122,8 @@ class LayoutCorpusSuite extends FunSuite:
     Matrix[Double](out, Layout(m.rows, m.cols, m.cols, 1, 0, m.rows * m.cols))
   end denseCopy
 
-  /** The set of raw-array indices reachable through `m`'s own `(row, col)` coordinates, i.e. "inside the view". Any
-    * raw index not in this set is memory the view does not own.
+  /** The set of raw-array indices reachable through `m`'s own `(row, col)` coordinates, i.e. "inside the view". Any raw
+    * index not in this set is memory the view does not own.
     */
   private def reachableIndices(m: Matrix[Double]): Set[Int] =
     (for
@@ -132,11 +132,11 @@ class LayoutCorpusSuite extends FunSuite:
     yield m.layout.linearIndex(i, j)).toSet
   end reachableIndices
 
-  /** Asserts every raw-array slot NOT reachable via `m`'s own `(offset, rowStride, colStride)` is bit-for-bit
-    * unchanged from `before`. This is a different assertion from `op(view) == op(copy)`: it catches an in-place op
-    * that corrupts memory outside the view it was called on — the vecxt/pull/123 bug class (missing `else`, or a
-    * fast path that mutates the whole backing array when the view doesn't own all of it) — which `op(view) ==
-    * op(copy)` alone cannot detect, since that property only inspects the view's own coordinates.
+  /** Asserts every raw-array slot NOT reachable via `m`'s own `(offset, rowStride, colStride)` is bit-for-bit unchanged
+    * from `before`. This is a different assertion from `op(view) == op(copy)`: it catches an in-place op that corrupts
+    * memory outside the view it was called on — the vecxt/pull/123 bug class (missing `else`, or a fast path that
+    * mutates the whole backing array when the view doesn't own all of it) — which `op(view) == op(copy)` alone cannot
+    * detect, since that property only inspects the view's own coordinates.
     */
   private def assertOutsideViewUntouched(m: Matrix[Double], before: Array[Double], clue: String)(implicit
       loc: munit.Location
