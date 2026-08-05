@@ -5,8 +5,8 @@ import munit.FunSuite
 import matrix.*
 import all.*
 
-/** Cross-platform property test: `op(view) == op(copy)` for every elementwise `Matrix[Double]` operation, over a
-  * small, deterministic, structured corpus of [[Layout]] "kinds" (not random values).
+/** Cross-platform property test: `op(view) == op(copy)` for every elementwise `Matrix[Double]` operation, over a small,
+  * deterministic, structured corpus of [[Layout]] "kinds" (not random values).
   *
   * Deliberately not scalacheck/random: the same fixed corpus is exercised on JVM, JS, and Native, which is what makes
   * this a genuine cross-platform consistency gate rather than "some tests passed everywhere" with a different sample
@@ -14,9 +14,9 @@ import all.*
   *
   * The oracle (`model`) is a deliberately independent, "stupid" implementation living only in this test file: it reads
   * `raw` through nothing but `offset + i * rowStride + j * colStride` arithmetic, and never calls `foreach2D`,
-  * `linearIndex`, or any other production code path. If the oracle shared code with the implementation under test
-  * (e.g. by materialising a view via `foreach2D`), a row/col-major bug in `foreach2D` itself — like the one this test
-  * was written to catch in `DoubleMatrix.maximum` — would silently cancel out on both sides.
+  * `linearIndex`, or any other production code path. If the oracle shared code with the implementation under test (e.g.
+  * by materialising a view via `foreach2D`), a row/col-major bug in `foreach2D` itself — like the one this test was
+  * written to catch in `DoubleMatrix.maximum` — would silently cancel out on both sides.
   *
   * Comparison is logical, not raw: `assertLogicallyEqual` walks `(i, j)` through each matrix's own layout and reads
   * `raw` through the model arithmetic, rather than comparing the two backing arrays element-by-element. A transposed
@@ -24,8 +24,8 @@ import all.*
   * the same shape and *would* pass a raw-array comparison in the wrong direction, or fail to detect a swap between two
   * equal-sized dimensions — it's the logical `(i, j)` walk over each side's own dimensions that exposes it.
   *
-  * Values are `Array.tabulate(i => (i + 1).toDouble)` — distinct per-element and non-square in every corpus entry, so
-  * a transposition or an index swap changes an actual value at some `(i, j)` rather than silently aliasing two equal
+  * Values are `Array.tabulate(i => (i + 1).toDouble)` — distinct per-element and non-square in every corpus entry, so a
+  * transposition or an index swap changes an actual value at some `(i, j)` rather than silently aliasing two equal
   * inputs.
   */
 class LayoutCorpusSuite extends FunSuite:
@@ -35,9 +35,9 @@ class LayoutCorpusSuite extends FunSuite:
   end LayoutKind
   import LayoutKind.*
 
-  /** Builds a `(backing array, Layout)` pair of the given kind, for testing purposes only — production code always
-    * goes through the checked `Matrix` factories; this bypasses them deliberately to reach layout shapes (e.g.
-    * padding, non-unit non-adjacent strides) that the factories wouldn't normally produce standalone.
+  /** Builds a `(backing array, Layout)` pair of the given kind, for testing purposes only — production code always goes
+    * through the checked `Matrix` factories; this bypasses them deliberately to reach layout shapes (e.g. padding,
+    * non-unit non-adjacent strides) that the factories wouldn't normally produce standalone.
     */
   private def mkLayout(rows: Int, cols: Int, kind: LayoutKind, offset: Int): (Array[Double], Layout) =
     kind match
@@ -78,14 +78,14 @@ class LayoutCorpusSuite extends FunSuite:
       val (raw, layout) = mkLayout(r, c, kind, offset)
       Matrix[Double](raw, layout)
 
-  /** The independent oracle: reads `(i, j)` through nothing but layout arithmetic — no `foreach2D`, no
-    * `linearIndex`, no shared code with the implementation under test.
+  /** The independent oracle: reads `(i, j)` through nothing but layout arithmetic — no `foreach2D`, no `linearIndex`,
+    * no shared code with the implementation under test.
     */
   private def model(m: Matrix[Double])(i: Int, j: Int): Double =
     m.raw(m.layout.offset + i * m.layout.rowStride + j * m.layout.colStride)
 
-  /** Compares two matrices logically: same shape, and the same value at every `(i, j)` as read through each side's
-    * own layout — not a raw-array comparison.
+  /** Compares two matrices logically: same shape, and the same value at every `(i, j)` as read through each side's own
+    * layout — not a raw-array comparison.
     */
   private def assertLogicallyEqual(got: Matrix[Double], want: Matrix[Double], clue: String)(implicit
       loc: munit.Location
