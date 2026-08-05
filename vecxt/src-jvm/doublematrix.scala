@@ -141,7 +141,7 @@ object JvmDoubleMatrix:
     end *
 
     def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.>=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.>=(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -151,7 +151,7 @@ object JvmDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.>(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.>(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -161,7 +161,7 @@ object JvmDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.<=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.<=(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -171,7 +171,7 @@ object JvmDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.<(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.doublearrays.<(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>

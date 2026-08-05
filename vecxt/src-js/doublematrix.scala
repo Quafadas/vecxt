@@ -11,7 +11,7 @@ object JsDoubleMatrix:
   extension (m: Matrix[Double])
 
     def >=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>=(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -21,7 +21,7 @@ object JsDoubleMatrix:
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     def >(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.>(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -33,7 +33,7 @@ object JsDoubleMatrix:
     end >
 
     def <=(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<=(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>
@@ -45,7 +45,7 @@ object JsDoubleMatrix:
     end <=
 
     def <(d: Double): Matrix[Boolean] =
-      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.shape)
+      if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](doublearrays.<(m.raw)(d), m.layout)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
         m.layout.foreach2D { (i, j) =>

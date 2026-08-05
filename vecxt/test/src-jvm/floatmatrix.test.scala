@@ -2,6 +2,7 @@ package vecxt
 
 import munit.FunSuite
 
+import matrix.*
 import all.*
 
 class FloatMatrixJvmSuite extends FunSuite:
@@ -644,5 +645,52 @@ class FloatMatrixJvmSuite extends FunSuite:
     )
     val result = mat.product(1)
     assertFloatMatrixEquals(result, Matrix(Array[Float](8.0f, 15.0f), (1, 2)))
+
+  // ---------------------------------------------------------------------------------------------------------------
+  // Regression: the `hasSimpleContiguousMemoryLayout` fast path for `>=`/`>`/`<=`/`<` used to wrap its result with
+  // `m.shape` (always column-major), instead of `m.layout`. That mislabels a dense *row-major* input — the result
+  // array is still in row-major order but gets read back out as column-major — silently transposing the result for
+  // any non-square matrix. `Matrix.fromRows` (used elsewhere in this file) actually stores column-major internally,
+  // so it never exercised this path; these build a genuinely row-major layout directly to catch it.
+  // ---------------------------------------------------------------------------------------------------------------
+
+  private def denseRowMajor2x3(values: Array[Float]): Matrix[Float] =
+    Matrix[Float](values, Layout(2, 3, 3, 1, 0, 6))
+
+  test(">=(scalar) on a dense row-major view does not transpose the result") {
+    val m = denseRowMajor2x3(Array[Float](1f, 2f, 3f, 4f, 5f, 6f)) // row0=[1,2,3], row1=[4,5,6]
+    val expected = Matrix.fromRows[Boolean](
+      Array[Boolean](false, false, true),
+      Array[Boolean](true, true, true)
+    )
+    assertBooleanMatrixEquals(m.>=(3f), expected)
+  }
+
+  test(">(scalar) on a dense row-major view does not transpose the result") {
+    val m = denseRowMajor2x3(Array[Float](1f, 2f, 3f, 4f, 5f, 6f))
+    val expected = Matrix.fromRows[Boolean](
+      Array[Boolean](false, false, false),
+      Array[Boolean](true, true, true)
+    )
+    assertBooleanMatrixEquals(m.>(3f), expected)
+  }
+
+  test("<=(scalar) on a dense row-major view does not transpose the result") {
+    val m = denseRowMajor2x3(Array[Float](1f, 2f, 3f, 4f, 5f, 6f))
+    val expected = Matrix.fromRows[Boolean](
+      Array[Boolean](true, true, true),
+      Array[Boolean](false, false, false)
+    )
+    assertBooleanMatrixEquals(m.<=(3f), expected)
+  }
+
+  test("<(scalar) on a dense row-major view does not transpose the result") {
+    val m = denseRowMajor2x3(Array[Float](1f, 2f, 3f, 4f, 5f, 6f))
+    val expected = Matrix.fromRows[Boolean](
+      Array[Boolean](true, true, false),
+      Array[Boolean](false, false, false)
+    )
+    assertBooleanMatrixEquals(m.<(3f), expected)
+  }
 
 end FloatMatrixJvmSuite

@@ -257,6 +257,57 @@ class LayoutCorpusSuite extends FunSuite:
     end for
   }
 
+  /** The oracle for `Matrix[Boolean]` results — mirrors `model` above but for comparison-operator output. */
+  private def modelBool(m: Matrix[Boolean])(i: Int, j: Int): Boolean =
+    m.raw(m.layout.offset + i * m.layout.rowStride + j * m.layout.colStride)
+
+  /** Mirrors `assertLogicallyEqual` but for `Matrix[Boolean]` results — used by the comparison operators
+    * (`>=`/`>`/`<=`/`<`), which had the same `m.shape` mislabeling bug as exp/log/sqrt/sin/cos/tan/unary_-/**: their
+    * fast path wrapped the result with `m.shape` (always column-major) instead of `m.layout`, silently transposing
+    * the result for a dense row-major view.
+    */
+  private def assertLogicallyEqualBool(got: Matrix[Boolean], want: Matrix[Boolean], clue: String)(implicit
+      loc: munit.Location
+  ): Unit =
+    assertEquals(got.rows, want.rows, s"$clue: row count mismatch")
+    assertEquals(got.cols, want.cols, s"$clue: col count mismatch")
+    val gotModel = modelBool(got)
+    val wantModel = modelBool(want)
+    for
+      i <- 0 until want.rows
+      j <- 0 until want.cols
+    do assertEquals(gotModel(i, j), wantModel(i, j), s"$clue at ($i, $j)")
+    end for
+  end assertLogicallyEqualBool
+
+  test(">=(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqualBool(m.>=(3.0), copy.>=(3.0), s">= on $m")
+    end for
+  }
+
+  test(">(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqualBool(m.>(3.0), copy.>(3.0), s"> on $m")
+    end for
+  }
+
+  test("<=(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqualBool(m.<=(3.0), copy.<=(3.0), s"<= on $m")
+    end for
+  }
+
+  test("<(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqualBool(m.<(3.0), copy.<(3.0), s"< on $m")
+    end for
+  }
+
   // ---------------------------------------------------------------------------------------------------------------
   // In-place (`!`/`=`) operations. These carry a second property the tests above don't check: elements outside the
   // view — raw-array slots not reachable via (offset, rowStride, colStride) — must be untouched. That's exactly the
