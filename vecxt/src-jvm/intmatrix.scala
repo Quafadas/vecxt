@@ -92,17 +92,11 @@ object JvmIntMatrix:
         copy
       else
         val newArr = Array.ofDim[Int](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val mIdx = m.layout.linearIndex(i, j)
-            val bIdx = bmat.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val mIdx = m.layout.linearIndex(i, j)
+          val bIdx = bmat.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0
+        }
         Matrix[Int](newArr, m.rows, m.cols)
       end if
     end *:*

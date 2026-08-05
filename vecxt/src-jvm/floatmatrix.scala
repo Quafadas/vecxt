@@ -95,17 +95,11 @@ object JvmFloatMatrix:
         copy
       else
         val newArr = Array.ofDim[Float](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val mIdx = m.layout.linearIndex(i, j)
-            val bIdx = bmat.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0.0f
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val mIdx = m.layout.linearIndex(i, j)
+          val bIdx = bmat.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = if bmat.raw(bIdx) then m.raw(mIdx) else 0.0f
+        }
         Matrix[Float](newArr, m.rows, m.cols)
       end if
     end *:*
@@ -167,16 +161,10 @@ object JvmFloatMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) >= d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) >= d
+        }
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixGT")
@@ -184,16 +172,10 @@ object JvmFloatMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.>(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) > d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) > d
+        }
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixLE")
@@ -201,16 +183,10 @@ object JvmFloatMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<=(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) <= d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) <= d
+        }
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     @targetName("floatmatrixLT")
@@ -218,16 +194,10 @@ object JvmFloatMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix[Boolean](vecxt.floatarrays.<(m.raw)(d), m.shape)
       else
         val newArr = Array.ofDim[Boolean](m.numel)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            val srcIdx = m.layout.linearIndex(i, j)
-            newArr(i + j * m.rows) = m.raw(srcIdx) < d
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) < d
+        }
         Matrix[Boolean](newArr, m.rows, m.cols)
 
     /** Adds the elements of this vector to the matrix with broadcasting behavior.
@@ -318,15 +288,9 @@ object JvmFloatMatrix:
           j = j + 1
         end while
       else // fallback for strides != 1
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            m(i, j) = m(i, j) + arr(j)
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          m(i, j) = m(i, j) + arr(j)
+        }
       end if
 
     end +=
@@ -341,15 +305,9 @@ object JvmFloatMatrix:
         val newArr = Array.ofDim[Float](m.numel)
         val newMat =
           Matrix[Float](newArr, m.rows, m.cols, m.cols, 1, 0)
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            newMat(i, j) = m(i, j) - mat1(i, j)
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          newMat(i, j) = m(i, j) - mat1(i, j)
+        }
         newMat
       end if
     end -
@@ -424,15 +382,9 @@ object JvmFloatMatrix:
           j = j + 1
         end while
       else
-        var i = 0
-        while i < m.rows do
-          var j = 0
-          while j < m.cols do
-            m(i, j) = m(i, j) - arr(j)
-            j += 1
-          end while
-          i += 1
-        end while
+        m.layout.foreach2D { (i, j) =>
+          m(i, j) = m(i, j) - arr(j)
+        }
       end if
 
     end -=

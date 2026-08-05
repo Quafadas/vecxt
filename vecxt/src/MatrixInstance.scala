@@ -40,16 +40,10 @@ object MatrixInstance:
 
     @targetName("updateFct")
     inline def update(inline fct: A => Boolean, value: A): Unit =
-      var i = 0
-      while i < m.rows do
-        var j = 0
-        while j < m.cols do
-          if fct(m(i, j)) then m(i, j) = value
-          end if
-          j += 1
-        end while
-        i += 1
-      end while
+      m.layout.foreach2D { (i, j) =>
+        if fct(m(i, j)) then m(i, j) = value
+        end if
+      }
     end update
 
     inline def updateInPlace(

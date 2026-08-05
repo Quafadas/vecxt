@@ -47,6 +47,69 @@ object matrix:
     @Thin
     def linearIndex(row: Int, col: Int): Int = offset + row * rowStride + col * colStride
 
+    /** Returns the axis that carries unit stride, i.e. the axis along which consecutive indices are adjacent in the
+      * backing array: `0` if `rowStride == 1` (rows), `1` if `colStride == 1` (cols), or `-1` if neither axis is
+      * contiguous. Used to order traversals so the innermost loop walks the contiguous axis, e.g. [[foreach2D]].
+      */
+    inline def unitStrideAxis: Int =
+      if rowStride == 1 then 0
+      else if colStride == 1 then 1
+      else -1
+
+    /** Traverses every `(row, col)` pair exactly once, ordering the loop nest so the unit-stride axis (per
+      * [[unitStrideAxis]]) is innermost. This keeps both the read from a layout with `rowStride == 1` and the write
+      * into a column-major destination (whose own unit-stride axis is always rows) cache-friendly, instead of the "rows
+      * outer, cols inner" order that strides by `colStride`/`rows` on every innermost step.
+      *
+      * `inline` with an `inline` body so no closure is allocated per element — mirrors the pattern already used by
+      * `DoubleMatrix.reduceAlongDimension`.
+      */
+    inline def foreach2D(inline body: (Int, Int) => Unit): Unit =
+      if unitStrideAxis == 1 then
+        var i = 0
+        while i < rows do
+          var j = 0
+          while j < cols do
+            body(i, j)
+            j += 1
+          end while
+          i += 1
+        end while
+      else
+        var j = 0
+        while j < cols do
+          var i = 0
+          while i < rows do
+            body(i, j)
+            i += 1
+          end while
+          j += 1
+        end while
+      end if
+    end foreach2D
+
+    /** Number of contiguous segments this layout decomposes into along the unit-stride axis: one segment per coordinate
+      * of the *other* axis, since every coordinate along [[unitStrideAxis]] is contiguous in the backing array. `-1`
+      * when [[unitStrideAxis]] is `-1` (no useful decomposition — both strides are non-unit).
+      */
+    inline def segmentCount: Int =
+      if unitStrideAxis == 0 then cols
+      else if unitStrideAxis == 1 then rows
+      else -1
+
+    /** Length of each contiguous segment — the extent of the unit-stride axis. `-1` when [[unitStrideAxis]] is `-1`.
+      */
+    inline def segmentLength: Int =
+      if unitStrideAxis == 0 then rows
+      else if unitStrideAxis == 1 then cols
+      else -1
+
+    /** Start offset (into the backing array) of segment `idx` along the non-unit-stride axis, i.e. `linearIndex` with
+      * the unit-stride coordinate fixed at `0`. Only meaningful when [[unitStrideAxis]] is `0` or `1`.
+      */
+    inline def segmentStart(idx: Int): Int =
+      if unitStrideAxis == 0 then linearIndex(0, idx) else linearIndex(idx, 0)
+
     /** Returns the transposed layout: rows ↔ cols, rowStride ↔ colStride. Shares the same backing data. */
     def transpose: Layout = new Layout(cols, rows, colStride, rowStride, offset, dataLength, kind)
 
