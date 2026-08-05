@@ -31,7 +31,7 @@ import all.*
 class LayoutCorpusSuite extends FunSuite:
 
   private enum LayoutKind:
-    case RowMajor, ColMajor, RowMajorPadded, ColMajorPadded, DoublyStrided
+    case RowMajor, ColMajor, RowMajorPadded, ColMajorPadded, DoublyStrided, ColMajorLeadingCols, RowMajorLeadingRows
   end LayoutKind
   import LayoutKind.*
 
@@ -63,10 +63,24 @@ class LayoutCorpusSuite extends FunSuite:
         val colStride = rows * rowStride + 3
         val len = offset + (rows - 1) * rowStride + (cols - 1) * colStride + 1
         (Array.tabulate(len)(i => (i + 1).toDouble), Layout(rows, cols, rowStride, colStride, offset, len))
+      case ColMajorLeadingCols =>
+        // Dense col-major, offset 0 (unit rowStride, colStride == rows) — same as ColMajor — but the backing array
+        // extends past rows*cols. This is what `submatrix` produces for the leading columns of a wider parent: a
+        // genuine zero-copy view that is dense and offset-0 but doesn't own its entire backing array. `offset` is
+        // intentionally ignored — a nonzero offset would already fail `isDenseColMajor` for an unrelated reason,
+        // which isn't the gap this kind exists to cover.
+        val len = rows * cols + 5
+        (Array.tabulate(len)(i => (i + 1).toDouble), Layout(rows, cols, 1, rows, 0, len))
+      case RowMajorLeadingRows =>
+        // Mirror case: dense row-major, offset 0, backing array extends past rows*cols — e.g. the leading rows of a
+        // taller parent matrix.
+        val len = rows * cols + 5
+        (Array.tabulate(len)(i => (i + 1).toDouble), Layout(rows, cols, cols, 1, 0, len))
   end mkLayout
 
   private val dims = List((1, 1), (1, 4), (4, 1), (2, 3), (3, 2), (3, 3))
-  private val kinds = List(RowMajor, ColMajor, RowMajorPadded, ColMajorPadded, DoublyStrided)
+  private val kinds =
+    List(RowMajor, ColMajor, RowMajorPadded, ColMajorPadded, DoublyStrided, ColMajorLeadingCols, RowMajorLeadingRows)
   private val offsets = List(0, 1, 7)
 
   private def corpus: Seq[Matrix[Double]] =
@@ -408,6 +422,58 @@ class LayoutCorpusSuite extends FunSuite:
       m.update((x: Double) => x > 3.0, -1.0)
       assertLogicallyEqual(m, copy, s"update(fct, value) on $m")
       assertOutsideViewUntouched(m, before, s"update(fct, value) on $m")
+    end for
+  }
+
+  test("*:*= (boolean mask) in-place — in-view matches op(copy), out-of-view untouched") {
+    // *:*= was the one mutating op missing from this suite: it looped to `m.raw.length` instead of `m.numel`,
+    // relying entirely on `sameElementOrderAs` to keep the fast path from firing on a view that doesn't own its
+    // whole backing array (e.g. ColMajorLeadingCols / RowMajorLeadingRows above). Computing `want` from the
+    // independent model oracle before mutating, rather than from a second `*:*=` call, keeps this test from
+    // sharing code with the implementation under test.
+    for m <- corpus do
+      val before = m.raw.clone()
+      val mModel = model(m)
+      val mask = Matrix[Boolean](Array.tabulate(m.layout.dataLength)(i => i % 2 == 0), m.layout)
+      val maskModel = modelBool(mask)
+      val wantArr = Array.ofDim[Double](m.rows * m.cols)
+      for
+        i <- 0 until m.rows
+        j <- 0 until m.cols
+      do wantArr(i + j * m.rows) = if maskModel(i, j) then mModel(i, j) else 0.0
+      end for
+      val want = Matrix[Double](wantArr, m.rows, m.cols)
+
+      m.*:*=(mask)
+
+      assertLogicallyEqual(m, want, s"*:*= on $m")
+      assertOutsideViewUntouched(m, before, s"*:*= on $m")
+    end for
+  }
+
+  test("*:*= via submatrix — leading-columns view must not corrupt the parent's trailing columns") {
+    // Direct regression test for the reported exploit, through the real production `submatrix` path rather than
+    // the synthetic `mkLayout` corpus: `m.submatrix(0 to R-1, 0 to k-1)` on a column-major parent is a genuine
+    // zero-copy view sharing the parent's backing array and strides, with `dataLength` (the parent's full size)
+    // greater than `numel` (the view's own element count) — exactly the shape `sameElementOrderAs` used to accept.
+    val rows = 4
+    val parentCols = 6
+    val subCols = 3
+    val parent = Matrix[Double](Array.tabulate(rows * parentCols)(i => (i + 1).toDouble), rows, parentCols)
+    val trailingStart = rows * subCols
+    val trailingBefore = Array.tabulate(rows * (parentCols - subCols))(k => parent.raw(trailingStart + k))
+
+    val sub = parent.submatrix(0 to rows - 1, 0 to subCols - 1)
+    val mask = Matrix[Boolean](Array.tabulate(rows * subCols)(i => i % 2 == 0), rows, subCols)
+    sub.*:*=(mask)
+
+    for k <- 0 until rows * (parentCols - subCols) do
+      assertEqualsDouble(
+        parent.raw(trailingStart + k),
+        trailingBefore(k),
+        0.0,
+        s"*:*= via submatrix corrupted parent raw(${trailingStart + k}), which the view does not own"
+      )
     end for
   }
 

@@ -122,11 +122,14 @@ object matrix:
     /** Returns true if this layout and `that` layout have the same element traversal order, which allows elementwise
       * operations to proceed directly over the raw arrays without reindexing.
       *
-      * Semantics are identical to the original `sameDenseElementWiseMemoryLayoutCheck` expression — operator precedence
-      * is preserved literally, not "cleaned up".
+      * Requires `dataLength == numel` on both sides, same as [[hasSimpleContiguousMemoryLayout]]: without it, a view
+      * that is dense and offset-0 but doesn't own its entire backing array (e.g. the leading columns of a larger
+      * col-major matrix via `submatrix`) would satisfy the orientation/stride check while raw-array operations reach
+      * past what the view logically owns.
       */
     def sameElementOrderAs(that: Layout): Boolean =
-      isDenseColMajor && that.isDenseColMajor && rowStride == that.rowStride || isDenseRowMajor && that.isDenseRowMajor && colStride == that.colStride
+      (isDenseColMajor && that.isDenseColMajor && rowStride == that.rowStride || isDenseRowMajor && that.isDenseRowMajor && colStride == that.colStride) &&
+        dataLength == numel && that.dataLength == that.numel
 
     /** Reproduces the original `Matrix#layout` string byte-for-byte so no test or `experiments` output changes. */
     override def toString: String =
