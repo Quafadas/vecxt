@@ -52,10 +52,9 @@ object DoubleMatrix:
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
-        val recip = 1.0 / n
         m.layout.foreach2D { (i, j) =>
           val srcIdx = m.layout.linearIndex(i, j)
-          newArr(i + j * m.rows) = m.raw(srcIdx) * recip
+          newArr(i + j * m.rows) = m.raw(srcIdx) / n
         }
         Matrix[Double](newArr, m.rows, m.cols)
     end /

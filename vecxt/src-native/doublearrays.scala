@@ -771,7 +771,12 @@ object doublearrays:
     end *
 
     def /=(d: Double): Unit =
-      blas.cblas_dscal(vec.length, 1 / d, vec.at(0), 1)
+      var i = 0
+      while i < vec.length do
+        vec(i) = vec(i) / d
+        i = i + 1
+      end while
+    end /=
 
     inline def /=(d: Double, from: Int, len: Int): Unit =
       scala.compiletime.error(

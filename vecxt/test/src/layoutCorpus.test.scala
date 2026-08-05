@@ -85,7 +85,10 @@ class LayoutCorpusSuite extends FunSuite:
     m.raw(m.layout.offset + i * m.layout.rowStride + j * m.layout.colStride)
 
   /** Compares two matrices logically: same shape, and the same value at every `(i, j)` as read through each side's own
-    * layout — not a raw-array comparison.
+    * layout — not a raw-array comparison. Uses a small tolerance rather than exact equality: fast-path (BLAS/SIMD) and
+    * `foreach2D` branches are not guaranteed to be bit-identical (e.g. true division vs. reciprocal-multiply can differ
+    * by an ulp), and the property under test is numerical equivalence, not bit-for-bit reproduction of a specific
+    * rounding strategy.
     */
   private def assertLogicallyEqual(got: Matrix[Double], want: Matrix[Double], clue: String)(implicit
       loc: munit.Location
@@ -97,7 +100,7 @@ class LayoutCorpusSuite extends FunSuite:
     for
       i <- 0 until want.rows
       j <- 0 until want.cols
-    do assertEquals(gotModel(i, j), wantModel(i, j), s"$clue at ($i, $j)")
+    do assertEqualsDouble(gotModel(i, j), wantModel(i, j), 1e-9, s"$clue at ($i, $j)")
     end for
   end assertLogicallyEqual
 

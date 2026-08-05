@@ -56,7 +56,7 @@ class DoubleArraysSegmentSuite extends munit.FunSuite:
     assertEquals(vecA.toList, vecB.toList)
   }
 
-  test("/=(d, from, len) scales only the segment by the reciprocal") {
+  test("/=(d, from, len) divides only the segment, leaving the rest untouched") {
     val vec = backing()
     val before = vec.clone()
     vec./=(4.0, from, segLen)

@@ -1285,13 +1285,42 @@ object doublearrays:
     end /
 
     inline def /=(d: Double): Array[Double] =
-      blas.dscal(vec.length, 1.0 / d, vec, 1)
+      val broadcast = DoubleVector.broadcast(spd, d)
+      var i = 0
+      val bound = spd.loopBound(vec.length)
+      while i < bound do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .div(broadcast)
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < vec.length do
+        vec(i) = vec(i) / d
+        i = i + 1
+      end while
       vec
     end /=
 
     /** Segment overload of [[/=]]: divides `len` elements starting at `from` in place by `d`. */
     inline def /=(d: Double, from: Int, len: Int): Unit =
-      blas.dscal(len, 1.0 / d, vec, from, 1)
+      val broadcast = DoubleVector.broadcast(spd, d)
+      var i = from
+      val end = from + len
+      val bound = from + spd.loopBound(len)
+      while i < bound do
+        DoubleVector
+          .fromArray(spd, vec, i)
+          .div(broadcast)
+          .intoArray(vec, i)
+        i += spdl
+      end while
+
+      while i < end do
+        vec(i) = vec(i) / d
+        i = i + 1
+      end while
     end /=
 
     inline def /(d: Double): Array[Double] =
@@ -1301,29 +1330,29 @@ object doublearrays:
     end /
 
     /** Segment overload of [[/]]: reads `len` elements starting at `from`, divides by `d`, and writes the result into
-      * `dest` starting at `destFrom`. Mirrors the `(d, from, len, dest, destFrom)` shape of [[+]] and [[-]] — scales by
-      * the reciprocal via `DoubleVector` rather than `blas.dscal`, since `dscal` only scales in place and cannot target
-      * a separate destination array.
+      * `dest` starting at `destFrom`. Mirrors the `(d, from, len, dest, destFrom)` shape of [[+]] and [[-]] — uses true
+      * division (matching [[/=]]) rather than `blas.dscal`, since `dscal` only scales in place and cannot target a
+      * separate destination array, and reciprocal-multiply would diverge from the true-division semantics used
+      * everywhere else.
       */
     @HotPath
     @AllocFree
     def /(d: Double, from: Int, len: Int, dest: Array[Double], destFrom: Int): Unit =
       val shift = destFrom - from
-      val recipScalar = 1.0 / d
-      val recip = DoubleVector.broadcast(spd, recipScalar)
+      val broadcast = DoubleVector.broadcast(spd, d)
       var i = from
       val end = from + len
       val bound = from + spd.loopBound(len)
       while i < bound do
         DoubleVector
           .fromArray(spd, vec, i)
-          .mul(recip)
+          .div(broadcast)
           .intoArray(dest, i + shift)
         i += spdl
       end while
 
       while i < end do
-        dest(i + shift) = vec(i) * recipScalar
+        dest(i + shift) = vec(i) / d
         i = i + 1
       end while
     end /
