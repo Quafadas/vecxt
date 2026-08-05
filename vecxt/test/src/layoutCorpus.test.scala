@@ -216,9 +216,27 @@ class LayoutCorpusSuite extends FunSuite:
 
   test("*:* (boolean mask) — op(view) == op(copy) over the full layout-kind corpus") {
     for m <- corpus do
-      val copy = denseCopy(m)
-      val mask = Matrix[Boolean](Array.tabulate(m.numel)(i => i % 2 == 0), m.rows, m.cols)
-      assertLogicallyEqual(m.*:*(mask), copy.*:*(mask), s"*:* on $m")
+      // The mask shares m's own layout — not always column-major, as a freshly built one (e.g. via the (rows, cols)
+      // factory) would be — so `sameDenseElementWiseMemoryLayoutCheck` reaches the fast path for BOTH dense
+      // orientations, not just column-major. This matters because on JS/Native that fast path used to fill its
+      // result array in m's own storage order, then wrap it with a hardcoded column-major layout — silently
+      // transposing the result whenever m was dense row-major.
+      //
+      // "want" is computed directly from the independent model oracle rather than by calling `.*:*` on
+      // `denseCopy(m)`: when m is dense row-major, `denseCopy` builds a layout that is structurally identical to
+      // m's own, so a row-major-shaped mask would make m and its copy take the exact same fast path and cancel out
+      // an identical bug on both sides — precisely the failure mode this file's top comment warns about.
+      val mModel = model(m)
+      val mask = Matrix[Boolean](Array.tabulate(m.layout.dataLength)(i => i % 2 == 0), m.layout)
+      val maskModel = modelBool(mask)
+      val wantArr = Array.ofDim[Double](m.rows * m.cols)
+      for
+        i <- 0 until m.rows
+        j <- 0 until m.cols
+      do wantArr(i + j * m.rows) = if maskModel(i, j) then mModel(i, j) else 0.0
+      end for
+      val want = Matrix[Double](wantArr, m.rows, m.cols)
+      assertLogicallyEqual(m.*:*(mask), want, s"*:* on $m")
     end for
   }
 
