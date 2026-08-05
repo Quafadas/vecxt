@@ -45,7 +45,13 @@ object DoubleMatrix:
 
     def *(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.*(m.raw)(n), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) * n
+        }
+        Matrix[Double](newArr, m.rows, m.cols)
     end *
 
     def /(n: Double): Matrix[Double] =
