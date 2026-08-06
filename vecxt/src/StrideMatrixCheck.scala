@@ -61,24 +61,25 @@ object strideMatInstantiateCheck:
     //     )
     // end if
 
-    // Calculate all possible indices that could be accessed
-    // For each dimension, we need to consider both i=0 and i=max positions
-    val rowIndices =
-      if rows > 1 && rowStride != 0 then Seq(0 * rowStride, (rows - 1) * rowStride)
-      else Seq(0)
+    // Compute the min and max reachable index by accumulating each axis's own contribution independently, rather
+    // than enumerating the 4 corners (row in {0, rows-1}) x (col in {0, cols-1}) and taking min/max over them.
+    // linearIndex is separable (offset + row*rowStride + col*colStride, each axis independent of the other), so
+    // the global min/max over the box is exactly the sum of each axis's own min/max contribution — same technique
+    // as strideNDArrayCheck in NDArrayCheck.scala, specialised here to exactly two axes instead of a loop over
+    // shape.length. No behaviour change: allocates nothing, where the corner-enumeration version built two Seqs, a
+    // for-comprehension and a third Seq on every matrix construction, including every zero-copy submatrix view.
+    var minIndex = offset
+    var maxIndex = offset
 
-    val colIndices =
-      if cols > 1 && colStride != 0 then Seq(0 * colStride, (cols - 1) * colStride)
-      else Seq(0)
+    val rowContribution = (rows - 1) * rowStride
+    if rowContribution > 0 then maxIndex += rowContribution
+    else if rowContribution < 0 then minIndex += rowContribution
+    end if
 
-    // Generate all combinations of row and column offsets
-    val allIndices = for
-      rowOffset <- rowIndices
-      colOffset <- colIndices
-    yield offset + rowOffset + colOffset
-
-    val minIndex = allIndices.min
-    val maxIndex = allIndices.max
+    val colContribution = (cols - 1) * colStride
+    if colContribution > 0 then maxIndex += colContribution
+    else if colContribution < 0 then minIndex += colContribution
+    end if
 
     // Check bounds
     if minIndex < 0 then
