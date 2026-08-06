@@ -477,4 +477,59 @@ class LayoutCorpusSuite extends FunSuite:
     end for
   }
 
+  // ---------------------------------------------------------------------------------------------------------------
+  // `hadamard`'s mismatched-layout branches used to guard on `isDenseColMajor`/`isDenseRowMajor` alone, then
+  // multiply that operand's `.raw` directly against a freshly `numel`-sized `deepCopy` of the other side via an
+  // array op that requires the two arrays to be exactly the same length. `isDenseColMajor`/`isDenseRowMajor` do not
+  // imply `raw.length == numel` — a `submatrix` view of the leading columns of a wider parent is dense by that
+  // narrower definition but keeps the parent's full backing array — so multiplying it directly against a
+  // `numel`-sized array threw `VectorDimensionMismatch` for an entirely valid, correctly-shaped `hadamard` call.
+  // ---------------------------------------------------------------------------------------------------------------
+
+  test("hadamard: a dense-but-padded leading-columns view as the first operand doesn't throw") {
+    val parent = Matrix[Double](Array.tabulate(20)(_.toDouble + 1), 4, 5) // 4x5 dense col-major
+    val paddedView =
+      parent.submatrix(0 to 3, 0 to 2) // leading 3 columns: isDenseColMajor, but raw.length (20) > numel (12)
+    val plainDense = Matrix.fromRows(
+      Array(1.0, 2.0, 3.0),
+      Array(4.0, 5.0, 6.0),
+      Array(7.0, 8.0, 9.0),
+      Array(10.0, 11.0, 12.0)
+    )
+
+    val result = paddedView.hadamard(plainDense)
+
+    assertMatrixEquals(
+      result,
+      Matrix.fromRows(
+        Array(1.0, 10.0, 27.0),
+        Array(8.0, 30.0, 60.0),
+        Array(21.0, 56.0, 99.0),
+        Array(40.0, 88.0, 144.0)
+      )
+    )
+  }
+
+  test("hadamard: a dense-but-padded leading-columns view as the second operand doesn't throw") {
+    val parent = Matrix[Double](Array.tabulate(20)(_.toDouble + 1), 5, 4) // 5x4 dense col-major
+    // An offset view: neither isDenseColMajor nor isDenseRowMajor (offset != 0), so entry into the branch below is
+    // driven entirely by paddedView2 (the second operand), not by m itself.
+    val m = parent.submatrix(0 to 3, 1 to 3)
+
+    val parent2 = Matrix[Double](Array.tabulate(20)(_.toDouble + 1), 4, 5) // 4x5 dense col-major
+    val paddedView2 = parent2.submatrix(0 to 3, 0 to 2) // leading 3 columns, same shape as m: 4x3
+
+    val result = m.hadamard(paddedView2)
+
+    assertMatrixEquals(
+      result,
+      Matrix.fromRows(
+        Array(6.0, 55.0, 144.0),
+        Array(14.0, 72.0, 170.0),
+        Array(24.0, 91.0, 198.0),
+        Array(36.0, 112.0, 228.0)
+      )
+    )
+  }
+
 end LayoutCorpusSuite
