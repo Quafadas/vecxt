@@ -68,6 +68,24 @@ class MatrixExtensionSuite extends FunSuite:
 
   }
 
+  test("max reduction, row-major") {
+    // Same logical matrix as "max reduction" above ([[1,5],[4,3],[2,6]]), but dense row-major.
+    val mat1 = Matrix[Double](Array(1.0, 5.0, 4.0, 3.0, 2.0, 6.0), 3, 2, 2, 1, 0)
+    assert(mat1.isDenseRowMajor)
+
+    val maxR = mat1.max(Rows)
+    assertMatrixEquals(
+      maxR,
+      Matrix[Double](
+        Array[Double](5.0, 4.0, 6.0),
+        (3, 1)
+      )
+    )
+
+    val maxC = mat1.max(Cols)
+    assertMatrixEquals(maxC, Matrix[Double](Array[Double](4.0, 6.0), (1, 2)))
+  }
+
   test("Col major") {
     assert(mat1to9.isDenseColMajor)
     assert(mat1to9.hasSimpleContiguousMemoryLayout)
@@ -77,6 +95,24 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("min reduction") {
     val mat1 = Matrix[Double](Array(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
+    val minR = mat1.min(Rows)
+    assertMatrixEquals(
+      minR,
+      Matrix[Double](
+        Array[Double](1.0, 3.0, 2.0),
+        (3, 1)
+      )
+    )
+
+    val minC = mat1.min(Cols)
+    assertMatrixEquals(minC, Matrix[Double](Array[Double](1.0, 3.0), (1, 2)))
+  }
+
+  test("min reduction, row-major") {
+    // Same logical matrix as "min reduction" above ([[1,5],[4,3],[2,6]]), but dense row-major.
+    val mat1 = Matrix[Double](Array(1.0, 5.0, 4.0, 3.0, 2.0, 6.0), 3, 2, 2, 1, 0)
+    assert(mat1.isDenseRowMajor)
+
     val minR = mat1.min(Rows)
     assertMatrixEquals(
       minR,
@@ -103,6 +139,82 @@ class MatrixExtensionSuite extends FunSuite:
 
     val prodC = mat1.product(Cols)
     assertMatrixEquals(prodC, Matrix[Double](Array[Double](8.0, 90.0), (1, 2)))
+  }
+
+  test("product reduction, row-major") {
+    // Same logical matrix as "product reduction" above ([[1,5],[4,3],[2,6]]), but dense row-major.
+    val mat1 = Matrix[Double](Array(1.0, 5.0, 4.0, 3.0, 2.0, 6.0), 3, 2, 2, 1, 0)
+    assert(mat1.isDenseRowMajor)
+
+    val prodR = mat1.product(Rows)
+    assertMatrixEquals(
+      prodR,
+      Matrix[Double](
+        Array[Double](5.0, 12.0, 12.0),
+        (3, 1)
+      )
+    )
+
+    val prodC = mat1.product(Cols)
+    assertMatrixEquals(prodC, Matrix[Double](Array[Double](8.0, 90.0), (1, 2)))
+  }
+
+  // reduceAlongDimension (which backs sum/min/max/product along a dimension) has no dedicated test at all for
+  // Float or Int, row-major or column-major — this covers the same bug as the Double row-major tests above, for
+  // both remaining types it was fixed in, using the same logical matrix ([[1,5],[4,3],[2,6]]) throughout.
+
+  test("sum/min/max/product reduction, row-major, Int") {
+    val mat1 = Matrix[Int](Array(1, 5, 4, 3, 2, 6), 3, 2, 2, 1, 0)
+    assert(mat1.isDenseRowMajor)
+
+    assertMatrixEquals(mat1.sum(Rows), Matrix[Int](Array(6, 7, 8), (3, 1)))
+    assertMatrixEquals(mat1.sum(Cols), Matrix[Int](Array(7, 14), (1, 2)))
+
+    assertMatrixEquals(mat1.max(Rows), Matrix[Int](Array(5, 4, 6), (3, 1)))
+    assertMatrixEquals(mat1.max(Cols), Matrix[Int](Array(4, 6), (1, 2)))
+
+    assertMatrixEquals(mat1.min(Rows), Matrix[Int](Array(1, 3, 2), (3, 1)))
+    assertMatrixEquals(mat1.min(Cols), Matrix[Int](Array(1, 3), (1, 2)))
+
+    assertMatrixEquals(mat1.product(Rows), Matrix[Int](Array(5, 12, 12), (3, 1)))
+    assertMatrixEquals(mat1.product(Cols), Matrix[Int](Array(8, 90), (1, 2)))
+  }
+
+  test("sum/min/max/product reduction, row-major, Float") {
+    val mat1 = Matrix[Float](Array(1.0f, 5.0f, 4.0f, 3.0f, 2.0f, 6.0f), 3, 2, 2, 1, 0)
+    assert(mat1.isDenseRowMajor)
+
+    val sumR = mat1.sum(Rows)
+    assertEqualsDouble(sumR(0, 0).toDouble, 6.0, 0.0001)
+    assertEqualsDouble(sumR(1, 0).toDouble, 7.0, 0.0001)
+    assertEqualsDouble(sumR(2, 0).toDouble, 8.0, 0.0001)
+    val sumC = mat1.sum(Cols)
+    assertEqualsDouble(sumC(0, 0).toDouble, 7.0, 0.0001)
+    assertEqualsDouble(sumC(0, 1).toDouble, 14.0, 0.0001)
+
+    val maxR = mat1.max(Rows)
+    assertEqualsDouble(maxR(0, 0).toDouble, 5.0, 0.0001)
+    assertEqualsDouble(maxR(1, 0).toDouble, 4.0, 0.0001)
+    assertEqualsDouble(maxR(2, 0).toDouble, 6.0, 0.0001)
+    val maxC = mat1.max(Cols)
+    assertEqualsDouble(maxC(0, 0).toDouble, 4.0, 0.0001)
+    assertEqualsDouble(maxC(0, 1).toDouble, 6.0, 0.0001)
+
+    val minR = mat1.min(Rows)
+    assertEqualsDouble(minR(0, 0).toDouble, 1.0, 0.0001)
+    assertEqualsDouble(minR(1, 0).toDouble, 3.0, 0.0001)
+    assertEqualsDouble(minR(2, 0).toDouble, 2.0, 0.0001)
+    val minC = mat1.min(Cols)
+    assertEqualsDouble(minC(0, 0).toDouble, 1.0, 0.0001)
+    assertEqualsDouble(minC(0, 1).toDouble, 3.0, 0.0001)
+
+    val prodR = mat1.product(Rows)
+    assertEqualsDouble(prodR(0, 0).toDouble, 5.0, 0.0001)
+    assertEqualsDouble(prodR(1, 0).toDouble, 12.0, 0.0001)
+    assertEqualsDouble(prodR(2, 0).toDouble, 12.0, 0.0001)
+    val prodC = mat1.product(Cols)
+    assertEqualsDouble(prodC(0, 0).toDouble, 8.0, 0.0001)
+    assertEqualsDouble(prodC(0, 1).toDouble, 90.0, 0.0001)
   }
 
   test("element-wise maximum - simple contiguous layout") {
