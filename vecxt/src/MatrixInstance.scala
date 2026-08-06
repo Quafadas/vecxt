@@ -28,19 +28,21 @@ object MatrixInstance:
 
     /** Sets every element of `m` selected by `idx` to `value`.
       *
-      * `idx` and `m` need only agree on shape, not on physical layout — a mask built from a row-major matrix
-      * applied to a column-major target (or vice versa) is ordinary usage, since e.g. scalar arithmetic can return
-      * either layout depending on its input (see `DoubleMatrix.*`). Reading `idx.raw(i)`/writing `m.raw(i)` at the
-      * same flat index `i` is therefore only valid when both share one element order *and* both own their entire
-      * backing array (`hasSimpleContiguousMemoryLayout`) — a view's `raw.length` can exceed its `numel`, and its
-      * `offset` is never zero-safe to assume away. The fast path below is gated on exactly that; everything else
-      * goes through the same `(i, j)` accessors as any other correct-by-construction indexing in this file.
+      * `idx` and `m` need only agree on shape, not on physical layout — a mask built from a row-major matrix applied to
+      * a column-major target (or vice versa) is ordinary usage, since e.g. scalar arithmetic can return either layout
+      * depending on its input (see `DoubleMatrix.*`). Reading `idx.raw(i)`/writing `m.raw(i)` at the same flat index
+      * `i` is therefore only valid when both share one element order *and* both own their entire backing array
+      * (`hasSimpleContiguousMemoryLayout`) — a view's `raw.length` can exceed its `numel`, and its `offset` is never
+      * zero-safe to assume away. The fast path below is gated on exactly that; everything else goes through the same
+      * `(i, j)` accessors as any other correct-by-construction indexing in this file.
       */
     @targetName("updateIdx")
     inline def update(idx: Matrix[Boolean], value: A): Unit =
       sameDimMatCheck(idx, m)
       val fastPath =
-        m.layout.sameElementOrderAs(idx.layout) && m.hasSimpleContiguousMemoryLayout && idx.hasSimpleContiguousMemoryLayout
+        m.layout.sameElementOrderAs(
+          idx.layout
+        ) && m.hasSimpleContiguousMemoryLayout && idx.hasSimpleContiguousMemoryLayout
       if fastPath then
         var i = 0
         val bound = m.numel
@@ -67,10 +69,10 @@ object MatrixInstance:
 
     /** Overwrites a single row or column of `m` from `to`, in place.
       *
-      * Indexes via `m.layout.linearIndex`, so this is correct for any offset/stride — a submatrix view included —
-      * not just a dense column-major matrix. Uses a `while` loop rather than `Range#foreach`, since this is an
-      * `inline def`: a `for`/`foreach` body is materialised (the `Range` object and the closure) at every call
-      * site, not just once.
+      * Indexes via `m.layout.linearIndex`, so this is correct for any offset/stride — a submatrix view included — not
+      * just a dense column-major matrix. Uses a `while` loop rather than `Range#foreach`, since this is an
+      * `inline def`: a `for`/`foreach` body is materialised (the `Range` object and the closure) at every call site,
+      * not just once.
       */
     inline def updateInPlace(
         row: RangeExtender,

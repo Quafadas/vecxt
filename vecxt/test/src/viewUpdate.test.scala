@@ -6,13 +6,13 @@ import all.*
 
 /** Regression coverage for `update(idx: Matrix[Boolean], value)` and `updateInPlace` ignoring a view's offset and
   * strides, and for `update(idx, value)` additionally assuming `idx` shares `m`'s own physical layout. Both used to
-  * index the backing array linearly (`m.raw(i)` for `i` in `0 until m.numel`), which is only valid for a matrix
-  * that is dense, offset-free, and — for the boolean-mask overload — laid out identically to the mask.
+  * index the backing array linearly (`m.raw(i)` for `i` in `0 until m.numel`), which is only valid for a matrix that is
+  * dense, offset-free, and — for the boolean-mask overload — laid out identically to the mask.
   *
-  * Every test here builds a `parent` matrix and either updates it directly or through a `submatrix` view sharing
-  * its backing array, then asserts the *entire* parent grid — not just the cells the operation targets — so a
-  * write that lands outside the view (the actual failure mode pre-fix) shows up as a mismatch at the wrong cell,
-  * not merely a missing update at the right one.
+  * Every test here builds a `parent` matrix and either updates it directly or through a `submatrix` view sharing its
+  * backing array, then asserts the *entire* parent grid — not just the cells the operation targets — so a write that
+  * lands outside the view (the actual failure mode pre-fix) shows up as a mismatch at the wrong cell, not merely a
+  * missing update at the right one.
   */
 class ViewUpdateSuite extends FunSuite:
 
@@ -45,7 +45,8 @@ class ViewUpdateSuite extends FunSuite:
       Array(4.0, 5.0, 6.0),
       Array(7.0, 8.0, 9.0)
     )
-    val view = parent(Range.Inclusive(1, 2, 1), Range.Inclusive(1, 2, 1)) // 2x2 view: [[5,6],[8,9]], col-major-inherited
+    val view =
+      parent(Range.Inclusive(1, 2, 1), Range.Inclusive(1, 2, 1)) // 2x2 view: [[5,6],[8,9]], col-major-inherited
     // Row-major mask, opposite of the view's inherited (col-major) layout. sameElementOrderAs must be false here,
     // so this also independently forces the general path even if the view had no offset at all.
     val mask = Matrix[Boolean](Array[Boolean](true, true, false, false), 2, 2, 2, 1, 0)

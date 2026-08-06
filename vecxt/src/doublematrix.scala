@@ -45,13 +45,13 @@ object DoubleMatrix:
 
     /** Elementwise scalar multiply.
       *
-      * Layout policy (applies to `*`/`/`/`+`/`-` alike; see `site/docs/vectors-and-matrices/matrix.md`): the
-      * result is row-major whenever `m`'s unit-stride axis is columns — true not only for a dense row-major `m`,
-      * but for any view or padded layout that is still effectively row-major (`m.layout.unitStrideAxis == 1`) —
-      * and column-major otherwise, including whenever `m` has no unit-stride axis at all. That's exactly what the
-      * fast path below already does implicitly by wrapping the transformed array with `m.layout`; the non-dense
-      * branch used to always normalise to column-major regardless, which made the result's layout depend on
-      * whether `m` happened to be exactly dense rather than on `m`'s own orientation.
+      * Layout policy (applies to `*`/`/`/`+`/`-` alike; see `site/docs/vectors-and-matrices/matrix.md`): the result is
+      * row-major whenever `m`'s unit-stride axis is columns — true not only for a dense row-major `m`, but for any view
+      * or padded layout that is still effectively row-major (`m.layout.unitStrideAxis == 1`) — and column-major
+      * otherwise, including whenever `m` has no unit-stride axis at all. That's exactly what the fast path below
+      * already does implicitly by wrapping the transformed array with `m.layout`; the non-dense branch used to always
+      * normalise to column-major regardless, which made the result's layout depend on whether `m` happened to be
+      * exactly dense rather than on `m`'s own orientation.
       */
     def *(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.*(m.raw)(n), m.layout)
@@ -64,6 +64,7 @@ object DoubleMatrix:
         }
         if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
     end *
 
     /** Elementwise scalar divide. Layout policy: see `*`. */
@@ -78,6 +79,7 @@ object DoubleMatrix:
         }
         if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
     end /
 
     /** Elementwise scalar add. Layout policy: see `*`. */
@@ -92,6 +94,7 @@ object DoubleMatrix:
         }
         if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
       end if
 
     end +
@@ -134,6 +137,7 @@ object DoubleMatrix:
         }
         if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
     end -
 
     // TODO: +:+=
