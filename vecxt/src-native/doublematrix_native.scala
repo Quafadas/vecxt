@@ -136,10 +136,10 @@ object NativeDoubleMatrix:
 
     /** Writes `alpha * (m @@ b) + beta * c` into `c` in place, via `cblas_dgemm`.
       *
-      * `c` must already be shaped `(m.rows, b.cols)` and dense column-major — `ldc` is hardcoded to `m.rows` below,
-      * and `dgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or
-      * read from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a
-      * conforming `c` to write into; they allocate one for you.
+      * `c` must already be shaped `(m.rows, b.cols)` and dense column-major — `ldc` is hardcoded to `m.rows` below, and
+      * `dgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or read
+      * from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a conforming `c` to
+      * write into; they allocate one for you.
       */
     def `matmulInPlace!`(
         b: Matrix[Double],

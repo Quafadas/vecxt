@@ -14,19 +14,22 @@ object sameDimMatCheck:
     if !(a.cols == b.cols && a.rows == b.rows) then throw MatrixDimensionMismatch(a.rows, a.cols, b.rows, b.cols)
 end sameDimMatCheck
 
-/** Validates the output matrix `c` of a `matmulInPlace!` call: it must be shaped exactly `(m.rows, b.cols)` and
-  * dense column-major. `matmulInPlace!` hardcodes `ldc = m.rows` and always writes (and, when `beta != 0`, reads)
-  * `c` assuming that layout, so a wrongly-shaped or non-dense-column-major `c` would otherwise be corrupted or
-  * misread silently instead of failing loudly. `matmul`/`@@` always build a conforming `c` themselves, so this only
-  * bites direct callers of the in-place API.
+/** Validates the output matrix `c` of a `matmulInPlace!` call: it must be shaped exactly `(m.rows, b.cols)` and dense
+  * column-major. `matmulInPlace!` hardcodes `ldc = m.rows` and always writes (and, when `beta != 0`, reads) `c`
+  * assuming that layout, so a wrongly-shaped or non-dense-column-major `c` would otherwise be corrupted or misread
+  * silently instead of failing loudly. `matmul`/`@@` always build a conforming `c` themselves, so this only bites
+  * direct callers of the in-place API.
   */
 object matmulOutputCheck:
   inline def apply(m: Matrix[?], b: Matrix[?], c: Matrix[?]): Unit =
     if !(c.rows == m.rows && c.cols == b.cols) then throw MatrixDimensionMismatch(m.rows, b.cols, c.rows, c.cols)
+    end if
     if !c.isDenseColMajor then
       throw UnsupportedLayoutException(
         s"matmulInPlace! requires a dense column-major output matrix `c`, but got layout: ${c.layoutString}"
       )
+    end if
+  end apply
 end matmulOutputCheck
 
 /** If this is true, then we can use the same memory layout for element-wise operations

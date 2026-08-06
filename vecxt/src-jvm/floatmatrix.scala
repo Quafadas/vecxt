@@ -32,10 +32,10 @@ object JvmFloatMatrix:
 
     /** Writes `alpha * (m @@ b) + beta * c` into `c` in place, via BLAS `sgemm`.
       *
-      * `c` must already be shaped `(m.rows, b.cols)` and dense column-major — `ldc` is hardcoded to `m.rows` below,
-      * and `sgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or
-      * read from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a
-      * conforming `c` to write into; they allocate one for you.
+      * `c` must already be shaped `(m.rows, b.cols)` and dense column-major — `ldc` is hardcoded to `m.rows` below, and
+      * `sgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or read
+      * from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a conforming `c` to
+      * write into; they allocate one for you.
       */
     @targetName("matmulFloatInPlace")
     def `matmulInPlace!`(b: Matrix[Float], c: Matrix[Float], alpha: Float, beta: Float): Unit =
