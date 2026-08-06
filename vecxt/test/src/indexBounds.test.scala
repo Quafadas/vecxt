@@ -4,14 +4,14 @@ import munit.FunSuite
 
 import all.*
 
-/** Regression coverage for the `indexCheckMat` off-by-one: it used to accept `row == rows` and `col == cols` (one
-  * past the last valid index in that axis) because the bounds predicate compared with `<=` instead of `<`. That let
-  * `apply`/`update` compute a linear index into the backing array for an out-of-range `(row, col)` instead of
-  * throwing `IndexOutOfBoundsException` — sometimes landing on a different, valid-looking element (silent wrong
-  * answer) rather than failing loudly.
+/** Regression coverage for the `indexCheckMat` off-by-one: it used to accept `row == rows` and `col == cols` (one past
+  * the last valid index in that axis) because the bounds predicate compared with `<=` instead of `<`. That let
+  * `apply`/`update` compute a linear index into the backing array for an out-of-range `(row, col)` instead of throwing
+  * `IndexOutOfBoundsException` — sometimes landing on a different, valid-looking element (silent wrong answer) rather
+  * than failing loudly.
   *
-  * Every matrix here is non-square, so a swapped row/col bound would also be caught. Each element type below reaches
-  * a different arm of `indexCheckMat`: `Double`/`Float`/`Int`/`Long` each have their own `@targetName` overload, and
+  * Every matrix here is non-square, so a swapped row/col bound would also be caught. Each element type below reaches a
+  * different arm of `indexCheckMat`: `Double`/`Float`/`Int`/`Long` each have their own `@targetName` overload, and
   * `Boolean` has none, so it falls through to the generic `apply(a: Matrix[?], dim: RowCol)` arm.
   */
 class IndexBoundsSuite extends FunSuite:
@@ -50,7 +50,8 @@ class IndexBoundsSuite extends FunSuite:
   // `col == cols` at row 0 that lands *inside* the backing array (index 3 of 6) and silently aliases element (1, 0)
   // pre-fix, rather than throwing.
 
-  private def denseRowMajorDouble: Matrix[Double] = Matrix[Double](Array.tabulate(6)(_.toDouble + 1), Layout(2, 3, 3, 1, 0, 6))
+  private def denseRowMajorDouble: Matrix[Double] =
+    Matrix[Double](Array.tabulate(6)(_.toDouble + 1), Layout(2, 3, 3, 1, 0, 6))
 
   test("Double row-major: row == rows / col == cols / both throw on read") {
     val mat = denseRowMajorDouble
@@ -83,6 +84,7 @@ class IndexBoundsSuite extends FunSuite:
   private def stridedView: Matrix[Double] =
     val parent = Matrix[Double](Array.tabulate(25)(_.toDouble + 1), 5, 5)
     parent.submatrix(1 to 2, 1 to 3) // rows=2, cols=3, offset=6, rowStride=1, colStride=5, raw.length=25
+  end stridedView
 
   test("Double strided view: submatrix has the expected shape and corner values") {
     val sub = stridedView
