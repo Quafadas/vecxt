@@ -172,22 +172,31 @@ object DoubleMatrix:
         val newArr = vecxt.doublearrays.*(m.raw)(m2.raw)
         Matrix(newArr, m.layout)
       else
-        // Different memory layouts: materialize one matrix to match the other's layout
-        if m.isDenseColMajor then
+        // Different memory layouts: materialize one matrix to match the other's layout.
+        //
+        // Each branch below multiplies the "already dense" side's `.raw` directly (via `dimCheck`, which requires
+        // exact array-length equality), against a fresh `numel`-sized deepCopy of the other side. `isDenseColMajor`
+        // / `isDenseRowMajor` alone do not guarantee `raw.length == numel` — a `submatrix` view of the leading
+        // columns/rows of a wider/taller parent (`layoutCorpus.test.scala`'s `ColMajorLeadingCols` /
+        // `RowMajorLeadingRows`) is dense by that narrower definition but keeps the parent's full backing array. So
+        // each guard here additionally requires `hasSimpleContiguousMemoryLayout`, which folds in
+        // `dataLength == numel`; a dense-but-padded operand instead falls through to the fully-general last branch
+        // below, which deep-copies both sides and therefore never has a length mismatch.
+        if m.hasSimpleContiguousMemoryLayout && m.isDenseColMajor then
           val m2Dense = m2.deepCopy(asRowMajor = false)
           vecxt.doublearrays.*:*=(m2Dense.raw)(m.raw)
           m2Dense
-        else if m.isDenseRowMajor then
+        else if m.hasSimpleContiguousMemoryLayout && m.isDenseRowMajor then
           // m is dense row-major, materialize m2 to row-major and multiply in-place
           val m2Dense = m2.deepCopy(asRowMajor = true)
           vecxt.doublearrays.*=(m2Dense.raw)(m.raw)
           m2Dense
-        else if m2.isDenseColMajor then
+        else if m2.hasSimpleContiguousMemoryLayout && m2.isDenseColMajor then
           // m2 is dense column-major, materialize m to column-major and multiply in-place
           val mDense = m.deepCopy(asRowMajor = false)
           vecxt.doublearrays.*=(mDense.raw)(m2.raw)
           mDense
-        else if m2.isDenseRowMajor then
+        else if m2.hasSimpleContiguousMemoryLayout && m2.isDenseRowMajor then
           // m2 is dense row-major, materialize m to row-major and multiply in-place
           val mDense = m.deepCopy(asRowMajor = true)
           vecxt.doublearrays.*=(mDense.raw)(m2.raw)
