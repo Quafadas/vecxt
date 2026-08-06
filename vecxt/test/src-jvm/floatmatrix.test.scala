@@ -563,6 +563,57 @@ class FloatMatrixJvmSuite extends FunSuite:
       )
     )
 
+  // Square-only matmul tests can't distinguish a wrong leading dimension or transpose flag from a correct one,
+  // since m == n == k collapses the very parameters that would expose the bug. Below, A is 3x2 and B is 2x4, so
+  // m=3, k=2, n=4 are pairwise distinct — mirrors the Double coverage in matMulLayoutChecks.test.scala.
+
+  test("matmulInPlace! non-square, all layout combinations"):
+    // A (3x2), logical: [[1,2],[3,4],[5,6]]
+    val aColMajor = Matrix[Float](Array[Float](1.0f, 3.0f, 5.0f, 2.0f, 4.0f, 6.0f), 3, 2, 1, 3, 0)
+    val aRowMajor = Matrix[Float](Array[Float](1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f), 3, 2, 2, 1, 0)
+
+    // B (2x4), logical: [[1,2,3,4],[5,6,7,8]]
+    val bColMajor = Matrix[Float](Array[Float](1.0f, 5.0f, 2.0f, 6.0f, 3.0f, 7.0f, 4.0f, 8.0f), 2, 4, 1, 2, 0)
+    val bRowMajor = Matrix[Float](Array[Float](1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f), 2, 4, 4, 1, 0)
+
+    // A @@ B, hand-computed (3x4): row i of A dotted with each column of B.
+    val expected = Matrix.fromRows[Float](
+      Array[Float](11.0f, 14.0f, 17.0f, 20.0f),
+      Array[Float](23.0f, 30.0f, 37.0f, 44.0f),
+      Array[Float](35.0f, 46.0f, 57.0f, 68.0f)
+    )
+
+    assertFloatMatrixEquals(aColMajor.matmul(bColMajor, 1.0f, 0.0f), expected)
+    assertFloatMatrixEquals(aColMajor.matmul(bRowMajor, 1.0f, 0.0f), expected)
+    assertFloatMatrixEquals(aRowMajor.matmul(bColMajor, 1.0f, 0.0f), expected)
+    assertFloatMatrixEquals(aRowMajor.matmul(bRowMajor, 1.0f, 0.0f), expected)
+
+  test("matmulInPlace! non-square, m > n"):
+    // A (4x3), logical: [[1,2,3],[4,5,6],[7,8,9],[10,11,12]]
+    val a = Matrix.fromRows[Float](
+      Array[Float](1.0f, 2.0f, 3.0f),
+      Array[Float](4.0f, 5.0f, 6.0f),
+      Array[Float](7.0f, 8.0f, 9.0f),
+      Array[Float](10.0f, 11.0f, 12.0f)
+    )
+    // B (3x2), logical: [[1,0],[0,1],[1,1]]
+    val b = Matrix.fromRows[Float](
+      Array[Float](1.0f, 0.0f),
+      Array[Float](0.0f, 1.0f),
+      Array[Float](1.0f, 1.0f)
+    )
+
+    // A @@ B, hand-computed (4x2). m=4, k=3, n=2: a rows/cols transposition cannot silently pass both this and the
+    // m < n case above, since here m > n instead.
+    val expected = Matrix.fromRows[Float](
+      Array[Float](4.0f, 5.0f),
+      Array[Float](10.0f, 11.0f),
+      Array[Float](16.0f, 17.0f),
+      Array[Float](22.0f, 23.0f)
+    )
+
+    assertFloatMatrixEquals(a.matmul(b, 1.0f, 0.0f), expected)
+
   test("- on two dense contiguous Float matrices returns correct result"):
     val a = Matrix.fromRows[Float](
       Array[Float](5.0f, 8.0f, 3.0f),

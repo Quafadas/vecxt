@@ -155,10 +155,15 @@ object JsDoubleMatrix:
         val transB = if b.isDenseColMajor then "no-transpose" else "transpose"
         val transA = if m.isDenseColMajor then "no-transpose" else "transpose"
 
-        // Note, might need to deal with transpose later.
+        // `order` is always "column-major" here, deliberately, even when both operands are dense row-major:
+        // `transA`/`transB`/`lda`/`ldb` above are the standard "always column-major" transpose trick (checked
+        // against @stdlib/blas's own dgemm source — order alone selects the (stride1, stride2) pair, independent
+        // of trans; trans then says whether to read that pair as (row, col) or swap them). Switching `order` to
+        // "row-major" here without also inverting `transA`/`transB` would ask dgemm to apply the transpose trick
+        // *and* reinterpret the raw strides as row-major, i.e. transpose twice.
         val outArr = new Float64Array(c.raw.toJSArray)
         dgemm(
-          if m.isDenseRowMajor && b.isDenseRowMajor then "row-major" else "column-major",
+          "column-major",
           transA,
           transB,
           m.rows,
@@ -184,9 +189,11 @@ object JsDoubleMatrix:
         val transB = if b.rowStride == 1 then "no-transpose" else "transpose"
         val transA = if m.rowStride == 1 then "no-transpose" else "transpose"
 
+        // See the fully-dense branch above: `order` stays "column-major" regardless of m/b's own orientation,
+        // since transA/transB/lda/ldb already implement the transpose trick for that fixed order.
         val outArr = new Float64Array(c.raw.toJSArray)
         dgemm(
-          if m.isDenseRowMajor && b.isDenseRowMajor then "row-major" else "column-major",
+          "column-major",
           transA,
           transB,
           m.rows,

@@ -170,6 +170,103 @@ class DifferentMemoryLayoutTests extends FunSuite:
       for j <- 0 until checkAgainst2.cols do assertEqualsDouble(checkAgainst2(i, j), matMul2(i, j), 0.00001, (i, j))
     end for
 
+    // Non-square offset views: `lda`/`ldb` from a strided (non-zero-offset) view, exercised at a shape where
+    // m, k, n are pairwise distinct, not just "some view happens to be non-square" as above.
+    // view1 = mat1 rows 0..2, cols 1..2 -> 3x2: [[2,3],[6,7],[10,11]]
+    // view2 = mat2 rows 1..2, cols 0..3 -> 2x4: [[5,6,7,8],[9,10,11,12]]
+    val view1 = mat1(Range.Inclusive(0, 2, 1), Range.Inclusive(1, 2, 1))
+    val view2 = mat2(Range.Inclusive(1, 2, 1), Range.Inclusive(0, 3, 1))
+    val viewMul = view1 @@ view2
+
+    assertMatrixEquals(
+      viewMul,
+      Matrix.fromRows(
+        Array(37.0, 42.0, 47.0, 52.0),
+        Array(93.0, 106.0, 119.0, 132.0),
+        Array(149.0, 170.0, 191.0, 212.0)
+      )
+    )
+  }
+
+  // ─── Non-square matmul, all layout combinations ───────────────────────────────────────────────────────────────
+  // The tests above only ever multiply square (3x3) or near-square (2x2) matrices, where m == n == k (or m == n
+  // with only k differing). On a square input, lda/ldb/ldc/rows/cols/the inner dimension are all the same number,
+  // so an incorrect leading dimension or transpose flag is indistinguishable from a correct one — exactly the
+  // regime where BLAS parameter bugs hide. Below, A is 3x2 and B is 2x4, so m=3, k=2, n=4 are pairwise distinct.
+
+  test("matmul non-square, all layout combinations") {
+    // A (3x2), logical: [[1,2],[3,4],[5,6]]
+    val aColMajor = Matrix[Double](Array(1.0, 3.0, 5.0, 2.0, 4.0, 6.0), 3, 2, 1, 3, 0)
+    val aRowMajor = Matrix[Double](Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 3, 2, 2, 1, 0)
+
+    // B (2x4), logical: [[1,2,3,4],[5,6,7,8]]
+    val bColMajor = Matrix[Double](Array(1.0, 5.0, 2.0, 6.0, 3.0, 7.0, 4.0, 8.0), 2, 4, 1, 2, 0)
+    val bRowMajor = Matrix[Double](Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0), 2, 4, 4, 1, 0)
+
+    // A @@ B, hand-computed (3x4): row i of A dotted with each column of B.
+    val expected = Matrix.fromRows(
+      Array(11.0, 14.0, 17.0, 20.0),
+      Array(23.0, 30.0, 37.0, 44.0),
+      Array(35.0, 46.0, 57.0, 68.0)
+    )
+
+    assertMatrixEquals(aColMajor @@ bColMajor, expected)
+    assertMatrixEquals(aColMajor @@ bRowMajor, expected)
+    assertMatrixEquals(aRowMajor @@ bColMajor, expected)
+    assertMatrixEquals(aRowMajor @@ bRowMajor, expected)
+  }
+
+  test("matmul non-square, m > n") {
+    // A (4x3), logical: [[1,2,3],[4,5,6],[7,8,9],[10,11,12]]
+    val a = Matrix.fromRows(
+      Array(1.0, 2.0, 3.0),
+      Array(4.0, 5.0, 6.0),
+      Array(7.0, 8.0, 9.0),
+      Array(10.0, 11.0, 12.0)
+    )
+    // B (3x2), logical: [[1,0],[0,1],[1,1]]
+    val b = Matrix.fromRows(
+      Array(1.0, 0.0),
+      Array(0.0, 1.0),
+      Array(1.0, 1.0)
+    )
+
+    // A @@ B, hand-computed (4x2). m=4, k=3, n=2: a rows/cols transposition (e.g. swapping ldc for lda, or m for
+    // n) cannot silently pass both this and the m < n case above, since here m > n instead.
+    val expected = Matrix.fromRows(
+      Array(4.0, 5.0),
+      Array(10.0, 11.0),
+      Array(16.0, 17.0),
+      Array(22.0, 23.0)
+    )
+
+    assertMatrixEquals(a @@ b, expected)
+  }
+
+  test("matmul non-square, beta accumulation") {
+    // Same A/B as "matmul non-square, all layout combinations" (m=3, k=2, n=4, pairwise distinct), but exercising
+    // matmulInPlace! directly with alpha != 1 and beta != 0, so the accumulation path is also checked away from a
+    // square shape.
+    val a = Matrix.fromRows(Array(1.0, 2.0), Array(3.0, 4.0), Array(5.0, 6.0))
+    val b = Matrix.fromRows(Array(1.0, 2.0, 3.0, 4.0), Array(5.0, 6.0, 7.0, 8.0))
+    val out = Matrix.fromRows(
+      Array(1.0, 1.0, 1.0, 1.0),
+      Array(1.0, 1.0, 1.0, 1.0),
+      Array(1.0, 1.0, 1.0, 1.0)
+    )
+
+    a.`matmulInPlace!`(b, out, 2.0, 3.0)
+
+    // hand-computed: alpha * (a @@ b) + beta * outBefore
+    // a @@ b = [[11,14,17,20],[23,30,37,44],[35,46,57,68]]; 2 * that + 3 * (all-ones)
+    assertMatrixEquals(
+      out,
+      Matrix.fromRows(
+        Array(25.0, 31.0, 37.0, 43.0),
+        Array(49.0, 63.0, 77.0, 91.0),
+        Array(73.0, 95.0, 117.0, 139.0)
+      )
+    )
   }
 
   // test("matmul different dimensions"){

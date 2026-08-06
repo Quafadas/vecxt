@@ -83,7 +83,11 @@ object JvmFloatMatrix:
           if m.rowStride == 1 then m.colStride else m.rowStride,
           b.raw,
           b.offset,
-          if b.colStride == 1 then b.rowStride else b.colStride,
+          // Checks b.rowStride (not b.colStride) to match bStr above and the equivalent JS/Native expressions:
+          // numerically identical to `if b.colStride == 1 then b.rowStride else b.colStride` once exactly one of
+          // b's strides is 1 (guaranteed by the guard above), but written so a future edit to one platform's
+          // condition doesn't silently diverge from the others.
+          if b.rowStride == 1 then b.colStride else b.rowStride,
           beta,
           c.raw,
           c.offset,
