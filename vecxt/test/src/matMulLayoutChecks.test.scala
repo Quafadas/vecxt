@@ -188,4 +188,56 @@ class DifferentMemoryLayoutTests extends FunSuite:
 
   // }
 
+  // ─── `matmulInPlace!` guard precedence + output-matrix validation ─────────────────────────────────────────────
+  // The layout guard used to parse as `m.rowStride == 1 || (m.colStride == 1 && b.rowStride == 1) || b.colStride ==
+  // 1` (`&&` binds tighter than `||`), so any `m` with `rowStride == 1` short-circuited the whole guard to `true`
+  // regardless of `b` — including a `b` with neither stride equal to 1, which `dgemm` cannot actually address
+  // correctly with a single leading-dimension parameter. Separately, `c` was never checked at all: it's assumed
+  // dense column-major (`ldc = m.rows`) and is both written, and — whenever `beta != 0` — read, on that assumption.
+
+  test("doubly-strided b with unit-rowStride m throws rather than returning numbers") {
+    // m: rowStride == 1, but not dense (colStride (3) != rows (2)) so it can't take the fully-dense BLAS path.
+    val m = Matrix[Double](Array.tabulate[Double](6)(_.toDouble + 1), 2, 2, 1, 3, 0)
+    // b: doubly strided — neither rowStride nor colStride is 1.
+    val b = Matrix[Double](Array.tabulate[Double](10)(_.toDouble + 1), 2, 2, 2, 5, 0)
+
+    intercept[UnsupportedLayoutException] {
+      m @@ b
+    }
+  }
+
+  test("matmulInPlace! throws when c is row-major instead of column-major") {
+    val a = Matrix.fromRows(Array(1.0, 2.0, 3.0), Array(4.0, 5.0, 6.0)) // 2x3
+    val b = Matrix.fromRows(Array(1.0, 2.0), Array(3.0, 4.0), Array(5.0, 6.0)) // 3x2
+    val cRowMajor = Matrix[Double](Array.ofDim[Double](4), 2, 2, 2, 1, 0) // correctly shaped, but row-major
+
+    intercept[UnsupportedLayoutException] {
+      a.`matmulInPlace!`(b, cRowMajor, 1.0, 0.0)
+    }
+  }
+
+  test("matmulInPlace! throws MatrixDimensionMismatch when c is the wrong shape") {
+    val a = Matrix.fromRows(Array(1.0, 2.0, 3.0), Array(4.0, 5.0, 6.0)) // 2x3
+    val b = Matrix.fromRows(Array(1.0, 2.0), Array(3.0, 4.0), Array(5.0, 6.0)) // 3x2
+    val wrongSizeC = Matrix.zeros[Double]((3, 3)) // should be (2, 2) == (a.rows, b.cols)
+
+    intercept[MatrixDimensionMismatch] {
+      a.`matmulInPlace!`(b, wrongSizeC, 1.0, 0.0)
+    }
+  }
+
+  test("scalars in matmul, non-square") {
+    val m = Matrix.fromRows(Array(1.0, 2.0, 3.0), Array(4.0, 5.0, 6.0)) // 2x3
+    val b = Matrix.fromRows(Array(1.0, 0.0), Array(0.0, 1.0), Array(1.0, 1.0)) // 3x2
+    val out = Matrix.fromRows(Array(1.0, 0.0), Array(0.0, 1.0)) // 2x2, accumulated into via beta
+
+    m.`matmulInPlace!`(b, out, 2.0, 2.0)
+
+    // hand-computed: m @@ b = [[4, 5], [10, 11]]; alpha * (m @@ b) + beta * outBefore
+    assertMatrixEquals(
+      out,
+      Matrix.fromRows(Array(10.0, 10.0), Array(20.0, 24.0))
+    )
+  }
+
 end DifferentMemoryLayoutTests

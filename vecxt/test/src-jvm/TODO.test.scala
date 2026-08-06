@@ -25,7 +25,9 @@ class TODO extends FunSuite:
     )
     val out = Matrix.zeros[Float]((2, 2))
 
-    intercept[NotImplementedError] {
+    // `matmulInPlace!`'s final `else` used to be a bare `???` (NotImplementedError); it now throws a named
+    // UnsupportedLayoutException carrying both operands' layouts, so this is no longer a TODO.
+    intercept[UnsupportedLayoutException] {
       left.`matmulInPlace!`(right, out, alpha = 1.0f, beta = 0.0f)
     }
 

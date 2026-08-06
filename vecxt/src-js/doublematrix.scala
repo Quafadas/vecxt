@@ -135,8 +135,16 @@ object JsDoubleMatrix:
 
     end +=
 
+    /** Writes `alpha * (m @@ b) + beta * c` into `c` in place, via a JS `dgemm` shim.
+      *
+      * `c` must already be shaped `(m.rows, b.cols)` and dense column-major — `ldc` is hardcoded to `m.rows` below, and
+      * `dgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or read
+      * from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a conforming `c` to
+      * write into; they allocate one for you.
+      */
     def `matmulInPlace!`(b: Matrix[Double], c: Matrix[Double], alpha: Double = 1.0, beta: Double = 0.0): Unit =
       dimMatCheck(m, b)
+      matmulOutputCheck(m, b, c)
       println("PERFORMING WARNING in matmul on JS")
       println("THIS method copies into native JS types. Then copies back out. Expect catastrophic performance.")
 
@@ -172,7 +180,7 @@ object JsDoubleMatrix:
           c.raw(ci) = outArr(ci)
           ci += 1
         end while
-      else if m.rowStride == 1 || m.colStride == 1 && b.rowStride == 1 || b.colStride == 1 then
+      else if (m.rowStride == 1 || m.colStride == 1) && (b.rowStride == 1 || b.colStride == 1) then
         val transB = if b.rowStride == 1 then "no-transpose" else "transpose"
         val transA = if m.rowStride == 1 then "no-transpose" else "transpose"
 
@@ -201,7 +209,10 @@ object JsDoubleMatrix:
           c.raw(cj) = outArr(cj)
           cj += 1
         end while
-      else ???
+      else
+        throw UnsupportedLayoutException(
+          s"matmulInPlace! does not support this combination of matrix layouts. m: ${m.layoutString}, b: ${b.layoutString}"
+        )
       end if
 
     end `matmulInPlace!`

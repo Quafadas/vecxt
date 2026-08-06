@@ -66,6 +66,8 @@ val result2 = mat1 @@ mat2
 
 result2.printMat
 
+// matmul / @@ always allocate a fresh, correctly shaped, dense column-major output matrix for you.
+
 // opperator precedence...
 val result3 = Matrix.eye[Double](2) + mat1 @@ mat2
 
@@ -100,6 +102,16 @@ mat2.vertcat(mat2).printMat
 mat1.hadamard(mat1).printMat
 
 ```
+
+### `matmulInPlace!`
+
+`matmul`/`@@` allocate their own output matrix, so they always hand BLAS something safe to write into. If you call
+the lower-level `matmulInPlace!` directly with your own output matrix `c` — for example to accumulate into an
+existing matrix via `beta`, or to avoid an allocation on a hot path — `c` must already be shaped exactly
+`(m.rows, b.cols)` and be dense column-major. `matmulInPlace!` throws `MatrixDimensionMismatch` if the shape is
+wrong, and `UnsupportedLayoutException` if `c` has any other layout (including a fully dense row-major matrix of
+the right shape) — otherwise it would silently write (or, whenever `beta != 0`, also read) through the wrong
+strides.
 
 ## Slicing
 

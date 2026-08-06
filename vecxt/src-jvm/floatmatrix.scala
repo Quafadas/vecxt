@@ -30,9 +30,17 @@ object JvmFloatMatrix:
       newmat
     end matmul
 
+    /** Writes `alpha * (m @@ b) + beta * c` into `c` in place, via BLAS `sgemm`.
+      *
+      * `c` must already be shaped `(m.rows, b.cols)` and dense column-major — `ldc` is hardcoded to `m.rows` below, and
+      * `sgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or read
+      * from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a conforming `c` to
+      * write into; they allocate one for you.
+      */
     @targetName("matmulFloatInPlace")
     def `matmulInPlace!`(b: Matrix[Float], c: Matrix[Float], alpha: Float, beta: Float): Unit =
       dimMatCheck(m, b)
+      matmulOutputCheck(m, b, c)
 
       val lda = if m.isDenseColMajor then m.rows else m.cols
       val ldb = if b.isDenseColMajor then b.rows else b.cols
@@ -58,7 +66,7 @@ object JvmFloatMatrix:
           0,
           m.rows
         )
-      else if m.rowStride == 1 || m.colStride == 1 && b.rowStride == 1 || b.colStride == 1 then
+      else if (m.rowStride == 1 || m.colStride == 1) && (b.rowStride == 1 || b.colStride == 1) then
         val mStr = if m.rowStride == 1 then "N" else "T"
         val bStr = if b.rowStride == 1 then "N" else "T"
         // If the matrix has an offset, then a call to blas.sgemm complains.
@@ -81,7 +89,10 @@ object JvmFloatMatrix:
           c.offset,
           m.rows
         )
-      else ???
+      else
+        throw UnsupportedLayoutException(
+          s"matmulInPlace! does not support this combination of matrix layouts. m: ${m.layoutString}, b: ${b.layoutString}"
+        )
       end if
 
     end `matmulInPlace!`
