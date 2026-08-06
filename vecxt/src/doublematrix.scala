@@ -43,37 +43,58 @@ object DoubleMatrix:
           m.raw(idx) = m.raw(idx) * d
         }
 
+    /** Elementwise scalar multiply.
+      *
+      * Layout policy (applies to `*`/`/`/`+`/`-` alike; see `site/docs/vectors-and-matrices/matrix.md`): the result is
+      * row-major whenever `m`'s unit-stride axis is columns — true not only for a dense row-major `m`, but for any view
+      * or padded layout that is still effectively row-major (`m.layout.unitStrideAxis == 1`) — and column-major
+      * otherwise, including whenever `m` has no unit-stride axis at all. That's exactly what the fast path below
+      * already does implicitly by wrapping the transformed array with `m.layout`; the non-dense branch used to always
+      * normalise to column-major regardless, which made the result's layout depend on whether `m` happened to be
+      * exactly dense rather than on `m`'s own orientation.
+      */
     def *(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.*(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
         m.layout.foreach2D { (i, j) =>
           val srcIdx = m.layout.linearIndex(i, j)
-          newArr(i + j * m.rows) = m.raw(srcIdx) * n
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) * n
         }
-        Matrix[Double](newArr, m.rows, m.cols)
+        if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
     end *
 
+    /** Elementwise scalar divide. Layout policy: see `*`. */
     def /(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
         m.layout.foreach2D { (i, j) =>
           val srcIdx = m.layout.linearIndex(i, j)
-          newArr(i + j * m.rows) = m.raw(srcIdx) / n
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) / n
         }
-        Matrix[Double](newArr, m.rows, m.cols)
+        if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
     end /
 
+    /** Elementwise scalar add. Layout policy: see `*`. */
     def +(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.+(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
         m.layout.foreach2D { (i, j) =>
           val srcIdx = m.layout.linearIndex(i, j)
-          newArr(i + j * m.rows) = m.raw(srcIdx) + n
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) + n
         }
-        Matrix[Double](newArr, m.rows, m.cols)
+        if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
       end if
 
     end +
@@ -104,15 +125,19 @@ object DoubleMatrix:
       end if
     end maximum
 
+    /** Elementwise scalar subtract. Layout policy: see `*`. */
     def -(n: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.-(m.raw)(n), m.layout)
       else
         val newArr = Array.ofDim[Double](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
         m.layout.foreach2D { (i, j) =>
           val srcIdx = m.layout.linearIndex(i, j)
-          newArr(i + j * m.rows) = m.raw(srcIdx) - n
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) - n
         }
-        Matrix[Double](newArr, m.rows, m.cols)
+        if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
     end -
 
     // TODO: +:+=
