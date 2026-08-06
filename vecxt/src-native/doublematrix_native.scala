@@ -156,8 +156,12 @@ object NativeDoubleMatrix:
         val transB = if b.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
         val transA = if m.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
 
+        // `order` is always CblasColMajor here, deliberately, even when both operands are dense row-major: transA/
+        // transB/lda/ldb above are the standard "always column-major" transpose trick. Switching order to
+        // CblasRowMajor without also inverting transA/transB would apply the transpose trick twice — see the
+        // matching comment in src-js/doublematrix.scala, which hits the identical order/trans interaction.
         blas.cblas_dgemm(
-          if m.isDenseRowMajor && b.isDenseRowMajor then blasEnums.CblasRowMajor else blasEnums.CblasColMajor,
+          blasEnums.CblasColMajor,
           transA,
           transB,
           m.rows,
@@ -175,8 +179,9 @@ object NativeDoubleMatrix:
       else if (m.rowStride == 1 || m.colStride == 1) && (b.rowStride == 1 || b.colStride == 1) then
         val transB = if b.rowStride == 1 then blasEnums.CblasNoTrans else blasEnums.CblasTrans
         val transA = if m.rowStride == 1 then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+        // See the fully-dense branch above: order stays CblasColMajor regardless of m/b's own orientation.
         blas.cblas_dgemm(
-          if m.isDenseRowMajor && b.isDenseRowMajor then blasEnums.CblasRowMajor else blasEnums.CblasColMajor,
+          blasEnums.CblasColMajor,
           transA,
           transB,
           m.rows,
