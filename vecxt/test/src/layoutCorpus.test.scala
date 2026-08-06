@@ -488,7 +488,8 @@ class LayoutCorpusSuite extends FunSuite:
 
   test("hadamard: a dense-but-padded leading-columns view as the first operand doesn't throw") {
     val parent = Matrix[Double](Array.tabulate(20)(_.toDouble + 1), 4, 5) // 4x5 dense col-major
-    val paddedView = parent.submatrix(0 to 3, 0 to 2) // leading 3 columns: isDenseColMajor, but raw.length (20) > numel (12)
+    val paddedView =
+      parent.submatrix(0 to 3, 0 to 2) // leading 3 columns: isDenseColMajor, but raw.length (20) > numel (12)
     val plainDense = Matrix.fromRows(
       Array(1.0, 2.0, 3.0),
       Array(4.0, 5.0, 6.0),
