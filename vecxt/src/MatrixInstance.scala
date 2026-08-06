@@ -14,16 +14,18 @@ object MatrixInstance:
       update(rc._1, rc._2, value)
     end update
 
+    /** The two branches this used to have — one for `offset == 0 && rowStride == 1 && colStride == rows`, one for
+      * `offset == 0 && rowStride == cols && colStride == 1` — computed exactly what `linearIndex` computes under
+      * each of those same guards (`0 + row*1 + col*rows` and `0 + row*cols + col*1` respectively, i.e. the same
+      * integer `linearIndex` returns). Unlike the SIMD fast paths in e.g. `doublematrix.scala`, which trade a guard
+      * for a genuinely cheaper bulk vectorised op, this guard bought nothing: `linearIndex` is `@Thin` (three field
+      * reads and some arithmetic, asserted under `MaxInlineSize` by check C3), so it was already going to inline
+      * at this call site for free. The two branches were strictly more bytecode — three comparisons and a
+      * duplicated arithmetic expression — for the same result.
+      */
     inline def update(row: Row, col: Col, value: A): Unit =
       indexCheckMat(m, (row, col))
-      if m.offset == 0 && m.rowStride == 1 && m.colStride == m.rows then m.raw(col * m.rows + row) = value
-      else if m.offset == 0 && m.rowStride == m.cols && m.colStride == 1 then
-        // Fast path for default row-major layout (contiguous, no offset/stride)
-        m.raw(row * m.cols + col) = value
-      else
-        // General case: arbitrary offset/stride
-        m.raw(m.layout.linearIndex(row, col)) = value
-      end if
+      m.raw(m.layout.linearIndex(row, col)) = value
     end update
 
     /** Sets every element of `m` selected by `idx` to `value`.
@@ -190,17 +192,15 @@ object MatrixInstance:
 
     end elementIndex
 
+    /** See `update(row, col, value)` above: the two layout-specific branches this used to have were provably dead
+      * — arithmetically identical, under their own guards, to `linearIndex(row, col)` — and `linearIndex` being
+      * `@Thin` means the guards weren't buying a cheaper op either. Since this is `transparent inline`, every one
+      * of those redundant comparisons was replicated into every call site in the library and in every downstream
+      * user, not paid once.
+      */
     transparent inline def apply(row: Row, col: Col): A =
       indexCheckMat(m, (row, col))
-      // Fast path for default column-major layout (contiguous, no offset/stride)
-      if m.offset == 0 && m.rowStride == 1 && m.colStride == m.rows then m.raw(col * m.rows + row)
-      else if m.offset == 0 && m.rowStride == m.cols && m.colStride == 1 then
-        // Fast path for default row-major layout (contiguous, no offset/stride)
-        m.raw(row * m.cols + col)
-      else
-        // General case: arbitrary offset/stride
-        m.raw(m.layout.linearIndex(row, col))
-      end if
+      m.raw(m.layout.linearIndex(row, col))
     end apply
 
     /** Returns a matrix of the same dimension, all elements are zero except those selected by the index
