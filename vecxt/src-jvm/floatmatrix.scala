@@ -600,6 +600,12 @@ object JvmFloatMatrix:
       result
     end colSums
 
+    /** `hasSimpleContiguousMemoryLayout` accepts dense row-major as well as dense column-major (see its own
+      * scaladoc), so the index into `m.raw` has to go through `m.layout.linearIndex` rather than the col-major-only
+      * `col * m.rows + row` — otherwise a dense row-major `m` passes the guard and is then read as if it were
+      * column-major, silently attributing each row/col's accumulated value to the wrong row/col. `linearIndex` is
+      * `@Thin`, so this costs nothing over the hardcoded formula it replaces.
+      */
     private inline def reduceAlongDimension(
         dim: DimensionExtender,
         inline op: (Float, Float) => Float,
@@ -618,7 +624,7 @@ object JvmFloatMatrix:
       while i < m.cols do
         var j = 0
         while j < m.rows do
-          val idx = i * m.rows + j
+          val idx = m.layout.linearIndex(j, i)
           if whichDim == 0 then newArr(j) = op(newArr(j), m.raw(idx))
           end if
           if whichDim == 1 then newArr(i) = op(newArr(i), m.raw(idx))
