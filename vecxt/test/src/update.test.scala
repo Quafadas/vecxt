@@ -95,8 +95,35 @@ class UpdateSuite extends munit.FunSuite:
     }
   }
 
+  // simpleMat is 3 rows x 2 cols. `row == rows` / `col == cols` is one past the last valid index in each
+  // axis and must throw, not silently alias a neighbouring column/row via the linear index computation.
+  // col 0 (not col 1, the last column) so the bad linear index falls inside the backing array instead of
+  // being coincidentally caught by the array's own bounds check.
+  simpleMat.test("Mat update fail out of bounds row == rows") { mat =>
+    intercept[java.lang.IndexOutOfBoundsException] {
+      mat((3, 0)) = 2.0
+    }
+  }
+
+  simpleMat.test("Mat update fail out of bounds col == cols") { mat =>
+    intercept[java.lang.IndexOutOfBoundsException] {
+      mat((1, 2)) = 2.0
+    }
+  }
+
+  simpleMat.test("Mat update fail out of bounds row == rows and col == cols") { mat =>
+    intercept[java.lang.IndexOutOfBoundsException] {
+      mat((3, 2)) = 2.0
+    }
+  }
+
   simpleMat.test("Matrix update") { mat =>
     mat((1, 1)) = 0.5
     assertEqualsDouble(mat(1, 1), 0.5, 0.0000001)
+  }
+
+  simpleMat.test("Mat update still succeeds at last valid corner (rows - 1, cols - 1)") { mat =>
+    mat((2, 1)) = 9.5
+    assertEqualsDouble(mat(2, 1), 9.5, 0.0000001)
   }
 end UpdateSuite

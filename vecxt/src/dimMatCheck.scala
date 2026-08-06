@@ -24,35 +24,35 @@ end sameDenseElementWiseMemoryLayoutCheck
 object indexCheckMat:
 
   inline def apply(a: Matrix[?], dim: RowCol) =
-    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 < a.rows && dim._2 < a.cols) then
       throw java.lang.IndexOutOfBoundsException(
         s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
       )
 
   @targetName("indexCheckMatInDouble")
   def apply(a: Matrix[Double], dim: RowCol) =
-    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 < a.rows && dim._2 < a.cols) then
       throw java.lang.IndexOutOfBoundsException(
         s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
       )
 
   @targetName("indexCheckMatInFloat")
   def apply(a: Matrix[Float], dim: RowCol) =
-    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 < a.rows && dim._2 < a.cols) then
       throw java.lang.IndexOutOfBoundsException(
         s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
       )
 
   @targetName("indexCheckMatInInt")
   def apply(a: Matrix[Int], dim: RowCol) =
-    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 < a.rows && dim._2 < a.cols) then
       throw java.lang.IndexOutOfBoundsException(
         s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
       )
 
   @targetName("indexCheckMatInLong")
   def apply(a: Matrix[Long], dim: RowCol) =
-    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 <= a.rows && dim._2 <= a.cols) then
+    if !(dim._1 >= 0 && dim._2 >= 0 && dim._1 < a.rows && dim._2 < a.cols) then
       throw java.lang.IndexOutOfBoundsException(
         s"Tried to update a ${a.rows} x ${a.cols} matrix at ${dim._1}, ${dim._2}, which is not valid. Please check your indexing."
       )
