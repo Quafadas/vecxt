@@ -113,6 +113,18 @@ wrong, and `UnsupportedLayoutException` if `c` has any other layout (including a
 the right shape) — otherwise it would silently write (or, whenever `beta != 0`, also read) through the wrong
 strides.
 
+### Elementwise scalar ops (`*`, `/`, `+`, `-`) and physical layout
+
+`Matrix[Double]`'s elementwise scalar operators preserve `m`'s own physical orientation rather than always
+normalising to column-major: the result is row-major whenever `m`'s unit-stride axis is columns (a dense row-major
+matrix, or a view/padded layout that is still effectively row-major), and column-major otherwise — including
+whenever `m` has no unit-stride axis at all (doubly strided). This was chosen over always normalising to
+column-major because it's both faster (no reshuffle needed for a row-major input, dense or not) and more
+predictable than the layout previously depending on whether `m` happened to be exactly dense rather than on `m`'s
+own orientation. Either way, the *logical* result — what you read back via `(row, col)` — is identical; only the
+backing array's physical order can differ, which normally only matters if you go on to inspect `.raw` directly or
+depend on hitting a same-layout fast path in a later op.
+
 ## Slicing
 
 Index via a `Int`, `Array[Int]` or a `Range` to slice a matrix. The `::` operator is used to select all elements in a dimension.
