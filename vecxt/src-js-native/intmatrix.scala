@@ -7,19 +7,16 @@ import scala.annotation.targetName
 object JvmIntMatrix:
   extension (m: Matrix[Int])
 
-    /** `hasSimpleContiguousMemoryLayout` accepts dense row-major as well as dense column-major (see its own scaladoc),
-      * so the index into `m.raw` has to go through `m.layout.linearIndex` rather than the col-major-only
-      * `col * m.rows + row` — otherwise a dense row-major `m` passes the guard and is then read as if it were
-      * column-major, silently attributing each row/col's accumulated value to the wrong row/col. `linearIndex` is
-      * `@Thin`, so this costs nothing over the hardcoded formula it replaces.
+    /** Reads every element through `m.layout.linearIndex`, which is just `offset + row * rowStride + col * colStride`
+      * — valid for any layout, dense or strided, row-major or column-major. So unlike the element-wise SIMD ops in
+      * this file (which need a simple contiguous layout to hand `m.raw` to a vectorized loop), this needs no
+      * `hasSimpleContiguousMemoryLayout` guard: there's no fast path to fall back from, just this one loop.
       */
     private inline def reduceAlongDimension(
         dim: DimensionExtender,
         inline op: (Int, Int) => Int,
         inline initial: Int
     ): Matrix[Int] =
-      if !m.hasSimpleContiguousMemoryLayout then ???
-      end if
       val whichDim = dim.asInt
       val newShape = m.shape match
         case (r, c) if whichDim == 0 => (r, 1)
