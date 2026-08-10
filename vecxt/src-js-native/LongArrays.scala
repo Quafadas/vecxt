@@ -14,8 +14,8 @@ object LongArrays:
       out
     end select
 
-    /** No SIMD vector API is available on JS/Native, so this is a plain scalar sum. Kept as `sumSIMD` to match the
-      * name used by the JVM implementation (backed by `jdk.incubator.vector`).
+    /** No SIMD vector API is available on JS/Native, so this is a plain scalar sum. Kept as `sumSIMD` to match the name
+      * used by the JVM implementation (backed by `jdk.incubator.vector`).
       */
     def sumSIMD: Long =
       val len = arr.length
