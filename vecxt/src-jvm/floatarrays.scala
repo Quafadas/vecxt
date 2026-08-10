@@ -495,7 +495,7 @@ object floatarrays:
         result = inline op match
           case VectorOperators.MAX => Math.max(result, vec(i))
           case VectorOperators.MIN => Math.min(result, vec(i))
-          case _                   => ???
+          case _                   => error("reduceOp supports MAX and MIN only")
         i += 1
       end while
 
@@ -1028,7 +1028,7 @@ object floatarrays:
             idx(i) = vec(i) >= num
             i += 1
           end while
-        case _ => ???
+        case _ => error("this method supports EQ, NE, LT, LE, GT, GE only")
       end match
 
       idx
