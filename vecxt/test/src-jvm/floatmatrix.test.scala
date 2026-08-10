@@ -700,6 +700,18 @@ class FloatMatrixJvmSuite extends FunSuite:
     assertEquals(result.cols, 2)
     assertFloatMatrixEquals(result, Matrix(Array[Float](9.0f, 12.0f), (1, 2)))
 
+  test("sum reduction, genuinely non-contiguous (padded strides)"):
+    // rows=2, cols=2, rowStride=1, colStride=3, offset=0 over a length-6 backing array: col 0 is raw(0),raw(1) =
+    // [1,2], col 1 is raw(3),raw(4) = [3,4], and raw(2)/raw(5) are unused padding. dataLength (6) != numel (4),
+    // so hasSimpleContiguousMemoryLayout is false - reduceAlongDimension used to bail out with `???` for exactly
+    // this shape, even though its loop already reads every element through m.layout.linearIndex, which handles
+    // arbitrary offsets/strides correctly regardless of contiguity.
+    val mat = Matrix[Float](Array[Float](1.0f, 2.0f, 99.0f, 3.0f, 4.0f, 99.0f), 2, 2, 1, 3, 0)
+    assert(!mat.hasSimpleContiguousMemoryLayout)
+
+    assertFloatMatrixEquals(mat.sum(0), Matrix(Array[Float](4.0f, 6.0f), (2, 1)))
+    assertFloatMatrixEquals(mat.sum(1), Matrix(Array[Float](3.0f, 7.0f), (1, 2)))
+
   test("max(dim=0) returns row-wise maxima"):
     val mat = Matrix.fromRows[Float](
       Array[Float](1.0f, 5.0f),
