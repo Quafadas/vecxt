@@ -75,6 +75,18 @@ def assertMatrixEquals(m1: Matrix[Int], m2: Matrix[Int])(implicit loc: munit.Loc
   end for
 end assertMatrixEquals
 
+@targetName("assertMatrixEqualsFloat")
+def assertMatrixEquals(m1: Matrix[Float], m2: Matrix[Float])(implicit loc: munit.Location): Unit =
+
+  assertEquals(m1.rows, m2.rows)
+  assertEquals(m1.cols, m2.cols)
+  for i <- 0 until m1.rows do
+    for j <- 0 until m1.cols do
+      assertEqualsDouble(m1(i, j).toDouble, m2(i, j).toDouble, 1 / 1e6, clue = s"at row $i, col $j")
+    end for
+  end for
+end assertMatrixEquals
+
 def assertVecEquals[A](v1: Array[A], v2: Array[A])(implicit loc: munit.Location): Unit =
   var i: Int = 0;
   while i < v1.length do
