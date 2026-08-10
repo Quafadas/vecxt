@@ -1,5 +1,6 @@
 package vecxt
 
+import scala.compiletime.error
 import scala.reflect.ClassTag
 
 import vecxt.annotations.AllocFree
@@ -406,7 +407,7 @@ object floatarrays:
         vec(i) = inline op match
           case VectorOperators.LT => Math.max(initial, vec(i))
           case VectorOperators.GT => Math.min(initial, vec(i))
-          case _                  => ???
+          case _                  => error("clampFloatOp! only supports VectorOperators.LT and VectorOperators.GT")
         i += 1
       end while
 
