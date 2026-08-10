@@ -600,9 +600,9 @@ object JvmFloatMatrix:
       result
     end colSums
 
-    /** Reads every element through `m.layout.linearIndex`, which is just `offset + row * rowStride + col * colStride`
-      * — valid for any layout, dense or strided, row-major or column-major. So unlike the element-wise SIMD ops in
-      * this file (which need a simple contiguous layout to hand `m.raw` to a vectorized loop), this needs no
+    /** Reads every element through `m.layout.linearIndex`, which is just `offset + row * rowStride + col * colStride` —
+      * valid for any layout, dense or strided, row-major or column-major. So unlike the element-wise SIMD ops in this
+      * file (which need a simple contiguous layout to hand `m.raw` to a vectorized loop), this needs no
       * `hasSimpleContiguousMemoryLayout` guard: there's no fast path to fall back from, just this one loop.
       */
     private inline def reduceAlongDimension(
