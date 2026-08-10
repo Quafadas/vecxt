@@ -6,13 +6,13 @@ import dimensionExtender.DimensionExtender.Dimension.*
 /** `reduceAlongDimension` (backing `max`/`min`/`sum`/`product(dim)` for `Matrix[Double]`, `Matrix[Float]` and
   * `Matrix[Int]`, on every platform) used to bail out with `???` for any layout that wasn't
   * `hasSimpleContiguousMemoryLayout`. Its loop already reads every element through `m.layout.linearIndex` -
-  * `offset + row * rowStride + col * colStride` - which is valid for any layout, contiguous or not, so the guard
-  * was only ever blocking a path that already worked.
+  * `offset + row * rowStride + col * colStride` - which is valid for any layout, contiguous or not, so the guard was
+  * only ever blocking a path that already worked.
   *
-  * All three element types share one non-contiguous fixture: rows=2, cols=2, rowStride=1, colStride=3, offset=0
-  * over a length-6 backing array. Column 0 is raw(0),raw(1) = [1,2], column 1 is raw(3),raw(4) = [3,4], and
-  * raw(2)/raw(5) are unused padding - dataLength (6) != numel (4), so hasSimpleContiguousMemoryLayout is false and
-  * this genuinely exercises the removed guard (a merely dense row-major layout would not: it already satisfies
+  * All three element types share one non-contiguous fixture: rows=2, cols=2, rowStride=1, colStride=3, offset=0 over a
+  * length-6 backing array. Column 0 is raw(0),raw(1) = [1,2], column 1 is raw(3),raw(4) = [3,4], and raw(2)/raw(5) are
+  * unused padding - dataLength (6) != numel (4), so hasSimpleContiguousMemoryLayout is false and this genuinely
+  * exercises the removed guard (a merely dense row-major layout would not: it already satisfies
   * hasSimpleContiguousMemoryLayout, guard or no guard).
   */
 class ReduceAlongDimensionNonContiguousSuite extends munit.FunSuite:
