@@ -119,7 +119,7 @@ object intarrays:
             idx(i) = vec(i) >= vec2(i)
             i += 1
           end while
-        case _ => ???
+        case _ => scala.compiletime.error("this method supports EQ, NE, LT, LE, GT, GE only")
       end match
 
       idx
@@ -208,7 +208,7 @@ object intarrays:
             idx(i) = vec(i) >= num
             i += 1
           end while
-        case _ => ???
+        case _ => scala.compiletime.error("this method supports EQ, NE, LT, LE, GT, GE only")
       end match
 
       idx
