@@ -78,7 +78,7 @@ end indexCheckMat
 
 object dimMatInstantiateCheck:
   inline def apply[A](raw: Array[A], dim: RowCol) =
-    if dim._1 * dim._2 != raw.size
+    if dim._1 < 0 || dim._2 < 0 || dim._1 * dim._2 != raw.size
     then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatInstantiateCheck
 
@@ -121,7 +121,7 @@ case class MatrixNotSymmetricException(rows: Int, cols: Int, i: Int, j: Int, val
 
 object dimMatDInstantiateCheck:
   inline def apply[A](raw: Array[Double], dim: RowCol) =
-    if dim._1 * dim._2 != raw.size
+    if dim._1 < 0 || dim._2 < 0 || dim._1 * dim._2 != raw.size
     then throw InvalidMatrix(dim._1, dim._2, raw.size)
 end dimMatDInstantiateCheck
 
