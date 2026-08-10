@@ -862,6 +862,14 @@ class MatrixExtensionSuite extends FunSuite:
       )
     )
 
+    intercept[InvalidMatrix](
+      Matrix[Double](Array.ofDim[Double](6), (-2, -3))
+    )
+
+    intercept[InvalidMatrix](
+      Matrix[Double](Array.ofDim[Double](6), -2, -3)
+    )
+
     intercept[java.lang.AssertionError](
       Matrix.fromRows(
         Array[Double](3.0, 2.0, 3.0),
