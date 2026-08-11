@@ -71,11 +71,28 @@ object matrixUtil:
       end while
     end mapRowsInPlace
 
+    /** The result is dense **row**-major, not column-major like the rest of the `Matrix(raw, rows, cols)` factories.
+      *
+      * This is a row-wise operation: it reads a row at a time and writes a row at a time. A column-major destination
+      * makes every one of those writes stride by `rows`, whereas a row-major one makes each row a contiguous run — so
+      * `writeRow` takes its `arraycopy` path instead of the strided loop, and on a row-major source the whole method
+      * becomes `arraycopy` in, `arraycopy` out. It also matches the layout policy the scalar ops already document in
+      * `doublematrix.scala` (result orientation follows the operation's own unit-stride axis) rather than
+      * unconditionally normalising to column-major.
+      *
+      * [[mapCols]] deliberately keeps the column-major default for the mirror-image reason.
+      *
+      * The zero-dimension guard is not cosmetic: the strided factory routes through `strideMatInstantiateCheck`, which
+      * rejects `rows <= 0 || cols <= 0`, while the `(raw, rows, cols)` factory permits them. Without it an empty matrix
+      * would start throwing `InvalidMatrix` where it previously mapped to an empty result.
+      */
     inline def mapRows[B](
         inline f: Array[A] => Array[B]
     )(using ClassTag[B], ClassTag[A]): Matrix[B] =
       val newArr = Array.ofDim[B](m.numel)
-      val m2 = Matrix(newArr, m.rows, m.cols)
+      val m2 =
+        if m.rows == 0 || m.cols == 0 then Matrix(newArr, m.rows, m.cols)
+        else Matrix(newArr, m.rows, m.cols, m.cols, 1, 0)
       var idx = 0
       while idx < m.rows do
         writeRow(m2, idx, f(m.row(idx)))

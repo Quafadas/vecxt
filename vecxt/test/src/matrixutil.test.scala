@@ -54,9 +54,15 @@ class MatrixUtilSuite extends FunSuite:
   // ── mapRows ───────────────────────────────────────────────────────────────
 
   test("mapRows produces new matrix without mutating original"):
+    // m is column-major, so raw (1,2,3,4) is logically [[1,3],[2,4]].
     val m = Matrix[Double](Array(1.0, 2.0, 3.0, 4.0), (2, 2))
     val m2 = m.mapRows(row => row.map(_ + 10.0))
-    assertVecEquals[Double](m2.raw, Array(11.0, 12.0, 13.0, 14.0))
+    // Asserted logically rather than against m2.raw: mapRows now builds a row-major result, so the storage order
+    // legitimately differs from the column-major one this used to hardcode. The logical content is what the method
+    // promises; raw order is an implementation detail, and pinning it here made any layout change look like a
+    // regression. The layout itself is asserted explicitly below instead.
+    assertMatrixEquals(m2, Matrix.fromRows[Double](Array(11.0, 13.0), Array(12.0, 14.0)))
+    assert(m2.isDenseRowMajor)
     // original unchanged
     assertVecEquals[Double](m.raw, Array(1.0, 2.0, 3.0, 4.0))
 
@@ -153,6 +159,29 @@ class MatrixUtilSuite extends FunSuite:
     val mapped = rowMajor2x3.mapRows[Double](row => row.map(_ + 10.0))
     assertVecEquals[Double](mapped.row(0), Array(11.0, 12.0, 13.0))
     assertVecEquals[Double](mapped.row(1), Array(14.0, 15.0, 16.0))
+
+  // mapRows is a row-wise operation, so its result is row-major: each written row is then a contiguous run and
+  // writeRow can arraycopy instead of striding by `rows`. mapCols is the mirror image and stays column-major. Both
+  // are asserted so a future change to either default has to be deliberate.
+
+  test("mapRows returns a row-major result, mapCols a column-major one"):
+    val src = colMajor2x3
+    val byRow = src.mapRows[Double](row => row.map(_ * 2.0))
+    val byCol = src.mapCols[Double](col => col.map(_ * 2.0))
+
+    assert(byRow.isDenseRowMajor, s"expected row-major, got ${byRow.layoutString}")
+    assert(byCol.isDenseColMajor, s"expected col-major, got ${byCol.layoutString}")
+
+    // ...and both still describe the same logical matrix, whatever their storage order.
+    val expected = Matrix.fromRows[Double](Array(2.0, 4.0, 6.0), Array(8.0, 10.0, 12.0))
+    assertMatrixEquals(byRow, expected)
+    assertMatrixEquals(byCol, expected)
+
+  test("mapRows on a single-column matrix still round-trips"):
+    // cols == 1 makes rowStride == colStride == 1, the degenerate point where row- and column-major coincide.
+    val m = Matrix.fromRows[Double](Array(1.0), Array(2.0), Array(3.0))
+    val mapped = m.mapRows[Double](row => row.map(_ * 10.0))
+    assertMatrixEquals(mapped, Matrix.fromRows[Double](Array(10.0), Array(20.0), Array(30.0)))
 
   test("mapRows rejects a function that changes the row length"):
     intercept[MatrixDimensionMismatch](colMajor2x3.mapRows[Double](row => row.take(2)))

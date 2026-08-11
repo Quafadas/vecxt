@@ -1126,7 +1126,10 @@ class MatrixExtensionSuite extends FunSuite:
 
   test("map rows") {
     val mapped = mat1to9.mapRows[Double](row => row * 2)
-    assertVecEquals[Double](mapped.raw, mat1to9.raw * 2)
+    // Compared logically, not as `mapped.raw` vs `mat1to9.raw * 2`: mapRows now returns a row-major matrix, so the
+    // two backing arrays hold the same values in different orders. assertMatrixEquals indexes via (i, j), so it
+    // checks the thing that is actually being claimed and is indifferent to either side's layout.
+    assertMatrixEquals(mapped, mat1to9 * 2.0)
 
     val mapped2 = mat1to9.mapRowsToScalar[Double](row => row.sum)
     assertVecEquals[Double](mapped2.raw, Array[Double](6.0, 15.0, 24.0))
