@@ -323,6 +323,42 @@ class DifferentMemoryLayoutTests extends FunSuite:
     }
   }
 
+  // `dgemm`/`sgemm` assume `c` does not overlap `a`/`b`: it's read progressively while `c` is written, so if `c`
+  // shares a backing array with `m` or `b`, dgemm can read an element of `m`/`b` after it's already been
+  // overwritten via the aliased `c`, silently corrupting the result. `m`/`b` themselves may safely share an array
+  // (e.g. `m @@ m`), since dgemm only ever reads those two - it never writes them.
+
+  test("matmulInPlace! throws when c aliases m's backing array") {
+    val m = Matrix.fromRows(Array(1.0, 2.0), Array(3.0, 4.0)) // 2x2
+    val b = Matrix.fromRows(Array(5.0, 6.0), Array(7.0, 8.0)) // 2x2
+
+    intercept[MatrixAliasingException] {
+      m.`matmulInPlace!`(b, m, 1.0, 0.0)
+    }
+  }
+
+  test("matmulInPlace! throws when c aliases b's backing array") {
+    val m = Matrix.fromRows(Array(1.0, 2.0), Array(3.0, 4.0)) // 2x2
+    val b = Matrix.fromRows(Array(5.0, 6.0), Array(7.0, 8.0)) // 2x2
+    // Same backing array as `b`, wrapped in a distinct (but identically shaped/laid out) Matrix instance - not the
+    // same object as `b`, so this specifically exercises the array-identity check rather than reference equality
+    // on the Matrix wrapper.
+    val cAliasingB = Matrix[Double](b.raw, b.rows, b.cols)
+
+    intercept[MatrixAliasingException] {
+      m.`matmulInPlace!`(b, cAliasingB, 1.0, 0.0)
+    }
+  }
+
+  test("matmulInPlace! allows m and b to alias each other") {
+    val m = Matrix.fromRows(Array(1.0, 2.0), Array(3.0, 4.0)) // 2x2
+    val out = Matrix.zeros[Double]((2, 2))
+
+    m.`matmulInPlace!`(m, out, 1.0, 0.0)
+
+    assertMatrixEquals(out, m @@ m)
+  }
+
   test("scalars in matmul, non-square") {
     val m = Matrix.fromRows(Array(1.0, 2.0, 3.0), Array(4.0, 5.0, 6.0)) // 2x3
     val b = Matrix.fromRows(Array(1.0, 0.0), Array(0.0, 1.0), Array(1.0, 1.0)) // 3x2
