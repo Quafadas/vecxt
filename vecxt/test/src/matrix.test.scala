@@ -1273,4 +1273,95 @@ class MatrixExtensionSuite extends FunSuite:
     assertMatrixEquals(mat(0 to 2, 0 to 2), expected)
   }
 
+  // ─── gather (non-contiguous selection) across layouts ────────────────────────────────────────────────────────
+  // `apply(rowRange, colRange)` takes a zero-copy submatrix when both selections are contiguous runs, and otherwise
+  // gathers into a fresh matrix. That gather used to be guarded on `isDenseColMajor` with `???` for anything else, so
+  // it threw NotImplementedError on a row-major, offset or padded operand. Each fixture below is the same logical
+  // 3x3 [[1,2,3],[4,5,6],[7,8,9]] as `mat1to9` in a layout that guard rejected, gathered the same way, so all four
+  // must agree.
+
+  private def gather3x3RowMajor =
+    Matrix[Double](Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), 3, 3, 3, 1, 0)
+
+  // rowStride 1, colStride 4 over a length-12 array: column j occupies raw(4j)..raw(4j+2), raw(4j+3) is padding.
+  private def gather3x3Padded =
+    Matrix[Double](
+      Array(1.0, 4.0, 7.0, 99.0, 2.0, 5.0, 8.0, 99.0, 3.0, 6.0, 9.0, 99.0),
+      3,
+      3,
+      1,
+      4,
+      0
+    )
+
+  // A 3x3 window at offset 5 of a 4x4 column-major parent; the surrounding 99.0s are the parent's own elements,
+  // which a mis-derived index would pick up instead of the view's.
+  private def gather3x3Offset =
+    Matrix[Double](
+      Array(99.0, 99.0, 99.0, 99.0, 99.0, 1.0, 4.0, 7.0, 99.0, 2.0, 5.0, 8.0, 99.0, 3.0, 6.0, 9.0),
+      4,
+      4
+    ).submatrix(1 to 3, 1 to 3)
+
+  test("the gather fixtures are all logically mat1to9, in layouts the old isDenseColMajor guard rejected") {
+    for m <- List(gather3x3RowMajor, gather3x3Padded, gather3x3Offset) do
+      assert(!m.isDenseColMajor, s"fixture must exercise the general gather, got ${m.layoutString}")
+      assertEquals(m.shape, (3, 3))
+      for
+        row <- 0 until 3
+        col <- 0 until 3
+      do assertEqualsDouble(m(row, col), mat1to9(row, col), 1e-9, s"at ($row, $col)")
+      end for
+    end for
+  }
+
+  test("gather with a non-contiguous row selection agrees across layouts") {
+    // rows {0, 2} is not a contiguous run, so this takes the gather path rather than the submatrix view.
+    val expected = Matrix.fromRows[Double](Array(1.0, 2.0), Array(7.0, 8.0))
+    // dense column-major: the one layout the old code already handled, asserted here as the reference.
+    assertMatrixEquals(mat1to9(Array[Int](0, 2), 0 to 1), expected)
+    assertMatrixEquals(gather3x3RowMajor(Array[Int](0, 2), 0 to 1), expected)
+    assertMatrixEquals(gather3x3Padded(Array[Int](0, 2), 0 to 1), expected)
+    assertMatrixEquals(gather3x3Offset(Array[Int](0, 2), 0 to 1), expected)
+  }
+
+  test("gather with a non-contiguous column selection agrees across layouts") {
+    val expected = Matrix.fromRows[Double](
+      Array(1.0, 3.0),
+      Array(4.0, 6.0),
+      Array(7.0, 9.0)
+    )
+    assertMatrixEquals(mat1to9(::, Array[Int](0, 2)), expected)
+    assertMatrixEquals(gather3x3RowMajor(::, Array[Int](0, 2)), expected)
+    assertMatrixEquals(gather3x3Padded(::, Array[Int](0, 2)), expected)
+    assertMatrixEquals(gather3x3Offset(::, Array[Int](0, 2)), expected)
+  }
+
+  test("gather honours out-of-order and repeated indices") {
+    // A gather, not a slice: indices may be permuted and may repeat, in which case the source element is duplicated.
+    val expected = Matrix.fromRows[Double](
+      Array(7.0, 8.0, 9.0),
+      Array(1.0, 2.0, 3.0),
+      Array(7.0, 8.0, 9.0)
+    )
+    assertMatrixEquals(mat1to9(Array[Int](2, 0, 2), ::), expected)
+    assertMatrixEquals(gather3x3RowMajor(Array[Int](2, 0, 2), ::), expected)
+    assertMatrixEquals(gather3x3Offset(Array[Int](2, 0, 2), ::), expected)
+  }
+
+  test("gather on both axes at once agrees across layouts") {
+    val expected = Matrix.fromRows[Double](Array(9.0, 7.0), Array(3.0, 1.0))
+    assertMatrixEquals(mat1to9(Array[Int](2, 0), Array[Int](2, 0)), expected)
+    assertMatrixEquals(gather3x3RowMajor(Array[Int](2, 0), Array[Int](2, 0)), expected)
+    assertMatrixEquals(gather3x3Padded(Array[Int](2, 0), Array[Int](2, 0)), expected)
+    assertMatrixEquals(gather3x3Offset(Array[Int](2, 0), Array[Int](2, 0)), expected)
+  }
+
+  test("a gather result is a copy, independent of the source") {
+    val src = gather3x3RowMajor
+    val gathered = src(Array[Int](0, 2), ::)
+    gathered(0, 0) = -99.0
+    assertEqualsDouble(src(0, 0), 1.0, 1e-9)
+  }
+
 end MatrixExtensionSuite

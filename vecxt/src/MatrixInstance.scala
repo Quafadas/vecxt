@@ -113,29 +113,41 @@ object MatrixInstance:
       apply(Array(row), colRange)
     end apply
 
+    /** Selects arbitrary rows and columns — a gather, not a slice: either index array may be out of order, repeated or
+      * sparse.
+      *
+      * Two paths. When both selections are contiguous ascending runs the result is a zero-copy [[submatrix]] view;
+      * otherwise the selected elements are gathered into a fresh dense column-major matrix.
+      *
+      * The gather used to be guarded on `m.isDenseColMajor`, with `???` for anything else, so gathering from a
+      * row-major, offset or strided matrix threw `NotImplementedError`. That guard bought nothing: its hardcoded
+      * `colpos * m.rows + rowPos` is precisely what `m.layout.linearIndex(rowPos, colpos)` evaluates to when
+      * `rowStride == 1`, `colStride == rows` and `offset == 0` — i.e. under exactly the condition it tested. Since
+      * `linearIndex` is `@Thin`, the general form costs nothing over the special case it replaces, and it is correct
+      * for every other layout as well.
+      */
     inline def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)
       val newCols = range(colRange, m.cols)
-      val newArr = Array.ofDim[A](newCols.size * newRows.size)
 
       if newRows.contiguous && newCols.contiguous then submatrix(newRows, newCols)
-      else if m.isDenseColMajor then
+      else
+        // Allocated inside this branch rather than above the `if`: the submatrix path returns a view and never reads
+        // it, so hoisting it allocated a full result-sized array on every zero-copy call only to discard it.
+        val newArr = Array.ofDim[A](newCols.size * newRows.size)
         var idx = 0
         var i = 0
         while i < newCols.length do
           val colpos = newCols(i)
-          val stride = colpos * m.rows
           var j = 0
           while j < newRows.length do
-            val rowPos = newRows(j)
-            newArr(idx) = m.raw(stride + rowPos)
+            newArr(idx) = m.raw(m.layout.linearIndex(newRows(j), colpos))
             idx += 1
             j += 1
           end while
           i += 1
         end while
         Matrix(newArr, (newRows.size, newCols.size))
-      else ???
       end if
 
     end apply
