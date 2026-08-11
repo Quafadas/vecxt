@@ -2,8 +2,7 @@ package vecxt
 
 import all.*
 
-/** `d - m` and `d / m` (scalar on the left) used to be `???` - unlike `d * m`/`d + m`, they can't just delegate to
-  * `m * d`/`m + d` since subtraction and division aren't commutative. Covers the same three layout shapes as the other
+/** subtraction and division aren't commutative. Covers the same three layout shapes as the other
   * scalar ops in doublematrix.scala: dense column-major (fast path), dense row-major (fast path, but exercises a
   * non-col-major `m.layout`), and genuinely non-contiguous / padded-stride (falls through to the elementwise loop).
   */

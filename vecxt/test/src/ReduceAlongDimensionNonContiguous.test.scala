@@ -3,12 +3,7 @@ package vecxt
 import all.*
 import dimensionExtender.DimensionExtender.Dimension.*
 
-/** `reduceAlongDimension` (backing `max`/`min`/`sum`/`product(dim)` for `Matrix[Double]`, `Matrix[Float]` and
-  * `Matrix[Int]`, on every platform) used to bail out with `???` for any layout that wasn't
-  * `hasSimpleContiguousMemoryLayout`. Its loop already reads every element through `m.layout.linearIndex` -
-  * `offset + row * rowStride + col * colStride` - which is valid for any layout, contiguous or not, so the guard was
-  * only ever blocking a path that already worked.
-  *
+/**
   * All three element types share one non-contiguous fixture: rows=2, cols=2, rowStride=1, colStride=3, offset=0 over a
   * length-6 backing array. Column 0 is raw(0),raw(1) = [1,2], column 1 is raw(3),raw(4) = [3,4], and raw(2)/raw(5) are
   * unused padding - dataLength (6) != numel (4), so hasSimpleContiguousMemoryLayout is false and this genuinely
@@ -46,10 +41,6 @@ class ReduceAlongDimensionNonContiguousSuite extends munit.FunSuite:
     assertMatrixEquals(mat.max(Rows), Matrix[Int](Array(3, 4), (2, 1)))
     assertMatrixEquals(mat.min(Cols), Matrix[Int](Array(1, 3), (1, 2)))
     assertMatrixEquals(mat.product(Rows), Matrix[Int](Array(3, 8), (2, 1)))
-
-  // `DimensionExtender` is `Int | Dimension`, so any Int is accepted at the call site - `reduceAlongDimension`'s
-  // `dim` isn't `inline`, so this can't be caught at compile time; it used to hit a bare `???` (NotImplementedError)
-  // at runtime instead of a message naming the problem.
 
   test("Double/Float/Int: sum(invalid dim) throws InvalidDimensionException"):
     intercept[InvalidDimensionException](Matrix.eye[Double](2).sum(2))
