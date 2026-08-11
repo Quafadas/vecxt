@@ -6,45 +6,13 @@ import scala.annotation.targetName
 
 object JvmFloatMatrix:
   extension (m: Matrix[Float])
-    /** Returns the sum of each column as a flat Array[Float].
-      *
-      * For dense column-major matrices iterates directly on the backing array at each column's base offset — no
-      * intermediate array is allocated per column.
-      */
-    def colSums: Array[Float] =
-      val result = Array.ofDim[Float](m.cols)
-      var i = 0
-      if m.isDenseColMajor then
-        while i < m.cols do
-          val colBase = i * m.rows
-          var j = 0
-          var acc = 0.0f
-          while j < m.rows do
-            acc += m.raw(colBase + j)
-            j += 1
-          end while
-          result(i) = acc
-          i += 1
-        end while
-      else
-        while i < m.cols do
-          var acc = 0.0f
-          var j = 0
-          while j < m.rows do
-            acc += m.raw(m.offset + j * m.rowStride + i * m.colStride)
-            j += 1
-          end while
-          result(i) = acc
-          i += 1
-        end while
-      end if
-      result
-    end colSums
-
     /** Reads every element through `m.layout.linearIndex`, which is just `offset + row * rowStride + col * colStride` —
       * valid for any layout, dense or strided, row-major or column-major. So unlike the element-wise SIMD ops in this
       * file (which need a simple contiguous layout to hand `m.raw` to a vectorized loop), this needs no
-      * `hasSimpleContiguousMemoryLayout` guard: there's no fast path to fall back from, just this one loop.
+      * `hasSimpleContiguousMemoryLayout` guard: there's no fast path to fall back from, just this one loop. `foreach2D`
+      * picks whichever of row-major/column-major traversal order is cache-friendly for `m`'s own layout; which order it
+      * picks doesn't matter for correctness here since `op` (max/min/sum/product) is always commutative and
+      * associative.
       */
     private inline def reduceAlongDimension(
         dim: DimensionExtender,
@@ -58,19 +26,13 @@ object JvmFloatMatrix:
         case _                       => ???
 
       val newArr = Array.fill(newShape._1 * newShape._2)(initial)
-      var i = 0
-      while i < m.cols do
-        var j = 0
-        while j < m.rows do
-          val idx = m.layout.linearIndex(j, i)
-          if whichDim == 0 then newArr(j) = op(newArr(j), m.raw(idx))
-          end if
-          if whichDim == 1 then newArr(i) = op(newArr(i), m.raw(idx))
-          end if
-          j += 1
-        end while
-        i += 1
-      end while
+      m.layout.foreach2D { (i, j) =>
+        val idx = m.layout.linearIndex(i, j)
+        if whichDim == 0 then newArr(i) = op(newArr(i), m.raw(idx))
+        end if
+        if whichDim == 1 then newArr(j) = op(newArr(j), m.raw(idx))
+        end if
+      }
 
       Matrix[Float](newArr, newShape)
     end reduceAlongDimension
