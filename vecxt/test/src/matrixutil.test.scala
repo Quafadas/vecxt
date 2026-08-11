@@ -54,9 +54,15 @@ class MatrixUtilSuite extends FunSuite:
   // ── mapRows ───────────────────────────────────────────────────────────────
 
   test("mapRows produces new matrix without mutating original"):
+    // m is column-major, so raw (1,2,3,4) is logically [[1,3],[2,4]].
     val m = Matrix[Double](Array(1.0, 2.0, 3.0, 4.0), (2, 2))
     val m2 = m.mapRows(row => row.map(_ + 10.0))
-    assertVecEquals[Double](m2.raw, Array(11.0, 12.0, 13.0, 14.0))
+    // Asserted logically rather than against m2.raw: mapRows now builds a row-major result, so the storage order
+    // legitimately differs from the column-major one this used to hardcode. The logical content is what the method
+    // promises; raw order is an implementation detail, and pinning it here made any layout change look like a
+    // regression. The layout itself is asserted explicitly below instead.
+    assertMatrixEquals(m2, Matrix.fromRows[Double](Array(11.0, 13.0), Array(12.0, 14.0)))
+    assert(m2.isDenseRowMajor)
     // original unchanged
     assertVecEquals[Double](m.raw, Array(1.0, 2.0, 3.0, 4.0))
 
@@ -93,5 +99,220 @@ class MatrixUtilSuite extends FunSuite:
     assertEquals(maxes.rows, 1)
     assertEquals(maxes.cols, 2)
     assertVecEquals[Double](maxes.raw, Array(3.0, 4.0))
+
+  // ── row / col across layouts ──────────────────────────────────────────────
+  // `row` takes an arraycopy path when colStride == 1 and a strided walk otherwise; `col` mirrors that on
+  // rowStride == 1. Each fixture below is the same logical matrix [[1,2,3],[4,5,6]] in a different layout, so both
+  // branches of both methods are exercised, including on a padded/offset view where the backing array is larger than
+  // numel and the old `m((i, j))`-per-element version had to re-derive the index every step.
+
+  private def rowMajor2x3 = Matrix[Double](Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3, 3, 1, 0)
+  private def colMajor2x3 = Matrix[Double](Array(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), 2, 3, 1, 2, 0)
+  // rowStride 1, colStride 3 over a length-9 array: col j lives at raw(3j), raw(3j+1); raw(3j+2) is padding.
+  private def paddedColMajor2x3 =
+    Matrix[Double](Array(1.0, 4.0, 99.0, 2.0, 5.0, 99.0, 3.0, 6.0, 99.0), 2, 3, 1, 3, 0)
+
+  test("row returns the same values for row-major, col-major and padded layouts"):
+    for m <- List(rowMajor2x3, colMajor2x3, paddedColMajor2x3) do
+      assertVecEquals[Double](m.row(0), Array(1.0, 2.0, 3.0))
+      assertVecEquals[Double](m.row(1), Array(4.0, 5.0, 6.0))
+    end for
+
+  test("col returns the same values for row-major, col-major and padded layouts"):
+    for m <- List(rowMajor2x3, colMajor2x3, paddedColMajor2x3) do
+      assertVecEquals[Double](m.col(0), Array(1.0, 4.0))
+      assertVecEquals[Double](m.col(1), Array(2.0, 5.0))
+      assertVecEquals[Double](m.col(2), Array(3.0, 6.0))
+    end for
+
+  test("row/col copy rather than view — mutating the result leaves the matrix alone"):
+    val m = colMajor2x3
+    val r = m.row(0)
+    r(0) = -100.0
+    assertEqualsDouble(m(0, 0), 1.0, 1e-9)
+    val c = m.col(0)
+    c(0) = -100.0
+    assertEqualsDouble(m(0, 0), 1.0, 1e-9)
+
+  test("row/col reject out-of-range indices"):
+    val m = colMajor2x3
+    intercept[IndexOutOfBoundsException](m.row(2))
+    intercept[IndexOutOfBoundsException](m.col(3))
+
+  // ── mapRows / mapCols on non-column-major sources ─────────────────────────
+
+  test("mapRowsInPlace writes back correctly on a row-major matrix"):
+    val m = rowMajor2x3
+    m.mapRowsInPlace(row => row.map(_ * 2))
+    assertVecEquals[Double](m.row(0), Array(2.0, 4.0, 6.0))
+    assertVecEquals[Double](m.row(1), Array(8.0, 10.0, 12.0))
+
+  test("mapColsInPlace writes back correctly on a padded (non-contiguous) matrix"):
+    val m = paddedColMajor2x3
+    m.mapColsInPlace(col => col.map(_ + 1.0))
+    assertVecEquals[Double](m.col(0), Array(2.0, 5.0))
+    assertVecEquals[Double](m.col(2), Array(4.0, 7.0))
+    // padding untouched
+    assertEqualsDouble(m.raw(2), 99.0, 1e-9)
+
+  test("mapRows reads a row-major source correctly"):
+    val mapped = rowMajor2x3.mapRows[Double](row => row.map(_ + 10.0))
+    assertVecEquals[Double](mapped.row(0), Array(11.0, 12.0, 13.0))
+    assertVecEquals[Double](mapped.row(1), Array(14.0, 15.0, 16.0))
+
+  // mapRows is a row-wise operation, so its result is row-major: each written row is then a contiguous run and
+  // writeRow can arraycopy instead of striding by `rows`. mapCols is the mirror image and stays column-major. Both
+  // are asserted so a future change to either default has to be deliberate.
+
+  test("mapRows returns a row-major result, mapCols a column-major one"):
+    val src = colMajor2x3
+    val byRow = src.mapRows[Double](row => row.map(_ * 2.0))
+    val byCol = src.mapCols[Double](col => col.map(_ * 2.0))
+
+    assert(byRow.isDenseRowMajor, s"expected row-major, got ${byRow.layoutString}")
+    assert(byCol.isDenseColMajor, s"expected col-major, got ${byCol.layoutString}")
+
+    // ...and both still describe the same logical matrix, whatever their storage order.
+    val expected = Matrix.fromRows[Double](Array(2.0, 4.0, 6.0), Array(8.0, 10.0, 12.0))
+    assertMatrixEquals(byRow, expected)
+    assertMatrixEquals(byCol, expected)
+
+  test("mapRows on a single-column matrix still round-trips"):
+    // cols == 1 makes rowStride == colStride == 1, the degenerate point where row- and column-major coincide.
+    val m = Matrix.fromRows[Double](Array(1.0), Array(2.0), Array(3.0))
+    val mapped = m.mapRows[Double](row => row.map(_ * 10.0))
+    assertMatrixEquals(mapped, Matrix.fromRows[Double](Array(10.0), Array(20.0), Array(30.0)))
+
+  test("mapRows rejects a function that changes the row length"):
+    intercept[MatrixDimensionMismatch](colMajor2x3.mapRows[Double](row => row.take(2)))
+
+  test("mapCols rejects a function that changes the column length"):
+    intercept[MatrixDimensionMismatch](colMajor2x3.mapCols[Double](col => col ++ col))
+
+  // ── horzcat ───────────────────────────────────────────────────────────────
+  // horzcat has two branches per operand: an arraycopy fast path when the operand is dense column-major *and*
+  // hasSimpleContiguousMemoryLayout, and a general foreach2D walk otherwise. Since the branch is chosen per operand,
+  // the combinations below cover fast/fast, fast/slow, slow/fast and slow/slow.
+
+  test("horzcat of two dense column-major matrices (fast/fast)"):
+    val a = Matrix.fromRows[Double](Array(1.0, 2.0), Array(3.0, 4.0))
+    val b = Matrix.fromRows[Double](Array(5.0, 6.0, 7.0), Array(8.0, 9.0, 10.0))
+    assert(a.hasSimpleContiguousMemoryLayout && a.isDenseColMajor)
+
+    val r = a.horzcat(b)
+    assertEquals(r.rows, 2)
+    assertEquals(r.cols, 5)
+    assertMatrixEquals(
+      r,
+      Matrix.fromRows[Double](Array(1.0, 2.0, 5.0, 6.0, 7.0), Array(3.0, 4.0, 8.0, 9.0, 10.0))
+    )
+
+  test("horzcat with a row-major left operand (slow/fast)"):
+    val r = rowMajor2x3.horzcat(Matrix.fromRows[Double](Array(7.0), Array(8.0)))
+    assertMatrixEquals(
+      r,
+      Matrix.fromRows[Double](Array(1.0, 2.0, 3.0, 7.0), Array(4.0, 5.0, 6.0, 8.0))
+    )
+
+  test("horzcat with a padded, non-contiguous right operand (fast/slow)"):
+    val r = Matrix.fromRows[Double](Array(0.0), Array(-1.0)).horzcat(paddedColMajor2x3)
+    assertMatrixEquals(
+      r,
+      Matrix.fromRows[Double](Array(0.0, 1.0, 2.0, 3.0), Array(-1.0, 4.0, 5.0, 6.0))
+    )
+
+  test("horzcat of two non-column-major operands (slow/slow)"):
+    val r = rowMajor2x3.horzcat(paddedColMajor2x3)
+    assertMatrixEquals(
+      r,
+      Matrix.fromRows[Double](Array(1.0, 2.0, 3.0, 1.0, 2.0, 3.0), Array(4.0, 5.0, 6.0, 4.0, 5.0, 6.0))
+    )
+
+  test("horzcat result is dense column-major and independent of its operands"):
+    val a = Matrix.fromRows[Double](Array(1.0, 2.0), Array(3.0, 4.0))
+    val b = Matrix.fromRows[Double](Array(5.0), Array(6.0))
+    val r = a.horzcat(b)
+    assert(r.isDenseColMajor)
+    assert(r.hasSimpleContiguousMemoryLayout)
+    r(0, 0) = -99.0
+    assertEqualsDouble(a(0, 0), 1.0, 1e-9)
+
+  test("horzcat rejects mismatched row counts"):
+    val a = Matrix.fromRows[Double](Array(1.0, 2.0), Array(3.0, 4.0))
+    val b = Matrix.fromRows[Double](Array(5.0, 6.0))
+    intercept[MatrixDimensionMismatch](a.horzcat(b))
+
+  // ── vertcat ───────────────────────────────────────────────────────────────
+
+  test("vertcat of two dense column-major matrices (fast/fast)"):
+    val a = Matrix.fromRows[Double](Array(1.0, 2.0), Array(3.0, 4.0))
+    val b = Matrix.fromRows[Double](Array(5.0, 6.0), Array(7.0, 8.0), Array(9.0, 10.0))
+
+    val r = a.vertcat(b)
+    assertEquals(r.rows, 5)
+    assertEquals(r.cols, 2)
+    assertMatrixEquals(
+      r,
+      Matrix.fromRows[Double](
+        Array(1.0, 2.0),
+        Array(3.0, 4.0),
+        Array(5.0, 6.0),
+        Array(7.0, 8.0),
+        Array(9.0, 10.0)
+      )
+    )
+
+  test("vertcat with a row-major top operand (slow/fast)"):
+    val r = rowMajor2x3.vertcat(Matrix.fromRows[Double](Array(7.0, 8.0, 9.0)))
+    assertMatrixEquals(
+      r,
+      Matrix.fromRows[Double](Array(1.0, 2.0, 3.0), Array(4.0, 5.0, 6.0), Array(7.0, 8.0, 9.0))
+    )
+
+  test("vertcat with a padded, non-contiguous bottom operand (fast/slow)"):
+    val r = Matrix.fromRows[Double](Array(0.0, -1.0, -2.0)).vertcat(paddedColMajor2x3)
+    assertMatrixEquals(
+      r,
+      Matrix.fromRows[Double](Array(0.0, -1.0, -2.0), Array(1.0, 2.0, 3.0), Array(4.0, 5.0, 6.0))
+    )
+
+  test("vertcat of two non-column-major operands (slow/slow)"):
+    val r = rowMajor2x3.vertcat(paddedColMajor2x3)
+    assertMatrixEquals(
+      r,
+      Matrix.fromRows[Double](
+        Array(1.0, 2.0, 3.0),
+        Array(4.0, 5.0, 6.0),
+        Array(1.0, 2.0, 3.0),
+        Array(4.0, 5.0, 6.0)
+      )
+    )
+
+  test("vertcat result is dense column-major and independent of its operands"):
+    val a = Matrix.fromRows[Double](Array(1.0, 2.0), Array(3.0, 4.0))
+    val b = Matrix.fromRows[Double](Array(5.0, 6.0))
+    val r = a.vertcat(b)
+    assert(r.isDenseColMajor)
+    assert(r.hasSimpleContiguousMemoryLayout)
+    r(0, 0) = -99.0
+    assertEqualsDouble(a(0, 0), 1.0, 1e-9)
+
+  test("vertcat rejects mismatched column counts"):
+    val a = Matrix.fromRows[Double](Array(1.0, 2.0), Array(3.0, 4.0))
+    val b = Matrix.fromRows[Double](Array(5.0, 6.0, 7.0))
+    intercept[MatrixDimensionMismatch](a.vertcat(b))
+
+  // Regression: horzcat used to be `m.raw.appendedAll(m2.raw)` behind an `isDenseColMajor` guard. A submatrix view of
+  // the leading columns of a wider parent is dense column-major by stride, but keeps the parent's full backing array —
+  // so that concat spliced the parent's trailing columns into the result and silently produced wrong numbers.
+  test("horzcat of a leading-column submatrix view does not leak the parent's extra columns"):
+    val parent = Matrix.fromRows[Double](Array(1.0, 2.0, 99.0), Array(3.0, 4.0, 99.0))
+    val view = parent.submatrix(0 to 1, 0 to 1) // 2x2, dense col-major by stride, but raw.length == 6
+    assert(view.isDenseColMajor)
+    assert(!view.hasSimpleContiguousMemoryLayout)
+
+    val r = view.horzcat(Matrix.fromRows[Double](Array(5.0), Array(6.0)))
+    assertEquals(r.cols, 3)
+    assertMatrixEquals(r, Matrix.fromRows[Double](Array(1.0, 2.0, 5.0), Array(3.0, 4.0, 6.0)))
 
 end MatrixUtilSuite
