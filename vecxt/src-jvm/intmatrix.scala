@@ -13,13 +13,15 @@ object JvmIntMatrix:
 
     inline def matmul(b: Matrix[Int]): Matrix[Int] =
       dimMatCheck(m, b)
-      scala.compiletime.error("Integer matrix multiplication is not implemented yet. Use Float or Double matrices instead.")
+      scala.compiletime.error(
+        "Integer matrix multiplication is not implemented yet. Use Float or Double matrices instead."
+      )
 
     end matmul
 
     // The six scalar ops below share one shape, mirroring `JvmFloatMatrix`'s equivalents: a whole-array SIMD fast path
     // when the backing array already holds exactly the elements in order, and otherwise an elementwise `foreach2D`
-    // read through `linearIndex`, which is valid for any offset/stride. 
+    // read through `linearIndex`, which is valid for any offset/stride.
     //
     // Note the two branches disagree on the result's storage order, exactly as the Float versions do: the fast path
     // reuses `m.layout` (so a dense row-major input yields a row-major result), while the elementwise branch

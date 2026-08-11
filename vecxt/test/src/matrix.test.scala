@@ -1271,7 +1271,7 @@ class MatrixExtensionSuite extends FunSuite:
       Array(7.0, 8.0, 9.0)
     )
     assertMatrixEquals(mat(0 to 2, 0 to 2), expected)
-  }  
+  }
 
   private def gather3x3RowMajor =
     Matrix[Double](Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), 3, 3, 3, 1, 0)

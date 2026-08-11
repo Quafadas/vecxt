@@ -24,7 +24,7 @@ class TODO extends FunSuite:
       0
     )
     val out = Matrix.zeros[Float]((2, 2))
-    
+
     intercept[UnsupportedLayoutException] {
       left.`matmulInPlace!`(right, out, alpha = 1.0f, beta = 0.0f)
     }

@@ -118,7 +118,6 @@ object MatrixInstance:
       *
       * Two paths. When both selections are contiguous ascending runs the result is a zero-copy [[submatrix]] view;
       * otherwise the selected elements are gathered into a fresh dense column-major matrix.
-      *
       */
     inline def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)

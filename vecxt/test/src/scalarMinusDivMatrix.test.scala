@@ -2,9 +2,9 @@ package vecxt
 
 import all.*
 
-/** subtraction and division aren't commutative. Covers the same three layout shapes as the other
-  * scalar ops in doublematrix.scala: dense column-major (fast path), dense row-major (fast path, but exercises a
-  * non-col-major `m.layout`), and genuinely non-contiguous / padded-stride (falls through to the elementwise loop).
+/** subtraction and division aren't commutative. Covers the same three layout shapes as the other scalar ops in
+  * doublematrix.scala: dense column-major (fast path), dense row-major (fast path, but exercises a non-col-major
+  * `m.layout`), and genuinely non-contiguous / padded-stride (falls through to the elementwise loop).
   */
 class ScalarMinusDivMatrixSuite extends munit.FunSuite:
 

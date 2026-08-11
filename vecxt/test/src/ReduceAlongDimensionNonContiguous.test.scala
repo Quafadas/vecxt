@@ -3,8 +3,7 @@ package vecxt
 import all.*
 import dimensionExtender.DimensionExtender.Dimension.*
 
-/**
-  * All three element types share one non-contiguous fixture: rows=2, cols=2, rowStride=1, colStride=3, offset=0 over a
+/** All three element types share one non-contiguous fixture: rows=2, cols=2, rowStride=1, colStride=3, offset=0 over a
   * length-6 backing array. Column 0 is raw(0),raw(1) = [1,2], column 1 is raw(3),raw(4) = [3,4], and raw(2)/raw(5) are
   * unused padding - dataLength (6) != numel (4), so hasSimpleContiguousMemoryLayout is false and this genuinely
   * exercises the removed guard (a merely dense row-major layout would not: it already satisfies
