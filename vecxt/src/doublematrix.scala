@@ -30,6 +30,7 @@ object DoubleMatrix:
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
         end if
       end -
+    end -
 
     /** Elementwise `d / m(i, j)`. Not `m / d` (that's `Matrix[Double]#/(n: Double)`) - division isn't commutative
       * either. Layout policy: see `Matrix[Double]#*(n: Double)`.
@@ -47,6 +48,7 @@ object DoubleMatrix:
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
         end if
       end /
+    end /
 
     // Unlike `-`/`/` above, these mutate `m` in place rather than compute a fresh result, so there's no
     // direction/commutativity concern - `d += m`/`d -= m`/`d /= m` are just alternate spellings of "mutate m
