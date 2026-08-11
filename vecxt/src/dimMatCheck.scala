@@ -138,8 +138,8 @@ case class InvalidMatrix(cols: Int, rows: Int, data: Int)
 case class UnsupportedLayoutException(message: String) extends Exception(message)
 
 /** `DimensionExtender` (`Int | Dimension`) accepts any `Int`, not just the two meaningful values (`Rows`/`0`,
-  * `Cols`/`1`) - so `reduceAlongDimension`'s `dim` can't be validated at compile time and a caller can genuinely
-  * reach this at runtime, e.g. `mat.sum(2)`.
+  * `Cols`/`1`) - so `reduceAlongDimension`'s `dim` can't be validated at compile time and a caller can genuinely reach
+  * this at runtime, e.g. `mat.sum(2)`.
   */
 case class InvalidDimensionException(dim: Int)
     extends Exception(s"Invalid dimension: $dim. Expected 0 (Rows) or 1 (Cols).")
