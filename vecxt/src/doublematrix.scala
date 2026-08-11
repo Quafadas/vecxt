@@ -13,8 +13,8 @@ object DoubleMatrix:
     def *(m: Matrix[Double]): Matrix[Double] = m * d
     def +(m: Matrix[Double]): Matrix[Double] = m + d
 
-    /** Elementwise `d - m(i, j)`. Not `m - d` (that's `Matrix[Double]#-(n: Double)`) - subtraction isn't
-      * commutative, so this needs its own body rather than delegating like `*`/`+` above. Layout policy: see
+    /** Elementwise `d - m(i, j)`. Not `m - d` (that's `Matrix[Double]#-(n: Double)`) - subtraction isn't commutative,
+      * so this needs its own body rather than delegating like `*`/`+` above. Layout policy: see
       * `Matrix[Double]#*(n: Double)`.
       */
     def -(m: Matrix[Double]): Matrix[Double] =
@@ -30,9 +30,10 @@ object DoubleMatrix:
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
         end if
       end -
+    end -
 
-    /** Elementwise `d / m(i, j)`. Not `m / d` (that's `Matrix[Double]#/(n: Double)`) - division isn't
-      * commutative either. Layout policy: see `Matrix[Double]#*(n: Double)`.
+    /** Elementwise `d / m(i, j)`. Not `m / d` (that's `Matrix[Double]#/(n: Double)`) - division isn't commutative
+      * either. Layout policy: see `Matrix[Double]#*(n: Double)`.
       */
     def /(m: Matrix[Double]): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(d)(m.raw), m.layout)
@@ -47,6 +48,7 @@ object DoubleMatrix:
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
         end if
       end /
+    end /
 
     def *=(m: Matrix[Double]): Unit = m *= d
     def +=(m: Matrix[Double]): Unit = ??? // m += d
