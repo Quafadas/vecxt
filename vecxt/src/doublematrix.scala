@@ -12,13 +12,87 @@ object DoubleMatrix:
   extension (d: Double)
     def *(m: Matrix[Double]): Matrix[Double] = m * d
     def +(m: Matrix[Double]): Matrix[Double] = m + d
-    def -(m: Matrix[Double]): Matrix[Double] = ???
-    def /(m: Matrix[Double]): Matrix[Double] = ???
 
+    /** Elementwise `d - m(i, j)`. Not `m - d` (that's `Matrix[Double]#-(n: Double)`) - subtraction isn't commutative,
+      * so this needs its own body rather than delegating like `*`/`+` above. Layout policy: see
+      * `Matrix[Double]#*(n: Double)`.
+      */
+    def -(m: Matrix[Double]): Matrix[Double] =
+      if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.-(d)(m.raw), m.layout)
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = d - m.raw(srcIdx)
+        }
+        if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
+      end if
+    end -
+
+    /** Elementwise `d / m(i, j)`. Not `m / d` (that's `Matrix[Double]#/(n: Double)`) - division isn't commutative
+      * either. Layout policy: see `Matrix[Double]#*(n: Double)`.
+      */
+    def /(m: Matrix[Double]): Matrix[Double] =
+      if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(d)(m.raw), m.layout)
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = d / m.raw(srcIdx)
+        }
+        if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
+      end if
+    end /
+
+    // `d *= m` and `d += m` can delegate (commutative scalar-left forms). `d -= m` and `d /= m` cannot:
+    // they must apply true scalar-left semantics elementwise because subtraction/division are non-commutative.
     def *=(m: Matrix[Double]): Unit = m *= d
-    def +=(m: Matrix[Double]): Unit = ??? // m += d
-    def -=(m: Matrix[Double]): Unit = ??? // m -= d
-    def /=(m: Matrix[Double]): Unit = ???
+    def +=(m: Matrix[Double]): Unit =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(d)
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) + d
+        }
+      end if
+    end +=
+    // `d += m` is implemented directly above because the scalar-right `m += d` lives in platform files. In contrast,
+    // `d -= m` / `d /= m` are non-commutative, so they must implement scalar-left semantics in place.
+    def -=(m: Matrix[Double]): Unit =
+      if m.hasSimpleContiguousMemoryLayout then
+        var i = 0
+        while i < m.raw.length do
+          m.raw(i) = d - m.raw(i)
+          i += 1
+        end while
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = d - m.raw(idx)
+        }
+      end if
+    end -=
+
+    def /=(m: Matrix[Double]): Unit =
+      if m.hasSimpleContiguousMemoryLayout then
+        var i = 0
+        while i < m.raw.length do
+          m.raw(i) = d / m.raw(i)
+          i += 1
+        end while
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = d / m.raw(idx)
+        }
+      end if
+    end /=
 
   end extension
 
@@ -41,6 +115,27 @@ object DoubleMatrix:
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
           m.raw(idx) = m.raw(idx) * d
+        }
+
+    /** In-place elementwise scalar subtract/divide. Same shape as `*=` above: SIMD fast path over the whole backing
+      * array when `m` is dense contiguous, element-by-element via `linearIndex` otherwise - no result layout to pick
+      * here (unlike `-`/`/`), since `m` keeps its own. (`+=(d: Double)` isn't defined here: each platform already has
+      * its own more specialised stride-aware implementation - see e.g. `src-jvm/doublematrix.scala`.)
+      */
+    def -=(d: Double): Unit =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.-=(m.raw)(d)
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) - d
+        }
+
+    def /=(d: Double): Unit =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays./=(m.raw)(d)
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) / d
         }
 
     /** Elementwise scalar multiply.

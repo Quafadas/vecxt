@@ -140,6 +140,30 @@ class ArrayExtensionSuite extends munit.FunSuite:
     assertEqualsDouble(v2(2), 6, 0.00001)
   }
 
+  test("Array -= scalar, elementwise, including the tail after any SIMD lanes") {
+    // Length 9 isn't a multiple of any common SIMD width (2/4/8), so this always leaves a non-empty scalar tail
+    // after the vectorized loop - the JVM `-=(d: Double)` tail loop used to run `while i < vec.length - 1`
+    // instead of `while i < vec.length`, silently never updating the array's last element.
+    val v1 = Array.tabulate(9)(_.toDouble + 1) // 1..9
+    v1 -= 2.0
+
+    assertVecEquals(v1, Array.tabulate(9)(i => (i + 1).toDouble - 2.0))
+  }
+
+  test("Array += scalar, elementwise") {
+    val v1 = Array.tabulate(9)(_.toDouble + 1)
+    v1 += 2.0
+
+    assertVecEquals(v1, Array.tabulate(9)(i => (i + 1).toDouble + 2.0))
+  }
+
+  test("Array /= scalar, elementwise") {
+    val v1 = Array.tabulate(9)(_.toDouble + 1)
+    v1 /= 2.0
+
+    assertVecEquals(v1, Array.tabulate(9)(i => (i + 1).toDouble / 2.0))
+  }
+
   test("array indexing") {
     // val v1 = Array[Double](1.0, 2.0, 3.0)
     // val vIdx = Array[Boolean](true, false, true)
