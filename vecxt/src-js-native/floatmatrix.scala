@@ -23,7 +23,7 @@ object JvmFloatMatrix:
       val newShape = m.shape match
         case (r, c) if whichDim == 0 => (r, 1)
         case (r, c) if whichDim == 1 => (1, c)
-        case _                       => ???
+        case _                       => throw InvalidDimensionException(whichDim)
 
       val newArr = Array.fill(newShape._1 * newShape._2)(initial)
       m.layout.foreach2D { (i, j) =>

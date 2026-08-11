@@ -47,4 +47,13 @@ class ReduceAlongDimensionNonContiguousSuite extends munit.FunSuite:
     assertMatrixEquals(mat.min(Cols), Matrix[Int](Array(1, 3), (1, 2)))
     assertMatrixEquals(mat.product(Rows), Matrix[Int](Array(3, 8), (2, 1)))
 
+  // `DimensionExtender` is `Int | Dimension`, so any Int is accepted at the call site - `reduceAlongDimension`'s
+  // `dim` isn't `inline`, so this can't be caught at compile time; it used to hit a bare `???` (NotImplementedError)
+  // at runtime instead of a message naming the problem.
+
+  test("Double/Float/Int: sum(invalid dim) throws InvalidDimensionException"):
+    intercept[InvalidDimensionException](Matrix.eye[Double](2).sum(2))
+    intercept[InvalidDimensionException](Matrix.eye[Float](2).sum(2))
+    intercept[InvalidDimensionException](Matrix.eye[Int](2).sum(2))
+
 end ReduceAlongDimensionNonContiguousSuite
