@@ -81,9 +81,9 @@ object DoubleMatrix:
           m.raw(idx) = m.raw(idx) * d
         }
 
-    /** In-place elementwise scalar add/subtract/divide. Same shape as `*=` above: SIMD fast path over the whole
-      * backing array when `m` is dense contiguous, element-by-element via `linearIndex` otherwise - no result
-      * layout to pick here (unlike `+`/`-`/`/`), since `m` keeps its own.
+    /** In-place elementwise scalar add/subtract/divide. Same shape as `*=` above: SIMD fast path over the whole backing
+      * array when `m` is dense contiguous, element-by-element via `linearIndex` otherwise - no result layout to pick
+      * here (unlike `+`/`-`/`/`), since `m` keeps its own.
       */
     def +=(d: Double): Unit =
       if m.hasSimpleContiguousMemoryLayout then m.raw += d

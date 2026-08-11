@@ -2,11 +2,11 @@ package vecxt
 
 import all.*
 
-/** `Matrix[Double]#+=`/`-=`/`/=` (in-place scalar add/subtract/divide) and the `Double` extension spellings
-  * `d += m`/`d -= m`/`d /= m` used to be `???`, throwing `NotImplementedError` at runtime. Only `*=` had a real
-  * implementation to mirror. Covers dense contiguous (including a size that isn't a multiple of any common SIMD
-  * width, to catch tail-loop bugs like the one fixed in `Array[Double]#-=(d: Double)` alongside this) and
-  * genuinely non-contiguous (padded-stride) layouts, plus the `Double`-first spellings.
+/** `Matrix[Double]#+=`/`-=`/`/=` (in-place scalar add/subtract/divide) and the `Double` extension spellings `d += m`/`d
+  * -= m`/`d /= m` used to be `???`, throwing `NotImplementedError` at runtime. Only `*=` had a real implementation to
+  * mirror. Covers dense contiguous (including a size that isn't a multiple of any common SIMD width, to catch tail-loop
+  * bugs like the one fixed in `Array[Double]#-=(d: Double)` alongside this) and genuinely non-contiguous
+  * (padded-stride) layouts, plus the `Double`-first spellings.
   */
 class ScalarInPlaceMatrixSuite extends munit.FunSuite:
 
