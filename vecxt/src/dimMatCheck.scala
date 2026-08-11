@@ -19,10 +19,10 @@ end sameDimMatCheck
   * always writes (and, when `beta != 0`, reads) `c` assuming that layout, so a wrongly-shaped or non-dense-column-major
   * `c` would otherwise be corrupted or misread silently instead of failing loudly. The aliasing check exists because
   * BLAS `dgemm`/`sgemm` assume `c` does not overlap `a`/`b`: if `c.raw` is the same backing array as `m.raw` or
-  * `b.raw`, dgemm can read a not-yet-fully-read element of `a`/`b` after it's already been overwritten via the
-  * aliased `c`, silently corrupting the result (a's and b's own arrays may safely be the same as each other, e.g.
-  * `m @@ m`, since dgemm only ever reads those two, never writes them). `matmul`/`@@` always build a conforming,
-  * freshly allocated `c` themselves, so this only bites direct callers of the in-place API.
+  * `b.raw`, dgemm can read a not-yet-fully-read element of `a`/`b` after it's already been overwritten via the aliased
+  * `c`, silently corrupting the result (a's and b's own arrays may safely be the same as each other, e.g. `m @@ m`,
+  * since dgemm only ever reads those two, never writes them). `matmul`/`@@` always build a conforming, freshly
+  * allocated `c` themselves, so this only bites direct callers of the in-place API.
   */
 object matmulOutputCheck:
   inline def apply(m: Matrix[?], b: Matrix[?], c: Matrix[?]): Unit =
