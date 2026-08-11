@@ -12,8 +12,41 @@ object DoubleMatrix:
   extension (d: Double)
     def *(m: Matrix[Double]): Matrix[Double] = m * d
     def +(m: Matrix[Double]): Matrix[Double] = m + d
-    def -(m: Matrix[Double]): Matrix[Double] = ???
-    def /(m: Matrix[Double]): Matrix[Double] = ???
+
+    /** Elementwise `d - m(i, j)`. Not `m - d` (that's `Matrix[Double]#-(n: Double)`) - subtraction isn't
+      * commutative, so this needs its own body rather than delegating like `*`/`+` above. Layout policy: see
+      * `Matrix[Double]#*(n: Double)`.
+      */
+    def -(m: Matrix[Double]): Matrix[Double] =
+      if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.-(d)(m.raw), m.layout)
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = d - m.raw(srcIdx)
+        }
+        if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
+      end -
+
+    /** Elementwise `d / m(i, j)`. Not `m / d` (that's `Matrix[Double]#/(n: Double)`) - division isn't
+      * commutative either. Layout policy: see `Matrix[Double]#*(n: Double)`.
+      */
+    def /(m: Matrix[Double]): Matrix[Double] =
+      if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(d)(m.raw), m.layout)
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = d / m.raw(srcIdx)
+        }
+        if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
+      end /
 
     def *=(m: Matrix[Double]): Unit = m *= d
     def +=(m: Matrix[Double]): Unit = ??? // m += d
