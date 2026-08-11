@@ -43,17 +43,17 @@ class ScalarInPlaceMatrixSuite extends munit.FunSuite:
     mDiv /= 2.0
     assertMatrixEquals(mDiv, Matrix.fromRows[Double](Array(0.5, 1.5), Array(1.0, 2.0)))
 
-  test("d += m, d -= m, d /= m mutate m in place (alternate spelling of m += d etc.)"):
+  test("d += m, d -= m, d /= m mutate m in place with scalar-left semantics"):
     val mPlus = Matrix.fromRows[Double](Array(1.0, 2.0), Array(3.0, 4.0))
     10.0 += mPlus
     assertMatrixEquals(mPlus, Matrix.fromRows[Double](Array(11.0, 12.0), Array(13.0, 14.0)))
 
     val mMinus = Matrix.fromRows[Double](Array(1.0, 2.0), Array(3.0, 4.0))
     10.0 -= mMinus
-    assertMatrixEquals(mMinus, Matrix.fromRows[Double](Array(-9.0, -8.0), Array(-7.0, -6.0)))
+    assertMatrixEquals(mMinus, Matrix.fromRows[Double](Array(9.0, 8.0), Array(7.0, 6.0)))
 
     val mDiv = Matrix.fromRows[Double](Array(1.0, 2.0), Array(4.0, 5.0))
     10.0 /= mDiv
-    assertMatrixEquals(mDiv, Matrix.fromRows[Double](Array(0.1, 0.2), Array(0.4, 0.5)))
+    assertMatrixEquals(mDiv, Matrix.fromRows[Double](Array(10.0, 5.0), Array(2.5, 2.0)))
 
 end ScalarInPlaceMatrixSuite

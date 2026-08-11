@@ -50,9 +50,8 @@ object DoubleMatrix:
       end if
     end /
 
-    // Unlike `-`/`/` above, these mutate `m` in place rather than compute a fresh result, so there's no
-    // direction/commutativity concern - `d += m`/`d -= m`/`d /= m` are just alternate spellings of "mutate m
-    // in place via its own compound-assignment operator", same as `*=` already does.
+    // `d *= m` and `d += m` can delegate (commutative scalar-left forms). `d -= m` and `d /= m` cannot:
+    // they must apply true scalar-left semantics elementwise because subtraction/division are non-commutative.
     def *=(m: Matrix[Double]): Unit = m *= d
     def +=(m: Matrix[Double]): Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(d)
@@ -61,8 +60,39 @@ object DoubleMatrix:
           val idx = m.layout.linearIndex(i, j)
           m.raw(idx) = m.raw(idx) + d
         }
-    def -=(m: Matrix[Double]): Unit = m -= d
-    def /=(m: Matrix[Double]): Unit = m /= d
+      end if
+    end +=
+    // `d += m` is implemented directly above because the scalar-right `m += d` lives in platform files. In contrast,
+    // `d -= m` / `d /= m` are non-commutative, so they must implement scalar-left semantics in place.
+    def -=(m: Matrix[Double]): Unit =
+      if m.hasSimpleContiguousMemoryLayout then
+        var i = 0
+        while i < m.raw.length do
+          m.raw(i) = d - m.raw(i)
+          i += 1
+        end while
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = d - m.raw(idx)
+        }
+      end if
+    end -=
+
+    def /=(m: Matrix[Double]): Unit =
+      if m.hasSimpleContiguousMemoryLayout then
+        var i = 0
+        while i < m.raw.length do
+          m.raw(i) = d / m.raw(i)
+          i += 1
+        end while
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = d / m.raw(idx)
+        }
+      end if
+    end /=
 
   end extension
 
