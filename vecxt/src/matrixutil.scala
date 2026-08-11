@@ -85,9 +85,9 @@ object matrixUtil:
     end mapRows
 
     /** The `isDenseRowMajor` special case this used to carry — allocate the row and `System.arraycopy` into it — is now
-      * exactly what [[row]] does on its own, under the strictly weaker condition `colStride == 1`. That covers
-      * dense row-major plus every row-contiguous layout it excluded (non-zero offset, padded row stride), so the
-      * duplicated branch bought nothing and applied less often than the general one it was guarding.
+      * exactly what [[row]] does on its own, under the strictly weaker condition `colStride == 1`. That covers dense
+      * row-major plus every row-contiguous layout it excluded (non-zero offset, padded row stride), so the duplicated
+      * branch bought nothing and applied less often than the general one it was guarding.
       */
     inline def mapRowsToScalar[B](
         inline f: Array[A] => B
@@ -327,8 +327,7 @@ object matrixUtil:
       val newRows = m.rows
       val newArr: Array[A] = Array.ofDim[A](newRows * (m.cols + m2.cols))
 
-      if m.hasSimpleContiguousMemoryLayout && m.isDenseColMajor then
-        System.arraycopy(m.raw, 0, newArr, 0, m.numel)
+      if m.hasSimpleContiguousMemoryLayout && m.isDenseColMajor then System.arraycopy(m.raw, 0, newArr, 0, m.numel)
       else
         m.layout.foreach2D { (i, j) =>
           newArr(i + j * newRows) = m.raw(m.layout.linearIndex(i, j))
