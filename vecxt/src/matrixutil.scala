@@ -59,6 +59,45 @@ object matrixUtil:
     end if
   end writeCol
 
+  /** Copies every element of `src` into the dense column-major buffer `dest` (of `destRows` rows), placing `src`'s
+    * `(0, 0)` at `(rowOff, colOff)`. Shared by `horzcat` and `vertcat`, which differ only in which offset they
+    * advance.
+    *
+    * Three paths, narrowing:
+    *   - `src` is contiguous column-major *and* lands as one contiguous run (`rowOff == 0`, and its rows span the full
+    *     destination height) — a single `arraycopy` for the whole matrix. Both operands of `horzcat` hit this.
+    *   - `src` is contiguous column-major but interleaves with the other operand — one `arraycopy` per column. Both
+    *     operands of `vertcat` hit this, since there `destRows > src.rows` by construction.
+    *   - anything else — a strided read through `linearIndex`, correct for any layout at all.
+    *
+    * `hasSimpleContiguousMemoryLayout` rather than bare `isDenseColMajor` is what makes the `arraycopy` paths sound:
+    * it additionally requires `dataLength == numel`, which excludes a view that is dense by stride but still carries a
+    * larger parent array behind it.
+    */
+  private inline def blitInto[C](
+      src: Matrix[C],
+      dest: Array[C],
+      destRows: Int,
+      rowOff: Int,
+      colOff: Int
+  ): Unit =
+    if src.hasSimpleContiguousMemoryLayout && src.isDenseColMajor then
+      if rowOff == 0 && destRows == src.rows then
+        System.arraycopy(src.raw, 0, dest, colOff * destRows, src.numel)
+      else
+        var j = 0
+        while j < src.cols do
+          System.arraycopy(src.raw, j * src.rows, dest, (colOff + j) * destRows + rowOff, src.rows)
+          j += 1
+        end while
+      end if
+    else
+      src.layout.foreach2D { (i, j) =>
+        dest(rowOff + i + (colOff + j) * destRows) = src.raw(src.layout.linearIndex(i, j))
+      }
+    end if
+  end blitInto
+
   extension [A](m: Matrix[A])
 
     inline def mapRowsInPlace(
@@ -327,80 +366,49 @@ object matrixUtil:
 
     /** Concatenates `m2` to the right of `m`, producing a `(m.rows, m.cols + m2.cols)` dense column-major matrix.
       *
-      * Works for any layout on either side — strided views, row-major, offset submatrices — because both operands are
-      * read through their own `linearIndex`. The `hasSimpleContiguousMemoryLayout && isDenseColMajor` fast path is an
-      * optimisation only: under exactly that condition each operand's backing array already *is* its elements in
-      * destination order, so the whole thing is two `arraycopy`s. `hasSimpleContiguousMemoryLayout` (not just
-      * `isDenseColMajor`) is what makes that sound — it additionally requires `dataLength == numel`, ruling out a
-      * dense-by-stride view that still carries a larger parent array behind it.
+      * Works for any layout on either side — strided views, row-major, offset submatrices — because [[blitInto]] falls
+      * back to reading through each operand's own `linearIndex`; see there for the copy strategy.
+      *
+      * `inline` for the reason documented on C6a in `bytecodeAudit`: the general path has to read `Array[A]` element by
+      * element, and with `A` abstract that erases to `Object` and compiles to `ScalaRunTime.array_apply`/`array_update`
+      * — boxing, and no vectorisable primitive array left to fall back to. Scala 3 has no `@specialized`, so `inline`
+      * is the mechanism that recovers a concrete `double[]`/`int[]` at each call site. That is also why every other
+      * element-touching method in this file is `inline`.
       *
       * @throws MatrixDimensionMismatch
       *   if the two matrices do not have the same number of rows.
       */
-    def horzcat(m2: Matrix[A])(using ct: ClassTag[A]): Matrix[A] =
+    inline def horzcat(m2: Matrix[A])(using ct: ClassTag[A]): Matrix[A] =
       if m.rows != m2.rows then throw MatrixDimensionMismatch(m.rows, m.cols, m2.rows, m2.cols)
       end if
 
       val newRows = m.rows
       val newArr: Array[A] = Array.ofDim[A](newRows * (m.cols + m2.cols))
 
-      if m.hasSimpleContiguousMemoryLayout && m.isDenseColMajor then System.arraycopy(m.raw, 0, newArr, 0, m.numel)
-      else
-        m.layout.foreach2D { (i, j) =>
-          newArr(i + j * newRows) = m.raw(m.layout.linearIndex(i, j))
-        }
-      end if
-
-      if m2.hasSimpleContiguousMemoryLayout && m2.isDenseColMajor then
-        System.arraycopy(m2.raw, 0, newArr, m.numel, m2.numel)
-      else
-        m2.layout.foreach2D { (i, j) =>
-          newArr(i + (j + m.cols) * newRows) = m2.raw(m2.layout.linearIndex(i, j))
-        }
-      end if
+      blitInto(m, newArr, newRows, 0, 0)
+      blitInto(m2, newArr, newRows, 0, m.cols)
 
       Matrix(newArr, (newRows, m.cols + m2.cols))
     end horzcat
 
     /** Concatenates `m2` underneath `m`, producing a `(m.rows + m2.rows, m.cols)` dense column-major matrix.
       *
-      * Layout-agnostic for the same reason as [[horzcat]]. There is no whole-array fast path here: in column-major
-      * order the two operands interleave column by column, so even for two dense column-major inputs the copy is one
-      * `arraycopy` per column rather than one per matrix.
+      * Layout-agnostic, and `inline`, for the same reasons as [[horzcat]]. Note that neither operand can take
+      * [[blitInto]]'s whole-matrix `arraycopy`: in column-major order the two interleave column by column, so
+      * `destRows > src.rows` on both sides and the best available is one `arraycopy` per column.
       *
       * @throws MatrixDimensionMismatch
       *   if the two matrices do not have the same number of columns.
       */
-    def vertcat(m2: Matrix[A])(using ct: ClassTag[A]): Matrix[A] =
+    inline def vertcat(m2: Matrix[A])(using ct: ClassTag[A]): Matrix[A] =
       if m.cols != m2.cols then throw MatrixDimensionMismatch(m.rows, m.cols, m2.rows, m2.cols)
       end if
 
       val newRows = m.rows + m2.rows
       val newArr: Array[A] = Array.ofDim[A](newRows * m.cols)
 
-      if m.hasSimpleContiguousMemoryLayout && m.isDenseColMajor then
-        var j = 0
-        while j < m.cols do
-          System.arraycopy(m.raw, j * m.rows, newArr, j * newRows, m.rows)
-          j += 1
-        end while
-      else
-        m.layout.foreach2D { (i, j) =>
-          newArr(i + j * newRows) = m.raw(m.layout.linearIndex(i, j))
-        }
-      end if
-
-      if m2.hasSimpleContiguousMemoryLayout && m2.isDenseColMajor then
-        var j = 0
-        while j < m2.cols do
-          System.arraycopy(m2.raw, j * m2.rows, newArr, j * newRows + m.rows, m2.rows)
-          j += 1
-        end while
-      else
-        m2.layout.foreach2D { (i, j) =>
-          newArr(m.rows + i + j * newRows) = m2.raw(m2.layout.linearIndex(i, j))
-        }
-      end if
+      blitInto(m, newArr, newRows, 0, 0)
+      blitInto(m2, newArr, newRows, m.rows, 0)
 
       Matrix(newArr, (newRows, m.cols))
     end vertcat
