@@ -30,7 +30,6 @@ object DoubleMatrix:
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
         end if
       end -
-    end -
 
     /** Elementwise `d / m(i, j)`. Not `m / d` (that's `Matrix[Double]#/(n: Double)`) - division isn't commutative
       * either. Layout policy: see `Matrix[Double]#*(n: Double)`.
@@ -48,7 +47,6 @@ object DoubleMatrix:
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
         end if
       end /
-    end /
 
     // Unlike `-`/`/` above, these mutate `m` in place rather than compute a fresh result, so there's no
     // direction/commutativity concern - `d += m`/`d -= m`/`d /= m` are just alternate spellings of "mutate m
@@ -81,18 +79,11 @@ object DoubleMatrix:
           m.raw(idx) = m.raw(idx) * d
         }
 
-    /** In-place elementwise scalar add/subtract/divide. Same shape as `*=` above: SIMD fast path over the whole
-      * backing array when `m` is dense contiguous, element-by-element via `linearIndex` otherwise - no result
-      * layout to pick here (unlike `+`/`-`/`/`), since `m` keeps its own.
+    /** In-place elementwise scalar subtract/divide. Same shape as `*=` above: SIMD fast path over the whole backing
+      * array when `m` is dense contiguous, element-by-element via `linearIndex` otherwise - no result layout to pick
+      * here (unlike `-`/`/`), since `m` keeps its own. (`+=(d: Double)` isn't defined here: each platform already has
+      * its own more specialised stride-aware implementation - see e.g. `src-jvm/doublematrix.scala`.)
       */
-    def +=(d: Double): Unit =
-      if m.hasSimpleContiguousMemoryLayout then m.raw += d
-      else
-        m.layout.foreach2D { (i, j) =>
-          val idx = m.layout.linearIndex(i, j)
-          m.raw(idx) = m.raw(idx) + d
-        }
-
     def -=(d: Double): Unit =
       if m.hasSimpleContiguousMemoryLayout then m.raw -= d
       else
