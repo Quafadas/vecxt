@@ -13,8 +13,8 @@ object IntArraysX:
       * The result is exactly `index.trues` long — the mask selects, it does not resize or pad — so a mask that is all
       * `false` yields an empty array.
       *
-      * Stays `inline`, unlike its neighbours [[select]] and [[contiguous]], and the difference is not stylistic. `A`
-      * is abstract here, so `Array[A]` erases to `Object` and every one of `dimCheck(vec, index)` (which reads
+      * Stays `inline`, unlike its neighbours [[select]] and [[contiguous]], and the difference is not stylistic. `A` is
+      * abstract here, so `Array[A]` erases to `Object` and every one of `dimCheck(vec, index)` (which reads
       * `vec.length`), `vec(i)` and `newVec(j) = _` compiles to a `scala.runtime.ScalaRunTime$` call — `array_length`,
       * `array_apply`, `array_update` — all three of which the C6a bytecode check bans outright. Scala 3 has no
       * `@specialized`, so `inline` is what recovers a concrete `int[]`/`double[]` at the call site. This is the same
@@ -71,8 +71,8 @@ object IntArraysX:
       out
     end select
 
-    /** True when `arr` is an ascending run of consecutive integers — every element exactly one more than the one
-      * before it.
+    /** True when `arr` is an ascending run of consecutive integers — every element exactly one more than the one before
+      * it.
       *
       * Strictly ascending with a step of exactly one: `Array(0, 1, 2)` is contiguous, while `Array(2, 1, 0)`,
       * `Array(0, 2, 4)` and `Array(0, 0)` are not. An empty or single-element array is vacuously contiguous, since
@@ -84,8 +84,8 @@ object IntArraysX:
       * one-element array answers `true` here.
       *
       * Not `inline`, for the same reason as [[select]]: the receiver is a concrete `Array[Int]`, so there is no
-      * abstract element type for `inline` to specialise away. Keeping it out of line also means the `breakable`
-      * block, which implements the early exit by throwing, is emitted once rather than at every call site.
+      * abstract element type for `inline` to specialise away. Keeping it out of line also means the `breakable` block,
+      * which implements the early exit by throwing, is emitted once rather than at every call site.
       *
       * @return
       *   whether the elements ascend by exactly one throughout
