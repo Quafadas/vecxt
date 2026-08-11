@@ -22,9 +22,9 @@ object IntArraysX:
       * `inline`; generic code that only touches `Array[Int]` does not need it.
       *
       * Consequently it carries no `@HotPath`, though its body is a per-element loop and would otherwise qualify. An
-      * `inline def` is never emitted as a method of its own, so there is no bytecode for a check to measure, and
-      * check A1 fails an annotation on one by name rather than letting it read as a guarantee nothing verifies. The
-      * two are mutually exclusive here: the annotation would require dropping the `inline` that C6a requires.
+      * `inline def` is never emitted as a method of its own, so there is no bytecode for a check to measure, and check
+      * A1 fails an annotation on one by name rather than letting it read as a guarantee nothing verifies. The two are
+      * mutually exclusive here: the annotation would require dropping the `inline` that C6a requires.
       *
       * @param index
       *   the selection mask; must be the same length as `vec`
@@ -100,8 +100,8 @@ object IntArraysX:
       * by-name, so the loop became a lambda and the `var`s it mutated had to be boxed into `IntRef`/`BooleanRef` to be
       * captured — an allocation on a path every `submatrix` and every `apply(rowRange, colRange)` runs, to express an
       * exit the `while` condition states directly. It also left `@HotPath` with nothing to describe: the per-element
-      * work sat in the synthetic lambda, not in this method's bytecode, so the annotation would have been measuring
-      * the wrong body.
+      * work sat in the synthetic lambda, not in this method's bytecode, so the annotation would have been measuring the
+      * wrong body.
       *
       * @return
       *   whether the elements ascend by exactly one throughout
@@ -109,8 +109,7 @@ object IntArraysX:
     @HotPath
     def contiguous: Boolean =
       var i = 1
-      while i < arr.length && arr(i) == arr(i - 1) + 1 do
-        i += 1
+      while i < arr.length && arr(i) == arr(i - 1) + 1 do i += 1
       end while
       // Reaching the end means every adjacent pair held; stopping early means one did not. Also gives the vacuous
       // `true` for length 0 and 1, where the loop never runs and `i` already sits at or past the end.
