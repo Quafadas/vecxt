@@ -112,6 +112,23 @@ class IntArrayExtensionSuite extends munit.FunSuite:
     assert(!v2.contiguous)
   }
 
+  test("contiguous edge cases") {
+    // Vacuously true with no adjacent pair to violate the property. Not a curiosity: Matrix.submatrix and
+    // Matrix.apply(rowRange, colRange) branch on this, so a single-index selection like mat(Array(1), ::) takes the
+    // zero-copy view path precisely because a one-element array answers true here.
+    assert(Array.emptyIntArray.contiguous)
+    assert(Array(7).contiguous)
+
+    // Ascending by exactly one — a descending run, a larger step, or a repeat all fail.
+    assert(!Array(2, 1, 0).contiguous)
+    assert(!Array(0, 2, 4).contiguous)
+    assert(!Array(0, 0).contiguous)
+
+    // The break must happen wherever it occurs, including at the very last pair.
+    assert(!Array(0, 1, 2, 9).contiguous)
+    assert(Array(-2, -1, 0, 1).contiguous)
+  }
+
   test("mean arithmetic progression") {
     val v = Array.tabulate[Int](10)(identity)
     println(v.printArr)
