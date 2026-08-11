@@ -15,17 +15,8 @@ object matrixUtil:
     case Left, Right
   end Horizontal
 
-  extension [@specialized(Double, Boolean, Int) A](m: Matrix[A])
+  extension [A](m: Matrix[A])
 
-    private def tupleFromIdx(b: Int): RowCol =
-      // dimCheckLen(m.raw, b)
-      (b / m.rows, b % m.rows)
-    end tupleFromIdx
-
-    /** There should be
-      *
-      * @param f
-      */
     inline def mapRowsInPlace(
         inline f: Array[A] => Array[A]
     )(using ClassTag[A]): Unit =
