@@ -1,9 +1,9 @@
 package vecxt
 
 import scala.reflect.ClassTag
-import scala.util.control.Breaks.*
 
 import vecxt.BooleanArrays.trues
+import vecxt.annotations.HotPath
 
 object IntArraysX:
 
@@ -20,6 +20,11 @@ object IntArraysX:
       * `@specialized`, so `inline` is what recovers a concrete `int[]`/`double[]` at the call site. This is the same
       * distinction `strideNDArrayCheck` draws in `NDArrayCheck.scala`: generic code that reaches into `Array[A]` keeps
       * `inline`; generic code that only touches `Array[Int]` does not need it.
+      *
+      * Consequently it carries no `@HotPath`, though its body is a per-element loop and would otherwise qualify. An
+      * `inline def` is never emitted as a method of its own, so there is no bytecode for a check to measure, and
+      * check A1 fails an annotation on one by name rather than letting it read as a guarantee nothing verifies. The
+      * two are mutually exclusive here: the annotation would require dropping the `inline` that C6a requires.
       *
       * @param index
       *   the selection mask; must be the same length as `vec`
@@ -55,11 +60,16 @@ object IntArraysX:
       * `iaload`/`iastore` with nothing for `inline` to specialise, and the body holds a loop rather than a constant to
       * fold. `LongArrays.select` is the same method over `Array[Long]` and is likewise a plain `def`.
       *
+      * `@HotPath` rather than `@Thin`, on the same grounds as `intarrays.=:=`: the body carries a loop, so it does
+      * per-element work and the budget that applies is `FreqInlineSize`, not `MaxInlineSize` — and `@Thin` additionally
+      * forbids the backward branch this has. No `@AllocFree`: it returns a fresh array by construction.
+      *
       * @param indicies
       *   the positions to read, in result order
       * @return
       *   a new array of the gathered elements
       */
+    @HotPath
     def select(indicies: Array[Int]): Array[Int] =
       val len = indicies.length
       val out = Array.ofDim[Int](len)
@@ -84,25 +94,27 @@ object IntArraysX:
       * one-element array answers `true` here.
       *
       * Not `inline`, for the same reason as [[select]]: the receiver is a concrete `Array[Int]`, so there is no
-      * abstract element type for `inline` to specialise away. Keeping it out of line also means the `breakable`
-      * block, which implements the early exit by throwing, is emitted once rather than at every call site.
+      * abstract element type for `inline` to specialise away.
+      *
+      * The early exit is the loop condition rather than `scala.util.control.Breaks`. `breakable` takes its block
+      * by-name, so the loop became a lambda and the `var`s it mutated had to be boxed into `IntRef`/`BooleanRef` to be
+      * captured — an allocation on a path every `submatrix` and every `apply(rowRange, colRange)` runs, to express an
+      * exit the `while` condition states directly. It also left `@HotPath` with nothing to describe: the per-element
+      * work sat in the synthetic lambda, not in this method's bytecode, so the annotation would have been measuring
+      * the wrong body.
       *
       * @return
       *   whether the elements ascend by exactly one throughout
       */
+    @HotPath
     def contiguous: Boolean =
       var i = 1
-      var out = true
-      breakable {
-        while i < arr.length do
-          if arr(i) != arr(i - 1) + 1 then
-            out = false
-            break
-          end if
-          i += 1
-        end while
-      }
-      out
+      while i < arr.length && arr(i) == arr(i - 1) + 1 do
+        i += 1
+      end while
+      // Reaching the end means every adjacent pair held; stopping early means one did not. Also gives the vacuous
+      // `true` for length 0 and 1, where the loop never runs and `i` already sits at or past the end.
+      i >= arr.length
     end contiguous
   end extension
 
