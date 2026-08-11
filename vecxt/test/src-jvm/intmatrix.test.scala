@@ -200,4 +200,120 @@ class IntMatrixJvmSuite extends FunSuite:
     assertFloatMatrixEqualsLogical(m./(2.0f), expected)
   }
 
+  // ---------------------------------------------------------------------------------------------------------------
+  // The `else` branch of each of those six scalar ops was `???` until now, so any operand that wasn't
+  // `hasSimpleContiguousMemoryLayout` threw NotImplementedError rather than computing anything.
+  //
+  // The fixture below is the *same logical matrix* as the dense row-major one used above ([[1,2,3],[4,5,6]]), but
+  // laid out with rowStride 1 and colStride 3 over a length-9 array: column j occupies raw(3j) and raw(3j+1), with
+  // raw(3j+2) as padding. dataLength (9) != numel (6), so hasSimpleContiguousMemoryLayout is false and the new
+  // elementwise foreach2D path is what runs. Note a dense *row-major* matrix would not do — that is contiguous, so
+  // it takes the fast path, which is exactly what the block above already covers.
+  //
+  // Each case asserts the literal expected result *and* that it agrees with the dense fast path on the same logical
+  // input. The second assertion is the one that matters: the two branches must not disagree.
+  // ---------------------------------------------------------------------------------------------------------------
+
+  private def paddedColMajor2x3 =
+    Matrix[Int](Array[Int](1, 4, 99, 2, 5, 99, 3, 6, 99), 2, 3, 1, 3, 0)
+
+  private def denseEquivalent2x3 = denseRowMajor2x3(Array[Int](1, 2, 3, 4, 5, 6))
+
+  test("the padded fixture is genuinely non-contiguous, and logically equals the dense one") {
+    val m = paddedColMajor2x3
+    assert(!m.hasSimpleContiguousMemoryLayout, s"fixture must exercise the elementwise path, got ${m.layoutString}")
+    assertEquals(m.shape, denseEquivalent2x3.shape)
+    for
+      row <- 0 until m.rows
+      col <- 0 until m.cols
+    do assertEquals(m(row, col), denseEquivalent2x3(row, col), s"at ($row, $col)")
+    end for
+  }
+
+  test(">=(scalar) on a non-contiguous matrix") {
+    val m = paddedColMajor2x3
+    val expected = Matrix.fromRows[Boolean](
+      Array[Boolean](false, false, true),
+      Array[Boolean](true, true, true)
+    )
+    assertBooleanMatrixEqualsLogical(m.>=(3), expected)
+    assertBooleanMatrixEqualsLogical(m.>=(3), denseEquivalent2x3.>=(3))
+  }
+
+  test(">(scalar) on a non-contiguous matrix") {
+    val m = paddedColMajor2x3
+    val expected = Matrix.fromRows[Boolean](
+      Array[Boolean](false, false, false),
+      Array[Boolean](true, true, true)
+    )
+    assertBooleanMatrixEqualsLogical(m.>(3), expected)
+    assertBooleanMatrixEqualsLogical(m.>(3), denseEquivalent2x3.>(3))
+  }
+
+  test("<=(scalar) on a non-contiguous matrix") {
+    val m = paddedColMajor2x3
+    val expected = Matrix.fromRows[Boolean](
+      Array[Boolean](true, true, true),
+      Array[Boolean](false, false, false)
+    )
+    assertBooleanMatrixEqualsLogical(m.<=(3), expected)
+    assertBooleanMatrixEqualsLogical(m.<=(3), denseEquivalent2x3.<=(3))
+  }
+
+  test("<(scalar) on a non-contiguous matrix") {
+    val m = paddedColMajor2x3
+    val expected = Matrix.fromRows[Boolean](
+      Array[Boolean](true, true, false),
+      Array[Boolean](false, false, false)
+    )
+    assertBooleanMatrixEqualsLogical(m.<(3), expected)
+    assertBooleanMatrixEqualsLogical(m.<(3), denseEquivalent2x3.<(3))
+  }
+
+  test("/(scalar: Double) on a non-contiguous matrix") {
+    val m = paddedColMajor2x3
+    val expected = Matrix.fromRows[Double](
+      Array[Double](0.5, 1.0, 1.5),
+      Array[Double](2.0, 2.5, 3.0)
+    )
+    assertDoubleMatrixEqualsLogical(m./(2.0), expected)
+    assertDoubleMatrixEqualsLogical(m./(2.0), denseEquivalent2x3./(2.0))
+  }
+
+  test("/(scalar: Float) on a non-contiguous matrix") {
+    val m = paddedColMajor2x3
+    val expected = Matrix.fromRows[Float](
+      Array[Float](0.5f, 1.0f, 1.5f),
+      Array[Float](2.0f, 2.5f, 3.0f)
+    )
+    assertFloatMatrixEqualsLogical(m./(2.0f), expected)
+    assertFloatMatrixEqualsLogical(m./(2.0f), denseEquivalent2x3./(2.0f))
+  }
+
+  // Division truncation is a real hazard for an Int source: `/` on a Matrix[Int] widens to Double/Float rather than
+  // doing integer division, and the elementwise branch must widen the same way the SIMD fast path does. A divisor
+  // that does not divide evenly is what distinguishes the two.
+  test("/(scalar) on a non-contiguous matrix widens rather than truncating") {
+    val m = paddedColMajor2x3
+    val expected = Matrix.fromRows[Double](
+      Array[Double](0.25, 0.5, 0.75),
+      Array[Double](1.0, 1.25, 1.5)
+    )
+    assertDoubleMatrixEqualsLogical(m./(4.0), expected)
+    assertDoubleMatrixEqualsLogical(m./(4.0), denseEquivalent2x3./(4.0))
+  }
+
+  // An offset view is the other way to be non-contiguous, and it is the case where a wrong `linearIndex` would read
+  // the parent's elements instead of the view's. Rows 0..1, cols 1..2 of a 3x3 parent.
+  test("comparison and division agree with the dense equivalent on an offset submatrix view") {
+    val parent = denseRowMajor2x3(Array[Int](1, 2, 3, 4, 5, 6))
+    val view = parent.submatrix(0 to 1, 1 to 2) // [[2,3],[5,6]]
+    assert(!view.hasSimpleContiguousMemoryLayout, s"expected a non-contiguous view, got ${view.layoutString}")
+
+    val dense = Matrix.fromRows[Int](Array[Int](2, 3), Array[Int](5, 6))
+    assertBooleanMatrixEqualsLogical(view.>=(3), dense.>=(3))
+    assertBooleanMatrixEqualsLogical(view.<(5), dense.<(5))
+    assertDoubleMatrixEqualsLogical(view./(2.0), dense./(2.0))
+  }
+
 end IntMatrixJvmSuite

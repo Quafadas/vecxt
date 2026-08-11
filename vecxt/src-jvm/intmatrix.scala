@@ -17,12 +17,28 @@ object JvmIntMatrix:
 
     end matmul
 
+    // The six scalar ops below share one shape, mirroring `JvmFloatMatrix`'s equivalents: a whole-array SIMD fast path
+    // when the backing array already holds exactly the elements in order, and otherwise an elementwise `foreach2D`
+    // read through `linearIndex`, which is valid for any offset/stride. Each `else` branch used to be `???`, so any
+    // strided or padded operand threw NotImplementedError.
+    //
+    // Note the two branches disagree on the result's storage order, exactly as the Float versions do: the fast path
+    // reuses `m.layout` (so a dense row-major input yields a row-major result), while the elementwise branch
+    // normalises to column-major. Both describe the same logical matrix — `foreach2D` visits every (i, j) once and
+    // the destination index is computed explicitly — so this is a storage difference, not a correctness one.
+
     @scala.annotation.targetName("intMatrixDivDouble")
     def /(d: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Double](vecxt.intarrays./(i)(d), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) / d
+        }
+        Matrix[Double](newArr, m.rows, m.cols)
     end /
 
     @scala.annotation.targetName("intMatrixDivFloat")
@@ -30,35 +46,65 @@ object JvmIntMatrix:
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Float](vecxt.intarrays./(i)(d), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Float](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) / d
+        }
+        Matrix[Float](newArr, m.rows, m.cols)
     end /
 
     def >=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Boolean](m.raw.gte(d), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Boolean](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) >= d
+        }
+        Matrix[Boolean](newArr, m.rows, m.cols)
     end >=
 
     def >(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Boolean](m.raw.gt(d), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Boolean](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) > d
+        }
+        Matrix[Boolean](newArr, m.rows, m.cols)
     end >
 
     def <=(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Boolean](m.raw.lte(d), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Boolean](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) <= d
+        }
+        Matrix[Boolean](newArr, m.rows, m.cols)
     end <=
 
     def <(d: Int): Matrix[Boolean] =
       if m.hasSimpleContiguousMemoryLayout then
         val i: Array[Int] = m.raw
         Matrix[Boolean](m.raw.lt(d), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Boolean](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = m.raw(srcIdx) < d
+        }
+        Matrix[Boolean](newArr, m.rows, m.cols)
     end <
 
     @scala.annotation.targetName("intMatrixMaskInPlace")
