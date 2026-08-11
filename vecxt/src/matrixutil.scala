@@ -60,8 +60,7 @@ object matrixUtil:
   end writeCol
 
   /** Copies every element of `src` into the dense column-major buffer `dest` (of `destRows` rows), placing `src`'s
-    * `(0, 0)` at `(rowOff, colOff)`. Shared by `horzcat` and `vertcat`, which differ only in which offset they
-    * advance.
+    * `(0, 0)` at `(rowOff, colOff)`. Shared by `horzcat` and `vertcat`, which differ only in which offset they advance.
     *
     * Three paths, narrowing:
     *   - `src` is contiguous column-major *and* lands as one contiguous run (`rowOff == 0`, and its rows span the full
@@ -70,8 +69,8 @@ object matrixUtil:
     *     operands of `vertcat` hit this, since there `destRows > src.rows` by construction.
     *   - anything else — a strided read through `linearIndex`, correct for any layout at all.
     *
-    * `hasSimpleContiguousMemoryLayout` rather than bare `isDenseColMajor` is what makes the `arraycopy` paths sound:
-    * it additionally requires `dataLength == numel`, which excludes a view that is dense by stride but still carries a
+    * `hasSimpleContiguousMemoryLayout` rather than bare `isDenseColMajor` is what makes the `arraycopy` paths sound: it
+    * additionally requires `dataLength == numel`, which excludes a view that is dense by stride but still carries a
     * larger parent array behind it.
     */
   private inline def blitInto[C](
@@ -82,8 +81,7 @@ object matrixUtil:
       colOff: Int
   ): Unit =
     if src.hasSimpleContiguousMemoryLayout && src.isDenseColMajor then
-      if rowOff == 0 && destRows == src.rows then
-        System.arraycopy(src.raw, 0, dest, colOff * destRows, src.numel)
+      if rowOff == 0 && destRows == src.rows then System.arraycopy(src.raw, 0, dest, colOff * destRows, src.numel)
       else
         var j = 0
         while j < src.cols do
