@@ -29,7 +29,7 @@ object DoubleMatrix:
         if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
         end if
-      end -
+      end if
     end -
 
     /** Elementwise `d / m(i, j)`. Not `m / d` (that's `Matrix[Double]#/(n: Double)`) - division isn't commutative
@@ -47,14 +47,20 @@ object DoubleMatrix:
         if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
         else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
         end if
-      end /
+      end if
     end /
 
     // Unlike `-`/`/` above, these mutate `m` in place rather than compute a fresh result, so there's no
     // direction/commutativity concern - `d += m`/`d -= m`/`d /= m` are just alternate spellings of "mutate m
     // in place via its own compound-assignment operator", same as `*=` already does.
     def *=(m: Matrix[Double]): Unit = m *= d
-    def +=(m: Matrix[Double]): Unit = m += d
+    def +=(m: Matrix[Double]): Unit =
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(d)
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) + d
+        }
     def -=(m: Matrix[Double]): Unit = m -= d
     def /=(m: Matrix[Double]): Unit = m /= d
 
@@ -87,7 +93,7 @@ object DoubleMatrix:
       * its own more specialised stride-aware implementation - see e.g. `src-jvm/doublematrix.scala`.)
       */
     def -=(d: Double): Unit =
-      if m.hasSimpleContiguousMemoryLayout then m.raw -= d
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.-=(m.raw)(d)
       else
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
@@ -95,7 +101,7 @@ object DoubleMatrix:
         }
 
     def /=(d: Double): Unit =
-      if m.hasSimpleContiguousMemoryLayout then m.raw /= d
+      if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays./=(m.raw)(d)
       else
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
