@@ -1183,7 +1183,7 @@ object doublearrays:
         i += spdl
       end while
 
-      while i < vec.length - 1 do
+      while i < vec.length do
         vec(i) = vec(i) - d
         i = i + 1
       end while

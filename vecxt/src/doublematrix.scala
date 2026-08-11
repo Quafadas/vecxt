@@ -48,10 +48,13 @@ object DoubleMatrix:
         end if
       end /
 
+    // Unlike `-`/`/` above, these mutate `m` in place rather than compute a fresh result, so there's no
+    // direction/commutativity concern - `d += m`/`d -= m`/`d /= m` are just alternate spellings of "mutate m
+    // in place via its own compound-assignment operator", same as `*=` already does.
     def *=(m: Matrix[Double]): Unit = m *= d
-    def +=(m: Matrix[Double]): Unit = ??? // m += d
-    def -=(m: Matrix[Double]): Unit = ??? // m -= d
-    def /=(m: Matrix[Double]): Unit = ???
+    def +=(m: Matrix[Double]): Unit = m += d
+    def -=(m: Matrix[Double]): Unit = m -= d
+    def /=(m: Matrix[Double]): Unit = m /= d
 
   end extension
 
@@ -74,6 +77,34 @@ object DoubleMatrix:
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
           m.raw(idx) = m.raw(idx) * d
+        }
+
+    /** In-place elementwise scalar add/subtract/divide. Same shape as `*=` above: SIMD fast path over the whole
+      * backing array when `m` is dense contiguous, element-by-element via `linearIndex` otherwise - no result
+      * layout to pick here (unlike `+`/`-`/`/`), since `m` keeps its own.
+      */
+    def +=(d: Double): Unit =
+      if m.hasSimpleContiguousMemoryLayout then m.raw += d
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) + d
+        }
+
+    def -=(d: Double): Unit =
+      if m.hasSimpleContiguousMemoryLayout then m.raw -= d
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) - d
+        }
+
+    def /=(d: Double): Unit =
+      if m.hasSimpleContiguousMemoryLayout then m.raw /= d
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) / d
         }
 
     /** Elementwise scalar multiply.
