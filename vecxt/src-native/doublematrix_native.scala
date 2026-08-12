@@ -146,14 +146,14 @@ object NativeDoubleMatrix:
       * [[*=]] describes each layout by choosing `order` and leaves `trans` at `CblasNoTrans`, which reads far more
       * directly. That option is not open here, and the difference is forced rather than stylistic.
       *
-      * `order` is a property of the *call*, not of an operand: CBLAS applies it to `A`, `B` and `C` alike. This
-      * routine has three matrices that may disagree — `m` dense row-major while `b` is column-major is ordinary usage
-      * — and, decisively, `matmulOutputCheck` pins `c` to dense column-major, so `order` is already spoken for. With
-      * `order` fixed at `CblasColMajor` by `c`, the only place an operand's own orientation can be expressed is its
-      * `trans` flag, with `lda`/`ldb` to match.
+      * `order` is a property of the *call*, not of an operand: CBLAS applies it to `A`, `B` and `C` alike. This routine
+      * has three matrices that may disagree — `m` dense row-major while `b` is column-major is ordinary usage — and,
+      * decisively, `matmulOutputCheck` pins `c` to dense column-major, so `order` is already spoken for. With `order`
+      * fixed at `CblasColMajor` by `c`, the only place an operand's own orientation can be expressed is its `trans`
+      * flag, with `lda`/`ldb` to match.
       *
-      * `*=` escapes all of that by having exactly one matrix: nothing else is competing for `order`, so it can say
-      * what the layout is instead of correcting for it afterwards.
+      * `*=` escapes all of that by having exactly one matrix: nothing else is competing for `order`, so it can say what
+      * the layout is instead of correcting for it afterwards.
       *
       * So the flags below are not a transpose applied twice — `CblasNoTrans` is used wherever an operand is already
       * column-major, and `CblasTrans` only for one that is not. Switching `order` to `CblasRowMajor` on top of them
@@ -229,8 +229,8 @@ object NativeDoubleMatrix:
       * `lda = rowStride`, and a `rowStride == 1` one as `CblasColMajor` with `lda = colStride`. Both keep
       * `CblasNoTrans` and the natural `(rows, cols)`.
       *
-      * Stating the layout via `order` rather than correcting for it via `trans` is available here only because there
-      * is a single matrix in the call. `matmulInPlace!` above has three and cannot do the same — see its scaladoc.
+      * Stating the layout via `order` rather than correcting for it via `trans` is available here only because there is
+      * a single matrix in the call. `matmulInPlace!` above has three and cannot do the same — see its scaladoc.
       *
       * `lda` was previously `m.rows` for both orders. That is only right for column-major: under `CblasRowMajor`, `lda`
       * is the distance between successive rows and must be at least `cols`, so a non-square dense row-major matrix —
