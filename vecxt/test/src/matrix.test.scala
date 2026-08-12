@@ -1273,13 +1273,6 @@ class MatrixExtensionSuite extends FunSuite:
     assertMatrixEquals(mat(0 to 2, 0 to 2), expected)
   }
 
-  // ─── gather (non-contiguous selection) across layouts ────────────────────────────────────────────────────────
-  // `apply(rowRange, colRange)` takes a zero-copy submatrix when both selections are contiguous runs, and otherwise
-  // gathers into a fresh matrix. That gather used to be guarded on `isDenseColMajor` with `???` for anything else, so
-  // it threw NotImplementedError on a row-major, offset or padded operand. Each fixture below is the same logical
-  // 3x3 [[1,2,3],[4,5,6],[7,8,9]] as `mat1to9` in a layout that guard rejected, gathered the same way, so all four
-  // must agree.
-
   private def gather3x3RowMajor =
     Matrix[Double](Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0), 3, 3, 3, 1, 0)
 
