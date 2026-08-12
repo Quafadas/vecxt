@@ -706,6 +706,13 @@ object JvmFloatMatrix:
 
 end JvmFloatMatrix
 
+/** Cross-compilation stubs — the real implementations live in `src-js/floatmatrix.scala` and
+  * `src-native/floatmatrix.scala`. `all` exports both names on every platform, so both have to exist here too. Same
+  * arrangement `JvmDoubleMatrix`/`JsDoubleMatrix`/`NativeDoubleMatrix` already use. `NativeFloatMatrix` was already
+  * declared empty here before either had an implementation.
+  */
 object NativeFloatMatrix:
 
 end NativeFloatMatrix
+
+object JsFloatMatrix

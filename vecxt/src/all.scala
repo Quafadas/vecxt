@@ -29,6 +29,8 @@ object all:
   export vecxt.MatrixInstance.*
   export vecxt.JvmDoubleMatrix.*
   export vecxt.JvmFloatMatrix.*
+  export vecxt.JsFloatMatrix.*
+  export vecxt.NativeFloatMatrix.*
   export vecxt.JvmIntMatrix.*
   export vecxt.JsDoubleMatrix.*
   export vecxt.NativeDoubleMatrix.*

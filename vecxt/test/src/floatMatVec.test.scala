@@ -4,10 +4,14 @@ import all.*
 
 /** `Matrix[Float] * Array[Float]` and its in-place kernel `*=`.
   *
-  * Shared rather than JVM-only because the operation now exists on every platform: the JVM routes it through BLAS
-  * `sgemv`, picking TRANS and lda from the strides, while JS and Native run an elementwise loop. Asserting the same
-  * answers here is what holds those implementations to the same behaviour — previously the operation existed only on
-  * the JVM, and only for dense column-major operands.
+  * Shared rather than JVM-only because the operation exists on every platform, and — since each reaches a different
+  * BLAS — through three separate implementations: netlib `sgemv` on the JVM, `cblas_sgemv` on Native, and the stdlib
+  * `sgemv` shim on JS. They also disagree about which layouts they can hand to BLAS at all: the JVM and Native pass an
+  * offset straight through, while the JS facade has no offset parameter and routes those to an elementwise loop.
+  *
+  * So the same five fixtures below exercise materially different code on each target, and asserting one set of answers
+  * across them is what holds the three to the same behaviour. Previously the operation existed only on the JVM, and
+  * only for dense column-major operands.
   *
   * Every fixture is the same logical 2x3 [[1,2,3],[4,5,6]] in a different layout, so all of them must agree.
   */
