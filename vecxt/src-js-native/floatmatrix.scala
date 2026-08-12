@@ -74,12 +74,16 @@ object JvmFloatMatrix:
       *
       * Matches the JVM's `beta == 0` handling, where the destination is written without being read.
       *
+      * `alpha` and `beta` carry no defaults, matching the JVM signature: `all` exports both element types into one
+      * scope and Scala allows only one overload of a name to have default arguments, which the `Double` twin already
+      * uses. `matmulInPlace!` splits the same way for the same reason.
+      *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`
       * @param y
       *   the destination, accumulated onto per `beta`; must have length `m.rows`
       */
-    def *=(vec: Array[Float], y: Array[Float], alpha: Float = 1.0f, beta: Float = 1.0f): Unit =
+    def *=(vec: Array[Float], y: Array[Float], alpha: Float, beta: Float): Unit =
       if vec.length != m.cols then
         throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
       end if
@@ -99,11 +103,15 @@ object JvmFloatMatrix:
       end while
     end *=
 
-    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so
-      * the freshly allocated destination is written without being read.
+    /** Matrix-vector product: returns `m @@ vec` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so the
+      * freshly allocated destination is written without being read. Two arities rather than a defaulted `alpha`, for
+      * the reason given on [[*=]].
       */
     @targetName("matmulFloatVector")
-    def *(vec: Array[Float], alpha: Float = 1.0f): Array[Float] =
+    def *(vec: Array[Float]): Array[Float] = m.*(vec, 1.0f)
+
+    @targetName("matmulFloatVectorScaled")
+    def *(vec: Array[Float], alpha: Float): Array[Float] =
       val out = Array.ofDim[Float](m.rows)
       m.*=(vec, out, alpha, 0.0f)
       out

@@ -161,13 +161,18 @@ object JvmFloatMatrix:
       * from the strides, why the `stride >= extent` half of each guard is load-bearing, and why the elementwise
       * fallback branches on `beta == 0` explicitly.
       *
+      * `alpha` and `beta` have no defaults, unlike the `Double` twin. `all` exports both element types into one
+      * scope, and Scala permits only one overload of a name to carry default arguments — the same reason
+      * `matmulInPlace!` already spells its `Float` arguments out while the `Double` one defaults them. The choice of
+      * which side keeps the defaults is arbitrary; keeping it where it already was is not.
+      *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`
       * @param y
       *   the destination, accumulated onto per `beta`; must have length `m.rows`
       */
     @AllocFree
-    def *=(vec: Array[Float], y: Array[Float], alpha: Float = 1.0f, beta: Float = 1.0f): Unit =
+    def *=(vec: Array[Float], y: Array[Float], alpha: Float, beta: Float): Unit =
       if vec.length != m.cols then
         throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
       end if
@@ -195,12 +200,18 @@ object JvmFloatMatrix:
       end if
     end *=
 
-    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so
-      * the freshly allocated destination is written without being read. See `JvmDoubleMatrix.*` for why there is no
+    /** Matrix-vector product: returns `m @@ vec` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so the
+      * freshly allocated destination is written without being read. See `JvmDoubleMatrix.*` for why there is no
       * `beta` parameter.
+      *
+      * Two arities rather than a defaulted `alpha`, for the reason given on [[*=]]: the `Double` overload of `*`
+      * already carries the one set of default arguments this name is allowed across both element types.
       */
     @targetName("matmulFloatVector")
-    def *(vec: Array[Float], alpha: Float = 1.0f): Array[Float] =
+    def *(vec: Array[Float]): Array[Float] = m.*(vec, 1.0f)
+
+    @targetName("matmulFloatVectorScaled")
+    def *(vec: Array[Float], alpha: Float): Array[Float] =
       val out = Array.ofDim[Float](m.rows)
       m.*=(vec, out, alpha, 0.0f)
       out

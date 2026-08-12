@@ -104,8 +104,10 @@ class FloatMatVecSuite extends munit.FunSuite:
 
   test("Float matrix * vector rejects mismatched lengths") {
     intercept[IllegalArgumentException](rowMajor * Array[Float](1.0f, 2.0f))
+    // alpha/beta spelled out: unlike the Double twin, the Float `*=` carries no defaults, because `all` exports both
+    // into one scope and only one overload of a name may have them.
     intercept[IllegalArgumentException](
-      rowMajor.*=(Array[Float](1.0f, 2.0f, 3.0f), Array[Float](0.0f, 0.0f, 0.0f))
+      rowMajor.*=(Array[Float](1.0f, 2.0f, 3.0f), Array[Float](0.0f, 0.0f, 0.0f), 1.0f, 0.0f)
     )
   }
 
