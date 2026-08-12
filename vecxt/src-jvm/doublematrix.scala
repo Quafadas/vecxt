@@ -176,6 +176,13 @@ object JvmDoubleMatrix:
       * Unlike `matmulInPlace!` this does not reject a `y` aliasing `m.raw`; `dgemv` assumes they do not overlap, so
       * passing a `y` that shares storage with `m` is undefined and not checked for here.
       *
+      * The two length checks are written as `if ... then throw` rather than `require(cond, s"...")`. `require` takes
+      * its message by name, so the interpolated string becomes a `Function0` capturing both lengths — allocated on
+      * every call, including the overwhelmingly common one where the check passes. In a method whose entire reason
+      * for existing is to write into a caller-supplied buffer instead of allocating, paying an allocation to describe
+      * an error that did not happen is the wrong trade. Written this way the string is only built on the failing
+      * path, which is also how `dimCheck` and `dimCheckLen` are shaped. The exception type is unchanged.
+      *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`
       * @param y
@@ -183,8 +190,12 @@ object JvmDoubleMatrix:
       */
     @targetName("matvecInPlaceDouble")
     def *=(vec: Array[Double], y: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Unit =
-      require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
-      require(y.length == m.rows, s"Destination length ${y.length} != expected ${m.rows}")
+      if vec.length != m.cols then
+        throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
+      end if
+      if y.length != m.rows then
+        throw new IllegalArgumentException(s"Destination length ${y.length} != expected ${m.rows}")
+      end if
       val nonEmpty = m.rows > 0 && m.cols > 0
 
       if nonEmpty && m.rowStride == 1 && m.colStride >= m.rows then
