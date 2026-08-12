@@ -303,6 +303,22 @@ class DifferentMemoryLayoutTests extends FunSuite:
     }
   }
 
+  // The strided branch's guard used to be `(rowStride == 1 || colStride == 1)` on each operand, which is only half
+  // the condition. BLAS also requires `lda` to be at least the block's row count, and a broadcast column satisfies
+  // `rowStride == 1` while having `colStride == 0` — no leading dimension describes "one column repeated", so the
+  // operand reached gemm with `lda = 0`, which is a malformed call rather than a wrong answer. It is now rejected by
+  // the same UnsupportedLayoutException as any other layout the routine cannot express.
+
+  test("matmul rejects a broadcast operand rather than handing BLAS lda = 0") {
+    // colStride 0: every logical column reads the same two elements.
+    val broadcast = Matrix[Double](Array(1.0, 2.0), 2, 2, 1, 0, 0)
+    val dense = Matrix.fromRows(Array(1.0, 0.0), Array(0.0, 1.0))
+
+    assert(broadcast.rowStride == 1 && broadcast.colStride == 0, "fixture must be the half-satisfying case")
+    intercept[UnsupportedLayoutException](broadcast @@ dense)
+    intercept[UnsupportedLayoutException](dense @@ broadcast)
+  }
+
   test("matmulInPlace! throws when c is row-major instead of column-major") {
     val a = Matrix.fromRows(Array(1.0, 2.0, 3.0), Array(4.0, 5.0, 6.0)) // 2x3
     val b = Matrix.fromRows(Array(1.0, 2.0), Array(3.0, 4.0), Array(5.0, 6.0)) // 3x2

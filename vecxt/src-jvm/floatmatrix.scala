@@ -3,6 +3,7 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.all.*
+import vecxt.annotations.AllocFree
 import vecxt.dimensionExtender.DimensionExtender.*
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.*
@@ -66,7 +67,7 @@ object JvmFloatMatrix:
           0,
           m.rows
         )
-      else if (m.rowStride == 1 || m.colStride == 1) && (b.rowStride == 1 || b.colStride == 1) then
+      else if blasLeadingDimensionCheck(m) && blasLeadingDimensionCheck(b) then
         val mStr = if m.rowStride == 1 then "N" else "T"
         val bStr = if b.rowStride == 1 then "N" else "T"
         // If the matrix has an offset, then a call to blas.sgemm complains.
@@ -155,30 +156,65 @@ object JvmFloatMatrix:
 
     // TODO: Dim check
 
+    /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place, via BLAS `sgemv`. Float counterpart of
+      * `JvmDoubleMatrix.*=`, identical in every respect but element type — see there for why `TRANS`/`lda` are chosen
+      * from the strides, why the `stride >= extent` half of each guard is load-bearing, and why the elementwise
+      * fallback branches on `beta == 0` explicitly.
+      *
+      * `alpha` and `beta` have no defaults, unlike the `Double` twin. `all` exports both element types into one scope,
+      * and Scala permits only one overload of a name to carry default arguments — the same reason `matmulInPlace!`
+      * already spells its `Float` arguments out while the `Double` one defaults them. The choice of which side keeps
+      * the defaults is arbitrary; keeping it where it already was is not.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @param y
+      *   the destination, accumulated onto per `beta`; must have length `m.rows`
+      */
+    @AllocFree
+    def *=(vec: Array[Float], y: Array[Float], alpha: Float, beta: Float): Unit =
+      if vec.length != m.cols then
+        throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
+      end if
+      if y.length != m.rows then
+        throw new IllegalArgumentException(s"Destination length ${y.length} != expected ${m.rows}")
+      end if
+      val nonEmpty = m.rows > 0 && m.cols > 0
+
+      if nonEmpty && m.rowStride == 1 && m.colStride >= m.rows then
+        blas.sgemv("N", m.rows, m.cols, alpha, m.raw, m.offset, m.colStride, vec, 0, 1, beta, y, 0, 1)
+      else if nonEmpty && m.colStride == 1 && m.rowStride >= m.cols then
+        blas.sgemv("T", m.cols, m.rows, alpha, m.raw, m.offset, m.rowStride, vec, 0, 1, beta, y, 0, 1)
+      else
+        var i = 0
+        while i < m.rows do
+          var acc = 0.0f
+          var j = 0
+          while j < m.cols do
+            acc += m.raw(m.layout.linearIndex(i, j)) * vec(j)
+            j += 1
+          end while
+          y(i) = if beta == 0.0f then alpha * acc else alpha * acc + beta * y(i)
+          i += 1
+        end while
+      end if
+    end *=
+
+    /** Matrix-vector product: returns `m @@ vec` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so the freshly
+      * allocated destination is written without being read. See `JvmDoubleMatrix.*` for why there is no `beta`
+      * parameter.
+      *
+      * Two arities rather than a defaulted `alpha`, for the reason given on [[*=]]: the `Double` overload of `*`
+      * already carries the one set of default arguments this name is allowed across both element types.
+      */
     @targetName("matmulFloatVector")
-    def *(vec: Array[Float], alpha: Float, beta: Float): Array[Float] =
+    def *(vec: Array[Float]): Array[Float] = m.*(vec, 1.0f)
 
-      if m.isDenseColMajor then
-        require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
-        val newArr = Array.ofDim[Float](m.rows)
-        val out = Array.fill(m.rows)(0.0)
-
-        blas.sgemv(
-          "N",
-          m.rows,
-          m.cols,
-          alpha,
-          m.raw,
-          m.rows,
-          vec,
-          1,
-          beta,
-          newArr,
-          1
-        )
-
-        newArr
-      else ???
+    @targetName("matmulFloatVectorScaled")
+    def *(vec: Array[Float], alpha: Float): Array[Float] =
+      val out = Array.ofDim[Float](m.rows)
+      m.*=(vec, out, alpha, 0.0f)
+      out
     end *
 
     def >=(d: Float): Matrix[Boolean] =
@@ -670,6 +706,13 @@ object JvmFloatMatrix:
 
 end JvmFloatMatrix
 
+/** Cross-compilation stubs — the real implementations live in `src-js/floatmatrix.scala` and
+  * `src-native/floatmatrix.scala`. `all` exports both names on every platform, so both have to exist here too. Same
+  * arrangement `JvmDoubleMatrix`/`JsDoubleMatrix`/`NativeDoubleMatrix` already use. `NativeFloatMatrix` was already
+  * declared empty here before either had an implementation.
+  */
 object NativeFloatMatrix:
 
 end NativeFloatMatrix
+
+object JsFloatMatrix

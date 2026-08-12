@@ -336,4 +336,28 @@ class D1Suite extends FunSuite:
     assertAllocFree("doublematrix.*=(vec, y) broadcast")(m.*=(x, y, 1.0, 0.0))
   }
 
+  // The Float twin of the three above. Same three branches, same reason for measuring rather than asserting: sgemv
+  // is called per operation, so zero bytes/op is partly a statement about netlib.
+
+  test("D1: floatmatrix.*=(vec, y) — dense column-major, sgemv \"N\"") {
+    val m = Matrix[Float](Array.tabulate(N)(_.toFloat), MvRows, MvCols)
+    val x = Array.fill(MvCols)(1.0f)
+    val y = new Array[Float](MvRows)
+    assertAllocFree("floatmatrix.*=(vec, y) col-major")(m.*=(x, y, 1.0f, 0.0f))
+  }
+
+  test("D1: floatmatrix.*=(vec, y) — dense row-major, sgemv \"T\"") {
+    val m = Matrix[Float](Array.tabulate(N)(_.toFloat), MvRows, MvCols, MvCols, 1, 0)
+    val x = Array.fill(MvCols)(1.0f)
+    val y = new Array[Float](MvRows)
+    assertAllocFree("floatmatrix.*=(vec, y) row-major")(m.*=(x, y, 1.0f, 0.0f))
+  }
+
+  test("D1: floatmatrix.*=(vec, y) — broadcast column, elementwise branch") {
+    val m = Matrix[Float](Array.tabulate(MvRows)(_.toFloat), MvRows, MvCols, 1, 0, 0)
+    val x = Array.fill(MvCols)(1.0f)
+    val y = new Array[Float](MvRows)
+    assertAllocFree("floatmatrix.*=(vec, y) broadcast")(m.*=(x, y, 1.0f, 0.0f))
+  }
+
 end D1Suite
