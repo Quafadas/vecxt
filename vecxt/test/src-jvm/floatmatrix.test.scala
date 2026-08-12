@@ -130,6 +130,18 @@ class FloatMatrixJvmSuite extends FunSuite:
       )
     )
 
+  test("*= scalar scales every element of a non-contiguous Float layout, and nothing else"):
+    // rows=2, cols=2, rowStride=2, colStride=5 over a length-8 array: neither stride is 1, so this is also the
+    // `unitStrideAxis == -1` case. Elements live at raw(0), raw(2), raw(5), raw(7); the 90s are padding.
+    val raw = Array[Float](1.0f, 90.0f, 2.0f, 91.0f, 92.0f, 3.0f, 93.0f, 4.0f)
+    val mat = Matrix[Float](raw, 2, 2, 2, 5, 0)
+    assert(!mat.hasSimpleContiguousMemoryLayout)
+
+    mat *= 2.0f
+
+    assertMatrixEquals(mat, Matrix.fromRows[Float](Array(2.0f, 6.0f), Array(4.0f, 8.0f)))
+    assertVecEquals(raw, Array[Float](2.0f, 90.0f, 4.0f, 91.0f, 92.0f, 6.0f, 93.0f, 8.0f))
+
   test("*:*= on offset Float view uses general layout path"):
     // (vecxt/src-jvm/floatmatrix.scala) `sub` has a
     // nonzero offset (it's `base`'s columns 1..2), so it misses the dense/offset-0 fast path and exercises the

@@ -2,7 +2,6 @@ package vecxt_re
 
 import vecxt_re.*
 import vecxt.all.*
-import vecxt.all.given
 import SplitLosses.*
 
 class TowerSuite extends munit.FunSuite:

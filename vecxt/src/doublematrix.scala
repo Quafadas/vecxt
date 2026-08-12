@@ -342,7 +342,13 @@ object DoubleMatrix:
 
     def unary_- : Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.doublearrays.unary_-(m.raw), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = -m.raw(srcIdx)
+        }
+        Matrix[Double](newArr, m.rows, m.cols)
 
     def `exp!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`exp!`(m.raw)
@@ -443,19 +449,47 @@ object DoubleMatrix:
 
     def tan =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.tan(m.raw), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = Math.tan(m.raw(srcIdx))
+        }
+        Matrix[Double](newArr, m.rows, m.cols)
 
     def `tan!` =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`tan!`(m.raw)
-      else ???
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = Math.tan(m.raw(idx))
+        }
+      end if
+    end `tan!`
 
     def mean: Double =
       if m.hasSimpleContiguousMemoryLayout then m.sumSIMD / (m.rows * m.cols)
-      else ???
+      else
+        var acc = 0.0
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          acc += m.raw(idx)
+        }
+        acc / (m.rows * m.cols)
+      end if
+    end mean
 
     def **(power: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.**(m.raw)(power), m.layout)
-      else ???
+      else
+        val newArr = Array.ofDim[Double](m.numel)
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = Math.pow(m.raw(srcIdx), power)
+        }
+        Matrix[Double](newArr, m.rows, m.cols)
+      end if
+    end **
 
     /** Reads every element through `m.layout.linearIndex`, which is just `offset + row * rowStride + col * colStride` —
       * valid for any layout, dense or strided, row-major or column-major. So unlike the element-wise SIMD ops in this
@@ -513,15 +547,31 @@ object DoubleMatrix:
       m.diag.sum
     end trace
 
-    def sum: Double = sumSIMD
+    inline def sum: Double = sumSIMD
 
     def sumSIMD: Double =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.sum(m.raw)
-      else ???
+      else
+        var acc = 0.0
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          acc += m.raw(idx)
+        }
+        acc
+      end if
+    end sumSIMD
 
     def norm: Double =
       if m.hasSimpleContiguousMemoryLayout then vecxt.all.norm(m.raw)
-      else ???
+      else
+        var acc = 0.0
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          acc += m.raw(idx) * m.raw(idx)
+        }
+        Math.sqrt(acc)
+      end if
+    end norm
 
     // Note: det method is provided by platform-specific implementations
     // See: vecxt.JvmDeterminant (JVM with SIMD) and vecxt.JsNativeDeterminant (JS/Native)

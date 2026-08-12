@@ -578,12 +578,6 @@ object JvmFloatMatrix:
 
     end -=
 
-    /** In-place elementwise scalar multiply. The non-contiguous branch used to be `???`, which made the scalar-left
-      * `d *= m` below (which delegates here) throw for any strided or offset matrix even though nothing about the
-      * operation needs contiguity. Same shape as the `Double` twin in `src/doublematrix.scala`: SIMD over the whole
-      * backing array when dense contiguous, element-by-element via `linearIndex` otherwise — which skips padding
-      * instead of scaling it.
-      */
     def *=(d: Float): Unit =
       if m.hasSimpleContiguousMemoryLayout then floatarrays.*=(m.raw)(d)
       else
