@@ -140,6 +140,24 @@ object NativeDoubleMatrix:
       * `dgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or read
       * from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a conforming `c` to
       * write into; they allocate one for you.
+      *
+      * ==Why this uses `trans` where [[*=]] uses `order`==
+      *
+      * [[*=]] describes each layout by choosing `order` and leaves `trans` at `CblasNoTrans`, which reads far more
+      * directly. That option is not open here, and the difference is forced rather than stylistic.
+      *
+      * `order` is a property of the *call*, not of an operand: CBLAS applies it to `A`, `B` and `C` alike. This
+      * routine has three matrices that may disagree — `m` dense row-major while `b` is column-major is ordinary usage
+      * — and, decisively, `matmulOutputCheck` pins `c` to dense column-major, so `order` is already spoken for. With
+      * `order` fixed at `CblasColMajor` by `c`, the only place an operand's own orientation can be expressed is its
+      * `trans` flag, with `lda`/`ldb` to match.
+      *
+      * `*=` escapes all of that by having exactly one matrix: nothing else is competing for `order`, so it can say
+      * what the layout is instead of correcting for it afterwards.
+      *
+      * So the flags below are not a transpose applied twice — `CblasNoTrans` is used wherever an operand is already
+      * column-major, and `CblasTrans` only for one that is not. Switching `order` to `CblasRowMajor` on top of them
+      * *would* be the double application, and would also mislabel `c`.
       */
     def `matmulInPlace!`(
         b: Matrix[Double],
@@ -156,10 +174,9 @@ object NativeDoubleMatrix:
         val transB = if b.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
         val transA = if m.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
 
-        // `order` is always CblasColMajor here, deliberately, even when both operands are dense row-major: transA/
-        // transB/lda/ldb above are the standard "always column-major" transpose trick. Switching order to
-        // CblasRowMajor without also inverting transA/transB would apply the transpose trick twice — see the
-        // matching comment in src-js/doublematrix.scala, which hits the identical order/trans interaction.
+        // `order` is CblasColMajor because `c` is (matmulOutputCheck enforces it) and CBLAS applies `order` to all
+        // three matrices — see the scaladoc for why that leaves transA/transB as the only place m's and b's own
+        // orientations can go. src-js/doublematrix.scala hits the identical order/trans interaction.
         blas.cblas_dgemm(
           blasEnums.CblasColMajor,
           transA,
@@ -211,6 +228,9 @@ object NativeDoubleMatrix:
       * dimensions over transposed: a `colStride == 1` layout is described directly as `CblasRowMajor` with
       * `lda = rowStride`, and a `rowStride == 1` one as `CblasColMajor` with `lda = colStride`. Both keep
       * `CblasNoTrans` and the natural `(rows, cols)`.
+      *
+      * Stating the layout via `order` rather than correcting for it via `trans` is available here only because there
+      * is a single matrix in the call. `matmulInPlace!` above has three and cannot do the same — see its scaladoc.
       *
       * `lda` was previously `m.rows` for both orders. That is only right for column-major: under `CblasRowMajor`, `lda`
       * is the distance between successive rows and must be at least `cols`, so a non-square dense row-major matrix —
