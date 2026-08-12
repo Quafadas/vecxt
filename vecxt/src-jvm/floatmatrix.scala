@@ -578,9 +578,20 @@ object JvmFloatMatrix:
 
     end -=
 
+    /** In-place elementwise scalar multiply. The non-contiguous branch used to be `???`, which made the scalar-left
+      * `d *= m` below (which delegates here) throw for any strided or offset matrix even though nothing about the
+      * operation needs contiguity. Same shape as the `Double` twin in `src/doublematrix.scala`: SIMD over the whole
+      * backing array when dense contiguous, element-by-element via `linearIndex` otherwise — which skips padding
+      * instead of scaling it.
+      */
     def *=(d: Float): Unit =
       if m.hasSimpleContiguousMemoryLayout then floatarrays.*=(m.raw)(d)
-      else ???
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = m.raw(idx) * d
+        }
+      end if
     end *=
 
     def *(d: Float): Matrix[Float] =
@@ -689,18 +700,94 @@ object JvmFloatMatrix:
 
   end extension
 
+  /** Scalar-left operators, the `Float` counterpart of `DoubleMatrix`'s `extension (d: Double)`. `*` / `+` / `*=` /
+    * `+=` are commutative, so they delegate to the scalar-right forms on `Matrix[Float]` above; `-` / `/` / `-=` / `/=`
+    * are not, so each needs its own body computing `d op m(i, j)` rather than `m(i, j) op d`.
+    *
+    * Layout policy for the allocating `-` / `/`: identical to `Matrix[Float]#*(d: Float)` and to the `Double`
+    * equivalents — the dense-contiguous fast path wraps the transformed array with `m.layout`, so the result keeps
+    * `m`'s own orientation, and the general path materialises row-major when `m`'s unit-stride axis is columns and
+    * column-major otherwise (including when `m` has no unit-stride axis at all).
+    */
   extension (d: Float)
     def *(m: Matrix[Float]): Matrix[Float] = m * d
 
     def +(m: Matrix[Float]): Matrix[Float] = m + d
 
-    def -(m: Matrix[Float]): Matrix[Float] = ???
-    def /(m: Matrix[Float]): Matrix[Float] = ???
+    /** Elementwise `d - m(i, j)`. Not `m - d`: subtraction isn't commutative, so this can't delegate like `*` / `+`. */
+    def -(m: Matrix[Float]): Matrix[Float] =
+      if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.floatarrays.-(d)(m.raw), m.layout)
+      else
+        val newArr = Array.ofDim[Float](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = d - m.raw(srcIdx)
+        }
+        if asRowMajor then Matrix[Float](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Float](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
+      end if
+    end -
+
+    /** Elementwise `d / m(i, j)`. Not `m / d`: division isn't commutative either. */
+    def /(m: Matrix[Float]): Matrix[Float] =
+      if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.floatarrays./(d)(m.raw), m.layout)
+      else
+        val newArr = Array.ofDim[Float](m.numel)
+        val asRowMajor = m.layout.unitStrideAxis == 1
+        m.layout.foreach2D { (i, j) =>
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = d / m.raw(srcIdx)
+        }
+        if asRowMajor then Matrix[Float](newArr, m.rows, m.cols, m.cols, 1, 0)
+        else Matrix[Float](newArr, m.rows, m.cols, 1, m.rows, 0)
+        end if
+      end if
+    end /
 
     def *=(m: Matrix[Float]): Unit = m *= d
-    def +=(m: Matrix[Float]): Unit = ??? // m += d
-    def -=(m: Matrix[Float]): Unit = ??? // m -= d
-    def /=(m: Matrix[Float]): Unit = ???
+
+    /** `d += m` delegates: `Matrix[Float]#+=(n: Float)` above is already the stride-aware SIMD implementation, and
+      * addition is commutative, so there is nothing scalar-left-specific to do.
+      */
+    def +=(m: Matrix[Float]): Unit = m += d
+
+    /** `d -= m` / `d /= m` overwrite `m` in place with `d - m(i, j)` / `d / m(i, j)`. They cannot delegate to
+      * `m -= d` / `m /= d` (and `Matrix[Float]` has no `/=(n: Float)` to delegate to in any case). Dense contiguous
+      * layouts walk `m.raw` straight through; anything else goes element-by-element via `linearIndex`, which skips
+      * padding and honours arbitrary strides and offsets. No SIMD here yet — mirrors the `Double` versions in
+      * `src/doublematrix.scala`.
+      */
+    def -=(m: Matrix[Float]): Unit =
+      if m.hasSimpleContiguousMemoryLayout then
+        var i = 0
+        while i < m.raw.length do
+          m.raw(i) = d - m.raw(i)
+          i += 1
+        end while
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = d - m.raw(idx)
+        }
+      end if
+    end -=
+
+    def /=(m: Matrix[Float]): Unit =
+      if m.hasSimpleContiguousMemoryLayout then
+        var i = 0
+        while i < m.raw.length do
+          m.raw(i) = d / m.raw(i)
+          i += 1
+        end while
+      else
+        m.layout.foreach2D { (i, j) =>
+          val idx = m.layout.linearIndex(i, j)
+          m.raw(idx) = d / m.raw(idx)
+        }
+      end if
+    end /=
 
   end extension
 
