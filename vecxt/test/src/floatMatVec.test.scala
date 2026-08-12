@@ -50,8 +50,7 @@ class FloatMatVecSuite extends munit.FunSuite:
       for
         row <- 0 until 2
         col <- 0 until 3
-      do
-        assertEqualsDouble(m(row, col).toDouble, (row * 3 + col + 1).toDouble, 1e-9, s"at ($row, $col)")
+      do assertEqualsDouble(m(row, col).toDouble, (row * 3 + col + 1).toDouble, 1e-9, s"at ($row, $col)")
       end for
     end for
   }
@@ -59,15 +58,13 @@ class FloatMatVecSuite extends munit.FunSuite:
   test("Float matrix * vector agrees across every layout") {
     val x = Array[Float](1.0f, 2.0f, 3.0f)
     // [[1,2,3],[4,5,6]] * [1,2,3] = [1+4+9, 4+10+18]
-    for m <- fixtures do
-      assertFloatArrayEquals(m * x, Array[Float](14.0f, 32.0f))
+    for m <- fixtures do assertFloatArrayEquals(m * x, Array[Float](14.0f, 32.0f))
     end for
   }
 
   test("Float matrix * vector honours alpha across every layout") {
     val x = Array[Float](1.0f, 1.0f, 1.0f)
-    for m <- fixtures do
-      assertFloatArrayEquals(m.*(x, 2.0f), Array[Float](12.0f, 30.0f))
+    for m <- fixtures do assertFloatArrayEquals(m.*(x, 2.0f), Array[Float](12.0f, 30.0f))
     end for
   }
 

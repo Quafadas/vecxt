@@ -63,14 +63,14 @@ object JvmFloatMatrix:
       * Elementwise rather than BLAS-backed, unlike every other platform's matrix-vector product, and that is a
       * limitation of where this file sits rather than a judgement that the loop is preferable. `src-js-native` is
       * compiled into both JS and Native, so it can only contain code valid for both — and their BLAS shims are
-      * different libraries (`@stdlib/blas` versus `org.ekrich.blas`'s CBLAS). Reaching either would mean splitting
-      * this file per platform, or adding `JsFloatMatrix`/`NativeFloatMatrix` objects to mirror how `Double` is
-      * arranged, neither of which is worth doing silently.
+      * different libraries (`@stdlib/blas` versus `org.ekrich.blas`'s CBLAS). Reaching either would mean splitting this
+      * file per platform, or adding `JsFloatMatrix`/`NativeFloatMatrix` objects to mirror how `Double` is arranged,
+      * neither of which is worth doing silently.
       *
       * The loop is correct for every layout, which the BLAS paths on other platforms are not without their guards, so
       * this is slower on Native rather than wrong anywhere. On JS it is very likely faster than the shim would be:
-      * `dgemv` there marshals the whole backing array into a `Float64Array` and the result back out, which is the
-      * same order of work as the product itself.
+      * `dgemv` there marshals the whole backing array into a `Float64Array` and the result back out, which is the same
+      * order of work as the product itself.
       *
       * Matches the JVM's `beta == 0` handling, where the destination is written without being read.
       *
