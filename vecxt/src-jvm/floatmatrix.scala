@@ -753,10 +753,10 @@ object JvmFloatMatrix:
       */
     def +=(m: Matrix[Float]): Unit = m += d
 
-    /** `d -= m` / `d /= m` overwrite `m` in place with `d - m(i, j)` / `d / m(i, j)`. They cannot delegate to
-      * `m -= d` / `m /= d` (and `Matrix[Float]` has no `/=(n: Float)` to delegate to in any case). Dense contiguous
-      * layouts walk `m.raw` straight through; anything else goes element-by-element via `linearIndex`, which skips
-      * padding and honours arbitrary strides and offsets. No SIMD here yet — mirrors the `Double` versions in
+    /** `d -= m` / `d /= m` overwrite `m` in place with `d - m(i, j)` / `d / m(i, j)`. They cannot delegate to `m -= d`
+      * / `m /= d` (and `Matrix[Float]` has no `/=(n: Float)` to delegate to in any case). Dense contiguous layouts walk
+      * `m.raw` straight through; anything else goes element-by-element via `linearIndex`, which skips padding and
+      * honours arbitrary strides and offsets. No SIMD here yet — mirrors the `Double` versions in
       * `src/doublematrix.scala`.
       */
     def -=(m: Matrix[Float]): Unit =

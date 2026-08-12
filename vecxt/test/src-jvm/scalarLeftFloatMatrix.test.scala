@@ -21,8 +21,8 @@ class ScalarLeftFloatMatrixSuite extends munit.FunSuite:
     */
   private def paddedMat = Matrix[Float](Array(1.0f, 2.0f, 99.0f, 3.0f, 4.0f, 99.0f), 2, 2, 1, 3, 0)
 
-  /** Dense row-major 2x3: row 0 = [1,2,3], row 1 = [4,5,6]. Contiguous, so it takes the fast path — the point of it
-    * is the layout of the result, not the arithmetic.
+  /** Dense row-major 2x3: row 0 = [1,2,3], row 1 = [4,5,6]. Contiguous, so it takes the fast path — the point of it is
+    * the layout of the result, not the arithmetic.
     */
   private def rowMajorMat = Matrix[Float](Array.tabulate(6)(i => (i + 1).toFloat), 2, 3, 3, 1, 0)
 
