@@ -103,9 +103,9 @@ object JvmFloatMatrix:
       end while
     end *=
 
-    /** Matrix-vector product: returns `m @@ vec` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so the
-      * freshly allocated destination is written without being read. Two arities rather than a defaulted `alpha`, for
-      * the reason given on [[*=]].
+    /** Matrix-vector product: returns `m @@ vec` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so the freshly
+      * allocated destination is written without being read. Two arities rather than a defaulted `alpha`, for the reason
+      * given on [[*=]].
       */
     @targetName("matmulFloatVector")
     def *(vec: Array[Float]): Array[Float] = m.*(vec, 1.0f)

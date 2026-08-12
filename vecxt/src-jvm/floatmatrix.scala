@@ -161,10 +161,10 @@ object JvmFloatMatrix:
       * from the strides, why the `stride >= extent` half of each guard is load-bearing, and why the elementwise
       * fallback branches on `beta == 0` explicitly.
       *
-      * `alpha` and `beta` have no defaults, unlike the `Double` twin. `all` exports both element types into one
-      * scope, and Scala permits only one overload of a name to carry default arguments — the same reason
-      * `matmulInPlace!` already spells its `Float` arguments out while the `Double` one defaults them. The choice of
-      * which side keeps the defaults is arbitrary; keeping it where it already was is not.
+      * `alpha` and `beta` have no defaults, unlike the `Double` twin. `all` exports both element types into one scope,
+      * and Scala permits only one overload of a name to carry default arguments — the same reason `matmulInPlace!`
+      * already spells its `Float` arguments out while the `Double` one defaults them. The choice of which side keeps
+      * the defaults is arbitrary; keeping it where it already was is not.
       *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`
@@ -200,9 +200,9 @@ object JvmFloatMatrix:
       end if
     end *=
 
-    /** Matrix-vector product: returns `m @@ vec` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so the
-      * freshly allocated destination is written without being read. See `JvmDoubleMatrix.*` for why there is no
-      * `beta` parameter.
+    /** Matrix-vector product: returns `m @@ vec` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so the freshly
+      * allocated destination is written without being read. See `JvmDoubleMatrix.*` for why there is no `beta`
+      * parameter.
       *
       * Two arities rather than a defaulted `alpha`, for the reason given on [[*=]]: the `Double` overload of `*`
       * already carries the one set of default arguments this name is allowed across both element types.
