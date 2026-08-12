@@ -212,13 +212,13 @@ object NativeDoubleMatrix:
       * `lda = rowStride`, and a `rowStride == 1` one as `CblasColMajor` with `lda = colStride`. Both keep
       * `CblasNoTrans` and the natural `(rows, cols)`.
       *
-      * `lda` was previously `m.rows` for both orders. That is only right for column-major: under `CblasRowMajor`,
-      * `lda` is the distance between successive rows and must be at least `cols`, so a non-square dense row-major
-      * matrix — `m.transpose` of any non-square matrix, for instance — was being read with the wrong stride. Taking
-      * it from the layout fixes that and generalises to padded strides at the same time.
+      * `lda` was previously `m.rows` for both orders. That is only right for column-major: under `CblasRowMajor`, `lda`
+      * is the distance between successive rows and must be at least `cols`, so a non-square dense row-major matrix —
+      * `m.transpose` of any non-square matrix, for instance — was being read with the wrong stride. Taking it from the
+      * layout fixes that and generalises to padded strides at the same time.
       *
-      * Offsets need no fallback here: `raw.at(offset)` is a pointer into the middle of the array, which is exactly
-      * what CBLAS wants.
+      * Offsets need no fallback here: `raw.at(offset)` is a pointer into the middle of the array, which is exactly what
+      * CBLAS wants.
       *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`
