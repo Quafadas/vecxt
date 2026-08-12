@@ -448,7 +448,7 @@ object DoubleMatrix:
 
     def tan =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.tan(m.raw), m.layout)
-      else 
+      else
         val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
           val srcIdx = m.layout.linearIndex(i, j)
@@ -458,7 +458,7 @@ object DoubleMatrix:
 
     def `tan!` =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`tan!`(m.raw)
-      else 
+      else
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
           m.raw(idx) = Math.tan(m.raw(idx))
@@ -468,7 +468,7 @@ object DoubleMatrix:
 
     def mean: Double =
       if m.hasSimpleContiguousMemoryLayout then m.sumSIMD / (m.rows * m.cols)
-      else 
+      else
         var acc = 0.0
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
@@ -480,7 +480,7 @@ object DoubleMatrix:
 
     def **(power: Double): Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.all.**(m.raw)(power), m.layout)
-      else 
+      else
         val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
           val srcIdx = m.layout.linearIndex(i, j)
@@ -550,7 +550,7 @@ object DoubleMatrix:
 
     def sumSIMD: Double =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.sum(m.raw)
-      else 
+      else
         var acc = 0.0
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)
@@ -562,7 +562,7 @@ object DoubleMatrix:
 
     def norm: Double =
       if m.hasSimpleContiguousMemoryLayout then vecxt.all.norm(m.raw)
-      else 
+      else
         var acc = 0.0
         m.layout.foreach2D { (i, j) =>
           val idx = m.layout.linearIndex(i, j)

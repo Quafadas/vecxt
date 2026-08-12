@@ -130,7 +130,6 @@ class FloatMatrixJvmSuite extends FunSuite:
       )
     )
 
-    
   test("*= scalar scales every element of a non-contiguous Float layout, and nothing else"):
     // rows=2, cols=2, rowStride=2, colStride=5 over a length-8 array: neither stride is 1, so this is also the
     // `unitStrideAxis == -1` case. Elements live at raw(0), raw(2), raw(5), raw(7); the 90s are padding.

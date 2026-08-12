@@ -22,7 +22,7 @@ class MatrixExtensionSuite extends FunSuite:
 
     val dontMutate = mat1to9
     assertVecEquals[Double]((dontMutate(1 to 2, 1 to 2) ** 2.0).deepCopy.raw, Array(25.0, 36.0, 49.0, 64.0))
-    assertEqualsDouble(dontMutate(1,0), 4.0, 0.01)
+    assertEqualsDouble(dontMutate(1, 0), 4.0, 0.01)
   }
 
   test("from rows") {
@@ -554,7 +554,7 @@ class MatrixExtensionSuite extends FunSuite:
 
     val arr2 = Array[Double](1.0, 2.0)
 
-    assertVecEquals(mat1 * arr1, Array[Double](14.0, 32.0))  
+    assertVecEquals(mat1 * arr1, Array[Double](14.0, 32.0))
     assertVecEquals(mat1.transpose * arr2, Array[Double](9.0, 12.0, 15.0))
   }
 
