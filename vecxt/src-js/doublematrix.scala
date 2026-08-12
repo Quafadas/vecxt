@@ -224,25 +224,83 @@ object JsDoubleMatrix:
 
     end `matmulInPlace!`
 
-    def *(vec: Array[Double]): Array[Double] =
-      if m.hasSimpleContiguousMemoryLayout then
-        val newArr = new Float64Array(m.rows)
+    /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place, via the stdlib `dgemv` shim. JS counterpart of
+      * `JvmDoubleMatrix.*=`; see there for the reasoning.
+      *
+      * Like CBLAS on Native, this shim takes an `ord` argument, so a `colStride == 1` layout is described directly as
+      * `"row-major"` with `lda = rowStride` and a `rowStride == 1` one as `"column-major"` with `lda = colStride`,
+      * both keeping `"no-transpose"` and the natural `(rows, cols)`.
+      *
+      * `lda` was previously `m.rows` for both orders, which is only correct for column-major — under `"row-major"`
+      * it is the distance between successive rows and must be at least `cols`, so a non-square dense row-major
+      * matrix was read with the wrong stride. It now comes from the layout.
+      *
+      * Offset views deliberately take the elementwise branch rather than the shim: this facade has no offset
+      * parameter, and slicing to fake one would mean yet another copy. That costs nothing real — every call through
+      * the shim already marshals the whole backing array into a `Float64Array` and the result back out, so for a
+      * product that is `O(rows * cols)` of arithmetic the copies dominate, and the elementwise loop is very likely
+      * the faster path on this platform regardless. It is kept because it is the shape the other platforms use.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @param y
+      *   the destination, accumulated onto per `beta`; must have length `m.rows`
+      */
+    def *=(vec: Array[Double], y: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Unit =
+      if vec.length != m.cols then
+        throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
+      end if
+      if y.length != m.rows then
+        throw new IllegalArgumentException(s"Destination length ${y.length} != expected ${m.rows}")
+      end if
+      val nonEmpty = m.rows > 0 && m.cols > 0
+      val asColMajor = nonEmpty && m.offset == 0 && m.rowStride == 1 && m.colStride >= m.rows
+      val asRowMajor = nonEmpty && m.offset == 0 && m.colStride == 1 && m.rowStride >= m.cols
+
+      if asColMajor || asRowMajor then
+        val yBuf = new Float64Array(y.toJSArray)
         dgemv(
-          if m.isDenseColMajor then "column-major" else "row-major",
+          if asColMajor then "column-major" else "row-major",
           "no-transpose",
           m.rows,
           m.cols,
-          1.0,
+          alpha,
           new Float64Array(m.raw.toJSArray),
-          m.rows,
+          if asColMajor then m.colStride else m.rowStride,
           new Float64Array(vec.toJSArray),
           1,
-          0.0,
-          newArr,
+          beta,
+          yBuf,
           1
         )
-        newArr.toArray
-      else ???
+        var i = 0
+        while i < m.rows do
+          y(i) = yBuf(i)
+          i += 1
+        end while
+      else
+        var i = 0
+        while i < m.rows do
+          var acc = 0.0
+          var j = 0
+          while j < m.cols do
+            acc += m.raw(m.layout.linearIndex(i, j)) * vec(j)
+            j += 1
+          end while
+          y(i) = if beta == 0.0 then alpha * acc else alpha * acc + beta * y(i)
+          i += 1
+        end while
+      end if
+    end *=
+
+    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so
+      * the freshly allocated destination is written without being read. See `JvmDoubleMatrix.*` for why there is no
+      * `beta` parameter here.
+      */
+    def *(vec: Array[Double], alpha: Double = 1.0): Array[Double] =
+      val out = Array.ofDim[Double](m.rows)
+      m.*=(vec, out, alpha, 0.0)
+      out
     end *
 
   end extension

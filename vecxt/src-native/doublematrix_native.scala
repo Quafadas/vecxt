@@ -204,26 +204,89 @@ object NativeDoubleMatrix:
       end if
     end `matmulInPlace!`
 
-    def *(vec: Array[Double]): Array[Double] =
+    /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place, via CBLAS `cblas_dgemv`. Native counterpart of
+      * `JvmDoubleMatrix.*=`; see there for the reasoning, which carries over with one simplification.
+      *
+      * CBLAS takes an `order` argument, so unlike the Fortran interface on the JVM there is no need to hand the
+      * dimensions over transposed: a `colStride == 1` layout is described directly as `CblasRowMajor` with
+      * `lda = rowStride`, and a `rowStride == 1` one as `CblasColMajor` with `lda = colStride`. Both keep
+      * `CblasNoTrans` and the natural `(rows, cols)`.
+      *
+      * `lda` was previously `m.rows` for both orders. That is only right for column-major: under `CblasRowMajor`,
+      * `lda` is the distance between successive rows and must be at least `cols`, so a non-square dense row-major
+      * matrix — `m.transpose` of any non-square matrix, for instance — was being read with the wrong stride. Taking
+      * it from the layout fixes that and generalises to padded strides at the same time.
+      *
+      * Offsets need no fallback here: `raw.at(offset)` is a pointer into the middle of the array, which is exactly
+      * what CBLAS wants.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @param y
+      *   the destination, accumulated onto per `beta`; must have length `m.rows`
+      */
+    def *=(vec: Array[Double], y: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Unit =
+      if vec.length != m.cols then
+        throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
+      end if
+      if y.length != m.rows then
+        throw new IllegalArgumentException(s"Destination length ${y.length} != expected ${m.rows}")
+      end if
+      val nonEmpty = m.rows > 0 && m.cols > 0
 
-      if m.hasSimpleContiguousMemoryLayout then
-        val newArr = Array.ofDim[Double](m.rows)
+      if nonEmpty && m.rowStride == 1 && m.colStride >= m.rows then
         blas.cblas_dgemv(
-          if m.isDenseColMajor then blasEnums.CblasColMajor else blasEnums.CblasRowMajor,
+          blasEnums.CblasColMajor,
           blasEnums.CblasNoTrans,
           m.rows,
           m.cols,
-          1.0,
-          m.raw.at(0),
-          m.rows,
+          alpha,
+          m.raw.at(m.offset),
+          m.colStride,
           vec.at(0),
           1,
-          0.0,
-          newArr.at(0),
+          beta,
+          y.at(0),
           1
         )
-        newArr
-      else ???
+      else if nonEmpty && m.colStride == 1 && m.rowStride >= m.cols then
+        blas.cblas_dgemv(
+          blasEnums.CblasRowMajor,
+          blasEnums.CblasNoTrans,
+          m.rows,
+          m.cols,
+          alpha,
+          m.raw.at(m.offset),
+          m.rowStride,
+          vec.at(0),
+          1,
+          beta,
+          y.at(0),
+          1
+        )
+      else
+        var i = 0
+        while i < m.rows do
+          var acc = 0.0
+          var j = 0
+          while j < m.cols do
+            acc += m.raw(m.layout.linearIndex(i, j)) * vec(j)
+            j += 1
+          end while
+          y(i) = if beta == 0.0 then alpha * acc else alpha * acc + beta * y(i)
+          i += 1
+        end while
+      end if
+    end *=
+
+    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so
+      * the freshly allocated destination is written without being read. See `JvmDoubleMatrix.*` for why there is no
+      * `beta` parameter here.
+      */
+    def *(vec: Array[Double], alpha: Double = 1.0): Array[Double] =
+      val out = Array.ofDim[Double](m.rows)
+      m.*=(vec, out, alpha, 0.0)
+      out
     end *
   end extension
 
