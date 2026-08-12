@@ -16,9 +16,9 @@ object NativeFloatMatrix:
       * `JvmFloatMatrix.*=`; see `JvmDoubleMatrix.*=` for the reasoning behind the guards.
       *
       * Mirrors `NativeDoubleMatrix.*=` exactly: CBLAS takes an `order` argument, so a `colStride == 1` layout is
-      * described directly as `CblasRowMajor` with `lda = rowStride` and a `rowStride == 1` one as `CblasColMajor`
-      * with `lda = colStride`, both keeping `CblasNoTrans` and the natural `(rows, cols)`. Offsets need no fallback,
-      * because `raw.at(offset)` is a pointer into the middle of the array, which is what CBLAS wants.
+      * described directly as `CblasRowMajor` with `lda = rowStride` and a `rowStride == 1` one as `CblasColMajor` with
+      * `lda = colStride`, both keeping `CblasNoTrans` and the natural `(rows, cols)`. Offsets need no fallback, because
+      * `raw.at(offset)` is a pointer into the middle of the array, which is what CBLAS wants.
       *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`
