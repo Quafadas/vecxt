@@ -637,8 +637,59 @@ class MatrixExtensionSuite extends FunSuite:
   test("matrix * vector honours alpha across every layout") {
     val x = Array[Double](1.0, 1.0, 1.0)
     for m <- mvFixtures do
-      assertVecEquals(m.*(x, 2.0, 1.0), Array[Double](12.0, 30.0))
+      assertVecEquals(m.*(x, 2.0), Array[Double](12.0, 30.0))
     end for
+  }
+
+  // `*` is the allocating wrapper over `*=`; `beta` is only meaningful on the latter, where the destination comes
+  // from the caller. These check that the accumulation actually happens, on every layout, and that it agrees with
+  // what `*` computes when there is nothing to accumulate onto.
+
+  test("matrix *= vector accumulates per beta across every layout") {
+    val x = Array[Double](1.0, 2.0, 3.0) // m @@ x is [14, 32]
+    for m <- mvFixtures do
+      val y = Array[Double](100.0, 200.0)
+      m.*=(x, y, 1.0, 1.0)
+      assertVecEquals(y, Array[Double](114.0, 232.0))
+
+      val y2 = Array[Double](10.0, 20.0)
+      m.*=(x, y2, 2.0, 3.0) // 2*[14,32] + 3*[10,20]
+      assertVecEquals(y2, Array[Double](58.0, 124.0))
+    end for
+  }
+
+  test("matrix *= vector with beta = 0 overwrites, and matches *") {
+    val x = Array[Double](1.0, 2.0, 3.0)
+    for m <- mvFixtures do
+      val y = Array[Double](100.0, 200.0)
+      m.*=(x, y, 1.0, 0.0)
+      assertVecEquals(y, Array[Double](14.0, 32.0))
+      assertVecEquals(y, m * x)
+    end for
+  }
+
+  test("matrix *= vector with beta = 0 does not read the destination") {
+    // BLAS specifies beta == 0 writes y without reading it, so NaN in the destination must not propagate. The
+    // elementwise fallback branches on beta explicitly to match; without that, `alpha * acc + 0.0 * NaN` is NaN and
+    // the two paths would disagree on the same input.
+    val x = Array[Double](1.0, 2.0, 3.0)
+    for m <- mvFixtures do
+      val y = Array[Double](Double.NaN, Double.NaN)
+      m.*=(x, y, 1.0, 0.0)
+      assertVecEquals(y, Array[Double](14.0, 32.0))
+    end for
+
+    // Including on the broadcast fixture, which is the one that always takes the fallback.
+    val broadcast = Matrix[Double](Array(2.0, 3.0), 2, 3, 1, 0, 0)
+    val y = Array[Double](Double.NaN, Double.NaN)
+    broadcast.*=(x, y, 1.0, 0.0)
+    assertVecEquals(y, Array[Double](12.0, 18.0))
+  }
+
+  test("matrix *= vector rejects a mismatched destination length") {
+    intercept[IllegalArgumentException](
+      mv2x3RowMajor.*=(Array[Double](1.0, 2.0, 3.0), Array[Double](0.0, 0.0, 0.0))
+    )
   }
 
   test("matrix * vector handles a broadcast column, which no leading dimension can express") {

@@ -1,5 +1,6 @@
 package vecxt
 
+import scala.annotation.targetName
 import scala.reflect.ClassTag
 
 import vecxt.all.*
@@ -138,7 +139,12 @@ object JvmDoubleMatrix:
 
     // TODO: Dim check
 
-    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh `Array[Double]` of length `m.rows`.
+    /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place, via BLAS `dgemv`.
+      *
+      * This is the kernel; [[*]] is the allocating wrapper over it. `beta` is only meaningful here, where the
+      * destination comes from the caller and may already hold something worth accumulating onto.
+      *
+      * ==Layout==
       *
       * `dgemv` addresses `A` as one column-major block described by a single leading dimension — `A(p, q)` lives at
       * `a(offset + p + q * lda)`. A layout is therefore expressible exactly when one of its strides is `1` and the
@@ -160,25 +166,31 @@ object JvmDoubleMatrix:
       * `linearIndex` and is correct for any layout at all. An empty matrix is routed there too, to keep a degenerate
       * shape away from BLAS.
       *
-      * `beta` is inert and kept only for source compatibility: `dgemv` computes `y := alpha*A*x + beta*y`, but `y`
-      * here is `newArr`, freshly allocated and therefore all zeroes, so `beta * y` contributes nothing for any finite
-      * `beta`. It would only mean something on an API that accepted the destination from the caller, as
-      * `matmulInPlace!` does.
+      * ==beta == 0==
+      *
+      * BLAS specifies that when `beta` is zero `y` is *written without being read*, so a destination holding `NaN`,
+      * infinities or uninitialised garbage is still valid input. The elementwise fallback branches on that explicitly
+      * rather than evaluating `alpha * acc + 0.0 * y(i)`, which would propagate a `NaN` the BLAS path discards — the
+      * two must agree on the same inputs, or which branch a layout happens to take becomes observable.
+      *
+      * Unlike `matmulInPlace!` this does not reject a `y` aliasing `m.raw`; `dgemv` assumes they do not overlap, so
+      * passing a `y` that shares storage with `m` is undefined and not checked for here.
       *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`
-      * @return
-      *   a new array of length `m.rows`
+      * @param y
+      *   the destination, accumulated onto per `beta`; must have length `m.rows`
       */
-    def *(vec: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Array[Double] =
+    @targetName("matvecInPlaceDouble")
+    def *=(vec: Array[Double], y: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Unit =
       require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
-      val newArr = Array.ofDim[Double](m.rows)
+      require(y.length == m.rows, s"Destination length ${y.length} != expected ${m.rows}")
       val nonEmpty = m.rows > 0 && m.cols > 0
 
       if nonEmpty && m.rowStride == 1 && m.colStride >= m.rows then
-        blas.dgemv("N", m.rows, m.cols, alpha, m.raw, m.offset, m.colStride, vec, 0, 1, beta, newArr, 0, 1)
+        blas.dgemv("N", m.rows, m.cols, alpha, m.raw, m.offset, m.colStride, vec, 0, 1, beta, y, 0, 1)
       else if nonEmpty && m.colStride == 1 && m.rowStride >= m.cols then
-        blas.dgemv("T", m.cols, m.rows, alpha, m.raw, m.offset, m.rowStride, vec, 0, 1, beta, newArr, 0, 1)
+        blas.dgemv("T", m.cols, m.rows, alpha, m.raw, m.offset, m.rowStride, vec, 0, 1, beta, y, 0, 1)
       else
         var i = 0
         while i < m.rows do
@@ -188,12 +200,29 @@ object JvmDoubleMatrix:
             acc += m.raw(m.layout.linearIndex(i, j)) * vec(j)
             j += 1
           end while
-          newArr(i) = alpha * acc
+          y(i) = if beta == 0.0 then alpha * acc else alpha * acc + beta * y(i)
           i += 1
         end while
       end if
+    end *=
 
-      newArr
+    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh `Array[Double]` of length `m.rows`.
+      *
+      * A wrapper over [[*=]] — see there for how every memory layout is handled. It allocates the destination and
+      * passes `beta = 0`, which is what makes this the safe form: with `beta` zero the destination is written without
+      * being read, so the fresh array's contents cannot contribute to the result. There is deliberately no `beta`
+      * parameter, because on a destination this method owns there is nothing for it to accumulate onto — it would be
+      * inert whatever the caller passed. Use [[*=]] when accumulation is the point.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @return
+      *   a new array of length `m.rows`
+      */
+    def *(vec: Array[Double], alpha: Double = 1.0): Array[Double] =
+      val out = Array.ofDim[Double](m.rows)
+      m.*=(vec, out, alpha, 0.0)
+      out
     end *
 
     def >=(d: Double): Matrix[Boolean] =
