@@ -118,13 +118,6 @@ object MatrixInstance:
       *
       * Two paths. When both selections are contiguous ascending runs the result is a zero-copy [[submatrix]] view;
       * otherwise the selected elements are gathered into a fresh dense column-major matrix.
-      *
-      * The gather used to be guarded on `m.isDenseColMajor`, with `???` for anything else, so gathering from a
-      * row-major, offset or strided matrix threw `NotImplementedError`. That guard bought nothing: its hardcoded
-      * `colpos * m.rows + rowPos` is precisely what `m.layout.linearIndex(rowPos, colpos)` evaluates to when
-      * `rowStride == 1`, `colStride == rows` and `offset == 0` — i.e. under exactly the condition it tested. Since
-      * `linearIndex` is `@Thin`, the general form costs nothing over the special case it replaces, and it is correct
-      * for every other layout as well.
       */
     inline def apply(rowRange: RangeExtender, colRange: RangeExtender)(using ClassTag[A]): Matrix[A] =
       val newRows = range(rowRange, m.rows)

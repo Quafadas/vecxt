@@ -461,7 +461,7 @@ object CheatsheetTest:
     println("\n--- Matrix[Int] ---")
     val im1 = Matrix(Array(1, 2, 3, 4), 2, 2)
     val im2 = Matrix(Array(5, 6, 7, 8), 2, 2)
-    println(s"matmul shape: ${im1.matmul(im2).shape}")
+    // println(s"matmul shape: ${im1.matmul(im2).shape}")
     println(s"divide to Double shape: ${(im1 / 2.0).shape}")
     println(s"divide to Float shape: ${(im1 / 2.0f).shape}")
     println(s"sum along rows shape: ${im1.sum(Dimension.Rows).shape}")
