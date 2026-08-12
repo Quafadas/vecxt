@@ -289,6 +289,38 @@ class LayoutCorpusSuite extends FunSuite:
     end for
   }
 
+  test("tan — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqual(m.tan, copy.tan, s"tan on $m")
+    end for
+  }
+
+  test("unary_- — op(view) == op(copy), source matrix unchanged") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      assertLogicallyEqual(-m, copy.*(-1.0), s"unary_- on $m")
+      assertVecEquals(m.raw, before)
+    end for
+  }
+
+  test("**(scalar) — op(view) == op(copy) over the full layout-kind corpus") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertLogicallyEqual(m.**(2.0), copy.**(2.0), s"**(2.0) on $m")
+    end for
+  }
+
+  test("mean/sum/norm reductions on views match dense copy") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      assertEqualsDouble(m.mean, copy.mean, 1e-9, s"mean on $m")
+      assertEqualsDouble(m.sum, copy.sum, 1e-9, s"sum on $m")
+      assertEqualsDouble(m.norm, copy.norm, 1e-9, s"norm on $m")
+    end for
+  }
+
   /** The oracle for `Matrix[Boolean]` results — mirrors `model` above but for comparison-operator output. */
   private def modelBool(m: Matrix[Boolean])(i: Int, j: Int): Boolean =
     m.raw(m.layout.offset + i * m.layout.rowStride + j * m.layout.colStride)
@@ -411,6 +443,17 @@ class LayoutCorpusSuite extends FunSuite:
       m.`cos!`
       assertLogicallyEqual(m, copy, s"cos! on $m")
       assertOutsideViewUntouched(m, before, s"cos! on $m")
+    end for
+  }
+
+  test("tan! in-place — in-view matches op(copy), out-of-view untouched") {
+    for m <- corpus do
+      val copy = denseCopy(m)
+      val before = m.raw.clone()
+      copy.`tan!`
+      m.`tan!`
+      assertLogicallyEqual(m, copy, s"tan! on $m")
+      assertOutsideViewUntouched(m, before, s"tan! on $m")
     end for
   }
 

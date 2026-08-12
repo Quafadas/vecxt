@@ -343,11 +343,12 @@ object DoubleMatrix:
     def unary_- : Matrix[Double] =
       if m.hasSimpleContiguousMemoryLayout then Matrix[Double](vecxt.doublearrays.unary_-(m.raw), m.layout)
       else
+        val newArr = Array.ofDim[Double](m.numel)
         m.layout.foreach2D { (i, j) =>
-          val idx = m.layout.linearIndex(i, j)
-          m.raw(idx) = -m.raw(idx)
+          val srcIdx = m.layout.linearIndex(i, j)
+          newArr(i + j * m.rows) = -m.raw(srcIdx)
         }
-        m
+        Matrix[Double](newArr, m.rows, m.cols)
 
     def `exp!`: Unit =
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.`exp!`(m.raw)
