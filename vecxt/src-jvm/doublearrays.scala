@@ -853,13 +853,7 @@ object doublearrays:
       out
     end clampMax
 
-    inline def maxClamp(ceil: Double): Array[Double] =
-      val out = vec.clone
-      out.`clampOp!`(VectorOperators.GT, ceil)
-      out
-    end maxClamp
-
-    inline def `maxClamp!`(ceil: Double): Unit =
+    inline def `clampMax!`(ceil: Double): Unit =
       vec.`clampOp!`(VectorOperators.GT, ceil)
 
     /** Clamps the values in the array to a minimum value.
@@ -875,13 +869,7 @@ object doublearrays:
       out
     end clampMin
 
-    inline def minClamp(floor: Double): Array[Double] =
-      val out = vec.clone
-      out.`clampOp!`(VectorOperators.LT, floor)
-      out
-    end minClamp
-
-    inline def `minClamp!`(floor: Double): Unit =
+    inline def `clampMin!`(floor: Double): Unit =
       vec.`clampOp!`(VectorOperators.LT, floor)
 
     /** Clamps the values in the array to a specified range.

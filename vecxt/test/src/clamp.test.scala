@@ -82,17 +82,11 @@ class ClampSuite extends munit.FunSuite:
 
   test("maxClamp alias should work identically to clampMax") {
     val v1 = Array[Double](1.0, 5.0, 3.0, 8.0)
-    val clampedMax = v1.clampMax(4.0)
-    val maxClamped = v1.maxClamp(4.0)
+    val clampedMax = v1.clampMax(4.0)    
 
-    assertVecEquals(clampedMax, maxClamped)
+    assertVecEquals(clampedMax, Array[Double](1.0, 4.0, 3.0, 4.0) )
   }
 
-  test("aliases should compiled") {
-    val v1 = Array[Double](1.0, 5.0, 3.0, 0.5)
-    assertVecEquals(v1.clampMax(2.0), v1.maxClamp(2.0))
-    assertVecEquals(v1.clampMin(2.0), v1.minClamp(2.0))
-  }
 
   test("empty array should work with both clamp methods") {
     val empty = Array[Double]()
@@ -109,4 +103,71 @@ class ClampSuite extends munit.FunSuite:
     val clampedMax = single.clampMax(2.0)
     assertEqualsDouble(clampedMax(0), 2.0, 0.0001) // clamped down
   }
+
+  test("clampMax! mutating version should modify in place") {
+    val v1 = Array[Double](1.0, 5.0, 3.0, 8.0, 2.0)
+    v1.`clampMax!`(4.0)
+
+    assertEquals(v1.length, 5)
+    assertEqualsDouble(v1(0), 1.0, 0.0001) // unchanged
+    assertEqualsDouble(v1(1), 4.0, 0.0001) // clamped from 5.0
+    assertEqualsDouble(v1(2), 3.0, 0.0001) // unchanged
+    assertEqualsDouble(v1(3), 4.0, 0.0001) // clamped from 8.0
+    assertEqualsDouble(v1(4), 2.0, 0.0001) // unchanged
+  }
+
+  test("clampMin! mutating version should modify in place") {
+    val v1 = Array[Double](1.0, 5.0, 3.0, 0.5, 8.0)
+    v1.`clampMin!`(2.0)
+
+    assertEquals(v1.length, 5)
+    assertEqualsDouble(v1(0), 2.0, 0.0001) // clamped from 1.0
+    assertEqualsDouble(v1(1), 5.0, 0.0001) // unchanged
+    assertEqualsDouble(v1(2), 3.0, 0.0001) // unchanged
+    assertEqualsDouble(v1(3), 2.0, 0.0001) // clamped from 0.5
+    assertEqualsDouble(v1(4), 8.0, 0.0001) // unchanged
+  }
+
+  test("clampMax! should handle infinity values") {
+    val v1 = Array[Double](1.0, Double.PositiveInfinity, 3.0, Double.NegativeInfinity)
+    v1.`clampMax!`(5.0)
+
+    assertEqualsDouble(v1(0), 1.0, 0.0001)
+    assertEqualsDouble(v1(1), 5.0, 0.0001) // PositiveInfinity clamped to 5.0
+    assertEqualsDouble(v1(2), 3.0, 0.0001)
+    assertEquals(v1(3), Double.NegativeInfinity) // NegativeInfinity unchanged
+  }
+
+  test("clampMin! should handle infinity values") {
+    val v1 = Array[Double](1.0, Double.PositiveInfinity, 3.0, Double.NegativeInfinity)
+    v1.`clampMin!`(2.0)
+
+    assertEqualsDouble(v1(0), 2.0, 0.0001) // clamped from 1.0
+    assertEquals(v1(1), Double.PositiveInfinity) // PositiveInfinity unchanged
+    assertEqualsDouble(v1(2), 3.0, 0.0001)
+    assertEqualsDouble(v1(3), 2.0, 0.0001) // NegativeInfinity clamped to 2.0
+  }
+
+  test("clampMax! mutating alias maxClamp! should work") {
+    val v1 = Array[Double](1.0, 5.0, 3.0, 8.0)
+    v1.`clampMax!`(4.0)
+
+    assertEqualsDouble(v1(0), 1.0, 0.0001)
+    assertEqualsDouble(v1(1), 4.0, 0.0001)
+    assertEqualsDouble(v1(2), 3.0, 0.0001)
+    assertEqualsDouble(v1(3), 4.0, 0.0001)
+  }
+
+  test("clampMin! mutating alias minClamp! should work") {
+    val v1 = Array[Double](1.0, 5.0, 0.5, 8.0)
+    v1.`clampMax!`(2.0)
+
+    assertEqualsDouble(v1(0), 2.0, 0.0001)
+    assertEqualsDouble(v1(1), 5.0, 0.0001)
+    assertEqualsDouble(v1(2), 2.0, 0.0001)
+    assertEqualsDouble(v1(3), 8.0, 0.0001)
+  }
+
+  
+
 end ClampSuite
