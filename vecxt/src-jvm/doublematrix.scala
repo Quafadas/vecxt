@@ -138,29 +138,62 @@ object JvmDoubleMatrix:
 
     // TODO: Dim check
 
+    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh `Array[Double]` of length `m.rows`.
+      *
+      * `dgemv` addresses `A` as one column-major block described by a single leading dimension — `A(p, q)` lives at
+      * `a(offset + p + q * lda)`. A layout is therefore expressible exactly when one of its strides is `1` and the
+      * other is a usable leading dimension, and the same `TRANS` trick `matmulInPlace!` already uses for `dgemm`
+      * covers both orientations rather than only column-major:
+      *
+      *   - `rowStride == 1` — the array already is `A` in the form `dgemv` wants, so `TRANS = "N"`, `lda = colStride`,
+      *     and the dimensions pass straight through as `(rows, cols)`.
+      *   - `colStride == 1` — reading `(p, q)` as `(col, row)` instead makes the very same memory a column-major
+      *     `cols x rows` block holding `Aᵀ`, so `TRANS = "T"`, `lda = rowStride`, and the dimensions are handed over
+      *     swapped as `(cols, rows)`. `dgemv` then transposes it back and computes `A * vec` as asked.
+      *
+      * Passing `m.offset` covers submatrix views in both cases, exactly as `matmulInPlace!` does.
+      *
+      * The `stride >= extent` half of each guard is not decoration. `lda` must be at least the block's row count or
+      * BLAS rejects the call, and layouts exist that satisfy `stride == 1` while failing it: a broadcast column
+      * (`colStride == 0`) repeats one column across the matrix, and no leading dimension expresses that. Broadcasts,
+      * negative strides and doubly-strided views therefore fall to the elementwise loop, which reads through
+      * `linearIndex` and is correct for any layout at all. An empty matrix is routed there too, to keep a degenerate
+      * shape away from BLAS.
+      *
+      * `beta` is inert and kept only for source compatibility: `dgemv` computes `y := alpha*A*x + beta*y`, but `y`
+      * here is `newArr`, freshly allocated and therefore all zeroes, so `beta * y` contributes nothing for any finite
+      * `beta`. It would only mean something on an API that accepted the destination from the caller, as
+      * `matmulInPlace!` does.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @return
+      *   a new array of length `m.rows`
+      */
     def *(vec: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Array[Double] =
+      require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
+      val newArr = Array.ofDim[Double](m.rows)
+      val nonEmpty = m.rows > 0 && m.cols > 0
 
-      if m.isDenseColMajor then
-        require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
-        val newArr = Array.ofDim[Double](m.rows)
-        val out = Array.fill(m.rows)(0.0)
+      if nonEmpty && m.rowStride == 1 && m.colStride >= m.rows then
+        blas.dgemv("N", m.rows, m.cols, alpha, m.raw, m.offset, m.colStride, vec, 0, 1, beta, newArr, 0, 1)
+      else if nonEmpty && m.colStride == 1 && m.rowStride >= m.cols then
+        blas.dgemv("T", m.cols, m.rows, alpha, m.raw, m.offset, m.rowStride, vec, 0, 1, beta, newArr, 0, 1)
+      else
+        var i = 0
+        while i < m.rows do
+          var acc = 0.0
+          var j = 0
+          while j < m.cols do
+            acc += m.raw(m.layout.linearIndex(i, j)) * vec(j)
+            j += 1
+          end while
+          newArr(i) = alpha * acc
+          i += 1
+        end while
+      end if
 
-        blas.dgemv(
-          "N",
-          m.rows,
-          m.cols,
-          alpha,
-          m.raw,
-          m.rows,
-          vec,
-          1,
-          beta,
-          newArr,
-          1
-        )
-
-        newArr
-      else ???
+      newArr
     end *
 
     def >=(d: Double): Matrix[Boolean] =

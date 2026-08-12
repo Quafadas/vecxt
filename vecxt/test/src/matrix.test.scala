@@ -584,15 +584,73 @@ class MatrixExtensionSuite extends FunSuite:
 
     assertVecEquals(mat1 * arr1, Array[Double](14.0, 32.0))
 
-    // println("Mat1")
-    // println(mat1.transpose.printMat)
-    // println("Arr1")
-    // println(arr2.printArr)
+    // Was commented out because `*` threw `???` for anything that was not dense column-major, and mat1.transpose is
+    // row-major. It now runs — but note the value it was written with, Array(6.0, 30.0), was never right: the
+    // transpose is 3x2, so the product with a length-2 vector has three entries, not two.
+    // mat1.transpose is [[1,4],[2,5],[3,6]]; against [1,2] that is [1+8, 2+10, 3+12].
+    assertVecEquals(mat1.transpose * arr2, Array[Double](9.0, 12.0, 15.0))
+  }
 
-    // println("result")
-    // println((mat1.transpose * arr2).printArr)
-    // assertVecEquals(mat1.transpose * arr2, Array[Double](6.0, 30.0))
+  // ─── matrix-vector product across layouts ────────────────────────────────────────────────────────────────────
+  // `*` used to be `if m.isDenseColMajor then dgemv(...) else ???`. It now picks TRANS/lda from the strides, the
+  // same way matmulInPlace! does for dgemm, and falls back to an elementwise loop for layouts no single leading
+  // dimension can describe. Every fixture below is the same logical 2x3 [[1,2,3],[4,5,6]], so all must agree.
 
+  private def mv2x3ColMajor = Matrix[Double](Array(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), 2, 3, 1, 2, 0)
+  private def mv2x3RowMajor = Matrix[Double](Array(1.0, 2.0, 3.0, 4.0, 5.0, 6.0), 2, 3, 3, 1, 0)
+  // rowStride 1, colStride 3 over a length-9 array: column j is raw(3j), raw(3j+1); raw(3j+2) is padding.
+  private def mv2x3PaddedCol =
+    Matrix[Double](Array(1.0, 4.0, 99.0, 2.0, 5.0, 99.0, 3.0, 6.0, 99.0), 2, 3, 1, 3, 0)
+  // colStride 1, rowStride 4 over a length-8 array: row i is raw(4i)..raw(4i+2); raw(4i+3) is padding.
+  private def mv2x3PaddedRow =
+    Matrix[Double](Array(1.0, 2.0, 3.0, 99.0, 4.0, 5.0, 6.0, 99.0), 2, 3, 4, 1, 0)
+  // A 2x3 window at offset 5 of a 4x4 column-major parent; the 99.0s around it are the parent's own elements.
+  private def mv2x3Offset =
+    Matrix[Double](
+      Array(99.0, 99.0, 99.0, 99.0, 99.0, 1.0, 4.0, 99.0, 99.0, 2.0, 5.0, 99.0, 99.0, 3.0, 6.0, 99.0),
+      4,
+      4
+    ).submatrix(1 to 2, 1 to 3)
+
+  private def mvFixtures =
+    List(mv2x3ColMajor, mv2x3RowMajor, mv2x3PaddedCol, mv2x3PaddedRow, mv2x3Offset)
+
+  test("the matrix-vector fixtures are all logically [[1,2,3],[4,5,6]]") {
+    for m <- mvFixtures do
+      assertEquals(m.shape, (2, 3), s"shape, layout ${m.layoutString}")
+      for
+        row <- 0 until 2
+        col <- 0 until 3
+      do assertEqualsDouble(m(row, col), (row * 3 + col + 1).toDouble, 1e-9, s"at ($row, $col) ${m.layoutString}")
+      end for
+    end for
+  }
+
+  test("matrix * vector agrees across every layout") {
+    val x = Array[Double](1.0, 2.0, 3.0)
+    // [[1,2,3],[4,5,6]] * [1,2,3] = [1+4+9, 4+10+18]
+    for m <- mvFixtures do
+      assertVecEquals(m * x, Array[Double](14.0, 32.0))
+    end for
+  }
+
+  test("matrix * vector honours alpha across every layout") {
+    val x = Array[Double](1.0, 1.0, 1.0)
+    for m <- mvFixtures do
+      assertVecEquals(m.*(x, 2.0, 1.0), Array[Double](12.0, 30.0))
+    end for
+  }
+
+  test("matrix * vector handles a broadcast column, which no leading dimension can express") {
+    // colStride 0: every logical column reads the same two elements, so the layout is not a dgemv block at all.
+    val m = Matrix[Double](Array(2.0, 3.0), 2, 3, 1, 0, 0)
+    assert(!(m.colStride >= m.rows), "fixture must fail the lda guard and take the elementwise path")
+    // Each row is that row's value repeated three times: [2,2,2] and [3,3,3].
+    assertVecEquals(m * Array[Double](1.0, 2.0, 3.0), Array[Double](12.0, 18.0))
+  }
+
+  test("matrix * vector rejects a mismatched vector length") {
+    intercept[IllegalArgumentException](mv2x3RowMajor * Array[Double](1.0, 2.0))
   }
 
   test("zeros") {
