@@ -1,6 +1,6 @@
 {
   "jdkMajor": 25,
-  "c9": { "totalBytes": 36598, "distinctOps": 205 },
+  "c9": { "totalBytes": 36556, "distinctOps": 204 },
   "annotated": {
     "vecxt.IntArraysX$.contiguous([I)Z": 39,
     "vecxt.IntArraysX$.select([I[I)[I": 44,
