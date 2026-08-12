@@ -1,9 +1,9 @@
 package vecxt
 
-import scala.annotation.targetName
 import scala.reflect.ClassTag
 
 import vecxt.all.*
+import vecxt.annotations.AllocFree
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.*
@@ -183,12 +183,26 @@ object JvmDoubleMatrix:
       * an error that did not happen is the wrong trade. Written this way the string is only built on the failing
       * path, which is also how `dimCheck` and `dimCheckLen` are shaped. The exception type is unchanged.
       *
+      * `@AllocFree` because nothing here allocates once warm: the length checks build their message only on the
+      * failing path, the `dgemv` arguments are primitives and arrays, and the elementwise branch touches only
+      * primitives. That is the whole point of the method — it takes `y` from the caller precisely so a product can be
+      * computed without allocating one. Unlike the array kernels this annotation is otherwise used on, the assertion
+      * is partly about netlib rather than about vecxt: `dgemv` is called per operation, so if `JavaBLAS` allocated
+      * internally this would not hold. `D1Suite` measures it on both the BLAS and the elementwise branch, which is
+      * what keeps that from being an assumption.
+      *
+      * No `@HotPath`: the per-element work happens inside `dgemv`, not in this method's bytecode, so `FreqInlineSize`
+      * is not the budget that governs it. `matmulInPlace!` next door is unannotated for the same reason.
+      *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`
       * @param y
       *   the destination, accumulated onto per `beta`; must have length `m.rows`
       */
-    @targetName("matvecInPlaceDouble")
+    // No `@targetName`: it would rename the emitted method, and check A1 resolves an annotation by looking for a
+    // method whose bytecode name matches the source name it is written above — `$times$eq` here. Nothing else in the
+    // library pairs the two, and the JS and Native `*=` compile without one, so there is no clash it was averting.
+    @AllocFree
     def *=(vec: Array[Double], y: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Unit =
       if vec.length != m.cols then
         throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
