@@ -513,7 +513,9 @@ class FloatMatrixJvmSuite extends FunSuite:
       Array[Float](4.0f, 5.0f, 6.0f)
     )
 
-    val result = mat.*(Array[Float](1.0f, 0.5f, -1.0f), alpha = 2.0f, beta = 0.0f)
+    // `beta = 0.0f` dropped from the call: `*` allocates its own destination, so beta had nothing to accumulate onto
+    // and is no longer a parameter. `*=` is where it means something — covered in the shared FloatMatVecSuite.
+    val result = mat.*(Array[Float](1.0f, 0.5f, -1.0f), alpha = 2.0f)
 
     assertFloatVecEquals(result, Array[Float](-2.0f, 1.0f))
 

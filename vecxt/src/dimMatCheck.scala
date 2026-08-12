@@ -32,6 +32,30 @@ object matmulOutputCheck:
   end apply
 end matmulOutputCheck
 
+/** Whether a single BLAS leading dimension can describe `m`.
+  *
+  * BLAS addresses a matrix as one block in which one axis is contiguous and the other advances by a constant `lda` —
+  * `a(offset + p + q * lda)`. So an operand is expressible exactly when one of its strides is `1` *and* the other is a
+  * valid leading dimension for the extent BLAS will check it against.
+  *
+  * The second half is the part that is easy to drop, and dropping it is not harmless. `lda` must be at least the
+  * block's row count or the routine rejects the call, and layouts satisfying `stride == 1` while failing it do occur:
+  * a broadcast column has `colStride == 0`, repeating one column across the matrix, which no leading dimension
+  * expresses. Guarding on `stride == 1` alone therefore lets a broadcast operand through to BLAS with `lda = 0`.
+  *
+  * Which extent applies follows from which stride is unit, because that also decides the transpose flag: an operand
+  * with `rowStride == 1` is passed untransposed and its block has `rows` rows, so `colStride` must be at least
+  * `rows`; one with `colStride == 1` is passed transposed, its block has `cols` rows, so `rowStride` must be at least
+  * `cols`.
+  *
+  * Callers that need to know *which* of the two cases holds — to pick the transpose flag and `lda` — should test the
+  * halves directly rather than call this; this is for the guard that decides whether BLAS can be used at all.
+  */
+object blasLeadingDimensionCheck:
+  def apply(m: Matrix[?]): Boolean =
+    (m.rowStride == 1 && m.colStride >= m.rows) || (m.colStride == 1 && m.rowStride >= m.cols)
+end blasLeadingDimensionCheck
+
 /** If this is true, then we can use the same memory layout for element-wise operations
   */
 object sameDenseElementWiseMemoryLayoutCheck:

@@ -51,7 +51,7 @@ object JvmDoubleMatrix:
           0,
           m.rows
         )
-      else if (m.rowStride == 1 || m.colStride == 1) && (b.rowStride == 1 || b.colStride == 1) then
+      else if blasLeadingDimensionCheck(m) && blasLeadingDimensionCheck(b) then
         val mStr = if m.rowStride == 1 then "N" else "T"
         val bStr = if b.rowStride == 1 then "N" else "T"
         // If the matrix has an offset, then a call to blas.dgemm complains.

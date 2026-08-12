@@ -185,7 +185,7 @@ object JsDoubleMatrix:
           c.raw(ci) = outArr(ci)
           ci += 1
         end while
-      else if (m.rowStride == 1 || m.colStride == 1) && (b.rowStride == 1 || b.colStride == 1) then
+      else if blasLeadingDimensionCheck(m) && blasLeadingDimensionCheck(b) then
         val transB = if b.rowStride == 1 then "no-transpose" else "transpose"
         val transA = if m.rowStride == 1 then "no-transpose" else "transpose"
 

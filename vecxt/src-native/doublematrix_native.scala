@@ -193,7 +193,7 @@ object NativeDoubleMatrix:
           c.raw.at(0),
           m.rows
         )
-      else if (m.rowStride == 1 || m.colStride == 1) && (b.rowStride == 1 || b.colStride == 1) then
+      else if blasLeadingDimensionCheck(m) && blasLeadingDimensionCheck(b) then
         val transB = if b.rowStride == 1 then blasEnums.CblasNoTrans else blasEnums.CblasTrans
         val transA = if m.rowStride == 1 then blasEnums.CblasNoTrans else blasEnums.CblasTrans
         // See the fully-dense branch above: order stays CblasColMajor regardless of m/b's own orientation.

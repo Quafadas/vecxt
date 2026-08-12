@@ -57,5 +57,57 @@ object JvmFloatMatrix:
       reduceAlongDimension(dim, _ * _, 1.0f)
     end product
 
+    /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place. JS/Native counterpart of `JvmFloatMatrix.*=` on the
+      * JVM, giving the operation the same signature and the same semantics on every platform.
+      *
+      * Elementwise rather than BLAS-backed, unlike every other platform's matrix-vector product, and that is a
+      * limitation of where this file sits rather than a judgement that the loop is preferable. `src-js-native` is
+      * compiled into both JS and Native, so it can only contain code valid for both — and their BLAS shims are
+      * different libraries (`@stdlib/blas` versus `org.ekrich.blas`'s CBLAS). Reaching either would mean splitting
+      * this file per platform, or adding `JsFloatMatrix`/`NativeFloatMatrix` objects to mirror how `Double` is
+      * arranged, neither of which is worth doing silently.
+      *
+      * The loop is correct for every layout, which the BLAS paths on other platforms are not without their guards, so
+      * this is slower on Native rather than wrong anywhere. On JS it is very likely faster than the shim would be:
+      * `dgemv` there marshals the whole backing array into a `Float64Array` and the result back out, which is the
+      * same order of work as the product itself.
+      *
+      * Matches the JVM's `beta == 0` handling, where the destination is written without being read.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @param y
+      *   the destination, accumulated onto per `beta`; must have length `m.rows`
+      */
+    def *=(vec: Array[Float], y: Array[Float], alpha: Float = 1.0f, beta: Float = 1.0f): Unit =
+      if vec.length != m.cols then
+        throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
+      end if
+      if y.length != m.rows then
+        throw new IllegalArgumentException(s"Destination length ${y.length} != expected ${m.rows}")
+      end if
+      var i = 0
+      while i < m.rows do
+        var acc = 0.0f
+        var j = 0
+        while j < m.cols do
+          acc += m.raw(m.layout.linearIndex(i, j)) * vec(j)
+          j += 1
+        end while
+        y(i) = if beta == 0.0f then alpha * acc else alpha * acc + beta * y(i)
+        i += 1
+      end while
+    end *=
+
+    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so
+      * the freshly allocated destination is written without being read.
+      */
+    @targetName("matmulFloatVector")
+    def *(vec: Array[Float], alpha: Float = 1.0f): Array[Float] =
+      val out = Array.ofDim[Float](m.rows)
+      m.*=(vec, out, alpha, 0.0f)
+      out
+    end *
+
   end extension
 end JvmFloatMatrix
