@@ -39,14 +39,13 @@ end matmulOutputCheck
   * valid leading dimension for the extent BLAS will check it against.
   *
   * The second half is the part that is easy to drop, and dropping it is not harmless. `lda` must be at least the
-  * block's row count or the routine rejects the call, and layouts satisfying `stride == 1` while failing it do occur:
-  * a broadcast column has `colStride == 0`, repeating one column across the matrix, which no leading dimension
-  * expresses. Guarding on `stride == 1` alone therefore lets a broadcast operand through to BLAS with `lda = 0`.
+  * block's row count or the routine rejects the call, and layouts satisfying `stride == 1` while failing it do occur: a
+  * broadcast column has `colStride == 0`, repeating one column across the matrix, which no leading dimension expresses.
+  * Guarding on `stride == 1` alone therefore lets a broadcast operand through to BLAS with `lda = 0`.
   *
   * Which extent applies follows from which stride is unit, because that also decides the transpose flag: an operand
-  * with `rowStride == 1` is passed untransposed and its block has `rows` rows, so `colStride` must be at least
-  * `rows`; one with `colStride == 1` is passed transposed, its block has `cols` rows, so `rowStride` must be at least
-  * `cols`.
+  * with `rowStride == 1` is passed untransposed and its block has `rows` rows, so `colStride` must be at least `rows`;
+  * one with `colStride == 1` is passed transposed, its block has `cols` rows, so `rowStride` must be at least `cols`.
   *
   * Callers that need to know *which* of the two cases holds — to pick the transpose flag and `lda` — should test the
   * halves directly rather than call this; this is for the guard that decides whether BLAS can be used at all.
