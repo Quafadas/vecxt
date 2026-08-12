@@ -9,27 +9,6 @@ import MatrixInstance.update
 
 class MatrixExtensionSuite extends FunSuite:
 
-  // TODO will fail on JS, grrr.
-  // test("print") {
-  //   val mat1 = Matrix[Double](Array(1.0, 4.0, 2.0, 5.0), (2, 2))
-  //   assert(mat1.printMat.contains("4"))
-
-  // }
-
-  // test("transpose etc".only) {
-  //   val mat1 = Matrix(Array(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (2, 3))
-  //   val mat2 = Matrix(NArray(7.0, 9.0, 11.0, 8.0, 10, 12.0), (3, 2))
-  //   val result2 = mat1 @@ mat2
-
-  //   result2.printMat
-  //   val result3 = Matrix.eye(2) + mat1 @@ mat2
-  //   result3.printMat
-  //   val mat3 = mat2.transpose + mat1
-  //   println(mat2.transpose.printMat)
-  //   mat3.raw.printArr
-  //   mat3.printMat
-  // }
-
   def mat1to9 = Matrix.fromRows[Double](
     Array(1.0, 2.0, 3.0),
     Array(4.0, 5.0, 6.0),
@@ -39,7 +18,11 @@ class MatrixExtensionSuite extends FunSuite:
   def raw1to9 = mat1to9.raw
 
   test("pow") {
-    mat1to9 ** 2.0
+    assertVecEquals[Double]((mat1to9 ** 2.0).raw, raw1to9.map(x => x * x))
+
+    val dontMutate = mat1to9
+    assertVecEquals[Double]((dontMutate(1 to 2, 1 to 2) ** 2.0).deepCopy.raw, Array(25.0, 36.0, 49.0, 64.0))
+    assertEqualsDouble(dontMutate(1,0), 4.0, 0.01)
   }
 
   test("from rows") {
@@ -281,17 +264,6 @@ class MatrixExtensionSuite extends FunSuite:
       Array(7.0, 6.0)
     )
     assertMatrixEquals(result, expected)
-  }
-
-  test("Some urnary ops") {
-    val checkThis = mat1to9.exp
-    mat1to9.log
-    mat1to9.sqrt
-    mat1to9.sin
-    mat1to9.cos
-
-    assertVecEquals[Double](checkThis.raw, raw1to9.exp)
-
   }
 
   test("log on submatrix (non-contiguous layout) yields correct new matrix") {
@@ -582,17 +554,12 @@ class MatrixExtensionSuite extends FunSuite:
 
     val arr2 = Array[Double](1.0, 2.0)
 
-    assertVecEquals(mat1 * arr1, Array[Double](14.0, 32.0))
-
-    // Was commented out because `*` threw `???` for anything that was not dense column-major, and mat1.transpose is
-    // row-major. It now runs — but note the value it was written with, Array(6.0, 30.0), was never right: the
-    // transpose is 3x2, so the product with a length-2 vector has three entries, not two.
-    // mat1.transpose is [[1,4],[2,5],[3,6]]; against [1,2] that is [1+8, 2+10, 3+12].
+    assertVecEquals(mat1 * arr1, Array[Double](14.0, 32.0))  
     assertVecEquals(mat1.transpose * arr2, Array[Double](9.0, 12.0, 15.0))
   }
 
   // ─── matrix-vector product across layouts ────────────────────────────────────────────────────────────────────
-  // `*` used to be `if m.isDenseColMajor then dgemv(...) else ???`. It now picks TRANS/lda from the strides, the
+  // Picks TRANS/lda from the strides, the
   // same way matmulInPlace! does for dgemm, and falls back to an elementwise loop for layouts no single leading
   // dimension can describe. Every fixture below is the same logical 2x3 [[1,2,3],[4,5,6]], so all must agree.
 

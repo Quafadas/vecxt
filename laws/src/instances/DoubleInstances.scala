@@ -1,6 +1,6 @@
 package vecxt.laws.instances
 
-import vecxt.all.{*, given}
+import vecxt.all.*
 import vecxt.laws.Dimension
 import vecxt.laws.VectorCommutativeGroup
 import vecxt.laws.VectorCommutativeMonoid
