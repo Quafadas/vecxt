@@ -629,15 +629,13 @@ class MatrixExtensionSuite extends FunSuite:
   test("matrix * vector agrees across every layout") {
     val x = Array[Double](1.0, 2.0, 3.0)
     // [[1,2,3],[4,5,6]] * [1,2,3] = [1+4+9, 4+10+18]
-    for m <- mvFixtures do
-      assertVecEquals(m * x, Array[Double](14.0, 32.0))
+    for m <- mvFixtures do assertVecEquals(m * x, Array[Double](14.0, 32.0))
     end for
   }
 
   test("matrix * vector honours alpha across every layout") {
     val x = Array[Double](1.0, 1.0, 1.0)
-    for m <- mvFixtures do
-      assertVecEquals(m.*(x, 2.0), Array[Double](12.0, 30.0))
+    for m <- mvFixtures do assertVecEquals(m.*(x, 2.0), Array[Double](12.0, 30.0))
     end for
   }
 
