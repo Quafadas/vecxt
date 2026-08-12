@@ -3,6 +3,7 @@ package vecxt
 import scala.reflect.ClassTag
 
 import vecxt.all.*
+import vecxt.annotations.AllocFree
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.*
@@ -138,29 +139,115 @@ object JvmDoubleMatrix:
 
     // TODO: Dim check
 
-    def *(vec: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Array[Double] =
+    /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place, via BLAS `dgemv`.
+      *
+      * This is the kernel; [[*]] is the allocating wrapper over it. `beta` is only meaningful here, where the
+      * destination comes from the caller and may already hold something worth accumulating onto.
+      *
+      * ==Layout==
+      *
+      * `dgemv` addresses `A` as one column-major block described by a single leading dimension — `A(p, q)` lives at
+      * `a(offset + p + q * lda)`. A layout is therefore expressible exactly when one of its strides is `1` and the
+      * other is a usable leading dimension, and the same `TRANS` trick `matmulInPlace!` already uses for `dgemm`
+      * covers both orientations rather than only column-major:
+      *
+      *   - `rowStride == 1` — the array already is `A` in the form `dgemv` wants, so `TRANS = "N"`, `lda = colStride`,
+      *     and the dimensions pass straight through as `(rows, cols)`.
+      *   - `colStride == 1` — reading `(p, q)` as `(col, row)` instead makes the very same memory a column-major
+      *     `cols x rows` block holding `Aᵀ`, so `TRANS = "T"`, `lda = rowStride`, and the dimensions are handed over
+      *     swapped as `(cols, rows)`. `dgemv` then transposes it back and computes `A * vec` as asked.
+      *
+      * Passing `m.offset` covers submatrix views in both cases, exactly as `matmulInPlace!` does.
+      *
+      * The `stride >= extent` half of each guard is not decoration. `lda` must be at least the block's row count or
+      * BLAS rejects the call, and layouts exist that satisfy `stride == 1` while failing it: a broadcast column
+      * (`colStride == 0`) repeats one column across the matrix, and no leading dimension expresses that. Broadcasts,
+      * negative strides and doubly-strided views therefore fall to the elementwise loop, which reads through
+      * `linearIndex` and is correct for any layout at all. An empty matrix is routed there too, to keep a degenerate
+      * shape away from BLAS.
+      *
+      * ==beta == 0==
+      *
+      * BLAS specifies that when `beta` is zero `y` is *written without being read*, so a destination holding `NaN`,
+      * infinities or uninitialised garbage is still valid input. The elementwise fallback branches on that explicitly
+      * rather than evaluating `alpha * acc + 0.0 * y(i)`, which would propagate a `NaN` the BLAS path discards — the
+      * two must agree on the same inputs, or which branch a layout happens to take becomes observable.
+      *
+      * Unlike `matmulInPlace!` this does not reject a `y` aliasing `m.raw`; `dgemv` assumes they do not overlap, so
+      * passing a `y` that shares storage with `m` is undefined and not checked for here.
+      *
+      * The two length checks are written as `if ... then throw` rather than `require(cond, s"...")`. `require` takes
+      * its message by name, so the interpolated string becomes a `Function0` capturing both lengths — allocated on
+      * every call, including the overwhelmingly common one where the check passes. In a method whose entire reason
+      * for existing is to write into a caller-supplied buffer instead of allocating, paying an allocation to describe
+      * an error that did not happen is the wrong trade. Written this way the string is only built on the failing
+      * path, which is also how `dimCheck` and `dimCheckLen` are shaped. The exception type is unchanged.
+      *
+      * `@AllocFree` because nothing here allocates once warm: the length checks build their message only on the
+      * failing path, the `dgemv` arguments are primitives and arrays, and the elementwise branch touches only
+      * primitives. That is the whole point of the method — it takes `y` from the caller precisely so a product can be
+      * computed without allocating one. Unlike the array kernels this annotation is otherwise used on, the assertion
+      * is partly about netlib rather than about vecxt: `dgemv` is called per operation, so if `JavaBLAS` allocated
+      * internally this would not hold. `D1Suite` measures it on both the BLAS and the elementwise branch, which is
+      * what keeps that from being an assumption.
+      *
+      * No `@HotPath`: the per-element work happens inside `dgemv`, not in this method's bytecode, so `FreqInlineSize`
+      * is not the budget that governs it. `matmulInPlace!` next door is unannotated for the same reason.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @param y
+      *   the destination, accumulated onto per `beta`; must have length `m.rows`
+      */
+    // No `@targetName`: it would rename the emitted method, and check A1 resolves an annotation by looking for a
+    // method whose bytecode name matches the source name it is written above — `$times$eq` here. Nothing else in the
+    // library pairs the two, and the JS and Native `*=` compile without one, so there is no clash it was averting.
+    @AllocFree
+    def *=(vec: Array[Double], y: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Unit =
+      if vec.length != m.cols then
+        throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
+      end if
+      if y.length != m.rows then
+        throw new IllegalArgumentException(s"Destination length ${y.length} != expected ${m.rows}")
+      end if
+      val nonEmpty = m.rows > 0 && m.cols > 0
 
-      if m.isDenseColMajor then
-        require(vec.length == m.cols, s"Vector length ${vec.length} != expected ${m.cols}")
-        val newArr = Array.ofDim[Double](m.rows)
-        val out = Array.fill(m.rows)(0.0)
+      if nonEmpty && m.rowStride == 1 && m.colStride >= m.rows then
+        blas.dgemv("N", m.rows, m.cols, alpha, m.raw, m.offset, m.colStride, vec, 0, 1, beta, y, 0, 1)
+      else if nonEmpty && m.colStride == 1 && m.rowStride >= m.cols then
+        blas.dgemv("T", m.cols, m.rows, alpha, m.raw, m.offset, m.rowStride, vec, 0, 1, beta, y, 0, 1)
+      else
+        var i = 0
+        while i < m.rows do
+          var acc = 0.0
+          var j = 0
+          while j < m.cols do
+            acc += m.raw(m.layout.linearIndex(i, j)) * vec(j)
+            j += 1
+          end while
+          y(i) = if beta == 0.0 then alpha * acc else alpha * acc + beta * y(i)
+          i += 1
+        end while
+      end if
+    end *=
 
-        blas.dgemv(
-          "N",
-          m.rows,
-          m.cols,
-          alpha,
-          m.raw,
-          m.rows,
-          vec,
-          1,
-          beta,
-          newArr,
-          1
-        )
-
-        newArr
-      else ???
+    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh `Array[Double]` of length `m.rows`.
+      *
+      * A wrapper over [[*=]] — see there for how every memory layout is handled. It allocates the destination and
+      * passes `beta = 0`, which is what makes this the safe form: with `beta` zero the destination is written without
+      * being read, so the fresh array's contents cannot contribute to the result. There is deliberately no `beta`
+      * parameter, because on a destination this method owns there is nothing for it to accumulate onto — it would be
+      * inert whatever the caller passed. Use [[*=]] when accumulation is the point.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @return
+      *   a new array of length `m.rows`
+      */
+    def *(vec: Array[Double], alpha: Double = 1.0): Array[Double] =
+      val out = Array.ofDim[Double](m.rows)
+      m.*=(vec, out, alpha, 0.0)
+      out
     end *
 
     def >=(d: Double): Matrix[Boolean] =

@@ -299,4 +299,41 @@ class D1Suite extends FunSuite:
     assertAllocFree("intarrays.-=(Int)")(arr -= 0)
   }
 
+  // ── Matrix-vector (Phase D) ─────────────────────────────────────────────────
+  // `JvmDoubleMatrix.*=` is the first @AllocFree method that is not an array kernel, and the first whose claim is
+  // not purely about vecxt's own code: it dispatches to `blas.dgemv` once per operation, so zero bytes/op also
+  // asserts that netlib's JavaBLAS does not allocate internally for a matrix-vector product. That is the reason to
+  // measure it rather than assert it — a pure-Java gemv has no need of temporaries, but "has no need of" is not
+  // "does not".
+  //
+  // Both branches are covered, because which one runs is a property of the operand's layout rather than of the
+  // call: dense column-major and dense row-major take the two dgemv paths, and a broadcast column (colStride 0,
+  // which no leading dimension can describe) takes the elementwise loop. A regression in any one of them is
+  // invisible in the others.
+
+  private val MvRows = 32
+  private val MvCols = 32 // MvRows * MvCols == N
+
+  test("D1: doublematrix.*=(vec, y) — dense column-major, dgemv \"N\"") {
+    val m = Matrix[Double](Array.tabulate(N)(_.toDouble), MvRows, MvCols)
+    val x = Array.fill(MvCols)(1.0)
+    val y = new Array[Double](MvRows)
+    assertAllocFree("doublematrix.*=(vec, y) col-major")(m.*=(x, y, 1.0, 0.0))
+  }
+
+  test("D1: doublematrix.*=(vec, y) — dense row-major, dgemv \"T\"") {
+    val m = Matrix[Double](Array.tabulate(N)(_.toDouble), MvRows, MvCols, MvCols, 1, 0)
+    val x = Array.fill(MvCols)(1.0)
+    val y = new Array[Double](MvRows)
+    assertAllocFree("doublematrix.*=(vec, y) row-major")(m.*=(x, y, 1.0, 0.0))
+  }
+
+  test("D1: doublematrix.*=(vec, y) — broadcast column, elementwise branch") {
+    // colStride 0 repeats one column across the matrix, so the guards reject it and the loop runs instead.
+    val m = Matrix[Double](Array.tabulate(MvRows)(_.toDouble), MvRows, MvCols, 1, 0, 0)
+    val x = Array.fill(MvCols)(1.0)
+    val y = new Array[Double](MvRows)
+    assertAllocFree("doublematrix.*=(vec, y) broadcast")(m.*=(x, y, 1.0, 0.0))
+  }
+
 end D1Suite

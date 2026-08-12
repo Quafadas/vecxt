@@ -140,6 +140,24 @@ object NativeDoubleMatrix:
       * `dgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or read
       * from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a conforming `c` to
       * write into; they allocate one for you.
+      *
+      * ==Why this uses `trans` where [[*=]] uses `order`==
+      *
+      * [[*=]] describes each layout by choosing `order` and leaves `trans` at `CblasNoTrans`, which reads far more
+      * directly. That option is not open here, and the difference is forced rather than stylistic.
+      *
+      * `order` is a property of the *call*, not of an operand: CBLAS applies it to `A`, `B` and `C` alike. This routine
+      * has three matrices that may disagree — `m` dense row-major while `b` is column-major is ordinary usage — and,
+      * decisively, `matmulOutputCheck` pins `c` to dense column-major, so `order` is already spoken for. With `order`
+      * fixed at `CblasColMajor` by `c`, the only place an operand's own orientation can be expressed is its `trans`
+      * flag, with `lda`/`ldb` to match.
+      *
+      * `*=` escapes all of that by having exactly one matrix: nothing else is competing for `order`, so it can say what
+      * the layout is instead of correcting for it afterwards.
+      *
+      * So the flags below are not a transpose applied twice — `CblasNoTrans` is used wherever an operand is already
+      * column-major, and `CblasTrans` only for one that is not. Switching `order` to `CblasRowMajor` on top of them
+      * *would* be the double application, and would also mislabel `c`.
       */
     def `matmulInPlace!`(
         b: Matrix[Double],
@@ -156,10 +174,9 @@ object NativeDoubleMatrix:
         val transB = if b.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
         val transA = if m.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
 
-        // `order` is always CblasColMajor here, deliberately, even when both operands are dense row-major: transA/
-        // transB/lda/ldb above are the standard "always column-major" transpose trick. Switching order to
-        // CblasRowMajor without also inverting transA/transB would apply the transpose trick twice — see the
-        // matching comment in src-js/doublematrix.scala, which hits the identical order/trans interaction.
+        // `order` is CblasColMajor because `c` is (matmulOutputCheck enforces it) and CBLAS applies `order` to all
+        // three matrices — see the scaladoc for why that leaves transA/transB as the only place m's and b's own
+        // orientations can go. src-js/doublematrix.scala hits the identical order/trans interaction.
         blas.cblas_dgemm(
           blasEnums.CblasColMajor,
           transA,
@@ -204,26 +221,92 @@ object NativeDoubleMatrix:
       end if
     end `matmulInPlace!`
 
-    def *(vec: Array[Double]): Array[Double] =
+    /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place, via CBLAS `cblas_dgemv`. Native counterpart of
+      * `JvmDoubleMatrix.*=`; see there for the reasoning, which carries over with one simplification.
+      *
+      * CBLAS takes an `order` argument, so unlike the Fortran interface on the JVM there is no need to hand the
+      * dimensions over transposed: a `colStride == 1` layout is described directly as `CblasRowMajor` with
+      * `lda = rowStride`, and a `rowStride == 1` one as `CblasColMajor` with `lda = colStride`. Both keep
+      * `CblasNoTrans` and the natural `(rows, cols)`.
+      *
+      * Stating the layout via `order` rather than correcting for it via `trans` is available here only because there is
+      * a single matrix in the call. `matmulInPlace!` above has three and cannot do the same — see its scaladoc.
+      *
+      * `lda` was previously `m.rows` for both orders. That is only right for column-major: under `CblasRowMajor`, `lda`
+      * is the distance between successive rows and must be at least `cols`, so a non-square dense row-major matrix —
+      * `m.transpose` of any non-square matrix, for instance — was being read with the wrong stride. Taking it from the
+      * layout fixes that and generalises to padded strides at the same time.
+      *
+      * Offsets need no fallback here: `raw.at(offset)` is a pointer into the middle of the array, which is exactly what
+      * CBLAS wants.
+      *
+      * @param vec
+      *   the vector to multiply by; must have length `m.cols`
+      * @param y
+      *   the destination, accumulated onto per `beta`; must have length `m.rows`
+      */
+    def *=(vec: Array[Double], y: Array[Double], alpha: Double = 1.0, beta: Double = 1.0): Unit =
+      if vec.length != m.cols then
+        throw new IllegalArgumentException(s"Vector length ${vec.length} != expected ${m.cols}")
+      end if
+      if y.length != m.rows then
+        throw new IllegalArgumentException(s"Destination length ${y.length} != expected ${m.rows}")
+      end if
+      val nonEmpty = m.rows > 0 && m.cols > 0
 
-      if m.hasSimpleContiguousMemoryLayout then
-        val newArr = Array.ofDim[Double](m.rows)
+      if nonEmpty && m.rowStride == 1 && m.colStride >= m.rows then
         blas.cblas_dgemv(
-          if m.isDenseColMajor then blasEnums.CblasColMajor else blasEnums.CblasRowMajor,
+          blasEnums.CblasColMajor,
           blasEnums.CblasNoTrans,
           m.rows,
           m.cols,
-          1.0,
-          m.raw.at(0),
-          m.rows,
+          alpha,
+          m.raw.at(m.offset),
+          m.colStride,
           vec.at(0),
           1,
-          0.0,
-          newArr.at(0),
+          beta,
+          y.at(0),
           1
         )
-        newArr
-      else ???
+      else if nonEmpty && m.colStride == 1 && m.rowStride >= m.cols then
+        blas.cblas_dgemv(
+          blasEnums.CblasRowMajor,
+          blasEnums.CblasNoTrans,
+          m.rows,
+          m.cols,
+          alpha,
+          m.raw.at(m.offset),
+          m.rowStride,
+          vec.at(0),
+          1,
+          beta,
+          y.at(0),
+          1
+        )
+      else
+        var i = 0
+        while i < m.rows do
+          var acc = 0.0
+          var j = 0
+          while j < m.cols do
+            acc += m.raw(m.layout.linearIndex(i, j)) * vec(j)
+            j += 1
+          end while
+          y(i) = if beta == 0.0 then alpha * acc else alpha * acc + beta * y(i)
+          i += 1
+        end while
+      end if
+    end *=
+
+    /** Matrix-vector product: returns `alpha * (m @@ vec)` as a fresh array. Wrapper over [[*=]] with `beta = 0`, so
+      * the freshly allocated destination is written without being read. See `JvmDoubleMatrix.*` for why there is no
+      * `beta` parameter here.
+      */
+    def *(vec: Array[Double], alpha: Double = 1.0): Array[Double] =
+      val out = Array.ofDim[Double](m.rows)
+      m.*=(vec, out, alpha, 0.0)
+      out
     end *
   end extension
 
