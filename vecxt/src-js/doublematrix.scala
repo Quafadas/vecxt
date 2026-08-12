@@ -228,18 +228,18 @@ object JsDoubleMatrix:
       * `JvmDoubleMatrix.*=`; see there for the reasoning.
       *
       * Like CBLAS on Native, this shim takes an `ord` argument, so a `colStride == 1` layout is described directly as
-      * `"row-major"` with `lda = rowStride` and a `rowStride == 1` one as `"column-major"` with `lda = colStride`,
-      * both keeping `"no-transpose"` and the natural `(rows, cols)`.
+      * `"row-major"` with `lda = rowStride` and a `rowStride == 1` one as `"column-major"` with `lda = colStride`, both
+      * keeping `"no-transpose"` and the natural `(rows, cols)`.
       *
-      * `lda` was previously `m.rows` for both orders, which is only correct for column-major — under `"row-major"`
-      * it is the distance between successive rows and must be at least `cols`, so a non-square dense row-major
-      * matrix was read with the wrong stride. It now comes from the layout.
+      * `lda` was previously `m.rows` for both orders, which is only correct for column-major — under `"row-major"` it
+      * is the distance between successive rows and must be at least `cols`, so a non-square dense row-major matrix was
+      * read with the wrong stride. It now comes from the layout.
       *
-      * Offset views deliberately take the elementwise branch rather than the shim: this facade has no offset
-      * parameter, and slicing to fake one would mean yet another copy. That costs nothing real — every call through
-      * the shim already marshals the whole backing array into a `Float64Array` and the result back out, so for a
-      * product that is `O(rows * cols)` of arithmetic the copies dominate, and the elementwise loop is very likely
-      * the faster path on this platform regardless. It is kept because it is the shape the other platforms use.
+      * Offset views deliberately take the elementwise branch rather than the shim: this facade has no offset parameter,
+      * and slicing to fake one would mean yet another copy. That costs nothing real — every call through the shim
+      * already marshals the whole backing array into a `Float64Array` and the result back out, so for a product that is
+      * `O(rows * cols)` of arithmetic the copies dominate, and the elementwise loop is very likely the faster path on
+      * this platform regardless. It is kept because it is the shape the other platforms use.
       *
       * @param vec
       *   the vector to multiply by; must have length `m.cols`

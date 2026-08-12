@@ -131,7 +131,7 @@ class FloatMatrixJvmSuite extends FunSuite:
     )
 
   test("*:*= on offset Float view uses general layout path"):
-    // Regression: *:*='s non-fast-path branch used to be `???` (vecxt/src-jvm/floatmatrix.scala). `sub` has a
+    // (vecxt/src-jvm/floatmatrix.scala) `sub` has a
     // nonzero offset (it's `base`'s columns 1..2), so it misses the dense/offset-0 fast path and exercises the
     // foreach2D fallback directly.
     val base = Matrix.fromRows[Float](

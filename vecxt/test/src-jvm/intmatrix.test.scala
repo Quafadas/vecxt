@@ -201,8 +201,6 @@ class IntMatrixJvmSuite extends FunSuite:
   }
 
   // ---------------------------------------------------------------------------------------------------------------
-  // The `else` branch of each of those six scalar ops was `???` until now, so any operand that wasn't
-  // `hasSimpleContiguousMemoryLayout` threw NotImplementedError rather than computing anything.
   //
   // The fixture below is the *same logical matrix* as the dense row-major one used above ([[1,2,3],[4,5,6]]), but
   // laid out with rowStride 1 and colStride 3 over a length-9 array: column j occupies raw(3j) and raw(3j+1), with
