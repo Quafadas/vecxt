@@ -82,11 +82,10 @@ class ClampSuite extends munit.FunSuite:
 
   test("maxClamp alias should work identically to clampMax") {
     val v1 = Array[Double](1.0, 5.0, 3.0, 8.0)
-    val clampedMax = v1.clampMax(4.0)    
+    val clampedMax = v1.clampMax(4.0)
 
-    assertVecEquals(clampedMax, Array[Double](1.0, 4.0, 3.0, 4.0) )
+    assertVecEquals(clampedMax, Array[Double](1.0, 4.0, 3.0, 4.0))
   }
-
 
   test("empty array should work with both clamp methods") {
     val empty = Array[Double]()
@@ -167,7 +166,5 @@ class ClampSuite extends munit.FunSuite:
     assertEqualsDouble(v1(2), 2.0, 0.0001)
     assertEqualsDouble(v1(3), 8.0, 0.0001)
   }
-
-  
 
 end ClampSuite
