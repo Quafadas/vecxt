@@ -56,6 +56,31 @@ object dgemm extends js.Object:
 
 end dgemm
 
+/** `sgemm( ord, ta, tb, M, N, K, α, A, lda, B, ldb, β, C, ldc )` — `C = α*op(A)*op(B) + β*C`. Single-precision twin of
+  * [[dgemm]]; see its scaladoc, which carries over unchanged aside from element type.
+  */
+@js.native
+@JSImport("@stdlib/blas/base/sgemm/lib", JSImport.Default)
+object sgemm extends js.Object:
+  def apply(
+      ord: String,
+      transA: String,
+      transB: String,
+      m: Int,
+      n: Int,
+      k: Int,
+      alpha: Float,
+      a: Float32Array,
+      lda: Int,
+      b: Float32Array,
+      ldb: Int,
+      beta: Float,
+      c: Float32Array,
+      ldc: Int
+  ): Unit = js.native
+
+end sgemm
+
 @js.native
 @JSImport("@stdlib/blas/base/dgemv/lib", JSImport.Default)
 object dgemv extends js.Object:

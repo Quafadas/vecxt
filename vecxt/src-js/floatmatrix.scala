@@ -11,6 +11,107 @@ object JsFloatMatrix:
 
   extension (m: Matrix[Float])
 
+    @targetName("matmulFloat")
+    def @@(b: Matrix[Float]): Matrix[Float] =
+      m.matmul(b, 1.0f, 0.0f)
+
+    @targetName("matmulFloatNonDefault")
+    def matmul(b: Matrix[Float], alpha: Float, beta: Float): Matrix[Float] =
+      dimMatCheck(m, b)
+      val newArr: Array[Float] = Array.ofDim[Float](m.rows * b.cols)
+      val newmat = Matrix[Float](newArr, m.rows, b.cols)
+      m.`matmulInPlace!`(b, newmat, alpha, beta)
+      newmat
+    end matmul
+
+    /** Writes `alpha * (m @@ b) + beta * c` into `c` in place, via a JS `sgemm` shim. Float counterpart of
+      * `JsDoubleMatrix.matmulInPlace!`; see there for the reasoning behind the layout choices, which carries over
+      * unchanged aside from element type.
+      *
+      * `c` must already be shaped `(m.rows, b.cols)` and dense column-major — `ldc` is hardcoded to `m.rows` below, and
+      * `sgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or read
+      * from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a conforming `c` to
+      * write into; they allocate one for you.
+      */
+    @targetName("matmulFloatInPlace")
+    def `matmulInPlace!`(b: Matrix[Float], c: Matrix[Float], alpha: Float, beta: Float): Unit =
+      dimMatCheck(m, b)
+      matmulOutputCheck(m, b, c)
+      println("PERFORMING WARNING in matmul on JS")
+      println("THIS method copies into native JS types. Then copies back out. Expect catastrophic performance.")
+
+      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
+        val lda = if m.isDenseColMajor then m.rows else m.cols
+        val ldb = if b.isDenseColMajor then b.rows else b.cols
+
+        val transB = if b.isDenseColMajor then "no-transpose" else "transpose"
+        val transA = if m.isDenseColMajor then "no-transpose" else "transpose"
+
+        // See JsDoubleMatrix.matmulInPlace! for why `order` is always "column-major" here regardless of m/b's own
+        // orientation.
+        val outArr = new Float32Array(c.raw.toJSArray)
+        sgemm(
+          "column-major",
+          transA,
+          transB,
+          m.rows,
+          b.cols,
+          m.cols,
+          alpha,
+          new Float32Array(m.raw.toJSArray),
+          lda,
+          new Float32Array(b.raw.toJSArray),
+          ldb,
+          beta,
+          outArr,
+          m.rows
+        )
+        // copy result back into c.raw (Scala Array[Float]) element-wise
+        val copyLen = Math.min(outArr.length, c.raw.length)
+        var ci = 0
+        while ci < copyLen do
+          c.raw(ci) = outArr(ci)
+          ci += 1
+        end while
+      else if blasLeadingDimensionCheck(m) && blasLeadingDimensionCheck(b) then
+        val transB = if b.rowStride == 1 then "no-transpose" else "transpose"
+        val transA = if m.rowStride == 1 then "no-transpose" else "transpose"
+
+        // See the fully-dense branch above: `order` stays "column-major" regardless of m/b's own orientation,
+        // since transA/transB/lda/ldb already implement the transpose trick for that fixed order.
+        val outArr = new Float32Array(c.raw.toJSArray)
+        sgemm(
+          "column-major",
+          transA,
+          transB,
+          m.rows,
+          b.cols,
+          m.cols,
+          alpha,
+          // convert backing Scala Array[Float] to Float32Array slice (copies)
+          new Float32Array(m.raw.toJSArray).subarray(m.offset),
+          if m.rowStride == 1 then m.colStride else m.rowStride,
+          new Float32Array(b.raw.toJSArray).subarray(b.offset),
+          if b.rowStride == 1 then b.colStride else b.rowStride,
+          beta,
+          outArr,
+          m.rows
+        )
+        // copy result back into c.raw (Scala Array[Float]) element-wise
+        val copyLen2 = Math.min(outArr.length, c.raw.length)
+        var cj = 0
+        while cj < copyLen2 do
+          c.raw(cj) = outArr(cj)
+          cj += 1
+        end while
+      else
+        throw UnsupportedLayoutException(
+          s"matmulInPlace! does not support this combination of matrix layouts. m: ${m.layoutString}, b: ${b.layoutString}"
+        )
+      end if
+
+    end `matmulInPlace!`
+
     /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place, via the stdlib `sgemv` shim. JS counterpart of
       * `JvmFloatMatrix.*=`; see `JvmDoubleMatrix.*=` for the reasoning behind the guards.
       *
