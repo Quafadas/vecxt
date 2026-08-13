@@ -11,11 +11,19 @@ import jdk.incubator.vector.DoubleVector
 import breeze.linalg.*
 
 //% mill benchmark_vs_breeze.runJmh -jvmArgs --add-modules=jdk.incubator.vector
+
+/**
+Benchmark                                      (matDim)   Mode  Cnt  Score   Error  Units
+LinearAlgebraWorkloadBenchmark.breezeWorkload      1000  thrpt   10  5.072 ± 0.292  ops/s
+LinearAlgebraWorkloadBenchmark.vecxtWorkload       1000  thrpt   10  7.913 ± 0.514  ops/s
+ * 
+ */
 @State(Scope.Thread)
 class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
 
-  @Param(Array("500"))
+  @Param(Array("1000"))
   var matDim: String = uninitialized
+  var matDimInt: Int = uninitialized
 
   var dataA: Array[Double] = uninitialized
   var dataB: Array[Double] = uninitialized
@@ -33,6 +41,7 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
   def setup(): Unit =
     println(s"[SETUP] Running setup for matrix dim: $matDim")
     val dim = matDim.toInt
+    matDimInt = dim
     dataA = randomDoubleArray(dim * dim)
     dataB = randomDoubleArray(dim * dim)
     vectorData = randomDoubleArray(dim)
@@ -69,12 +78,13 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
     val step3 = step2 * breezeVec // Matrix-vector multiply
     val step4 = step3.map(_ * 2.0 + 1.0) // Element-wise transform
     val step5 = breeze.linalg.norm(step4) // L2 norm
-    // val step6 = step2.t // Transpose
+    val step6: DenseMatrix[Double] = step2.t // Transpose
     val step7 = breeze.linalg.sum(step2) // Sum reduction
     val step8 = (step7 > 0.5) // Comparison
+    val matmul = step6 * step1
 
     // Combine results to prevent dead code elimination
-    val result = step5 + (if step8 then 1.0 else 0.0) + breeze.linalg.max(step4)
+    val result = step5 + (if step8 then 1.0 else 0.0) + breeze.linalg.max(step4) + breeze.linalg.sum(step6( 10 until matDimInt, 10 until matDimInt))
     bh.consume(result)
   end breezeWorkload
 
@@ -83,16 +93,17 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
 
     // Same representative linear algebra workload
     val step1 = vecxtMatA + vecxtMatB // Element-wise addition
-    val step2 = step1.hadamard(vecxtMatA) // Hadamard product
+    val step2 = step1 * vecxtMatA // Hadamard product
     val step3 = step2 * vectorData // Matrix-vector multiply
     val step4 = step3.fma(2.0, 1.0) // Element-wise transform
     val step5 = step4.norm // L2 norm
-    // val step6 = step2.transpose // Transpose
+    val step6 = step2.transpose // Transpose
     val step7 = step2.sum // Sum reduction
     val step8 = (step7 > 0.5) // Comparison
+    val matmul = step6 @@ step1
 
     // Combine results to prevent dead code elimination
-    val result = step5 + (if step8 then 1.0 else 0.0) + step4.maxSIMD
+    val result = step5 + (if step8 then 1.0 else 0.0) + step4.maxSIMD + step6( 10 until matDimInt, 10 until matDimInt).sum
     bh.consume(result)
   end vecxtWorkload
 
