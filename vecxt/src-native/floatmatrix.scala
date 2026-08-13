@@ -12,6 +12,84 @@ object NativeFloatMatrix:
 
   extension (m: Matrix[Float])
 
+    @targetName("matmulFloat")
+    def @@(b: Matrix[Float]): Matrix[Float] =
+      m.matmul(b, 1.0f, 0.0f)
+
+    @targetName("matmulFloatNonDefault")
+    def matmul(b: Matrix[Float], alpha: Float, beta: Float): Matrix[Float] =
+      dimMatCheck(m, b)
+      val newArr: Array[Float] = Array.ofDim[Float](m.rows * b.cols)
+      val newmat = Matrix[Float](newArr, m.rows, b.cols)
+      m.`matmulInPlace!`(b, newmat, alpha, beta)
+      newmat
+    end matmul
+
+    /** Writes `alpha * (m @@ b) + beta * c` into `c` in place, via `cblas_sgemm`. Float counterpart of
+      * `NativeDoubleMatrix.matmulInPlace!`; see there for the reasoning behind the `trans`/`order` choices, which
+      * carries over unchanged aside from element type.
+      *
+      * `c` must already be shaped `(m.rows, b.cols)` and dense column-major — `ldc` is hardcoded to `m.rows` below, and
+      * `sgemm` also reads `c` when `beta != 0`, so any other shape or layout would be silently written to (or read
+      * from) incorrectly rather than rejected. Use `matmul`/`@@` instead if you don't already have a conforming `c` to
+      * write into; they allocate one for you.
+      */
+    @targetName("matmulFloatInPlace")
+    def `matmulInPlace!`(b: Matrix[Float], c: Matrix[Float], alpha: Float, beta: Float): Unit =
+      dimMatCheck(m, b)
+      matmulOutputCheck(m, b, c)
+
+      if m.hasSimpleContiguousMemoryLayout && b.hasSimpleContiguousMemoryLayout then
+        val lda = if m.isDenseColMajor then m.rows else m.cols
+        val ldb = if b.isDenseColMajor then b.rows else b.cols
+        val transB = if b.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+        val transA = if m.isDenseColMajor then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+
+        // See NativeDoubleMatrix.matmulInPlace! for why `order` is always CblasColMajor here.
+        blas.cblas_sgemm(
+          blasEnums.CblasColMajor,
+          transA,
+          transB,
+          m.rows,
+          b.cols,
+          m.cols,
+          alpha,
+          m.raw.at(0),
+          lda,
+          b.raw.at(0),
+          ldb,
+          beta,
+          c.raw.at(0),
+          m.rows
+        )
+      else if blasLeadingDimensionCheck(m) && blasLeadingDimensionCheck(b) then
+        val transB = if b.rowStride == 1 then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+        val transA = if m.rowStride == 1 then blasEnums.CblasNoTrans else blasEnums.CblasTrans
+        // See the fully-dense branch above: order stays CblasColMajor regardless of m/b's own orientation.
+        blas.cblas_sgemm(
+          blasEnums.CblasColMajor,
+          transA,
+          transB,
+          m.rows,
+          b.cols,
+          m.cols,
+          alpha,
+          m.raw.at(m.offset),
+          if m.rowStride == 1 then m.colStride else m.rowStride,
+          b.raw.at(b.offset),
+          if b.rowStride == 1 then b.colStride else b.rowStride,
+          beta,
+          c.raw.at(c.offset),
+          m.rows
+        )
+      else
+        throw UnsupportedLayoutException(
+          s"matmulInPlace! does not support this combination of matrix layouts. m: ${m.layoutString}, b: ${b.layoutString}"
+        )
+
+      end if
+    end `matmulInPlace!`
+
     /** Writes `alpha * (m @@ vec) + beta * y` into `y` in place, via CBLAS `cblas_sgemv`. Native counterpart of
       * `JvmFloatMatrix.*=`; see `JvmDoubleMatrix.*=` for the reasoning behind the guards.
       *
