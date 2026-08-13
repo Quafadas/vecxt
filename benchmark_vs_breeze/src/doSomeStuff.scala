@@ -12,12 +12,9 @@ import breeze.linalg.*
 
 //% mill benchmark_vs_breeze.runJmh -jvmArgs --add-modules=jdk.incubator.vector
 
-/**
-Benchmark                                      (matDim)   Mode  Cnt  Score   Error  Units
-LinearAlgebraWorkloadBenchmark.breezeWorkload      1000  thrpt   10  5.072 ± 0.292  ops/s
-LinearAlgebraWorkloadBenchmark.vecxtWorkload       1000  thrpt   10  7.913 ± 0.514  ops/s
- * 
- */
+/** Benchmark (matDim) Mode Cnt Score Error Units LinearAlgebraWorkloadBenchmark.breezeWorkload 1000 thrpt 10 5.072 ±
+  * 0.292 ops/s LinearAlgebraWorkloadBenchmark.vecxtWorkload 1000 thrpt 10 7.913 ± 0.514 ops/s
+  */
 @State(Scope.Thread)
 class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
 
@@ -84,7 +81,9 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
     val matmul = step6 * step1
 
     // Combine results to prevent dead code elimination
-    val result = step5 + (if step8 then 1.0 else 0.0) + breeze.linalg.max(step4) + breeze.linalg.sum(step6( 10 until matDimInt, 10 until matDimInt))
+    val result = step5 + (if step8 then 1.0 else 0.0) + breeze.linalg.max(step4) + breeze.linalg.sum(
+      step6(10 until matDimInt, 10 until matDimInt)
+    )
     bh.consume(result)
   end breezeWorkload
 
@@ -103,7 +102,8 @@ class LinearAlgebraWorkloadBenchmark extends BLASBenchmark:
     val matmul = step6 @@ step1
 
     // Combine results to prevent dead code elimination
-    val result = step5 + (if step8 then 1.0 else 0.0) + step4.maxSIMD + step6( 10 until matDimInt, 10 until matDimInt).sum
+    val result =
+      step5 + (if step8 then 1.0 else 0.0) + step4.maxSIMD + step6(10 until matDimInt, 10 until matDimInt).sum
     bh.consume(result)
   end vecxtWorkload
 

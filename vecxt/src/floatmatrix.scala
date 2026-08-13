@@ -102,131 +102,131 @@ object FloatMatrix:
     inline def @@(b: Matrix[Float]): Matrix[Float] =
       m.matmul(b, 1.0, 0.0)
 
-  //   def *=(d: Double): Unit =
-  //     if m.hasSimpleContiguousMemoryLayout then m.raw.multInPlace(d)
-  //     else
-  //       m.layout.foreach2D { (i, j) =>
-  //         val idx = m.layout.linearIndex(i, j)
-  //         m.raw(idx) = m.raw(idx) * d
-  //       }
+    //   def *=(d: Double): Unit =
+    //     if m.hasSimpleContiguousMemoryLayout then m.raw.multInPlace(d)
+    //     else
+    //       m.layout.foreach2D { (i, j) =>
+    //         val idx = m.layout.linearIndex(i, j)
+    //         m.raw(idx) = m.raw(idx) * d
+    //       }
 
-  //   /** In-place elementwise scalar subtract/divide. Same shape as `*=` above: SIMD fast path over the whole backing
-  //     * array when `m` is dense contiguous, element-by-element via `linearIndex` otherwise - no result layout to pick
-  //     * here (unlike `-`/`/`), since `m` keeps its own. (`+=(d: Double)` isn't defined here: each platform already has
-  //     * its own more specialised stride-aware implementation - see e.g. `src-jvm/doublematrix.scala`.)
-  //     */
-  //   def -=(d: Double): Unit =
-  //     if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.-=(m.raw)(d)
-  //     else
-  //       m.layout.foreach2D { (i, j) =>
-  //         val idx = m.layout.linearIndex(i, j)
-  //         m.raw(idx) = m.raw(idx) - d
-  //       }
+    //   /** In-place elementwise scalar subtract/divide. Same shape as `*=` above: SIMD fast path over the whole backing
+    //     * array when `m` is dense contiguous, element-by-element via `linearIndex` otherwise - no result layout to pick
+    //     * here (unlike `-`/`/`), since `m` keeps its own. (`+=(d: Double)` isn't defined here: each platform already has
+    //     * its own more specialised stride-aware implementation - see e.g. `src-jvm/doublematrix.scala`.)
+    //     */
+    //   def -=(d: Double): Unit =
+    //     if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.-=(m.raw)(d)
+    //     else
+    //       m.layout.foreach2D { (i, j) =>
+    //         val idx = m.layout.linearIndex(i, j)
+    //         m.raw(idx) = m.raw(idx) - d
+    //       }
 
-  //   def /=(d: Double): Unit =
-  //     if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays./=(m.raw)(d)
-  //     else
-  //       m.layout.foreach2D { (i, j) =>
-  //         val idx = m.layout.linearIndex(i, j)
-  //         m.raw(idx) = m.raw(idx) / d
-  //       }
+    //   def /=(d: Double): Unit =
+    //     if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays./=(m.raw)(d)
+    //     else
+    //       m.layout.foreach2D { (i, j) =>
+    //         val idx = m.layout.linearIndex(i, j)
+    //         m.raw(idx) = m.raw(idx) / d
+    //       }
 
-  //   /** Elementwise scalar multiply.
-  //     *
-  //     * Layout policy (applies to `*`/`/`/`+`/`-` alike; see `site/docs/vectors-and-matrices/matrix.md`): the result is
-  //     * row-major whenever `m`'s unit-stride axis is columns — true not only for a dense row-major `m`, but for any view
-  //     * or padded layout that is still effectively row-major (`m.layout.unitStrideAxis == 1`) — and column-major
-  //     * otherwise, including whenever `m` has no unit-stride axis at all. That's exactly what the fast path below
-  //     * already does implicitly by wrapping the transformed array with `m.layout`; the non-dense branch used to always
-  //     * normalise to column-major regardless, which made the result's layout depend on whether `m` happened to be
-  //     * exactly dense rather than on `m`'s own orientation.
-  //     */
-  //   def *(n: Double): Matrix[Double] =
-  //     if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.*(m.raw)(n), m.layout)
-  //     else
-  //       val newArr = Array.ofDim[Double](m.numel)
-  //       val asRowMajor = m.layout.unitStrideAxis == 1
-  //       m.layout.foreach2D { (i, j) =>
-  //         val srcIdx = m.layout.linearIndex(i, j)
-  //         newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) * n
-  //       }
-  //       if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
-  //       else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
-  //       end if
-  //   end *
+    //   /** Elementwise scalar multiply.
+    //     *
+    //     * Layout policy (applies to `*`/`/`/`+`/`-` alike; see `site/docs/vectors-and-matrices/matrix.md`): the result is
+    //     * row-major whenever `m`'s unit-stride axis is columns — true not only for a dense row-major `m`, but for any view
+    //     * or padded layout that is still effectively row-major (`m.layout.unitStrideAxis == 1`) — and column-major
+    //     * otherwise, including whenever `m` has no unit-stride axis at all. That's exactly what the fast path below
+    //     * already does implicitly by wrapping the transformed array with `m.layout`; the non-dense branch used to always
+    //     * normalise to column-major regardless, which made the result's layout depend on whether `m` happened to be
+    //     * exactly dense rather than on `m`'s own orientation.
+    //     */
+    //   def *(n: Double): Matrix[Double] =
+    //     if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.*(m.raw)(n), m.layout)
+    //     else
+    //       val newArr = Array.ofDim[Double](m.numel)
+    //       val asRowMajor = m.layout.unitStrideAxis == 1
+    //       m.layout.foreach2D { (i, j) =>
+    //         val srcIdx = m.layout.linearIndex(i, j)
+    //         newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) * n
+    //       }
+    //       if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+    //       else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+    //       end if
+    //   end *
 
-  //   /** Elementwise scalar divide. Layout policy: see `*`. */
-  //   def /(n: Double): Matrix[Double] =
-  //     if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(m.raw)(n), m.layout)
-  //     else
-  //       val newArr = Array.ofDim[Double](m.numel)
-  //       val asRowMajor = m.layout.unitStrideAxis == 1
-  //       m.layout.foreach2D { (i, j) =>
-  //         val srcIdx = m.layout.linearIndex(i, j)
-  //         newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) / n
-  //       }
-  //       if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
-  //       else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
-  //       end if
-  //   end /
+    //   /** Elementwise scalar divide. Layout policy: see `*`. */
+    //   def /(n: Double): Matrix[Double] =
+    //     if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays./(m.raw)(n), m.layout)
+    //     else
+    //       val newArr = Array.ofDim[Double](m.numel)
+    //       val asRowMajor = m.layout.unitStrideAxis == 1
+    //       m.layout.foreach2D { (i, j) =>
+    //         val srcIdx = m.layout.linearIndex(i, j)
+    //         newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) / n
+    //       }
+    //       if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+    //       else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+    //       end if
+    //   end /
 
-  //   /** Elementwise scalar add. Layout policy: see `*`. */
-  //   def +(n: Double): Matrix[Double] =
-  //     if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.+(m.raw)(n), m.layout)
-  //     else
-  //       val newArr = Array.ofDim[Double](m.numel)
-  //       val asRowMajor = m.layout.unitStrideAxis == 1
-  //       m.layout.foreach2D { (i, j) =>
-  //         val srcIdx = m.layout.linearIndex(i, j)
-  //         newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) + n
-  //       }
-  //       if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
-  //       else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
-  //       end if
-  //     end if
+    //   /** Elementwise scalar add. Layout policy: see `*`. */
+    //   def +(n: Double): Matrix[Double] =
+    //     if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.+(m.raw)(n), m.layout)
+    //     else
+    //       val newArr = Array.ofDim[Double](m.numel)
+    //       val asRowMajor = m.layout.unitStrideAxis == 1
+    //       m.layout.foreach2D { (i, j) =>
+    //         val srcIdx = m.layout.linearIndex(i, j)
+    //         newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) + n
+    //       }
+    //       if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+    //       else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+    //       end if
+    //     end if
 
-  //   end +
+    //   end +
 
-  //   def maximum(other: Matrix[Double]) =
-  //     sameDimMatCheck(m, other)
+    //   def maximum(other: Matrix[Double]) =
+    //     sameDimMatCheck(m, other)
 
-  //     // TODO: SIMD optimization
-  //     if sameDenseElementWiseMemoryLayoutCheck(m, other) then
-  //       val newArr = Array.ofDim[Double](m.numel)
-  //       var i = 0
-  //       val bound = m.numel
-  //       while i < bound do
-  //         newArr(i) = math.max(m.raw(i), other.raw(i))
-  //         i += 1
-  //       end while
-  //       // newArr is filled in m's own element order (row- or col-major), so it must be wrapped with m's
-  //       // layout, not always assumed column-major — see `+:+` for the same pattern.
-  //       Matrix(newArr, m.layout)
-  //     else
-  //       val newArr = Array.ofDim[Double](m.numel)
-  //       m.layout.foreach2D { (i, j) =>
-  //         val idx = m.layout.linearIndex(i, j)
-  //         val idxOther = other.layout.linearIndex(i, j)
-  //         newArr(i + j * m.rows) = math.max(m.raw(idx), other.raw(idxOther))
-  //       }
-  //       Matrix[Double](newArr, m.rows, m.cols)
-  //     end if
-  //   end maximum
+    //     // TODO: SIMD optimization
+    //     if sameDenseElementWiseMemoryLayoutCheck(m, other) then
+    //       val newArr = Array.ofDim[Double](m.numel)
+    //       var i = 0
+    //       val bound = m.numel
+    //       while i < bound do
+    //         newArr(i) = math.max(m.raw(i), other.raw(i))
+    //         i += 1
+    //       end while
+    //       // newArr is filled in m's own element order (row- or col-major), so it must be wrapped with m's
+    //       // layout, not always assumed column-major — see `+:+` for the same pattern.
+    //       Matrix(newArr, m.layout)
+    //     else
+    //       val newArr = Array.ofDim[Double](m.numel)
+    //       m.layout.foreach2D { (i, j) =>
+    //         val idx = m.layout.linearIndex(i, j)
+    //         val idxOther = other.layout.linearIndex(i, j)
+    //         newArr(i + j * m.rows) = math.max(m.raw(idx), other.raw(idxOther))
+    //       }
+    //       Matrix[Double](newArr, m.rows, m.cols)
+    //     end if
+    //   end maximum
 
-  //   /** Elementwise scalar subtract. Layout policy: see `*`. */
-  //   def -(n: Double): Matrix[Double] =
-  //     if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.-(m.raw)(n), m.layout)
-  //     else
-  //       val newArr = Array.ofDim[Double](m.numel)
-  //       val asRowMajor = m.layout.unitStrideAxis == 1
-  //       m.layout.foreach2D { (i, j) =>
-  //         val srcIdx = m.layout.linearIndex(i, j)
-  //         newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) - n
-  //       }
-  //       if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
-  //       else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
-  //       end if
-  //   end -    
+    //   /** Elementwise scalar subtract. Layout policy: see `*`. */
+    //   def -(n: Double): Matrix[Double] =
+    //     if m.hasSimpleContiguousMemoryLayout then Matrix(vecxt.doublearrays.-(m.raw)(n), m.layout)
+    //     else
+    //       val newArr = Array.ofDim[Double](m.numel)
+    //       val asRowMajor = m.layout.unitStrideAxis == 1
+    //       m.layout.foreach2D { (i, j) =>
+    //         val srcIdx = m.layout.linearIndex(i, j)
+    //         newArr(if asRowMajor then i * m.cols + j else i + j * m.rows) = m.raw(srcIdx) - n
+    //       }
+    //       if asRowMajor then Matrix[Double](newArr, m.rows, m.cols, m.cols, 1, 0)
+    //       else Matrix[Double](newArr, m.rows, m.cols, 1, m.rows, 0)
+    //       end if
+    //   end -
 
     def +:+(m2: Matrix[Float]): Matrix[Float] =
       sameDimMatCheck(m, m2)
@@ -246,72 +246,72 @@ object FloatMatrix:
 
     inline def +(m2: Matrix[Float]): Matrix[Float] = m +:+ m2
 
-  //   def *(m2: Matrix[Double]): Matrix[Double] = m.hadamard(m2)
+    //   def *(m2: Matrix[Double]): Matrix[Double] = m.hadamard(m2)
 
-  //   def kronecker(other: Matrix[Double]): Matrix[Double] = ???
+    //   def kronecker(other: Matrix[Double]): Matrix[Double] = ???
 
-  //   def hadamard(m2: Matrix[Double]): Matrix[Double] =
-  //     sameDimMatCheck(m, m2)
+    //   def hadamard(m2: Matrix[Double]): Matrix[Double] =
+    //     sameDimMatCheck(m, m2)
 
-  //     if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
-  //       // Fast path: use SIMD-optimized array multiplication
-  //       val newArr = vecxt.doublearrays.*(m.raw)(m2.raw)
-  //       Matrix(newArr, m.layout)
-  //     else
-  //       // Different memory layouts: materialize one matrix to match the other's layout.
-  //       //
-  //       // Each branch below multiplies the "already dense" side's `.raw` directly (via `dimCheck`, which requires
-  //       // exact array-length equality), against a fresh `numel`-sized deepCopy of the other side. `isDenseColMajor`
-  //       // / `isDenseRowMajor` alone do not guarantee `raw.length == numel` — a `submatrix` view of the leading
-  //       // columns/rows of a wider/taller parent (`layoutCorpus.test.scala`'s `ColMajorLeadingCols` /
-  //       // `RowMajorLeadingRows`) is dense by that narrower definition but keeps the parent's full backing array. So
-  //       // each guard here additionally requires `hasSimpleContiguousMemoryLayout`, which folds in
-  //       // `dataLength == numel`; a dense-but-padded operand instead falls through to the fully-general last branch
-  //       // below, which deep-copies both sides and therefore never has a length mismatch.
-  //       if m.hasSimpleContiguousMemoryLayout && m.isDenseColMajor then
-  //         val m2Dense = m2.deepCopy(asRowMajor = false)
-  //         vecxt.doublearrays.*:*=(m2Dense.raw)(m.raw)
-  //         m2Dense
-  //       else if m.hasSimpleContiguousMemoryLayout && m.isDenseRowMajor then
-  //         // m is dense row-major, materialize m2 to row-major and multiply in-place
-  //         val m2Dense = m2.deepCopy(asRowMajor = true)
-  //         vecxt.doublearrays.*=(m2Dense.raw)(m.raw)
-  //         m2Dense
-  //       else if m2.hasSimpleContiguousMemoryLayout && m2.isDenseColMajor then
-  //         // m2 is dense column-major, materialize m to column-major and multiply in-place
-  //         val mDense = m.deepCopy(asRowMajor = false)
-  //         vecxt.doublearrays.*=(mDense.raw)(m2.raw)
-  //         mDense
-  //       else if m2.hasSimpleContiguousMemoryLayout && m2.isDenseRowMajor then
-  //         // m2 is dense row-major, materialize m to row-major and multiply in-place
-  //         val mDense = m.deepCopy(asRowMajor = true)
-  //         vecxt.doublearrays.*=(mDense.raw)(m2.raw)
-  //         mDense
-  //       else
-  //         // Neither is dense, materialize both to column-major and use SIMD multiplication
-  //         val mDense = m.deepCopy(asRowMajor = false)
-  //         val m2Dense = m2.deepCopy(asRowMajor = false)
-  //         val newArr = vecxt.doublearrays.*(mDense.raw)(m2Dense.raw)
-  //         Matrix[Double](newArr, m.rows, m.cols)
-  //       end if
-  //     end if
-  //   end hadamard
+    //     if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
+    //       // Fast path: use SIMD-optimized array multiplication
+    //       val newArr = vecxt.doublearrays.*(m.raw)(m2.raw)
+    //       Matrix(newArr, m.layout)
+    //     else
+    //       // Different memory layouts: materialize one matrix to match the other's layout.
+    //       //
+    //       // Each branch below multiplies the "already dense" side's `.raw` directly (via `dimCheck`, which requires
+    //       // exact array-length equality), against a fresh `numel`-sized deepCopy of the other side. `isDenseColMajor`
+    //       // / `isDenseRowMajor` alone do not guarantee `raw.length == numel` — a `submatrix` view of the leading
+    //       // columns/rows of a wider/taller parent (`layoutCorpus.test.scala`'s `ColMajorLeadingCols` /
+    //       // `RowMajorLeadingRows`) is dense by that narrower definition but keeps the parent's full backing array. So
+    //       // each guard here additionally requires `hasSimpleContiguousMemoryLayout`, which folds in
+    //       // `dataLength == numel`; a dense-but-padded operand instead falls through to the fully-general last branch
+    //       // below, which deep-copies both sides and therefore never has a length mismatch.
+    //       if m.hasSimpleContiguousMemoryLayout && m.isDenseColMajor then
+    //         val m2Dense = m2.deepCopy(asRowMajor = false)
+    //         vecxt.doublearrays.*:*=(m2Dense.raw)(m.raw)
+    //         m2Dense
+    //       else if m.hasSimpleContiguousMemoryLayout && m.isDenseRowMajor then
+    //         // m is dense row-major, materialize m2 to row-major and multiply in-place
+    //         val m2Dense = m2.deepCopy(asRowMajor = true)
+    //         vecxt.doublearrays.*=(m2Dense.raw)(m.raw)
+    //         m2Dense
+    //       else if m2.hasSimpleContiguousMemoryLayout && m2.isDenseColMajor then
+    //         // m2 is dense column-major, materialize m to column-major and multiply in-place
+    //         val mDense = m.deepCopy(asRowMajor = false)
+    //         vecxt.doublearrays.*=(mDense.raw)(m2.raw)
+    //         mDense
+    //       else if m2.hasSimpleContiguousMemoryLayout && m2.isDenseRowMajor then
+    //         // m2 is dense row-major, materialize m to row-major and multiply in-place
+    //         val mDense = m.deepCopy(asRowMajor = true)
+    //         vecxt.doublearrays.*=(mDense.raw)(m2.raw)
+    //         mDense
+    //       else
+    //         // Neither is dense, materialize both to column-major and use SIMD multiplication
+    //         val mDense = m.deepCopy(asRowMajor = false)
+    //         val m2Dense = m2.deepCopy(asRowMajor = false)
+    //         val newArr = vecxt.doublearrays.*(mDense.raw)(m2Dense.raw)
+    //         Matrix[Double](newArr, m.rows, m.cols)
+    //       end if
+    //     end if
+    //   end hadamard
 
-  //   def /:/(m2: Matrix[Double]): Matrix[Double] =
-  //     sameDimMatCheck(m, m2)
-  //     if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
-  //       val newArr = vecxt.doublearrays./(m.raw)(m2.raw)
-  //       Matrix(newArr, m.layout)
-  //     else
-  //       val newArr = Array.ofDim[Double](m.numel)
-  //       m.layout.foreach2D { (i, j) =>
-  //         val mIdx = m.layout.linearIndex(i, j)
-  //         val m2Idx = m2.layout.linearIndex(i, j)
-  //         newArr(i + j * m.rows) = m.raw(mIdx) / m2.raw(m2Idx)
-  //       }
-  //       Matrix[Double](newArr, m.rows, m.cols)
-  //     end if
-  //   end /:/
+    //   def /:/(m2: Matrix[Double]): Matrix[Double] =
+    //     sameDimMatCheck(m, m2)
+    //     if sameDenseElementWiseMemoryLayoutCheck(m, m2) then
+    //       val newArr = vecxt.doublearrays./(m.raw)(m2.raw)
+    //       Matrix(newArr, m.layout)
+    //     else
+    //       val newArr = Array.ofDim[Double](m.numel)
+    //       m.layout.foreach2D { (i, j) =>
+    //         val mIdx = m.layout.linearIndex(i, j)
+    //         val m2Idx = m2.layout.linearIndex(i, j)
+    //         newArr(i + j * m.rows) = m.raw(mIdx) / m2.raw(m2Idx)
+    //       }
+    //       Matrix[Double](newArr, m.rows, m.cols)
+    //     end if
+    //   end /:/
 
     // TODO: SIMD on JVM
     def -:-(m2: Matrix[Float]): Matrix[Float] =
