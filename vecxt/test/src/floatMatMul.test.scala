@@ -91,9 +91,9 @@ class FloatMatMulSuite extends FunSuite:
     val newMat = zeroCopy @@ zeroCopy2
 
     assertEqualsDouble(newMat(0, 0).toDouble, 6 * 6 + 7 * 10, 0.000001)
-    assertEqualsDouble(newMat(1, 0).toDouble, 10 * 6 + 10 * 11, 0.000001)
+    assertEqualsDouble(newMat(1, 0).toDouble, 10 * 6 + 11 * 10, 0.000001)
     assertEqualsDouble(newMat(1, 1).toDouble, 10 * 7 + 11 * 11, 0.000001)
-    assertEqualsDouble(newMat(0, 1).toDouble, 7 * 6 + 7 * 11, 0.000001)
+    assertEqualsDouble(newMat(0, 1).toDouble, 6 * 7 + 7 * 11, 0.000001)
 
     val view1 = mat1(Range.Inclusive(0, 2, 1), Range.Inclusive(1, 2, 1))
     val view2 = mat2(Range.Inclusive(1, 2, 1), Range.Inclusive(0, 3, 1))
