@@ -12,7 +12,7 @@ import dev.ludovic.netlib.lapack.JavaLAPACK
 object Eigenvalues:
   private lazy final val lapack = JavaLAPACK.getInstance()
 
-  inline def eig(
+  def eig(
       m: Matrix[Double]
   ): (eigenvalues: Array[Double], complexEigenValues: Array[Double], eigenVectors: Matrix[Double]) =
     nonEmptyMatCheck(m)

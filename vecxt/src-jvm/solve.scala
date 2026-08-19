@@ -34,7 +34,7 @@ object Solve:
     * @throws ArithmeticException
     *   if the matrix A is singular (not invertible)
     */
-  inline def solve(A: Matrix[Double], b: Matrix[Double]): Matrix[Double] =
+  def solve(A: Matrix[Double], b: Matrix[Double]): Matrix[Double] =
     nonEmptyMatCheck(A)
     nonEmptyMatCheck(b)
     squareMatCheck(A)
@@ -93,7 +93,7 @@ object Solve:
     * @throws ArithmeticException
     *   if the matrix A is singular (not invertible)
     */
-  inline def solve(A: Matrix[Double], b: Array[Double]): Array[Double] =
+  def solve(A: Matrix[Double], b: Array[Double]): Array[Double] =
     // Convert array to column matrix
     val bMatrix = Matrix(b, b.length, 1)
     val xMatrix = solve(A, bMatrix)

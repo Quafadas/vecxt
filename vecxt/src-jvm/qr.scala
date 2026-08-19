@@ -35,7 +35,7 @@ object QR:
     * @throws ArithmeticException
     *   if the QR decomposition fails to compute
     */
-  inline def qr(matrix: Matrix[Double]): (Q: Matrix[Double], R: Matrix[Double]) =
+  def qr(matrix: Matrix[Double]): (Q: Matrix[Double], R: Matrix[Double]) =
     val (m, n) = matrix.shape
 
     nonEmptyMatCheck(matrix)
