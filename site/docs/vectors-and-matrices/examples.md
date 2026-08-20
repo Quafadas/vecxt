@@ -1,11 +1,15 @@
 # Array Examples
 
-Some basic examples with doubles.
+Vectors are modelled as `Array[?]`. This has attractive performance characteristics. 
+
+Note: Floats should have the same API as the `Double` examples below. The API demo below is not complete - particulaly in respect of the mutating API.
+
 
 ```scala mdoc
-import vecxt.all.{*, given}
+import vecxt.all.*
 val v1 = Array[Double](1, 2, 3)
 val v2 = Array[Double](4, 5, 6)
+val chaos = Array[Double](4, 5, 6)
 
 v1.dot(v2)
 
@@ -20,9 +24,7 @@ v1.productSIMD
 v1.norm
 
 v1.clampMin(1.5).printArr
-
 v2.clampMax(1.5).printArr
-
 v1.clamp(1.5, 2.5 ).printArr
 
 v1.maxSIMD
@@ -44,10 +46,16 @@ v1.logSumExp
 v1.cumsum.printArr
 
 (v1 + 1.0).printArr
+chaos += 1.0
+chaos.printArr
 
 (v1 + v2).printArr
+chaos += v2
+chaos.printArr
 
 (v1 - 1.0).printArr
+chaos -= 1.0
+chaos.printArr
 
 (v1 - v2).printArr
 

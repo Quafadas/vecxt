@@ -19,6 +19,9 @@ Getting started with scala cli
 ```scala sc:nocompile
 ivy"io.github.quafadas::vecxt::@VERSION@"
 ```
+### Intro
+
+The obvious [vector operations](vectors-and-matrices/examples.md).
 
 ```scala mdoc
 import vecxt.all.*
@@ -31,20 +34,55 @@ v1 + v2
 val v3 = Array.fill(3)(0.0)
 v3 -= v2
 v3
+```
+The core of `vecxt` is nothing more than a bunch of extension methods on `Array[Double]`, `Array[Float]` etc... design stupid... but attractively simple.
 
+Matricies look like this.
+
+```scala mdoc
+import vecxt.all.*
+
+val m1 = Matrix.fromRows[Double](
+    Array(1.0, 2.0, 3.0),
+    Array(4.0, 5.0, 6.0),
+    Array(7.0, 8.0, 9.0)
+)
+
+println(m1.printMat)
+
+val t1 = m1.transpose // zero copy
+println(t1.printMat)
+val slice1 = m1(1 to 2, 1 to 2) // zero copy
+
+slice1.shape
+
+val matmul = (1.0 +  m1) @@ t1( :: , 0 to 1) 
+// 1.0 + m1 -> SIMD accelerated 
+// t(::, 0 to 1) ->  slice of a slice, still zero copy
+// m @@ m -> BLAS accelerated
+
+println(matmul.shape)
+println(matmul.printMat)
+
+```
+
+NDArray
+
+```scala
 
 ```
 
 ## Goals
 
+- Pythonic syntax
 - Where possible inline calls to platform-native-BLAS implementations for maximum performance\
 - Zero copy semantics / views on contiguous unbroken arrays of data for performance
 - Reasonable, consistent cross platform ergonomics
-- Very little / no data-structures - the vector part of the library is an extension method on `Array[Double]` for example
+- Very few custom data-structures - the vector part of the library is an extension method on `Array[Double]` for example
 - A single cross platform test suite
 - Simplicity, speed
 
 ## Non-Goals
 
-- General mathematics - lets' try to keep a focus on linear algebra. See [slash](https://github.com/dragonfly-ai/slash) or [breeze](https://github.com/scalanlp/breeze/) for more general libraries
 - Visualisation - see [dedav4s](https://quafadas.github.io/dedav4s/)
+- Data ingestion - see [scautable](https://github.com/Quafadas/scautable)
