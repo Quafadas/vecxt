@@ -41,7 +41,7 @@ object LU:
     * @throws IllegalArgumentException
     *   if matrix is empty or if an argument to LAPACK is invalid
     */
-  inline def lu(m: Matrix[Double]): (L: Matrix[Double], U: Matrix[Double], P: Array[Int]) =
+  def lu(m: Matrix[Double]): (L: Matrix[Double], U: Matrix[Double], P: Array[Int]) =
     nonEmptyMatCheck(m)
 
     val rows = m.rows
