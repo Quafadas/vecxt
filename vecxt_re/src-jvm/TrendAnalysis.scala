@@ -1,6 +1,11 @@
 package vecxt_re
 
-import org.apache.commons.math3.special.Gamma.logGamma
+import org.apache.commons.numbers.gamma.LogGamma
+
+import org.apache.commons.statistics.distribution.FDistribution
+import org.apache.commons.numbers.gamma.RegularizedBeta
+import org.apache.commons.statistics.distribution.NormalDistribution
+
 
 /** Result of fitting a GLM trend model: log(μ) = β₀ + β₁·year
   *
@@ -103,7 +108,7 @@ case class TrendFitResult(
 end TrendFitResult
 
 object TrendAnalysis:
-  private val normDist = org.apache.commons.math3.distribution.NormalDistribution(0.0, 1.0)
+  private val normDist = NormalDistribution.of(0.0, 1.0)
 
   /** Two-tailed p-value from z-statistic using normal approximation */
   private inline def pValueFromZ(z: Double): Double =
@@ -118,12 +123,12 @@ object TrendAnalysis:
   private inline def fDistPValue(f: Double, df1: Int, df2: Int): Double =
     if f <= 0 || df1 <= 0 || df2 <= 0 then 1.0
     else
-      val fDist = new org.apache.commons.math3.distribution.FDistribution(df1.toDouble, df2.toDouble)
+      val fDist = FDistribution.of(df1.toDouble, df2.toDouble)
       1.0 - fDist.cumulativeProbability(f)
 
   /** Regularized incomplete beta function using Apache Commons Math */
   private inline def incompleteBeta(a: Double, b: Double, x: Double): Double =
-    org.apache.commons.math3.special.Beta.regularizedBeta(x, a, b)
+    RegularizedBeta.value(x, a, b)
 
   extension (p: Poisson)
     /** Fit a Poisson GLM trend model: log(μ) = β₀ + β₁·year
@@ -252,7 +257,7 @@ object TrendAnalysis:
         while i < n do
           val y = observed(i).toInt
           val mu = fitted(i)
-          ll += y * math.log(mu) - mu - logGamma(y + 1)
+          ll += y * math.log(mu) - mu - LogGamma.value(y + 1)
           i += 1
         end while
         ll
@@ -414,7 +419,7 @@ object TrendAnalysis:
           val y = observed(i).toInt
           val mu = fitted(i)
           // log P(Y=y) = log Γ(y+θ) - log Γ(θ) - log(y!) + θ·log(θ/(θ+μ)) + y·log(μ/(θ+μ))
-          ll += logGamma(y + theta) - logGamma(theta) - logGamma(y + 1)
+          ll += LogGamma.value(y + theta) - LogGamma.value(theta) - LogGamma.value(y + 1)
           ll += theta * math.log(theta / (theta + mu))
           ll += y * math.log(mu / (theta + mu))
           i += 1

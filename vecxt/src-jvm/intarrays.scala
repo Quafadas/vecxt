@@ -1,7 +1,5 @@
 package vecxt
 
-import scala.reflect.ClassTag
-
 import vecxt.annotations.AllocFree
 import vecxt.annotations.HotPath
 import vecxt.annotations.Thin

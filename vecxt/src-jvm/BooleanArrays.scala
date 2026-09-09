@@ -21,7 +21,7 @@ object BooleanArrays:
         while i < bound do
           if !VectorMask.fromArray(spb, vec, i).allTrue then
             out = false
-            break
+            break()
           end if
           i += spbl
         end while
@@ -46,7 +46,7 @@ object BooleanArrays:
         while i < bound do
           if VectorMask.fromArray(spb, vec, i).anyTrue() then
             out = true
-            break
+            break()
           end if
           i += spbl
         end while
