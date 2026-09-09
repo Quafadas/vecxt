@@ -6,7 +6,6 @@ import org.apache.commons.statistics.distribution.FDistribution
 import org.apache.commons.numbers.gamma.RegularizedBeta
 import org.apache.commons.statistics.distribution.NormalDistribution
 
-
 /** Result of fitting a GLM trend model: log(μ) = β₀ + β₁·year
   *
   * Contains coefficient estimates, standard errors, test statistics, and goodness-of-fit measures.
