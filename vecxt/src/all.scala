@@ -35,6 +35,7 @@ object all:
   export vecxt.JsDoubleMatrix.*
   export vecxt.NativeDoubleMatrix.*
   export vecxt.DoubleMatrix.*
+  export vecxt.FloatMatrix.*
   export vecxt.JvmNativeDoubleMatrix.*
   export vecxt.dimensionExtender.DimensionExtender.*
 
