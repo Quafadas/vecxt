@@ -7,8 +7,8 @@ import all.*
 /** Cross-platform coverage for the `Matrix[Float]` scalar/comparison/broadcast operators that used to live only in
   * `JvmFloatMatrix` (`vecxt/src-jvm/floatmatrix.scala`) and are now also implemented on JS/Native via the shared
   * `vecxt/src-js-native/floatmatrix.scala`. These mirror (a simplified subset of) the JVM-only assertions in
-  * `vecxt/test/src-jvm/floatmatrix.test.scala` and `vecxt/test/src-jvm/scalarLeftFloatMatrix.test.scala`, but live
-  * here so they run on all three platforms.
+  * `vecxt/test/src-jvm/floatmatrix.test.scala` and `vecxt/test/src-jvm/scalarLeftFloatMatrix.test.scala`, but live here
+  * so they run on all three platforms.
   */
 class FloatMatrixParitySuite extends FunSuite:
 
