@@ -7,9 +7,9 @@ import vecxt.matrixUtil.*
 import scala.annotation.targetName
 
 /** Cross-platform, non-SIMD `Matrix[Float]` operations, the `Float` counterpart of `DoubleMatrix`. Platform-specific
-  * SIMD/BLAS-backed operations (e.g. `matmul`, scalar `*`/`+`, comparisons) live in `JvmFloatMatrix` /
-  * `JsFloatMatrix` / `NativeFloatMatrix` instead - this file only adds what none of those three currently define, to
-  * avoid ambiguous extension method clashes on the JVM target.
+  * SIMD/BLAS-backed operations (e.g. `matmul`, scalar `*`/`+`, comparisons) live in `JvmFloatMatrix` / `JsFloatMatrix`
+  * / `NativeFloatMatrix` instead - this file only adds what none of those three currently define, to avoid ambiguous
+  * extension method clashes on the JVM target.
   */
 object FloatMatrix:
 
@@ -110,8 +110,8 @@ object FloatMatrix:
     def kronecker(other: Matrix[Float]): Matrix[Float] = ???
 
     /** Elementwise multiply. `-:-`'s slower cousin, a full elementwise op rather than a delegate, because unlike
-      * `-`/`-:-` there is no existing platform-specific `Matrix[Float] * Matrix[Float]` to reuse - see the module
-      * doc comment above.
+      * `-`/`-:-` there is no existing platform-specific `Matrix[Float] * Matrix[Float]` to reuse - see the module doc
+      * comment above.
       */
     @targetName("floatMatrixHadamard")
     def hadamard(m2: Matrix[Float]): Matrix[Float] =
