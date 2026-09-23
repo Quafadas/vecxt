@@ -1,6 +1,6 @@
 //| mill-version: 1.1.9
 //| mill-jvm-version: 25
-//| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector"]
+//| mill-jvm-opts: [ "--add-modules", "jdk.incubator.vector", -XX:TrimNativeHeapInterval=60000]
 //| mvnDeps:
 //| - io.github.quafadas:millSite_mill1_3.8:0.0.57
 //| - com.goyeau:mill-scalafix_mill1_3:0.6.0
@@ -37,7 +37,7 @@ object V:
   val spire: Dep = mvn"org.typelevel::spire::0.18.0"
   val laminar: Dep = mvn"com.raquo::laminar::17.2.1"
   val scalaTags: Dep = mvn"com.lihaoyi::scalatags::0.13.1"
-  val scalaVersion = "3.9.0"
+  val scalaVersion = "3.8.4"
   val munitVersion = "1.3.6"
   val blas: Dep = mvn"dev.ludovic.netlib:blas:3.2.0"
   val lapack: Dep = mvn"dev.ludovic.netlib:lapack:3.2.0"

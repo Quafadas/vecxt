@@ -145,6 +145,45 @@ class MatrixExtensionSuite extends FunSuite:
     assertMatrixEquals(prodC, Matrix[Double](Array[Double](8.0, 90.0), (1, 2)))
   }
 
+  // mean(dim) divides sum(dim) by the length of the collapsed axis. Non-square matrices throughout, so dividing by
+  // the kept axis instead (rows vs cols) would give a different answer.
+
+  test("mean along dimension, column-major") {
+    // [[1,5],[4,3],[2,6]]
+    val mat1 = Matrix[Double](Array(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
+
+    assertMatrixEquals(mat1.mean(Rows), Matrix[Double](Array(3.0, 3.5, 4.0), (3, 1)))
+    assertMatrixEquals(mat1.mean(Cols), Matrix[Double](Array(7.0 / 3, 14.0 / 3), (1, 2)))
+    assertMatrixEquals(mat1.mean(0), mat1.mean(Rows))
+    assertMatrixEquals(mat1.mean(1), mat1.mean(Cols))
+  }
+
+  test("mean along dimension, row-major") {
+    val mat1 = Matrix[Double](Array(1.0, 5.0, 4.0, 3.0, 2.0, 6.0), 3, 2, 2, 1, 0)
+    assert(mat1.isDenseRowMajor)
+
+    assertMatrixEquals(mat1.mean(Rows), Matrix[Double](Array(3.0, 3.5, 4.0), (3, 1)))
+    assertMatrixEquals(mat1.mean(Cols), Matrix[Double](Array(7.0 / 3, 14.0 / 3), (1, 2)))
+  }
+
+  test("mean along dimension, strided view") {
+    // [[1,2,3],[4,5,6]] sliced out of the 3x3
+    val view = mat1to9(0 to 1, 0 to 2)
+
+    assertMatrixEquals(view.mean(Rows), Matrix[Double](Array(2.0, 5.0), (2, 1)))
+    assertMatrixEquals(view.mean(Cols), Matrix[Double](Array(2.5, 3.5, 4.5), (1, 3)))
+  }
+
+  test("mean along dimension agrees with overall mean") {
+    val mat1 = Matrix[Double](Array(1.0, 4.0, 2.0, 5.0, 3.0, 6.0), (3, 2))
+    assertEqualsDouble(mat1.mean(Rows).mean, mat1.mean, 1e-12)
+    assertEqualsDouble(mat1.mean(Cols).mean, mat1.mean, 1e-12)
+  }
+
+  test("mean along invalid dimension throws") {
+    intercept[InvalidDimensionException](mat1to9.mean(2))
+  }
+
   // reduceAlongDimension (which backs sum/min/max/product along a dimension) has no dedicated test at all for
   // Float or Int, row-major or column-major — this covers the same bug as the Double row-major tests above, for
   // both remaining types it was fixed in, using the same logical matrix ([[1,5],[4,3],[2,6]]) throughout.

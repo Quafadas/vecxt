@@ -538,6 +538,11 @@ object DoubleMatrix:
       reduceAlongDimension(dim, _ * _, 1.0)
     end product
 
+    def mean(dim: DimensionExtender): Matrix[Double] =
+      val s = sum(dim)
+      s / (m.numel / s.numel).toDouble
+    end mean
+
     // inline def - : Matrix[Double] =
     //   Matrix(vecxt.doublearrays.*(m.raw)(-1), m.shape)
 
