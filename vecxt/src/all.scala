@@ -32,6 +32,7 @@ object all:
   export vecxt.JsFloatMatrix.*
   export vecxt.NativeFloatMatrix.*
   export vecxt.JvmIntMatrix.*
+  export vecxt.BooleanMatrix.*
   export vecxt.JsDoubleMatrix.*
   export vecxt.NativeDoubleMatrix.*
   export vecxt.DoubleMatrix.*

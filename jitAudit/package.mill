@@ -28,8 +28,8 @@ import mill.*, scalalib.*
   *
   * ==What was deliberately not built: D2 and D5==
   *
-  * The plan specified two further checks in this tier, both of which work by running with
-  * {@code -XX:+LogCompilation} and parsing the XML: D2 confirms Vector API intrinsics were applied by looking for
+  * The plan specified two further checks in this tier, both of which work by running with {@code -XX:+LogCompilation}
+  * and parsing the XML: D2 confirms Vector API intrinsics were applied by looking for
   * {@code <intrinsic id='_Vector...'>} entries, and D5 counts {@code <uncommon_trap>} and recompilation events. Neither
   * is implemented, and the decision is not "not yet" — it is that the cost/benefit does not work. Recorded here rather
   * than left as an absence, because an unexplained gap in a checklist reads as an oversight.
@@ -101,8 +101,8 @@ object `package` extends ScalaModule:
     * ==How this relates to the unbuilt D2==
     *
     * It covers part of the same ground, from an observable consequence and a product-grade {@code -XX:} flag rather
-    * than from a JDK-internal XML vocabulary. D1 with EA on cannot distinguish "the SIMD intrinsics were applied"
-    * from "they were not, and EA scalarised the software-path objects instead" — both read as zero. This scope can.
+    * than from a JDK-internal XML vocabulary. D1 with EA on cannot distinguish "the SIMD intrinsics were applied" from
+    * "they were not, and EA scalarised the software-path objects instead" — both read as zero. This scope can.
     *
     * Only part, though, and the earlier framing of it as "what replaces D2" was too strong. It relies on EA being what
     * rescues a software-path kernel, and that is not always so: D6's canary is a software-path kernel that allocates
