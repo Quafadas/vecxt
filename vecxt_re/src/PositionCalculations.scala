@@ -21,12 +21,11 @@ object PositionCalculations:
     *   the forecast price one year after `priceDate`, in `priceUnit`. If the bond matures within the year, this is par.
     */
   def priceForecast1Year(
-      price: Double,
-      priceUnit: PriceUnit,
+      price: Price,
       priceDate: LocalDate,
       maturity: LocalDate
-  ): Double =
-    price + pull2Parity1Year(price, priceUnit, priceDate, maturity)
+  ): Price =
+    price + pull2Parity1Year(price, priceDate, maturity)
 
   /** The change in price over one year of a bond which is being pulled linearly (by calendar days) to parity at
     * maturity.
@@ -48,24 +47,23 @@ object PositionCalculations:
     *   negative above par. If the bond matures within the year, this is the full distance to par.
     */
   def pull2Parity1Year(
-      price: Double,
-      priceUnit: PriceUnit,
+      price: Price,
       priceDate: LocalDate,
       maturity: LocalDate
-  ): Double =
+  ): Price =
     import scala.math.Ordered.orderingToOrdered
     assert(
       maturity >= priceDate,
       s"Maturity $maturity and pricing date $priceDate suggest this bond has already matured. It should not pull to parity"
     )
 
-    val one = PriceUnit.One.convert(1.0, priceUnit)
+    val one = Rel(1.0, PriceUnit.One)
     val projectionDate = priceDate.plusYears(1L)
 
     val days2Maturity = ChronoUnit.DAYS.between(priceDate, maturity)
     val days2Project = ChronoUnit.DAYS.between(priceDate, projectionDate)
-    if maturity < projectionDate then one - price
-    else days2Project.toDouble / days2Maturity.toDouble * (one - price)
+    if maturity < projectionDate then -(price - Rel.one)
+    else days2Project.toDouble / days2Maturity.toDouble * -(price - Rel.one)
     end if
   end pull2Parity1Year
 
@@ -88,19 +86,13 @@ object PositionCalculations:
     *   plus pull to parity minus that loss
     */
   def pnlForecast1Year(
-      price: Double,
-      priceUnit: PriceUnit,
+      price: Price,
       priceDate: LocalDate,
       maturity: LocalDate,
       lossVector: Array[Double],
-      riskFreeRate: Double,
-      riskFreeRateUnit: PriceUnit,
-      spread: Double,
-      spreadUnit: PriceUnit
+      riskFreeRate: RiskFreeRate,
+      spread: Spread
   ): Array[Double] =
-    val riskFreeInterest = riskFreeRateUnit.convert(1.0, PriceUnit.One) * riskFreeRate
-    val spreadInOne = spreadUnit.convert(spread, PriceUnit.One)
-    val priceInOne = priceUnit.convert(price, PriceUnit.One)
-    (spreadInOne + riskFreeInterest + pull2Parity1Year(priceInOne, PriceUnit.One, priceDate, maturity)) - lossVector
+    (spread + riskFreeRate + pull2Parity1Year(price, priceDate, maturity)).canonical - lossVector
   end pnlForecast1Year
 end PositionCalculations
