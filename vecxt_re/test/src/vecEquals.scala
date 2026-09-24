@@ -29,3 +29,9 @@ def assertVecEquals(v1: Array[Long], v2: Array[Long])(implicit loc: munit.Locati
     i += 1
   end while
 end assertVecEquals
+
+/** Makes `assertEquals` on Rel (and Price / Spread / RiskFreeRate) compare canonical values within a tolerance, so
+  * `Price(100, Pts)` equals `Price(1.0, One)` and floating point noise doesn't fail tests.
+  */
+given relCompare[R <: Rel]: munit.Compare[R, R] with
+  def isEqual(obtained: R, expected: R): Boolean = obtained.approxEq(expected, 1e-9)
