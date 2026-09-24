@@ -21,7 +21,7 @@ object PositionCalculations:
     *   the forecast price one year after `priceDate`, in `priceUnit`. If the bond matures within the year, this is par.
     */
   def priceForecast1Year(
-      price: Price,      
+      price: Price,
       priceDate: LocalDate,
       maturity: LocalDate
   ): Price =
@@ -62,10 +62,8 @@ object PositionCalculations:
 
     val days2Maturity = ChronoUnit.DAYS.between(priceDate, maturity)
     val days2Project = ChronoUnit.DAYS.between(priceDate, projectionDate)
-    if maturity < projectionDate then 
-      -(price - Rel.one)
-    else 
-      days2Project.toDouble / days2Maturity.toDouble * -(price - Rel.one)
+    if maturity < projectionDate then -(price - Rel.one)
+    else days2Project.toDouble / days2Maturity.toDouble * -(price - Rel.one)
     end if
   end pull2Parity1Year
 
@@ -92,9 +90,9 @@ object PositionCalculations:
       priceDate: LocalDate,
       maturity: LocalDate,
       lossVector: Array[Double],
-      riskFreeRate: RiskFreeRate,      
-      spread: Spread      
-  ): Array[Double] =    
+      riskFreeRate: RiskFreeRate,
+      spread: Spread
+  ): Array[Double] =
     (spread + riskFreeRate + pull2Parity1Year(price, priceDate, maturity)).canonical - lossVector
   end pnlForecast1Year
 end PositionCalculations

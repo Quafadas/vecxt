@@ -35,3 +35,4 @@ end assertVecEquals
   */
 given relCompare[R <: Rel]: munit.Compare[R, R] with
   def isEqual(obtained: R, expected: R): Boolean = obtained.approxEq(expected, 1e-9)
+end relCompare

@@ -90,7 +90,10 @@ class CurrencyAmountSuite extends munit.FunSuite:
 
   test("ordering is by amount regardless of the unit used to construct"):
     val amounts = List(CurrencyAmount(2, Mn, CAD), CurrencyAmount(500, K, CAD), CurrencyAmount(0.001, Bn, CAD))
-    assertEquals(amounts.sorted, List(CurrencyAmount(500, K, CAD), CurrencyAmount(1, Mn, CAD), CurrencyAmount(2, Mn, CAD)))
+    assertEquals(
+      amounts.sorted,
+      List(CurrencyAmount(500, K, CAD), CurrencyAmount(1, Mn, CAD), CurrencyAmount(2, Mn, CAD))
+    )
     assertEquals(amounts.max, CurrencyAmount(2, Mn, CAD))
 
   test("ordering across currencies fails"):

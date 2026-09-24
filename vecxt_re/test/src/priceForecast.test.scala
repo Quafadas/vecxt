@@ -7,7 +7,8 @@ class PositionCalculationsSuite extends munit.FunSuite:
 
   test("one year maturity"):
     val reportDate = LocalDate.of(2026, 1, 1)
-    val forecastPrice = PositionCalculations.priceForecast1Year(Price(102, PriceUnit.Pts), reportDate, reportDate.plusYears(1))
+    val forecastPrice =
+      PositionCalculations.priceForecast1Year(Price(102, PriceUnit.Pts), reportDate, reportDate.plusYears(1))
 
     assertEquals(forecastPrice, Price(100.0, PriceUnit.Pts))
 
