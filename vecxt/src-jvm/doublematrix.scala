@@ -384,6 +384,54 @@ object JvmDoubleMatrix:
 
     end +=
 
+    /** Per-column fused multiply-add: `out(i, j) = m(i, j) * multiply(j) + add(j)`, as a fresh dense column-major
+      * matrix.
+      *
+      * A column scale and a column broadcast-add in one pass: `m` is read once and the result written once, where
+      * `copy`, `+= arr` and a column scale would each make a full pass. Reference BLAS has no equivalent - `dscal` per
+      * column scales but cannot add, and `A * diag(x)` routines (`dgmm`) likewise stop at the multiply.
+      *
+      * When `rowStride == 1` each column is a contiguous run and is processed with `DoubleVector.fma` against two
+      * broadcast lanes; any other layout (row-major, transposed or doubly-strided views) falls back to the shared
+      * scalar loop in [[FmaCols.loop]]. The input is never modified.
+      *
+      * @param multiply
+      *   one multiplier per column; must have length `m.cols`
+      * @param add
+      *   one addend per column; must have length `m.cols`
+      */
+    def fmaCols(multiply: Array[Double], add: Array[Double]): Matrix[Double] =
+      if m.rowStride != 1 then FmaCols.loop(m, multiply, add)
+      else
+        FmaCols.check(m, multiply, add)
+        val spd = doublearrays.spd
+        val spdl = doublearrays.spdl
+        val rows = m.rows
+        val bound = spd.loopBound(rows)
+        val out = new Array[Double](m.numel)
+        var j = 0
+        while j < m.cols do
+          val src = m.offset + j * m.colStride
+          val dst = j * rows
+          val mulS = multiply(j)
+          val addS = add(j)
+          val mul = DoubleVector.broadcast(spd, mulS)
+          val ad = DoubleVector.broadcast(spd, addS)
+          var i = 0
+          while i < bound do
+            DoubleVector.fromArray(spd, m.raw, src + i).fma(mul, ad).intoArray(out, dst + i)
+            i += spdl
+          end while
+          while i < rows do
+            out(dst + i) = Math.fma(m.raw(src + i), mulS, addS)
+            i += 1
+          end while
+          j += 1
+        end while
+        Matrix[Double](out, m.rows, m.cols)
+      end if
+    end fmaCols
+
     def +=(n: Double): Unit =
 
       if m.hasSimpleContiguousMemoryLayout then vecxt.doublearrays.+=(m.raw)(n)
