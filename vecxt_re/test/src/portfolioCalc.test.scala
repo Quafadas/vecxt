@@ -128,7 +128,9 @@ class PortfolioCalcSuite extends munit.FunSuite:
   // two scenarios (rows) x two positions (columns); losses are positive fractions of notional
   private val losses = Matrix.fromRows[Double](Array(0.0, 0.2), Array(0.1, 0.0))
 
-  test("marketValueForecast1Year: notional in portfolio ccy times (price T1 + carry - loss), per scenario and position"):
+  test(
+    "marketValueForecast1Year: notional in portfolio ccy times (price T1 + carry - loss), per scenario and position"
+  ):
     val mv = marketValueForecast1Year(t1Holdings, losses, t0, Map(Ccy.USD -> 0.9), Ccy.CHF)
     assertEquals((mv.rows, mv.cols), (2, 2))
     assertEqualsDouble(mv(0, 0), 900_000 * 1.05, 1e-6)

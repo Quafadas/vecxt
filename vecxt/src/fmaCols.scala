@@ -4,8 +4,8 @@ import vecxt.matrix.*
 
 /** Shared pieces of `fmaCols`: `out(i, j) = m(i, j) * multiply(j) + add(j)`.
   *
-  * Each platform exposes the public `fmaCols` extension (`JvmDoubleMatrix`, `JsDoubleMatrix`, `NativeDoubleMatrix`).
-  * JS and Native delegate straight to [[loop]]; the JVM uses a SIMD path when rows are contiguous and falls back to
+  * Each platform exposes the public `fmaCols` extension (`JvmDoubleMatrix`, `JsDoubleMatrix`, `NativeDoubleMatrix`). JS
+  * and Native delegate straight to [[loop]]; the JVM uses a SIMD path when rows are contiguous and falls back to
   * [[loop]] otherwise. Deliberately not exported from `vecxt.all` - it is the kernel, not the API.
   */
 private[vecxt] object FmaCols:
@@ -21,9 +21,8 @@ private[vecxt] object FmaCols:
 
   /** Layout-agnostic kernel: reads through the strides, writes a fresh dense column-major matrix.
     *
-    * Columns outer, rows inner, so the write is always sequential. Uses a plain `x * mul + ad` rather than
-    * `Math.fma`, which is emulated (slowly) on Scala.js; results may therefore differ from the JVM SIMD path in the
-    * last bit.
+    * Columns outer, rows inner, so the write is always sequential. Uses a plain `x * mul + ad` rather than `Math.fma`,
+    * which is emulated (slowly) on Scala.js; results may therefore differ from the JVM SIMD path in the last bit.
     */
   def loop(m: Matrix[Double], multiply: Array[Double], add: Array[Double]): Matrix[Double] =
     check(m, multiply, add)

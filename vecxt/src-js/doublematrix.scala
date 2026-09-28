@@ -303,7 +303,6 @@ object JsDoubleMatrix:
       out
     end *
 
-
     /** Per-column fused multiply-add: `out(i, j) = m(i, j) * multiply(j) + add(j)`, as a fresh dense column-major
       * matrix. See `JvmDoubleMatrix.fmaCols`; this platform uses the shared scalar loop.
       */

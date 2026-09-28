@@ -6,8 +6,8 @@ import scala.compiletime.{constValue, constValueTuple, erasedValue, error, summo
 /** Compile-time helpers for accepting a named tuple by field name rather than by field position.
   *
   * A caller may supply `(id = "1", price = p, notional = n, name = "A")` where the required shape is
-  * `(price: Price, notional: CurrencyAmount, name: String, id: String)`: field order is irrelevant and extra fields
-  * are ignored, but every required field must be present with a conforming type or compilation fails.
+  * `(price: Price, notional: CurrencyAmount, name: String, id: String)`: field order is irrelevant and extra fields are
+  * ignored, but every required field must be present with a conforming type or compilation fails.
   */
 object NamedRecord:
 
@@ -16,8 +16,8 @@ object NamedRecord:
 
   /** The value type of field `K` in the named tuple with names `N` and values `V`, or [[Missing]]. */
   type Lookup[N <: Tuple, V <: Tuple, K] = (N, V) match
-    case (K *: _, v *: _)     => v
-    case (_ *: ns, _ *: vs)   => Lookup[ns, vs, K]
+    case (K *: _, v *: _)         => v
+    case (_ *: ns, _ *: vs)       => Lookup[ns, vs, K]
     case (EmptyTuple, EmptyTuple) => Missing
 
   /** Fails compilation unless the named tuple `(N, V)` has every field of `Required` with a conforming type.
@@ -27,7 +27,7 @@ object NamedRecord:
   inline def check[N <: Tuple, V <: Tuple, Required <: AnyNamedTuple]: Unit =
     summonFrom {
       case _: (N =:= Tuple) => ()
-      case _                  => checkFields[N, V, Names[Required], DropNames[Required]]
+      case _                => checkFields[N, V, Names[Required], DropNames[Required]]
     }
 
   private inline def checkFields[N <: Tuple, V <: Tuple, RN <: Tuple, RV <: Tuple]: Unit =
