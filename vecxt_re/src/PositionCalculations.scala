@@ -10,9 +10,7 @@ object PositionCalculations:
     * This allows us to ignore seasonality, which is assumed to be annual.
     *
     * @param price
-    *   the current price, expressed in `priceUnit`
-    * @param priceUnit
-    *   the unit `price` is quoted in (e.g. `Pts` for a price of 102 meaning 102% of par)
+    *   the current price
     * @param priceDate
     *   the date on which `price` was observed; the forecast is for one year after this date
     * @param maturity
