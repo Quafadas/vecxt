@@ -1,6 +1,5 @@
 package vecxt
 
-import scala.util.chaining.*
 import all.*
 
 class ArrayExtensionSuite extends munit.FunSuite:

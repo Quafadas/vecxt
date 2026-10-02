@@ -6,7 +6,6 @@ import scala.reflect.ClassTag
 import vecxt.annotations.AllocFree
 import vecxt.annotations.HotPath
 import vecxt.annotations.Thin
-
 import vecxt.matrix.Matrix
 
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas

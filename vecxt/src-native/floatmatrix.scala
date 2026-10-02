@@ -1,12 +1,11 @@
 package vecxt
+import scala.annotation.targetName
 import scala.scalanative.unsafe.*
 
 import org.ekrich.blas.unsafe.blas
 import org.ekrich.blas.unsafe.blasEnums
 
-import vecxt.MatrixInstance.*
 import vecxt.matrix.*
-import scala.annotation.targetName
 
 object NativeFloatMatrix:
 

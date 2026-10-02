@@ -1,13 +1,14 @@
 package vecxt
 
+import scala.annotation.targetName
 import scala.reflect.ClassTag
 
 import vecxt.all.*
 import vecxt.annotations.AllocFree
 import vecxt.dimensionExtender.DimensionExtender.*
+
 import dev.ludovic.netlib.blas.JavaBLAS.getInstance as blas
 import jdk.incubator.vector.*
-import scala.annotation.targetName
 
 object JvmFloatMatrix:
 

@@ -1,12 +1,11 @@
 package vecxt_re
 
+import vecxt.all.>
 import vecxt.all.Matrix
-import vecxt.dimensionExtender.DimensionExtender.Dimension
-import vecxt.DoubleMatrix.reduceAlongDimension
 import vecxt.all.mean
 import vecxt.all.sum
-import vecxt.all.>
 import vecxt.all.trues
+import vecxt.dimensionExtender.DimensionExtender.Dimension
 
 /** The assumption here.
   *

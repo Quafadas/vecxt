@@ -1,6 +1,5 @@
 package vecxt
 
-import scala.util.chaining.*
 import doublearrays.*
 class BoundsCheckSuite extends munit.FunSuite:
 

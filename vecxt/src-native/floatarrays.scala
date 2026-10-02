@@ -6,7 +6,6 @@ import scala.scalanative.unsafe.*
 import org.ekrich.blas.unsafe.*
 
 import vecxt.BooleanArrays.trues
-
 import vecxt.matrix.Matrix
 
 object floatarrays:

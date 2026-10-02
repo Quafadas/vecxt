@@ -5,7 +5,6 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float32Array
 
 import vecxt.BooleanArrays.trues
-
 import vecxt.matrix.Matrix
 
 object floatarrays:

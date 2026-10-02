@@ -2,9 +2,8 @@ package vecxt
 
 import scala.reflect.ClassTag
 
-import vecxt.annotations.Thin
-
 import vecxt.IntArraysX.*
+import vecxt.annotations.Thin
 import vecxt.ndarray.*
 import vecxt.rangeExtender.MatrixRange.*
 

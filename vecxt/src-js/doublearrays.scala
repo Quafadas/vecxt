@@ -4,7 +4,6 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray.Float64Array
 
 import vecxt.BooleanArrays.*
-
 import vecxt.matrix.Matrix
 
 object arrayUtil:

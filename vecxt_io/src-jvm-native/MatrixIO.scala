@@ -1,9 +1,10 @@
 package vecxt_io
 
-import vecxt.all.*
 import scala.annotation.targetName
 import scala.math.Numeric
 import scala.reflect.ClassTag
+
+import vecxt.all.*
 
 /** Matrix CSV serialization: each line stores one matrix row. */
 object MatrixIO:

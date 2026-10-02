@@ -3,7 +3,6 @@ package vecxtensions
 import scala.reflect.ClassTag
 
 import vecxt.*
-
 import vecxt.all.*
 
 import spire.algebra.Ring

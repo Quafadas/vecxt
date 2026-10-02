@@ -1,8 +1,9 @@
 package vecxt
 
+import scala.annotation.targetName
+
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
-import scala.annotation.targetName
 
 object dimMatCheck:
   inline def apply[A](a: Matrix[A], b: Matrix[A]) =
