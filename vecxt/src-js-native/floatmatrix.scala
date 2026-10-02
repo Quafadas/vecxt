@@ -1,9 +1,10 @@
 package vecxt
 
+import scala.annotation.targetName
+
 import vecxt.all.*
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.matrix.Matrix
-import scala.annotation.targetName
 
 object JvmFloatMatrix:
   extension (m: Matrix[Float])

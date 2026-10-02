@@ -1,12 +1,14 @@
 package vecxt
 
+import scala.annotation.targetName
+
+import vecxt.MatrixInstance.*
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.intarrays.*
 import vecxt.matrix.*
-import vecxt.MatrixInstance.*
+
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorMask
-import scala.annotation.targetName
 
 object JvmIntMatrix:
   extension (m: Matrix[Int])

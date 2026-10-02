@@ -1,6 +1,5 @@
 package vecxt
 
-import scala.util.chaining.*
 import all.*
 
 class ZeroWhereSuite extends munit.FunSuite:

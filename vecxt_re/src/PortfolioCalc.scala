@@ -1,7 +1,9 @@
 package vecxt_re
 
-import scala.NamedTuple.NamedTuple
 import java.time.LocalDate
+
+import scala.NamedTuple.NamedTuple
+
 import vecxt.all.*
 
 /** Portfolio level calculations over a collection of positions.

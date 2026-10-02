@@ -1,11 +1,10 @@
 package vecxt
 
+import scala.annotation.targetName
 import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.typedarray.Float32Array
 
-import vecxt.MatrixInstance.*
 import vecxt.matrix.*
-import scala.annotation.targetName
 
 object JsFloatMatrix:
 

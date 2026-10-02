@@ -1,10 +1,10 @@
 package vecxt
 
+import scala.annotation.targetName
+
 import vecxt.MatrixInstance.*
 import vecxt.matrix.*
 import vecxt.matrixUtil.*
-
-import scala.annotation.targetName
 
 /** Cross-platform, non-SIMD `Matrix[Float]` operations, the `Float` counterpart of `DoubleMatrix`. Platform-specific
   * SIMD/BLAS-backed operations (e.g. `matmul`, scalar `*`/`+`, comparisons) live in `JvmFloatMatrix` / `JsFloatMatrix`

@@ -1,7 +1,14 @@
 package vecxt_re
 
-import scala.NamedTuple.{AnyNamedTuple, DropNames, NamedTuple, Names}
-import scala.compiletime.{constValue, constValueTuple, erasedValue, error, summonFrom}
+import scala.NamedTuple.AnyNamedTuple
+import scala.NamedTuple.DropNames
+import scala.NamedTuple.NamedTuple
+import scala.NamedTuple.Names
+import scala.compiletime.constValue
+import scala.compiletime.constValueTuple
+import scala.compiletime.erasedValue
+import scala.compiletime.error
+import scala.compiletime.summonFrom
 
 /** Compile-time helpers for accepting a named tuple by field name rather than by field position.
   *

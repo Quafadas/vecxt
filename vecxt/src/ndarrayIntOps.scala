@@ -1,8 +1,8 @@
 package vecxt
 
-import vecxt.annotations.HotPath
 import scala.annotation.targetName
 
+import vecxt.annotations.HotPath
 import vecxt.broadcast.*
 import vecxt.ndarray.*
 

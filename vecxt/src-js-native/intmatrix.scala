@@ -1,8 +1,9 @@
 package vecxt
 
+import scala.annotation.targetName
+
 import vecxt.dimensionExtender.DimensionExtender.*
 import vecxt.matrix.Matrix
-import scala.annotation.targetName
 
 object JvmIntMatrix:
   extension (m: Matrix[Int])

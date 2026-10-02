@@ -1,5 +1,7 @@
 package vecxt
 
+import scala.annotation.targetName
+
 import vecxt.annotations.AllocFree
 import vecxt.annotations.HotPath
 import vecxt.annotations.Thin
@@ -10,7 +12,6 @@ import jdk.incubator.vector.FloatVector
 import jdk.incubator.vector.IntVector
 import jdk.incubator.vector.VectorOperators
 import jdk.incubator.vector.VectorSpecies
-import scala.annotation.targetName
 
 object intarrays:
 
