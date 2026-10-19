@@ -56,7 +56,6 @@ object PositionCalculations:
       s"Maturity $maturity and pricing date $priceDate suggest this bond has already matured. It should not pull to parity"
     )
 
-    val one = Rel(1.0, PriceUnit.One)
     val projectionDate = priceDate.plusYears(1L)
 
     val days2Maturity = ChronoUnit.DAYS.between(priceDate, maturity)

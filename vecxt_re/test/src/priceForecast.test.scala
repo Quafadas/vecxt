@@ -40,7 +40,7 @@ class PositionCalculationsSuite extends munit.FunSuite:
       PositionCalculations.priceForecast1Year(Price(10200, PriceUnit.Bps), reportDate, reportDate.plusYears(2))
 
     assertEquals(forecastPrice, Price(10100.0, PriceUnit.Bps))
-    assertEquals(forecastPrice.unit, PriceUnit.Bps)
+    assertEqualsDouble(forecastPrice.in(PriceUnit.Bps), 10100.0, 1e-9)
 
   test("pnlForecast"):
     val reportDate = LocalDate.of(2026, 1, 1)
