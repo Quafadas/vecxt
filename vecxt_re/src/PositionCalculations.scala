@@ -17,7 +17,7 @@ object PositionCalculations:
     * @param maturity
     *   the maturity date of the bond
     * @return
-    *   the forecast price one year after `priceDate`, in `priceUnit`. If the bond matures within the year, this is par.
+    *   the forecast price one year after `priceDate`. If the bond matures within the year, this is par.
     */
   def priceForecast1Year(
       price: Price,
@@ -25,6 +25,27 @@ object PositionCalculations:
       maturity: LocalDate
   ): Price =
     price + pull2Parity1Year(price, priceDate, maturity)
+
+  /** As [[priceForecast1Year]], elementwise over positions observed on the same date. */
+  def priceForecast1Year(
+      prices: Array[Price],
+      priceDate: LocalDate,
+      maturities: Array[LocalDate]
+  ): Array[Price] =
+    prices + pull2Parity1Year(prices, priceDate, maturities)
+
+  /** As [[pull2Parity1Year]], elementwise over positions observed on the same date. */
+  def pull2Parity1Year(
+      prices: Array[Price],
+      priceDate: LocalDate,
+      maturities: Array[LocalDate]
+  ): Array[Rel] =
+    require(
+      prices.length == maturities.length,
+      s"Got ${prices.length} prices and ${maturities.length} maturities"
+    )
+    Array.tabulate(prices.length)(i => pull2Parity1Year(prices(i), priceDate, maturities(i)))
+  end pull2Parity1Year
 
   /** The change in price over one year of a bond which is being pulled linearly (by calendar days) to parity at
     * maturity.
@@ -34,22 +55,20 @@ object PositionCalculations:
     * Uses calendar days, not yield accretion.
     *
     * @param price
-    *   the current price, expressed in `priceUnit`
-    * @param priceUnit
-    *   the unit `price` is quoted in
+    *   the current price
     * @param priceDate
     *   the date on which `price` was observed; the projection is for one year after this date
     * @param maturity
     *   the maturity date of the bond
     * @return
-    *   the forecast price change (forecast price minus `price`) in `priceUnit`. Positive for a bond priced below par,
-    *   negative above par. If the bond matures within the year, this is the full distance to par.
+    *   the forecast price change (forecast price minus `price`). Positive for a bond priced below par, negative above
+    *   par. If the bond matures within the year, this is the full distance to par.
     */
   def pull2Parity1Year(
       price: Price,
       priceDate: LocalDate,
       maturity: LocalDate
-  ): Price =
+  ): Rel =
     import scala.math.Ordered.orderingToOrdered
     assert(
       maturity >= priceDate,
@@ -60,8 +79,8 @@ object PositionCalculations:
 
     val days2Maturity = ChronoUnit.DAYS.between(priceDate, maturity)
     val days2Project = ChronoUnit.DAYS.between(priceDate, projectionDate)
-    if maturity < projectionDate then -(price - Rel.one)
-    else days2Project.toDouble / days2Maturity.toDouble * -(price - Rel.one)
+    if maturity < projectionDate then Price.par - price
+    else days2Project.toDouble / days2Maturity.toDouble * (Price.par - price)
     end if
   end pull2Parity1Year
 

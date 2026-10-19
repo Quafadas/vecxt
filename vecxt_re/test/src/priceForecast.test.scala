@@ -66,4 +66,18 @@ class PositionCalculationsSuite extends munit.FunSuite:
       Spread(100.0, PriceUnit.Bps)
     )
     assertVecEquals(forecastPriceWSpread, forecast + 0.01)
+    
+  test("array priceForecast1Year matches the scalar version elementwise"):
+    val reportDate = LocalDate.of(2026, 1, 1)
+    val prices = Array(Price(102, PriceUnit.Pts), Price(9500, PriceUnit.Bps), Price(0.99, PriceUnit.One))
+    val maturities = Array(reportDate.plusMonths(6), reportDate.plusYears(2), reportDate.plusYears(5))
+    val forecast = PositionCalculations.priceForecast1Year(prices, reportDate, maturities)
+    for i <- prices.indices do
+      assertEquals(forecast(i), PositionCalculations.priceForecast1Year(prices(i), reportDate, maturities(i)))
+    end for
+
+  test("array pull2Parity1Year rejects mismatched lengths"):
+    intercept[IllegalArgumentException](
+      PositionCalculations.pull2Parity1Year(Array(Price.par), LocalDate.of(2026, 1, 1), Array.empty[LocalDate])
+    )
 end PositionCalculationsSuite

@@ -47,6 +47,11 @@ final case class CurrencyAmount private (amount: Double, ccy: Ccy) derives CanEq
   def *(k: Double): CurrencyAmount =
     new CurrencyAmount(amount * k, ccy)
 
+  /** market value = notional * price */
+  @targetName("timesPrice")
+  def *(p: Price): CurrencyAmount =
+    new CurrencyAmount(amount * p.canonical, ccy)
+
   /** Ratio of two same-currency amounts, e.g. a loss ratio. */
   def /(y: CurrencyAmount): Rel =
     sameCcy(y); Rel(amount / y.amount, PriceUnit.One)

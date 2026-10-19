@@ -142,35 +142,26 @@ object PortfolioCalc:
       holdings.length == lossMatrix.cols,
       s"Each entry in the lossMatrix should have a holdings entry. Loss matrix width ${lossMatrix.cols}, got ${holdings.length} holdings"
     )
-    val oneYearYield = for h <- holdings yield
-      val priceT1 = PositionCalculations.priceForecast1Year(h.price, t0Date, h.maturity)
+    val notionals = holdings.map { h =>
       val ccy = h.notional.ccy
-      val xcRate =
-        if ccy == portfolioCurrency then Right[String, Double](1.0)
-        else
-          xcRates
-            .get(ccy)
-            .toRight(
-              s"Position id=${h.id} name=${h.name}: no FX rate from $ccy to $portfolioCurrency"
-            )
+      val xcRate = if ccy == portfolioCurrency then Some(1.0) else xcRates.get(ccy)
+      xcRate
+        .map(_ * h.notional.amount)
+        .toRight(s"Position id=${h.id} name=${h.name}: no FX rate from $ccy to $portfolioCurrency")
+    }
 
-      xcRate.map { xc =>
-        val notionalInPortfolioCurrency = xc * h.notional.amount
-        ((priceT1 + h.riskFree + h.spread).canonical, notionalInPortfolioCurrency)
-      }
-
-    val errors = oneYearYield.collect { case Left(e) => e }
+    val errors = notionals.collect { case Left(e) => e }
     if errors.nonEmpty then
       throw new IllegalArgumentException(
         s"Failed to compute 1 year market value forecast for ${errors.size} position(s):\n${errors.mkString("\n")}"
       )
     end if
 
-    val (unitValueT1, notionals) = oneYearYield.collect { case Right(r) => r }.unzip
-    val n = notionals.toArray
+    val n = notionals.collect { case Right(v) => v }.toArray
+    val unitValueT1 = valueT1(holdings, holdings.map(_.price).toArray, t0Date).canonical
 
     // MV(i, j) = n(j) * (unitValueT1(j) - loss(i, j)) = loss(i, j) * -n(j) + unitValueT1(j) * n(j), in one pass
-    lossMatrix.fmaCols(multiply = n * -1.0, add = unitValueT1.toArray * n)
+    lossMatrix.fmaCols(multiply = n * -1.0, add = unitValueT1 * n)
   end marketValueForecast1Year
 
   /** The one year relative return of each position in each loss scenario, in canonical units (`0.05` is 5%).
@@ -199,25 +190,27 @@ object PortfolioCalc:
       holdings.length == lossMatrix.cols,
       s"Each entry in the lossMatrix should have a holdings entry. Loss matrix width ${lossMatrix.cols}, got ${holdings.length} holdings"
     )
-    val perHolding = holdings.map { h =>
-      val price0 = h.price.canonical
-      if price0 > 0.0 then
-        val unitValueT1 =
-          (PositionCalculations.priceForecast1Year(h.price, t0Date, h.maturity) + h.riskFree + h.spread).canonical
-        Right((-1.0 / price0, unitValueT1 / price0 - 1.0))
-      else Left(s"Position id=${h.id} name=${h.name}: price ${h.price} must be positive to compute a relative return")
-      end if
+    val errors = holdings.collect {
+      case h if !(h.price.canonical > 0.0) =>
+        s"Position id=${h.id} name=${h.name}: price ${h.price} must be positive to compute a relative return"
     }
-    val errors = perHolding.collect { case Left(e) => e }
     if errors.nonEmpty then
       throw new IllegalArgumentException(
         s"Failed to compute 1 year relative return for ${errors.size} position(s):\n${errors.mkString("\n")}"
       )
     end if
 
-    val (multiply, add) = perHolding.collect { case Right(r) => r }.unzip
+    val price0 = holdings.map(_.price).toArray
     // r(i, j) = (c(j) - loss(i, j)) / p0(j) - 1 = loss(i, j) * (-1 / p0(j)) + (c(j) / p0(j) - 1), in one pass
-    lossMatrix.fmaCols(multiply.toArray, add.toArray)
+    lossMatrix.fmaCols(multiply = -1.0 / price0.canonical, add = valueT1(holdings, price0, t0Date) / price0 - 1.0)
   end relativeReturn1Year
+
+  /** Each holding's value per unit of notional after one year: its forecast price plus one year of risk free and spread
+    * carry.
+    */
+  private def valueT1(holdings: IndexedSeq[PositionT1], price0: Array[Price], t0Date: LocalDate): Array[Price] =
+    PositionCalculations.priceForecast1Year(price0, t0Date, holdings.map(_.maturity).toArray)
+      + holdings.map(_.riskFree).toArray
+      + holdings.map(_.spread).toArray
 
 end PortfolioCalc
