@@ -7,7 +7,8 @@ import scala.annotation.targetName
   * A Price is a point on a scale rather than an amount, so it is deliberately not a [[Rel]]: the difference of two
   * prices is a Rel, a Rel can be added to or subtracted from a Price, and two prices cannot be added together.
   *
-  * As with Rel, [[PriceUnit]] only affects construction (`Price(102, PriceUnit.Pts)`) and display (`p.in(PriceUnit.Pts)`).
+  * As with Rel, [[PriceUnit]] only affects construction (`Price(102, PriceUnit.Pts)`) and display
+  * (`p.in(PriceUnit.Pts)`).
   */
 opaque type Price = Double
 

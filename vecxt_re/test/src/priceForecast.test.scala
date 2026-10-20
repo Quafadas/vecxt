@@ -66,7 +66,7 @@ class PositionCalculationsSuite extends munit.FunSuite:
       Spread(100.0, PriceUnit.Bps)
     )
     assertVecEquals(forecastPriceWSpread, forecast + 0.01)
-    
+
   test("array priceForecast1Year matches the scalar version elementwise"):
     val reportDate = LocalDate.of(2026, 1, 1)
     val prices = Array(Price(102, PriceUnit.Pts), Price(9500, PriceUnit.Bps), Price(0.99, PriceUnit.One))
