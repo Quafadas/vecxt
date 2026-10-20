@@ -1,5 +1,7 @@
 package vecxt_re
 
+import scala.annotation.targetName
+
 enum Ccy derives CanEqual:
   case USD, EUR, GBP, CHF, JPY, AUD, CAD, NZD
 end Ccy
@@ -38,11 +40,17 @@ final case class CurrencyAmount private (amount: Double, ccy: Ccy) derives CanEq
   def unary_- : CurrencyAmount = new CurrencyAmount(-amount, ccy)
 
   /** premium = notional * coupon */
+  @targetName("timesRel")
   def *(r: Rel): CurrencyAmount =
     new CurrencyAmount(amount * r.canonical, ccy)
 
   def *(k: Double): CurrencyAmount =
     new CurrencyAmount(amount * k, ccy)
+
+  /** market value = notional * price */
+  @targetName("timesPrice")
+  def *(p: Price): CurrencyAmount =
+    new CurrencyAmount(amount * p.canonical, ccy)
 
   /** Ratio of two same-currency amounts, e.g. a loss ratio. */
   def /(y: CurrencyAmount): Rel =
