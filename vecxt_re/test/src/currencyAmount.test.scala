@@ -107,4 +107,18 @@ class CurrencyAmountSuite extends munit.FunSuite:
     assertEquals(CurrencyAmount(2.5, Mn, USD).toString, "2500000.00 USD")
     assertEquals(CurrencyAmount(-1.234, K, EUR).toString, "-1234.00 EUR")
 
+  test("currencies not predefined can be created from their code"):
+    val sek = Ccy("SEK")
+    assertEquals(sek.code, "SEK")
+    assertEquals(sek, Ccy("SEK"))
+    assertEquals(Ccy("USD"), USD)
+    assertEquals(CurrencyAmount(1, K, sek).toString, "1000.00 SEK")
+    intercept[IllegalArgumentException](CurrencyAmount(1, K, sek) + CurrencyAmount(1, K, USD))
+
+  test("invalid currency codes are rejected"):
+    intercept[IllegalArgumentException](Ccy("usd"))
+    intercept[IllegalArgumentException](Ccy("US"))
+    intercept[IllegalArgumentException](Ccy("USDX"))
+    intercept[IllegalArgumentException](Ccy(""))
+
 end CurrencyAmountSuite

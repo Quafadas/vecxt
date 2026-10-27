@@ -1,7 +1,28 @@
 package vecxt_re
 
-enum Ccy derives CanEqual:
-  case USD, EUR, GBP, CHF, JPY, AUD, CAD, NZD
+/** An ISO 4217 currency code, e.g. `Ccy.USD` or `Ccy("SEK")`. Open, so callers may use currencies not listed here. */
+opaque type Ccy = String
+object Ccy:
+  def apply(code: String): Ccy =
+    require(code.length == 3 && code.forall(c => c >= 'A' && c <= 'Z'), s"Not an ISO 4217 currency code: '$code'")
+    code
+  end apply
+
+  val USD: Ccy = "USD"
+  val EUR: Ccy = "EUR"
+  val GBP: Ccy = "GBP"
+  val CHF: Ccy = "CHF"
+  val JPY: Ccy = "JPY"
+  val AUD: Ccy = "AUD"
+  val CAD: Ccy = "CAD"
+  val NZD: Ccy = "NZD"
+
+  /** The currencies predefined above. */
+  val majorCurrencies: IArray[Ccy] = Array(USD, EUR, GBP, CHF, JPY, AUD, CAD, NZD)
+
+  extension (c: Ccy) def code: String = c
+
+  given CanEqual[Ccy, Ccy] = CanEqual.derived
 end Ccy
 
 /** The scale a monetary amount is quoted in. `multiplier` is the number of major currency units in one of this unit. */
