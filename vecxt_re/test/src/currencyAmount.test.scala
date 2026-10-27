@@ -1,5 +1,7 @@
 package vecxt_re
 
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+
 import AmountUnit.*
 import Ccy.*
 
@@ -120,5 +122,20 @@ class CurrencyAmountSuite extends munit.FunSuite:
     intercept[IllegalArgumentException](Ccy("US"))
     intercept[IllegalArgumentException](Ccy("USDX"))
     intercept[IllegalArgumentException](Ccy(""))
+
+  test("json is in major units with the currency code"):
+    val x = CurrencyAmount(2.5, Mn, USD)
+    val json = """{"amount":2500000.0,"ccy":"USD"}"""
+    assertEquals(writeToString(x), json)
+    assertEquals(readFromString[CurrencyAmount](json), x)
+
+  test("json round trips a currency not predefined"):
+    val x = CurrencyAmount(-1.234, K, Ccy("SEK"))
+    assertEquals(readFromString[CurrencyAmount](writeToString(x)), x)
+
+  test("json with a missing field or invalid currency is rejected"):
+    intercept[JsonReaderException](readFromString[CurrencyAmount]("""{"amount":1.0}"""))
+    intercept[JsonReaderException](readFromString[CurrencyAmount]("""{"ccy":"USD"}"""))
+    intercept[JsonReaderException](readFromString[CurrencyAmount]("""{"amount":1.0,"ccy":"usd"}"""))
 
 end CurrencyAmountSuite

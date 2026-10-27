@@ -1,37 +1,7 @@
 package vecxt_re
 
-/** An ISO 4217 currency code, e.g. `Ccy.USD` or `Ccy("SEK")`. Open, so callers may use currencies not listed here. */
-opaque type Ccy = String
-object Ccy:
-  def apply(code: String): Ccy =
-    require(code.length == 3 && code.forall(c => c >= 'A' && c <= 'Z'), s"Not an ISO 4217 currency code: '$code'")
-    code
-  end apply
-
-  val USD: Ccy = "USD"
-  val EUR: Ccy = "EUR"
-  val GBP: Ccy = "GBP"
-  val CHF: Ccy = "CHF"
-  val JPY: Ccy = "JPY"
-  val AUD: Ccy = "AUD"
-  val CAD: Ccy = "CAD"
-  val NZD: Ccy = "NZD"
-
-  /** The currencies predefined above. */
-  val majorCurrencies: IArray[Ccy] = Array(USD, EUR, GBP, CHF, JPY, AUD, CAD, NZD)
-
-  extension (c: Ccy) def code: String = c
-
-  given CanEqual[Ccy, Ccy] = CanEqual.derived
-end Ccy
-
-/** The scale a monetary amount is quoted in. `multiplier` is the number of major currency units in one of this unit. */
-enum AmountUnit(val multiplier: Long):
-  case One extends AmountUnit(1L)
-  case K extends AmountUnit(1_000L)
-  case Mn extends AmountUnit(1_000_000L)
-  case Bn extends AmountUnit(1_000_000_000L)
-end AmountUnit
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.github.plokhotnyuk.jsoniter_scala.macros.*
 
 /** This should _NOT_ be used for actual cash values. We use double here because this intended for financial simulation
   * where errors of <0.01 are meaningless. An absolute monetary quantity denominated in a single currency, e.g. a
@@ -93,4 +63,7 @@ object CurrencyAmount:
       java.lang.Double.compare(a.amount, b.amount)
     end compare
   end given
+
+  /** In major currency units, e.g. `{"amount":2500000.0,"ccy":"USD"}` */
+  given JsonValueCodec[CurrencyAmount] = JsonCodecMaker.make
 end CurrencyAmount
