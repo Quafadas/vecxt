@@ -58,8 +58,12 @@ jobs:
       - if: matrix.project == 'js'
         run: npm install
 
+      # sblas links -lcblas; OpenBLAS exports the cblas_* symbols but ships no libcblas.so, so alias it
       - if: matrix.project == 'native'
-        run: sudo apt-get install -y libatlas-base-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopenblas-dev
+          sudo ln -sf "$(realpath /usr/lib/x86_64-linux-gnu/libopenblas.so)" /usr/lib/x86_64-linux-gnu/libcblas.so
 
       - name: scalaJSLink
         if: matrix.project == 'js'
