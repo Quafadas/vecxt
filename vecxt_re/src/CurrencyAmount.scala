@@ -2,17 +2,8 @@ package vecxt_re
 
 import scala.annotation.targetName
 
-enum Ccy derives CanEqual:
-  case USD, EUR, GBP, CHF, JPY, AUD, CAD, NZD
-end Ccy
-
-/** The scale a monetary amount is quoted in. `multiplier` is the number of major currency units in one of this unit. */
-enum AmountUnit(val multiplier: Long):
-  case One extends AmountUnit(1L)
-  case K extends AmountUnit(1_000L)
-  case Mn extends AmountUnit(1_000_000L)
-  case Bn extends AmountUnit(1_000_000_000L)
-end AmountUnit
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.github.plokhotnyuk.jsoniter_scala.macros.*
 
 /** This should _NOT_ be used for actual cash values. We use double here because this intended for financial simulation
   * where errors of <0.01 are meaningless. An absolute monetary quantity denominated in a single currency, e.g. a
@@ -80,4 +71,7 @@ object CurrencyAmount:
       java.lang.Double.compare(a.amount, b.amount)
     end compare
   end given
+
+  /** In major currency units, e.g. `{"amount":2500000.0,"ccy":"USD"}` */
+  given JsonValueCodec[CurrencyAmount] = JsonCodecMaker.make
 end CurrencyAmount
