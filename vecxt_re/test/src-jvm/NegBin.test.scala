@@ -223,4 +223,17 @@ class NegBinTest extends FunSuite:
     end match
   }
 
+  test("JSON codec round-trips a and b") {
+    import io.circe.syntax.*
+    import io.circe.parser.decode
+    val nb = NegativeBinomial(2.5, 0.75)
+    assertEquals(nb.asJson.noSpaces, """{"a":2.5,"b":0.75}""")
+    assertEquals(decode[NegativeBinomial](nb.asJson.noSpaces), Right(nb))
+  }
+
+  test("JSON decoder reports invalid parameters as a decoding failure") {
+    import io.circe.parser.decode
+    assert(decode[NegativeBinomial]("""{"a":1.0,"b":0.0}""").isLeft)
+  }
+
 end NegBinTest

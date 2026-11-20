@@ -67,19 +67,25 @@ case class Poisson(lambda: Double)
       // which is the upper regularized gamma function
       org.apache.commons.numbers.gamma.RegularizedGamma.Q.value(x.toDouble + 1.0, lambda)
 
-  def plot(using viz.LowPriorityPlotTarget) =
+  def plot(using viz.LowPriorityPlotTarget): viz.VizReturn = plot(Nil)
+
+  /** As [[plot]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plot(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val linePlot = VegaPlot.fromResource("poissonProb.vl.json")
     val maxX = (mean + 4 * math.sqrt(variance)).toInt
     val data = (0 to maxX).map { k =>
       (value = k, prob = probabilityOf(k))
     }
-    linePlot.plot(
+    Plots.render(linePlot, mods)(
       _.data.values := data.asJson,
       _ += (title = s"Poisson Distribution Marginal Probabilities (λ=$lambda)").asJson
     )
   end plot
 
-  def plotCdf(using viz.LowPriorityPlotTarget) =
+  def plotCdf(using viz.LowPriorityPlotTarget): viz.VizReturn = plotCdf(Nil)
+
+  /** As [[plotCdf]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plotCdf(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val linePlot = VegaPlot.fromResource("poissonCumul.vl.json")
     val maxX = (mean + 4 * math.sqrt(variance)).toInt
     var cumProb = 0.0
@@ -87,7 +93,7 @@ case class Poisson(lambda: Double)
       cumProb += probabilityOf(k)
       (value = k, prob = cumProb)
     }
-    linePlot.plot(
+    Plots.render(linePlot, mods)(
       _.data.values := data.asJson,
       _ += (title = s"Poisson Distribution Cumulative Probabilities (λ=$lambda)").asJson
     )
@@ -243,5 +249,16 @@ object Poisson:
 
     (chiSq, df, pValue)
   end goodnessOfFit
+
+  /** JSON codec. Only `lambda` is written; derived state (sampler, RNG) is rebuilt on decode. Constructor validation
+    * failures surface as a [[io.circe.DecodingFailure]].
+    */
+  given poissonEncoder: io.circe.Encoder[Poisson] =
+    io.circe.Encoder.forProduct1[Poisson, Double]("lambda")(_.lambda)
+
+  given poissonDecoder: io.circe.Decoder[Poisson] =
+    io.circe.Decoder
+      .forProduct1[Double, Double]("lambda")(identity)
+      .emapTry(l => scala.util.Try(Poisson(l)))
 
 end Poisson

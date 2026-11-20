@@ -91,19 +91,25 @@ case class NegativeBinomial(a: Double, b: Double)
       // For our parameterization: p = 1/(1+b) is the success probability
       org.apache.commons.numbers.gamma.RegularizedBeta.value(p, a, x.toDouble + 1.0)
 
-  def plot(using viz.LowPriorityPlotTarget) =
+  def plot(using viz.LowPriorityPlotTarget): viz.VizReturn = plot(Nil)
+
+  /** As [[plot]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plot(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val linePlot = VegaPlot.fromResource("negBinProb.vl.json")
     val maxX = (mean + 4 * math.sqrt(variance)).toInt
     val data = (0 to maxX).map { k =>
       (value = k, prob = probabilityOf(k))
     }
-    linePlot.plot(
+    Plots.render(linePlot, mods)(
       _.data.values := data.asJson,
       _ += (title = s"Negative Binomial Distribution Marginal Probabilities (a=$a, b=$b)").asJson
     )
   end plot
 
-  def plotCdf(using viz.LowPriorityPlotTarget) =
+  def plotCdf(using viz.LowPriorityPlotTarget): viz.VizReturn = plotCdf(Nil)
+
+  /** As [[plotCdf]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plotCdf(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val linePlot = VegaPlot.fromResource("negBinCumul.vl.json")
     val maxX = (mean + 4 * math.sqrt(variance)).toInt
     var cumProb = 0.0
@@ -111,7 +117,7 @@ case class NegativeBinomial(a: Double, b: Double)
       cumProb += probabilityOf(k)
       (value = k, prob = cumProb)
     }
-    linePlot.plot(
+    Plots.render(linePlot, mods)(
       _.data.values := data.asJson,
       _ += (title = s"Negative Binomial Distribution Cumulative Probabilities (a=$a, b=$b)").asJson
     )
@@ -390,5 +396,16 @@ object NegativeBinomial:
       maxIter: Int = 100,
       tol: Double = 1e-8
   ): (dist: Poisson | NegativeBinomial, converged: Boolean) = volweightedMle(observations, volumes, maxIter, tol)
+
+  /** JSON codec. Only `a` and `b` are written; derived state (sampler, RNG) is rebuilt on decode. Constructor
+    * validation failures surface as a [[io.circe.DecodingFailure]].
+    */
+  given negativeBinomialEncoder: io.circe.Encoder[NegativeBinomial] =
+    io.circe.Encoder.forProduct2[NegativeBinomial, Double, Double]("a", "b")(nb => (nb.a, nb.b))
+
+  given negativeBinomialDecoder: io.circe.Decoder[NegativeBinomial] =
+    io.circe.Decoder
+      .forProduct2[(Double, Double), Double, Double]("a", "b")((_, _))
+      .emapTry((a, b) => scala.util.Try(NegativeBinomial(a, b)))
 
 end NegativeBinomial
