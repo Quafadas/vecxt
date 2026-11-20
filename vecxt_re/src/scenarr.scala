@@ -47,11 +47,23 @@ case class Scenarr(
     (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
   }
 
+  /** Occurrence exceedance curve: the largest single event per iteration, ranked. Iterations with no events count as
+    * a largest loss of 0.
+    *
+    * Only empty iterations (left at -Inf by `groupMax`) are replaced. A negative largest loss is kept as is, so don't
+    * simplify this to `math.max(_, 0)`: negative losses may become meaningful depending on how inuring is treated.
+    */
   lazy val oep =
     assert(isSorted, "Scenario must be sorted to compute occurrence exceedance")
-    groupMax(iterations, amounts, numberIterations).sorted(using Ordering[Double].reverse).zipWithIndex.map {
-      case (amt, idx) =>
-        (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
+    val maxes = groupMax(iterations, amounts, numberIterations)
+    var i = 0
+    while i < maxes.length do
+      if maxes(i) == Double.NegativeInfinity then maxes(i) = 0d
+      end if
+      i += 1
+    end while
+    maxes.sorted(using Ordering[Double].reverse).zipWithIndex.map { case (amt, idx) =>
+      (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
     }
   end oep
 
@@ -474,7 +486,9 @@ object Scenarr:
         scenario.numberIterations,
         newThresh,
         scenario.day1,
-        scenario.name
+        scenario.name,
+        scenario.id,
+        isSorted = scenario.isSorted // masking preserves order
       )
     end applyThreshold
   end extension
