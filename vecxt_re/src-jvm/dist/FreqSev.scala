@@ -67,9 +67,9 @@ case class FreqSev(frequency: Poisson | NegativeBinomial, severity: Mixed):
     *
     * Days are sorted within each iteration so the result is sorted by iteration then day.
     *
-    * The frequency is taken to count claims in excess of `threshold`, so every drawn severity must exceed it. Claims are
-    * never dropped (that would understate the frequency); an `IllegalStateException` is thrown if any severity draw is
-    * at or below `threshold`.
+    * The frequency is taken to count claims in excess of `threshold`, so every drawn severity must exceed it. Claims
+    * are never dropped (that would understate the frequency); an `IllegalStateException` is thrown if any severity draw
+    * is at or below `threshold`.
     *
     * {{{
     * val scenarr = freqSev.drawScenarr(numberIterations = 10000, day1 = LocalDate.of(2026, 1, 1), name = "property")
