@@ -47,8 +47,8 @@ case class Scenarr(
     (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
   }
 
-  /** Occurrence exceedance curve: the largest single event per iteration, ranked. Iterations with no events count as
-    * a largest loss of 0.
+  /** Occurrence exceedance curve: the largest single event per iteration, ranked. Iterations with no events count as a
+    * largest loss of 0.
     *
     * Only empty iterations (left at -Inf by `groupMax`) are replaced. A negative largest loss is kept as is, so don't
     * simplify this to `math.max(_, 0)`: negative losses may become meaningful depending on how inuring is treated.
