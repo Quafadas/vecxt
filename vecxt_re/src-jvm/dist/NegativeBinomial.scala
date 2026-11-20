@@ -397,4 +397,15 @@ object NegativeBinomial:
       tol: Double = 1e-8
   ): (dist: Poisson | NegativeBinomial, converged: Boolean) = volweightedMle(observations, volumes, maxIter, tol)
 
+  /** JSON codec. Only `a` and `b` are written; derived state (sampler, RNG) is rebuilt on decode. Constructor
+    * validation failures surface as a [[io.circe.DecodingFailure]].
+    */
+  given negativeBinomialEncoder: io.circe.Encoder[NegativeBinomial] =
+    io.circe.Encoder.forProduct2[NegativeBinomial, Double, Double]("a", "b")(nb => (nb.a, nb.b))
+
+  given negativeBinomialDecoder: io.circe.Decoder[NegativeBinomial] =
+    io.circe.Decoder
+      .forProduct2[(Double, Double), Double, Double]("a", "b")((_, _))
+      .emapTry((a, b) => scala.util.Try(NegativeBinomial(a, b)))
+
 end NegativeBinomial

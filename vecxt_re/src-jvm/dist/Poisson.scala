@@ -250,4 +250,15 @@ object Poisson:
     (chiSq, df, pValue)
   end goodnessOfFit
 
+  /** JSON codec. Only `lambda` is written; derived state (sampler, RNG) is rebuilt on decode. Constructor validation
+    * failures surface as a [[io.circe.DecodingFailure]].
+    */
+  given poissonEncoder: io.circe.Encoder[Poisson] =
+    io.circe.Encoder.forProduct1[Poisson, Double]("lambda")(_.lambda)
+
+  given poissonDecoder: io.circe.Decoder[Poisson] =
+    io.circe.Decoder
+      .forProduct1[Double, Double]("lambda")(identity)
+      .emapTry(l => scala.util.Try(Poisson(l)))
+
 end Poisson

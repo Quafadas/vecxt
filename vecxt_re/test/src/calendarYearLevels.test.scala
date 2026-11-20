@@ -262,8 +262,9 @@ class CalendarYearLevelsSuite extends FunSuite:
   }
 
   test("toString shows years and levels") {
-    val a = CalendarYearLevels(Array(2024, 2023), Array(110.0, 100.0))
-    assertEquals(a.toString, "CalendarYearLevels(currentYear=2024, 2024 -> 110.0, 2023 -> 100.0)")
+    // non-integral levels: Scala.js prints 110.0 as "110"
+    val a = CalendarYearLevels(Array(2024, 2023), Array(110.5, 100.25))
+    assertEquals(a.toString, "CalendarYearLevels(currentYear=2024, 2024 -> 110.5, 2023 -> 100.25)")
   }
 
   // --- named tuple constructor ---

@@ -203,4 +203,17 @@ class PoissonTest extends FunSuite:
     assert(pois.variance == mu)
   }
 
+  test("JSON codec round-trips lambda") {
+    import io.circe.syntax.*
+    import io.circe.parser.decode
+    val pois = Poisson(3.25)
+    assertEquals(pois.asJson.noSpaces, """{"lambda":3.25}""")
+    assertEquals(decode[Poisson](pois.asJson.noSpaces), Right(pois))
+  }
+
+  test("JSON decoder reports invalid lambda as a decoding failure") {
+    import io.circe.parser.decode
+    assert(decode[Poisson]("""{"lambda":-1.0}""").isLeft)
+  }
+
 end PoissonTest
