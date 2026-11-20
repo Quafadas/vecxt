@@ -23,7 +23,7 @@ object ReReporting:
       (groupSum(years, calcd.cededToLayer, numIterations) > 0).trues / numIterations.toDouble
 
     inline def exhaustionProbability(numIterations: Int, years: Array[Int]): Double =
-      val exhaust = calcd.layer.aggLimit.getOrElse(Double.PositiveInfinity) - 0.01
+      val exhaust = exhaustThreshold(calcd.layer)
       (groupSum(years, calcd.cededToLayer, numIterations) > exhaust).trues / numIterations.toDouble
     end exhaustionProbability
 
@@ -45,9 +45,10 @@ object ReReporting:
       * @param years
       *   Sorted array of 1-based iteration indices, one per element of `cededToLayer`. Checked: see the object doc.
       * @param limit
-      *   Report denominator for normalizing EL and std
+      *   Report denominator for normalizing EL and std. For `FirstLimit` / `AggLimit` the ceded amounts are divided by
+      *   `limit * share`, so `el` and `stdDev` are share-independent; see [[ReportDenominator]].
       * @return
-      *   Named tuple with (name, limit, el, stdDev, attachProb, exhaustProb)
+      *   Named tuple with (name, limit, el, stdDev, attachProb, exhaustProb). `limit` is the full (100%) limit.
       */
     inline def lossReport(
         numIterations: Int,
@@ -57,6 +58,30 @@ object ReReporting:
       PlatformReporting.lossReportFast(calcd, numIterations, years, limit)
 
   end extension
+
+  /** An iteration counts as exhausted when its ceded total is strictly above this value.
+    *
+    * Ceded amounts already include the share (aggregate terms are applied first, then the share), so the most a layer
+    * can cede in one iteration is `aggLimit * share`, or `(aggLimit + aggRetention) * share` for an aggregate
+    * franchise, which pays the full amount up to limit + franchise point (see DeductibleType). Comparing against
+    * `aggLimit` alone would make every layer with share < 1 report an exhaustion probability of 0.
+    *
+    * The tolerance is relative (1e-9 of the cap), so it absorbs the rounding of the per-loss cumulative-sum / diff
+    * round trip at any monetary scale. A fixed absolute tolerance would break for limits quoted in large units (e.g. a
+    * limit of 0.005 in billions would count every iteration, even loss-free ones, as exhausted).
+    *
+    * Without an aggregate limit the layer can never be exhausted: +Inf.
+    */
+  private[vecxt_re] def exhaustThreshold(layer: Layer): Double =
+    layer.aggLimit match
+      case None      => Double.PositiveInfinity
+      case Some(lim) =>
+        val maxAgg = layer.aggType match
+          case DeductibleType.Franchise => lim + layer.aggRetention.getOrElse(0.0)
+          case _                        => lim
+        val cap = maxAgg * layer.share
+        cap - math.abs(cap) * 1e-9
+  end exhaustThreshold
 
   /** Failure path for `PlatformReporting.lossReportFast`. Kept out of the inline method so the diagnostic code isn't
     * copied into every call site. Only runs once the precondition is already known to be broken.

@@ -70,8 +70,8 @@ case class Layer(
   lazy val cap = occLimit match
     case Some(occLimit) =>
       occType match
+        case DeductibleType.Franchise => occLimit + occRetention.getOrElse(0.0)
         case DeductibleType.Retention => occLimit + occRetention.getOrElse(0.0)
-        case DeductibleType.Franchise => occLimit
         // A cap is not a meaningful concept for a reverse franchise. The behaviour is non monotonic.
         // We prefer NaN to an exception here to indicate that the concept does not make sense.
         case DeductibleType.ReverseFranchise => Double.NaN //

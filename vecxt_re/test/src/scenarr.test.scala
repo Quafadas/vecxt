@@ -103,6 +103,64 @@ class ScenarrSuite extends FunSuite:
     assertEquals(ssorted.amounts.toList, Array(10.0, 15.0, 20.0).toList)
   }
 
+  /** Reference: the original stable comparison sort by (iteration, day) */
+  private def referencePerm(it: Array[Int], d: Array[Int]): List[Int] =
+    it.indices.sortBy(i => (it(i), d(i))).toList
+
+  private val sortShapes: Seq[(String, Int, scala.util.Random => (Int, Int))] = Seq(
+    ("dense iterations, days over a year", 2000, r => (1 + r.nextInt(100), 1 + r.nextInt(365))),
+    ("one iteration, many events", 3000, r => (1, 1 + r.nextInt(365))),
+    ("sparse iterations over 10m", 40, r => (1 + r.nextInt(10000000), 1 + r.nextInt(365))),
+    ("sparse days", 40, r => (1 + r.nextInt(5), r.nextInt(Int.MaxValue))),
+    ("negative and zero keys", 500, r => (r.nextInt(7) - 3, r.nextInt(11) - 5)),
+    ("heavy ties for stability", 1000, r => (1 + r.nextInt(3), 1 + r.nextInt(2))),
+    ("extreme Int keys", 200, r => (if r.nextBoolean() then Int.MinValue else Int.MaxValue, r.nextInt(3))),
+    ("two events", 2, r => (1 + r.nextInt(2), 1 + r.nextInt(2))),
+    ("one event", 1, r => (1, 1)),
+    ("no events", 0, r => (1, 1))
+  )
+
+  test("sortPermutation and the merge-sort fallback match a stable sort by (iteration, day)") {
+    for (label, n, gen) <- sortShapes; seed <- 1 to 3 do
+      val r = scala.util.Random(seed * 31 + n)
+      val pairs = Array.fill(n)(gen(r))
+      val it = pairs.map(_._1)
+      val d = pairs.map(_._2)
+      val expected = referencePerm(it, d)
+      assertEquals(Scenarr.sortPermutation(it, d).toList, expected, s"sortPermutation: $label, seed $seed")
+      assertEquals(Scenarr.mergeSortPermutation(it, d).toList, expected, s"mergeSort: $label, seed $seed")
+    end for
+  }
+
+  test("sorted reorders every column consistently and keeps tied events in their original order") {
+    val r = scala.util.Random(7)
+    val n = 3000
+    val it = Array.fill(n)(1 + r.nextInt(50))
+    val d = Array.fill(n)(1 + r.nextInt(4)) // many (iteration, day) ties
+    val amts = Array.tabulate(n)(_.toDouble)
+    val ids = Array.tabulate(n)(_.toLong)
+    val sc = Scenarr(it, d, amts, ids, numberIterations = 50)
+
+    val s = sc.sorted
+    val perm = referencePerm(it, d)
+    assert(s.isSorted)
+    assertEquals(s.iterations.toList, perm.map(it))
+    assertEquals(s.days.toList, perm.map(d))
+    assertEquals(s.amounts.toList, perm.map(amts))
+    assertEquals(s.ids.toList, perm.map(_.toLong))
+    assertEquals(s.id, sc.id)
+    assertEquals(sc.iterations.toList, it.toList, "input left untouched")
+  }
+
+  test("sorted skips the work for sorted input: flagged returns itself, unflagged-but-ordered shares arrays") {
+    val sc = Scenarr.withGeneratedIds(Array(1, 1, 2), Array(3, 3, 1), Array(1.0, 2.0, 3.0), numberIterations = 2)
+    val s = sc.sorted
+    assert(s.isSorted)
+    assert(s.iterations eq sc.iterations)
+    assert(s.amounts eq sc.amounts)
+    assert(s.sorted eq s)
+  }
+
   test("freq, agg and oep refuse an unsorted scenario") {
     // Iteration 1 is split across two runs: the unchecked group kernels would silently drop the first run.
     val sc = Scenarr.withGeneratedIds(Array(1, 2, 1), Array(1, 2, 3), Array(1.0, 1.0, 1.0), numberIterations = 2)

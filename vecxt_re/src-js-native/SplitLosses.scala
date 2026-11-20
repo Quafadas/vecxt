@@ -4,19 +4,31 @@ object SplitLosses:
   extension (tower: Tower)
     /** Optimsie for small number of layers. Large numbers of claims.
       *
-      * You may assume that year groups already sorted and are in order.
+      * `years` must be sorted ascending (non-decreasing): the aggregate terms are applied per contiguous run of a year,
+      * so an unsorted year would be split into several runs. Throws IllegalArgumentException otherwise.
       *
       * @param years
       * @param losses
       * @param bc
       * @return
       */
-    inline def splitAmntFast(years: Array[Int], losses: Array[Double]): (
+    def splitAmntFast(years: Array[Int], losses: Array[Double]): (
         ceded: Array[Double],
         retained: Array[Double],
         splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]
     ) =
       assert(years.length == losses.length)
+
+      var k = 1
+      while k < years.length do
+        if years(k) < years(k - 1) then
+          throw IllegalArgumentException(
+            s"splitAmntFast requires years sorted ascending; years($k) = ${years(k)} < years(${k - 1}) = ${years(k - 1)}"
+          )
+        end if
+        k += 1
+      end while
+
       if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))
       else
 
@@ -25,7 +37,7 @@ object SplitLosses:
         val numLayers = layers.length
 
         // Per-layer splits (column major) and totals
-        val cededSplits = IndexedSeq.fill(numLayers)(losses.clone())
+        val cededSplits: Array[Array[Double]] = Array.fill(numLayers)(losses.clone())
         val retained = new Array[Double](numLosses)
         val ceded = new Array[Double](numLosses)
 
@@ -43,48 +55,53 @@ object SplitLosses:
               applyReverseFranchise(col, 0, numLosses, layer.occLimit, layer.occRetention)
           end match
 
-          // Group cumulative sum on the fly by detecting year boundaries
-          var i = 0
-          while i < numLosses do
-            val year = years(i)
-            var cumSum = 0.0
-            while i < numLosses && years(i) == year do
-              cumSum += col(i)
-              col(i) = cumSum
-              i += 1
+          if layer.aggLimit.isEmpty && layer.aggRetention.isEmpty then
+            // No aggregate terms: every aggregate kernel is the identity, so the per-year cumulative sum and diff
+            // would cancel out (adding only rounding). Two passes saved.
+            if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
+            end if
+          else
+            // Group cumulative sum on the fly by detecting year boundaries
+            var i = 0
+            while i < numLosses do
+              val year = years(i)
+              var cumSum = 0.0
+              while i < numLosses && years(i) == year do
+                cumSum += col(i)
+                col(i) = cumSum
+                i += 1
+              end while
             end while
-          end while
 
-          layer.aggType match
-            case DeductibleType.Retention =>
-              applyRetention(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
-              if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
-              end if
-            case DeductibleType.Franchise =>
-              applyFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
-              if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
-              end if
-            case DeductibleType.ReverseFranchise =>
-              applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
-              if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
-              end if
-          end match
+            // Aggregate terms, on the cumulative amounts
+            layer.aggType match
+              case DeductibleType.Retention =>
+                applyRetention(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+              case DeductibleType.Franchise =>
+                applyFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+              case DeductibleType.ReverseFranchise =>
+                applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+            end match
 
-          // Group diff on the fly by detecting year boundaries
-          i = 0
-          while i < numLosses do
-            val year = years(i)
-            var prevValue = 0.0
-            var isFirst = true
-            while i < numLosses && years(i) == year do
-              val current = col(i)
-              if isFirst then isFirst = false
-              else col(i) = current - prevValue
-              end if
-              prevValue = current
-              i += 1
+            // Back to per-loss amounts (diff within year groups), with the share folded in: one pass instead of two
+            val share = layer.share
+            i = 0
+            while i < numLosses do
+              val year = years(i)
+              var prevValue = 0.0
+              var isFirst = true
+              while i < numLosses && years(i) == year do
+                val current = col(i)
+                if isFirst then
+                  isFirst = false
+                  col(i) = current * share
+                else col(i) = (current - prevValue) * share
+                end if
+                prevValue = current
+                i += 1
+              end while
             end while
-          end while
+          end if
 
           layerIdx += 1
         end while
@@ -106,7 +123,7 @@ object SplitLosses:
       end if
   end extension
 
-  private inline def applyRetention(
+  private def applyRetention(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -139,26 +156,29 @@ object SplitLosses:
     end match
   end applyRetention
 
-  private inline def applyFranchise(
+  private def applyFranchise(
       data: Array[Double],
       offset: Int,
       length: Int,
       limit: Option[Double],
       retention: Option[Double]
   ): Unit =
+    // Franchise (see DeductibleType): nothing until the loss reaches the franchise point (x >= ret), then the full
+    // loss, capped at limit + franchise point. Must agree with rpt.franchiseFunction and Layer.cap.
     (retention, limit) match
       case (Some(ret), Some(lim)) =>
+        val maxPay = lim + ret
         var i = 0
         while i < length do
           val value = data(offset + i)
-          data(offset + i) = if value > ret then math.min(value, lim) else 0.0
+          data(offset + i) = if value >= ret then math.min(value, maxPay) else 0.0
           i += 1
         end while
       case (Some(ret), None) =>
         var i = 0
         while i < length do
           val value = data(offset + i)
-          data(offset + i) = if value > ret then value else 0.0
+          data(offset + i) = if value >= ret then value else 0.0
           i += 1
         end while
       case (None, Some(lim)) =>
@@ -172,7 +192,7 @@ object SplitLosses:
     end match
   end applyFranchise
 
-  private inline def applyReverseFranchise(
+  private def applyReverseFranchise(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -194,7 +214,7 @@ object SplitLosses:
     end while
   end applyReverseFranchise
 
-  private inline def applyShare(
+  private def applyShare(
       data: Array[Double],
       offset: Int,
       length: Int,

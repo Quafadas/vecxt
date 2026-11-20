@@ -1,6 +1,6 @@
 package vecxt_re
 
-import java.util.concurrent.Executors
+import java.util.stream.IntStream
 
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
@@ -10,19 +10,31 @@ object SplitLosses:
   extension (tower: Tower)
     /** High-performance SIMD optimized version for small number of layers (1 -5) and large number of claims.
       *
-      * You may assume that year groups already sorted and are in order.
+      * `years` must be sorted ascending (non-decreasing): the aggregate terms are applied per contiguous run of a year,
+      * so an unsorted year would be split into several runs. Throws IllegalArgumentException otherwise.
       *
       * @param years
       * @param losses
       * @param bc
       * @return
       */
-    inline def splitAmntFast(years: Array[Int], losses: Array[Double]): (
+    def splitAmntFast(years: Array[Int], losses: Array[Double]): (
         ceded: Array[Double],
         retained: Array[Double],
         splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]
     ) =
       assert(years.length == losses.length)
+
+      // Once, up front: a throw from inside processLayer would surface wrapped in ExecutionException when parallel.
+      var k = 1
+      while k < years.length do
+        if years(k) < years(k - 1) then
+          throw IllegalArgumentException(
+            s"splitAmntFast requires years sorted ascending; years($k) = ${years(k)} < years(${k - 1}) = ${years(k - 1)}"
+          )
+        end if
+        k += 1
+      end while
 
       if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))
       else
@@ -32,8 +44,8 @@ object SplitLosses:
         val numLayers = layers.length
 
         // Per-layer splits (column major) and totals
-        val cededSplits = IndexedSeq.fill(numLayers)(losses.clone())
-        val retained = losses.clone()
+        val cededSplits: Array[Array[Double]] = Array.fill(numLayers)(losses.clone())
+        val retained = new Array[Double](numLosses) // fully written in step 5
         val ceded = new Array[Double](numLosses)
 
         // SIMD species for vectorization
@@ -54,53 +66,52 @@ object SplitLosses:
               applyReverseFranchise(col, 0, numLosses, layer.occLimit, layer.occRetention)
           end match
 
-          // Cumulative sum within each year group using a single pass
-          var i = 0
-          var prevYear = -1
-          var cumSum = 0.0
-          while i < numLosses do
-            if years(i) != prevYear then
-              prevYear = years(i)
-              cumSum = col(i)
-            else cumSum += col(i)
+          if layer.aggLimit.isEmpty && layer.aggRetention.isEmpty then
+            // No aggregate terms: every aggregate kernel is the identity, so the per-year cumulative sum and diff
+            // would cancel out (adding only rounding). Two scalar passes saved.
+            if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
             end if
-            col(i) = cumSum
-            i += 1
-          end while
+          else
+            // Cumulative sum within each year group using a single pass
+            var i = 0
+            var prevYear = -1
+            var cumSum = 0.0
+            while i < numLosses do
+              if years(i) != prevYear then
+                prevYear = years(i)
+                cumSum = col(i)
+              else cumSum += col(i)
+              end if
+              col(i) = cumSum
+              i += 1
+            end while
 
-          // Aggregate layer with share
-          layer.aggType match
-            case DeductibleType.Retention =>
-              applyRetentionSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
-              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
-              end if
-            case DeductibleType.Franchise =>
-              applyFranchiseSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
-              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
-              end if
-            case DeductibleType.ReverseFranchise =>
-              applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
-              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
-              end if
-          end match
+            // Aggregate terms, on the cumulative amounts
+            layer.aggType match
+              case DeductibleType.Retention =>
+                applyRetentionSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
+              case DeductibleType.Franchise =>
+                applyFranchiseSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
+              case DeductibleType.ReverseFranchise =>
+                applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+            end match
 
-          // Convert cumulative back to per-loss (diff) within year groups in one pass
-          i = 0
-          var prevVal = 0.0
-          prevYear = -1
-          var firstInGroup = true
-          while i < numLosses do
-            if years(i) != prevYear then
-              prevYear = years(i)
-              prevVal = col(i)
-              firstInGroup = false
-            else
+            // Back to per-loss amounts (diff within year groups), with the share folded in: one pass instead of two
+            val share = layer.share
+            i = 0
+            var prevVal = 0.0
+            prevYear = -1
+            while i < numLosses do
               val current = col(i)
-              col(i) = current - prevVal
+              if years(i) != prevYear then
+                prevYear = years(i)
+                col(i) = current * share
+              else col(i) = (current - prevVal) * share
+              end if
               prevVal = current
-            end if
-            i += 1
-          end while
+              i += 1
+            end while
+          end if
         end processLayer
 
         /** Benchmarking 15.01.2026
@@ -114,6 +125,7 @@ object SplitLosses:
           * layer...
           */
         (numLosses, numLayers) match
+          case (_, 0)                => () // empty tower: nothing ceded
           case (_, 1)                => processLayer(0)
           case (nl, _) if nl < 50000 =>
             var i = 0
@@ -122,18 +134,9 @@ object SplitLosses:
               i += 1
             end while
           case _ =>
-            val threads = math.min(numLayers, Runtime.getRuntime.availableProcessors())
-            val executor = Executors.newFixedThreadPool(threads)
-            try
-              val futures: IndexedSeq[java.util.concurrent.Future[?]] = (0 until numLayers).map { idx =>
-                executor.submit(
-                  new Runnable:
-                    override def run(): Unit = processLayer(idx)
-                )
-              }
-              futures.foreach(_.get())
-            finally executor.shutdown()
-            end try
+            // Runs on the shared ForkJoinPool: no thread creation per call, the calling thread takes part, and an
+            // exception from a layer is rethrown as is (not wrapped in ExecutionException).
+            IntStream.range(0, numLayers).parallel().forEach(idx => processLayer(idx))
         end match
 
         // Step 5: total ceded per loss and retained (vectorized)
@@ -174,7 +177,7 @@ object SplitLosses:
       end if
   end extension
 
-  private inline def applyRetentionSIMD(
+  private def applyRetentionSIMD(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -244,7 +247,7 @@ object SplitLosses:
     end match
   end applyRetentionSIMD
 
-  private inline def applyFranchiseSIMD(
+  private def applyFranchiseSIMD(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -252,27 +255,30 @@ object SplitLosses:
       retention: Option[Double],
       species: VectorSpecies[java.lang.Double]
   ): Unit =
+    // Franchise (see DeductibleType): nothing until the loss reaches the franchise point (x >= ret), then the full
+    // loss, capped at limit + franchise point. Must agree with rpt.franchiseFunction and Layer.cap.
     val vectorSize = species.length()
     val loopBound = species.loopBound(length)
 
     (retention, limit) match
       case (Some(ret), Some(lim)) =>
+        val maxPay = lim + ret
         val retVector = DoubleVector.broadcast(species, ret)
-        val limVector = DoubleVector.broadcast(species, lim)
+        val maxPayVector = DoubleVector.broadcast(species, maxPay)
         val zeroVector = DoubleVector.zero(species)
 
         var i = 0
         while i < loopBound do
           val vector = DoubleVector.fromArray(species, data, offset + i)
-          val mask = vector.compare(VectorOperators.GT, retVector)
-          val result = vector.min(limVector).blend(zeroVector, mask.not())
+          val mask = vector.compare(VectorOperators.GE, retVector)
+          val result = vector.min(maxPayVector).blend(zeroVector, mask.not())
           result.intoArray(data, offset + i)
           i += vectorSize
         end while
 
         while i < length do
           val value = data(offset + i)
-          data(offset + i) = if value > ret then math.min(value, lim) else 0.0
+          data(offset + i) = if value >= ret then math.min(value, maxPay) else 0.0
           i += 1
         end while
 
@@ -283,7 +289,7 @@ object SplitLosses:
         var i = 0
         while i < loopBound do
           val vector = DoubleVector.fromArray(species, data, offset + i)
-          val mask = vector.compare(VectorOperators.GT, retVector)
+          val mask = vector.compare(VectorOperators.GE, retVector)
           val result = vector.blend(zeroVector, mask.not())
           result.intoArray(data, offset + i)
           i += vectorSize
@@ -291,7 +297,7 @@ object SplitLosses:
 
         while i < length do
           val value = data(offset + i)
-          data(offset + i) = if value > ret then value else 0.0
+          data(offset + i) = if value >= ret then value else 0.0
           i += 1
         end while
 
@@ -316,7 +322,7 @@ object SplitLosses:
     end match
   end applyFranchiseSIMD
 
-  private inline def applyReverseFranchise(
+  private def applyReverseFranchise(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -338,7 +344,7 @@ object SplitLosses:
     end while
   end applyReverseFranchise
 
-  private inline def applyShareSIMD(
+  private def applyShareSIMD(
       data: Array[Double],
       offset: Int,
       length: Int,

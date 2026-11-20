@@ -211,7 +211,7 @@ class ScenarioRISuite extends munit.FunSuite:
     assertEquals(scaledLayer.brokerageDescription, Some("Brokerage at Some(0.05) * 2.1"))
   }
 
-  test("cap with retention deductible returns occLimit") {
+  test("cap with retention adds retention: 500k xs 50k pays min(x - 50k, 500k), exhausted at x = 550k") {
     val layer = Layer(
       occLimit = Some(500000.0),
       occRetention = Some(50000.0),
@@ -221,14 +221,14 @@ class ScenarioRISuite extends munit.FunSuite:
     assertEquals(layer.cap, 550000.0)
   }
 
-  test("cap with franchise adds retention") {
+  test("cap with franchise adds retention: pays min(x, 500k + 50k) once x >= 50k, exhausted at x = 550k") {
     val layer = Layer(
       occLimit = Some(500000.0),
       occRetention = Some(50000.0),
       occType = DeductibleType.Franchise
     )
 
-    assertEquals(layer.cap, 500000.0)
+    assertEquals(layer.cap, 550000.0)
   }
 
   test("cap with franchise and missing retention defaults to limit") {
@@ -238,6 +238,26 @@ class ScenarioRISuite extends munit.FunSuite:
     )
 
     assertEquals(layer.cap, 500000.0)
+  }
+
+  test("cap is the smallest claim that exhausts the occurrence limit under rpt, for retention and franchise") {
+    import rpt.*
+    import Retentions.Retention
+    import Limits.Limit
+    // 5 xs 10: retention pays min(x - 10, 5); franchise pays min(x, 5 + 10) once x >= 10. Both are exhausted at 15.
+    for occType <- Seq(DeductibleType.Retention, DeductibleType.Franchise) do
+      val layer = Layer(occLimit = Some(5.0), occRetention = Some(10.0), occType = occType)
+      val claims = Array(layer.cap - 0.5, layer.cap, layer.cap + 3.0, 1e12)
+      occType match
+        case DeductibleType.Retention => claims.reinsuranceFunction(Some(Limit(5.0)), Some(Retention(10.0)))
+        case _                        => claims.franchiseFunction(Some(Limit(5.0)), Some(Retention(10.0)))
+      end match
+      val maxPayout = claims.last
+      assertEqualsDouble(layer.cap, 15.0, 0.0, s"$occType cap")
+      assert(claims(0) < maxPayout, s"$occType: a claim just below cap should not exhaust, got ${claims.toList}")
+      assertEqualsDouble(claims(1), maxPayout, 0.0, s"$occType: a claim at cap should exhaust")
+      assertEqualsDouble(claims(2), maxPayout, 0.0, s"$occType: a claim above cap should stay exhausted")
+    end for
   }
 
   test("cap with reverse franchise returns NaN") {

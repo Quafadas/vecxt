@@ -14,7 +14,7 @@ object PlatformReporting:
     * the grouped sums once, accumulating all intermediate results:
     *   - Sum for expected loss (EL)
     *   - Count of attached iterations (groupSum > 0)
-    *   - Count of exhausted iterations (groupSum >= exhaust threshold)
+    *   - Count of exhausted iterations (groupSum > ReReporting.exhaustThreshold, i.e. aggLimit * share)
     *   - Running mean and M2 for Welford's variance algorithm
     *
     * @param calcd
@@ -36,7 +36,8 @@ object PlatformReporting:
       limit: ReportDenominator
   ): (name: String, limit: Double, el: Double, stdDev: Double, attachProb: Double, exhaustProb: Double) =
     val reportLimit = limit.fromlayer(calcd.layer)
-    val exhaust = calcd.layer.aggLimit.getOrElse(Double.PositiveInfinity) - 0.01
+    val divisor = limit.divisor(calcd.layer)
+    val exhaust = ReReporting.exhaustThreshold(calcd.layer)
     val values = calcd.cededToLayer
     val l = years.length
     if values.length != l then ReReporting.yearsMismatch(years, values.length, numIterations)
@@ -100,8 +101,8 @@ object PlatformReporting:
     (
       name = calcd.layer.layerName.getOrElse(calcd.layer.autoName),
       limit = reportLimit,
-      el = el / reportLimit,
-      stdDev = stdDev / reportLimit,
+      el = el / divisor,
+      stdDev = stdDev / divisor,
       attachProb = attachProb,
       exhaustProb = exhaustProb
     )
