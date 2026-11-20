@@ -103,6 +103,27 @@ class ScenarrSuite extends FunSuite:
     assertEquals(ssorted.amounts.toList, Array(10.0, 15.0, 20.0).toList)
   }
 
+  test("freq, agg and oep refuse an unsorted scenario") {
+    // Iteration 1 is split across two runs: the unchecked group kernels would silently drop the first run.
+    val sc = Scenarr.withGeneratedIds(Array(1, 2, 1), Array(1, 2, 3), Array(1.0, 1.0, 1.0), numberIterations = 2)
+    intercept[AssertionError](sc.freq)
+    intercept[AssertionError](sc.agg)
+    intercept[AssertionError](sc.oep)
+    assertEquals(sc.sorted.agg.toList, List(2.0, 1.0))
+  }
+
+  test("oep counts iterations with no events as 0") {
+    val sc = Scenarr.withGeneratedIds(
+      Array(1, 1, 3),
+      Array(1, 2, 3),
+      Array(5.0, 7.0, 3.0),
+      numberIterations = 4,
+      isSorted = true
+    )
+    assertEquals(sc.oep.map(_.amount).toList, List(7.0, 3.0, 0.0, 0.0))
+    assertEquals(sc.oep.map(_.returnPeriod).toList, List(4.0, 2.0, 4.0 / 3.0, 1.0))
+  }
+
   test("scaleAmntBy multiplies amounts and threshold") {
     val sc =
       Scenarr.withGeneratedIds(Array(1, 1), Array(1, 2), Array(10.0, 20.0), numberIterations = 1, threshold = 100.0)
@@ -140,6 +161,24 @@ class ScenarrSuite extends FunSuite:
     intercept[Exception] {
       sc.applyThreshold(-1.0) // decreasing
     }
+  }
+
+  test("applyThreshold keeps the sorted flag and id") {
+    val sc = Scenarr
+      .withGeneratedIds(
+        Array(2, 1, 1, 2),
+        Array(1, 2, 1, 3),
+        Array(10.0, 50.0, 200.0, 5.0),
+        numberIterations = 2
+      )
+      .sorted
+    val filtered = sc.applyThreshold(7.0)
+    assert(filtered.isSorted)
+    assertEquals(filtered.id, sc.id)
+    assertEquals(filtered.agg.toList, List(250.0, 10.0))
+
+    val unsorted = Scenarr.withGeneratedIds(Array(2, 1), Array(1, 1), Array(10.0, 20.0), numberIterations = 2)
+    assert(!unsorted.applyThreshold(1.0).isSorted)
   }
 
 end ScenarrSuite

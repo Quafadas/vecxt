@@ -31,7 +31,6 @@ class GroupOpsBenchmark:
 
   var groups: Array[Int] = uninitialized
   var values: Array[Double] = uninitialized
-  var valuesCopy1: Array[Double] = uninitialized
   var valuesCopy2: Array[Double] = uninitialized
 
   @Setup(Level.Invocation)
@@ -66,21 +65,8 @@ class GroupOpsBenchmark:
 
     // Generate random values
     values = Array.fill(n)(random.nextDouble() * 100.0)
-    valuesCopy1 = values.clone()
     valuesCopy2 = values.clone()
   end setup
-
-  @Benchmark
-  def benchGroupCumSum(bh: Blackhole): Unit =
-    val result = groupCumSum(groups, values)
-    bh.consume(result)
-  end benchGroupCumSum
-
-  @Benchmark
-  def benchGroupCumSumInPlace(bh: Blackhole): Unit =
-    groupCumSumInPlace(groups, valuesCopy1)
-    bh.consume(valuesCopy1)
-  end benchGroupCumSumInPlace
 
   @Benchmark
   def benchGroupDiff(bh: Blackhole): Unit =

@@ -4,17 +4,15 @@ import vecxt_re.Limits.*
 import vecxt_re.Retentions.*
 
 import jdk.incubator.vector.DoubleVector
-import jdk.incubator.vector.VectorSpecies
 object rpt:
   private val SPECIES = DoubleVector.SPECIES_PREFERRED
   private val SPECIES_LENGTH = SPECIES.length()
 
-  // Add specialized inlined methods for hot paths
-  private inline def reinsuranceBoth(
+  private def reinsuranceBoth(
       vec: Array[Double],
       limitVal: Double,
       retentionVal: Double,
-      share: Double = 1.0
+      share: Double
   ): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
@@ -42,7 +40,7 @@ object rpt:
     end while
   end reinsuranceBoth
 
-  private inline def reinsuranceRetentionOnly(vec: Array[Double], retentionVal: Double, share: Double = 1.0): Unit =
+  private def reinsuranceRetentionOnly(vec: Array[Double], retentionVal: Double, share: Double): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
     val vRetention = DoubleVector.broadcast(SPECIES, retentionVal)
@@ -65,7 +63,7 @@ object rpt:
     end while
   end reinsuranceRetentionOnly
 
-  private inline def reinsuranceLimitOnly(vec: Array[Double], limitVal: Double, share: Double = 1.0): Unit =
+  private def reinsuranceLimitOnly(vec: Array[Double], limitVal: Double, share: Double): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
     val vLimit = DoubleVector.broadcast(SPECIES, limitVal)
@@ -87,8 +85,24 @@ object rpt:
     end while
   end reinsuranceLimitOnly
 
-  // Franchise specialized methods (new optimized versions)
-  private inline def franchiseBoth(vec: Array[Double], limitVal: Double, retentionVal: Double): Unit =
+  private def scaleInPlace(vec: Array[Double], share: Double): Unit =
+    val len = vec.length
+    val upperBound = SPECIES.loopBound(len)
+    val vShare = DoubleVector.broadcast(SPECIES, share)
+    var i = 0
+
+    while i < upperBound do
+      DoubleVector.fromArray(SPECIES, vec, i).mul(vShare).intoArray(vec, i)
+      i += SPECIES_LENGTH
+    end while
+
+    while i < len do
+      vec(i) = vec(i) * share
+      i += 1
+    end while
+  end scaleInPlace
+
+  private def franchiseBoth(vec: Array[Double], limitVal: Double, retentionVal: Double): Unit =
     val maxLim = limitVal + retentionVal
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
@@ -116,7 +130,7 @@ object rpt:
     end while
   end franchiseBoth
 
-  private inline def franchiseRetentionOnly(vec: Array[Double], retentionVal: Double): Unit =
+  private def franchiseRetentionOnly(vec: Array[Double], retentionVal: Double): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
     val vRetention = DoubleVector.broadcast(SPECIES, retentionVal)
@@ -138,7 +152,7 @@ object rpt:
     end while
   end franchiseRetentionOnly
 
-  private inline def franchiseLimitOnly(vec: Array[Double], limitVal: Double): Unit =
+  private def franchiseLimitOnly(vec: Array[Double], limitVal: Double): Unit =
     val len = vec.length
     val upperBound = SPECIES.loopBound(len)
     val vLimit = DoubleVector.broadcast(SPECIES, limitVal)
@@ -160,67 +174,56 @@ object rpt:
 
   extension (vec: Array[Double])
 
-    inline def reinsuranceFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention]): Unit =
-      (limitOpt, retentionOpt) match
-        case (Some(limit), Some(retention)) => reinsuranceBoth(vec, limit.limit, retention.retention)
-        case (None, Some(retention))        => reinsuranceRetentionOnly(vec, retention.retention)
-        case (Some(limit), None)            => reinsuranceLimitOnly(vec, limit.limit)
-        case (None, None)                   => ()
+    def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      reinsuranceFunction(limitOpt, retentionOpt, 1.0)
 
-    inline def reinsuranceFunction(
-        inline limitOpt: Option[Limit],
-        inline retentionOpt: Option[Retention],
-        share: Double
-    ): Unit =
+    def reinsuranceFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
       (limitOpt, retentionOpt) match
         case (Some(limit), Some(retention)) => reinsuranceBoth(vec, limit.limit, retention.retention, share)
         case (None, Some(retention))        => reinsuranceRetentionOnly(vec, retention.retention, share)
         case (Some(limit), None)            => reinsuranceLimitOnly(vec, limit.limit, share)
-        case (None, None)                   =>
-          if share != 1.0 then
-            val len = vec.length
-            val upperBound = SPECIES.loopBound(len)
-            val vShare = DoubleVector.broadcast(SPECIES, share)
-            var i = 0
+        case (None, None)                   => if share != 1.0 then scaleInPlace(vec, share)
+    end reinsuranceFunction
 
-            while i < upperBound do
-              val v = DoubleVector.fromArray(SPECIES, vec, i)
-              // Use fma to combine the multiply with a zero add (more efficient than separate mul)
-              val vResult = v.fma(vShare, DoubleVector.zero(SPECIES))
-              vResult.intoArray(vec, i)
-              i += SPECIES_LENGTH
-            end while
-
-            while i < len do
-              vec(i) = vec(i) * share
-              i += 1
-            end while
-          end if
-
-    inline def franchiseFunction(inline limitOpt: Option[Limit], inline retentionOpt: Option[Retention]): Unit =
+    def franchiseFunction(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
       (limitOpt, retentionOpt) match
         case (Some(limit), Some(retention)) => franchiseBoth(vec, limit.limit, retention.retention)
         case (None, Some(retention))        => franchiseRetentionOnly(vec, retention.retention)
         case (Some(limit), None)            => franchiseLimitOnly(vec, limit.limit)
         case (None, None)                   => ()
+    end franchiseFunction
 
   end extension
 
   // Matrix extensions that delegate to the underlying array
   extension (mat: Matrix[Double])
 
+    /** These operate on `mat.raw` directly, so they are only sound when the matrix owns its whole backing array in a
+      * dense layout. A view (submatrix, transpose, offset) would otherwise silently modify elements outside it.
+      */
+    private def requireDenseContiguous(op: String): Unit =
+      if !mat.hasSimpleContiguousMemoryLayout then
+        throw new IllegalArgumentException(
+          s"$op requires a dense, contiguous matrix (no views or offsets); got ${mat.layoutString}. Copy the matrix first."
+        )
+      end if
+    end requireDenseContiguous
+
     /** Apply reinsurance function to entire matrix via underlying array */
-    inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+    def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      requireDenseContiguous("applyReinsurance")
       mat.raw.reinsuranceFunction(limitOpt, retentionOpt)
     end applyReinsurance
 
     /** Apply reinsurance function with share to entire matrix via underlying array */
-    inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
+    def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
+      requireDenseContiguous("applyReinsurance")
       mat.raw.reinsuranceFunction(limitOpt, retentionOpt, share)
     end applyReinsurance
 
     /** Apply franchise function to entire matrix via underlying array */
-    inline def applyFranchise(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+    def applyFranchise(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      requireDenseContiguous("applyFranchise")
       mat.raw.franchiseFunction(limitOpt, retentionOpt)
     end applyFranchise
 

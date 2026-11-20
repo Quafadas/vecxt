@@ -1,11 +1,37 @@
 package vecxt_re
 
-/**   - You have a sorted groups array.
-  *     - Each group has a small number of values.
-  *   - You're doing per-group cumulative sums.
-  *   - Returns cumulative sums for each element within its group
+/* Group-by-iteration kernels.
+ *
+ * These are on the hot path of every loss report and scenario statistic: they run per layer, over arrays with one
+ * entry per simulated event (often millions). They are deliberately UNCHECKED. Verifying the preconditions below would
+ * need an extra full pass over `groups` on every call, roughly doubling the memory traffic of a single-pass kernel, to
+ * re-prove something the data producers already guarantee. The producers that establish the invariant are
+ * `Scenario` (sorts on construction), `Scenarr.sorted`, `Scenarr.combine` and `FreqSev.drawScenarr`. Public entry
+ * points that take a raw `years` / `iterations` array from users document the same precondition.
+ *
+ * Shared preconditions (the caller's responsibility):
+ *   - `groups.length == values.length` (where `values` is taken)
+ *   - `groups` is sorted in non-decreasing order, so equal indices form a single contiguous run
+ *   - every index g satisfies 1 <= g <= nitr (where `nitr` is taken)
+ *
+ * If they are violated the result is silently wrong rather than an error:
+ *   - unsorted `groups`: each run of equal indices OVERWRITES the slot for that group, so a group split across several
+ *     runs keeps only its last run. e.g. groupSum([1, 2, 1], [1, 1, 1], 2) == [1, 1], not [2, 1]
+ *   - `values` longer than `groups`: the extra values are ignored. Shorter: ArrayIndexOutOfBoundsException
+ *   - an index outside 1..nitr: ArrayIndexOutOfBoundsException on the JVM and Native. On Scala.js, out-of-bounds
+ *     array access is unchecked in optimised builds, so the behaviour is undefined
+ *
+ * These are package-private so that the only callers are ones that maintain the invariant.
+ */
+
+/** Cumulative sum of `values` within each run of equal `groups`, element by element.
+  *
+  * Preconditions: see the file header (`nitr` does not apply). They are not checked, for performance. With unsorted
+  * `groups` the running total restarts at every new run, so a group split across runs gets a per-run cumulative sum.
+  *
+  * Example: groups = [1, 1, 2, 2, 2], values = [1, 2, 3, 4, 5] => [1, 3, 3, 7, 12]
   */
-inline def groupCumSum(groups: Array[Int], values: Array[Double]): Array[Double] =
+private[vecxt_re] def groupCumSum(groups: Array[Int], values: Array[Double]): Array[Double] =
 
   val n = groups.length
   if n == 0 then Array.empty[Double]
@@ -29,39 +55,18 @@ inline def groupCumSum(groups: Array[Int], values: Array[Double]): Array[Double]
   end if
 end groupCumSum
 
-/** Compute the sum of values for each group identified by an integer index.
+/** Sum of values for each 1-based group index.
   *
-  * The function expects `groups` to be sorted in non-decreasing order and that `groups` and `values` have the same
-  * length. Group indices are 1-based and must be in the range 1..nitr. The returned array has length `nitr`; element at
-  * position `i` (0-based) contains the sum of values for group index `i+1`. Groups with no entries produce a zero in
-  * the corresponding slot.
+  * Returns an array of length `nitr`. Slot `i` (0-based) holds the sum for group `i + 1`; groups with no entries are
+  * 0.0.
   *
-  * Preconditions:
-  *   - groups.length == values.length
-  *   - groups is sorted (runs of identical indices are contiguous)
-  *   - every g in groups satisfies 1 <= g <= nitr
+  * Preconditions and failure modes: see the file header. They are not checked, for performance.
   *
-  * Complexity: O(groups.length) time, O(nitr) extra space.
+  * Complexity: one pass over `groups`, O(nitr) extra space.
   *
-  * This method is unsafe and performs no checks that these conditions are satisfied. It is the responsibility of the
-  * caller.
-  *
-  * @param groups
-  *   sorted array of 1-based group indices (length L)
-  * @param values
-  *   array of values corresponding to each group index (length L)
-  * @param nitr
-  *   number of groups (size of the returned array)
-  * @return
-  *   an Array[Double] of length `nitr` where each element is the sum for that group
-  * @throws ArrayIndexOutOfBoundsException
-  *   if a group index is outside 1..nitr
-  * @throws IllegalArgumentException
-  *   if groups.length != values.length
-  *
-  * Example: groups = Array(1, 1, 3), values = Array(1.0, 2.0, 4.0), nitr = 4 result = Array(3.0, 0.0, 4.0, 0.0)
+  * Example: groups = [1, 1, 3], values = [1.0, 2.0, 4.0], nitr = 4 => [3.0, 0.0, 4.0, 0.0]
   */
-inline def groupSum(groups: Array[Int], values: Array[Double], nitr: Int): Array[Double] =
+private[vecxt_re] def groupSum(groups: Array[Int], values: Array[Double], nitr: Int): Array[Double] =
   val result = Array.fill(nitr)(0.0)
   val l = groups.length
   var i = 0
@@ -79,12 +84,16 @@ inline def groupSum(groups: Array[Int], values: Array[Double], nitr: Int): Array
   result
 end groupSum
 
-/**   - count by group index
-  *   - Each group has a small number of values.
-  *   - Each the groups are keyed by their index.
-  *   - assumes groups are already sorted
+/** Number of entries for each 1-based group index.
+  *
+  * Returns an array of length `nitr`. Slot `i` (0-based) holds the count for group `i + 1`; groups with no entries are
+  * 0.
+  *
+  * Preconditions and failure modes: see the file header. They are not checked, for performance.
+  *
+  * Example: groups = [1, 1, 3], nitr = 4 => [2, 0, 1, 0]
   */
-inline def groupCount(groups: Array[Int], nitr: Int): Array[Int] =
+private[vecxt_re] def groupCount(groups: Array[Int], nitr: Int): Array[Int] =
   val result = Array.fill(nitr)(0)
   val l = groups.length
   var i = 0
@@ -102,39 +111,18 @@ inline def groupCount(groups: Array[Int], nitr: Int): Array[Int] =
   result
 end groupCount
 
-/** Compute the maximum of values for each group identified by an integer index.
+/** Maximum of values for each 1-based group index.
   *
-  * The function expects `groups` to be sorted in non-decreasing order and that `groups` and `values` have the same
-  * length. Group indices are 1-based and must be in the range 1..nitr. The returned array has length `nitr`; element at
-  * position `i` (0-based) contains the max of values for group index `i+1`. Groups with no entries produce
-  * Double.NegativeInfinity in the corresponding slot.
+  * Returns an array of length `nitr`. Slot `i` (0-based) holds the max for group `i + 1`; groups with no entries are
+  * Double.NegativeInfinity.
   *
-  * Preconditions:
-  *   - groups.length == values.length
-  *   - groups is sorted (runs of identical indices are contiguous)
-  *   - every g in groups satisfies 1 <= g <= nitr
+  * Preconditions and failure modes: see the file header. They are not checked, for performance.
   *
-  * Complexity: O(groups.length) time, O(nitr) extra space.
+  * Complexity: one pass over `groups`, O(nitr) extra space.
   *
-  * This method is unsafe and performs no checks that these conditions are satisfied. It is the responsibility of the
-  * caller.
-  *
-  * @param groups
-  *   sorted array of 1-based group indices (length L)
-  * @param values
-  *   array of values corresponding to each group index (length L)
-  * @param nitr
-  *   number of groups (size of the returned array)
-  * @return
-  *   an Array[Double] of length `nitr` where each element is the max for that group
-  * @throws ArrayIndexOutOfBoundsException
-  *   if a group index is outside 1..nitr
-  * @throws IllegalArgumentException
-  *   if groups.length != values.length
-  *
-  * Example: groups = Array(1, 1, 3), values = Array(1.0, 2.0, 4.0), nitr = 4 result = Array(2.0, -Inf, 4.0, -Inf)
+  * Example: groups = [1, 1, 3], values = [1.0, 2.0, 4.0], nitr = 4 => [2.0, -Inf, 4.0, -Inf]
   */
-inline def groupMax(groups: Array[Int], values: Array[Double], nitr: Int): Array[Double] =
+private[vecxt_re] def groupMax(groups: Array[Int], values: Array[Double], nitr: Int): Array[Double] =
   val result = Array.fill(nitr)(Double.NegativeInfinity)
   val l = groups.length
   var i = 0

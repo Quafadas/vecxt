@@ -378,4 +378,28 @@ class CalendarYearRateChangesSuite extends FunSuite:
     assertEquals(idx.toString, "CalendarYearRateChanges(currentYear=2024, 2024 -> 1.05, 2023 -> 1.03)")
   }
 
+  test("input arrays are defensively copied (sorted constructor)") {
+    val years = Array(2024, 2023, 2022)
+    val factors = Array(1.05, 1.03, 1.02)
+    val idx = CalendarYearRateChanges(2024, years, factors)
+    val before = idx.cumulativeToCurrentFrom(2021)
+
+    factors(0) = -1.0
+    years(1) = 1999
+
+    assertEquals(idx.factorAt(2024), 1.05)
+    assertEquals(idx.years.toSeq, Seq(2024, 2023, 2022))
+    assertEqualsDouble(idx.cumulativeToCurrentFrom(2021), before, 1e-12)
+  }
+
+  test("input arrays are defensively copied before the cumulative cache is built") {
+    val factors = Array(1.05, 1.03, 1.02)
+    val idx = CalendarYearRateChanges(2024, Array(2024, 2023, 2022), factors)
+
+    factors(0) = 2.0 // mutate before first use of the lazy cumulative factors
+
+    assertEqualsDouble(idx.cumulativeToCurrentFrom(2023), 1.05, 1e-12)
+    assertEquals(idx.factorAt(2024), 1.05)
+  }
+
 end CalendarYearRateChangesSuite

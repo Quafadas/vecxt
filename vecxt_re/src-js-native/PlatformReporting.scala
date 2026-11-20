@@ -20,7 +20,8 @@ object PlatformReporting:
     * @param numIterations
     *   Number of iterations/years
     * @param years
-    *   Sorted array of 1-based iteration indices
+    *   Sorted array of 1-based iteration indices, in 1..numIterations, same length as `calcd.cededToLayer`. Checked at
+    *   no extra cost: throws IllegalArgumentException if violated.
     * @param limit
     *   Report denominator for normalizing results
     * @return
@@ -36,6 +37,8 @@ object PlatformReporting:
     val exhaust = calcd.layer.aggLimit.getOrElse(Double.PositiveInfinity) - 0.01
     val values = calcd.cededToLayer
     val l = years.length
+    if values.length != l then ReReporting.yearsMismatch(years, values.length, numIterations)
+    end if
 
     // Accumulators
     var totalSum = 0.0 // For expected loss
@@ -78,6 +81,12 @@ object PlatformReporting:
 
       currentGroup += 1
     end while
+
+    // The loop only consumes years(i) when it equals the current group, and groups run 1..numIterations in order. So
+    // every entry is consumed exactly when years is non-decreasing and in 1..numIterations. Anything left over means
+    // the precondition was broken and the metrics above silently dropped losses.
+    if i != l then ReReporting.yearsMismatch(years, values.length, numIterations)
+    end if
 
     // Compute final statistics
     val el = totalSum / numIterations

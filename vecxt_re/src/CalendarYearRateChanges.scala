@@ -16,8 +16,11 @@ package vecxt_re
   *   companion `apply(years, factors)` to construct from years in any order.
   * @param factors
   *   Array of change factors corresponding to each year. All factors must be strictly positive.
+  *
+  * The constructor is private: the companion `apply` methods defensively copy the input arrays, so mutating the arrays
+  * passed in cannot bypass validation or desynchronise the cached cumulative factors.
   */
-case class CalendarYearRateChanges(currentYear: Int, years: Array[Int], factors: Array[Double]):
+case class CalendarYearRateChanges private (currentYear: Int, years: Array[Int], factors: Array[Double]):
   require(years.length == factors.length, "years and factors must have the same length")
   require(years.length > 0, "must provide at least one year")
   require(
@@ -182,6 +185,12 @@ end CalendarYearRateChanges
 
 object CalendarYearRateChanges:
 
+  /** Create a CalendarYearRateChanges with years already in contiguous descending order starting at `currentYear`. The
+    * input arrays are copied.
+    */
+  def apply(currentYear: Int, years: Array[Int], factors: Array[Double]): CalendarYearRateChanges =
+    new CalendarYearRateChanges(currentYear, years.clone(), factors.clone())
+
   /** Create a CalendarYearRateChanges from arrays of years and their corresponding change factors. Years may be
     * provided in any order, but must be contiguous (no gaps) and unique. The current year is set to the most recent
     * year.
@@ -200,7 +209,8 @@ object CalendarYearRateChanges:
     val order = years.indices.sortBy(i => -years(i)).toArray
     val sortedYears = order.map(years(_))
     val sortedFactors = order.map(factors(_))
-    CalendarYearRateChanges(sortedYears.head, sortedYears, sortedFactors)
+    // freshly allocated arrays - no need to copy again
+    new CalendarYearRateChanges(sortedYears.head, sortedYears, sortedFactors)
   end apply
 
   /** Create a CalendarYearRateChanges from a range of years with a constant rate change.
@@ -219,7 +229,7 @@ object CalendarYearRateChanges:
     val numYears = toYear - fromYear + 1
     val years = Array.tabulate(numYears)(i => toYear - i)
     val factors = Array.fill(numYears)(factor)
-    CalendarYearRateChanges(toYear, years, factors)
+    new CalendarYearRateChanges(toYear, years, factors)
   end constant
 
   /** Create a CalendarYearRateChanges from arrays of years and rate changes (as percentages). Years may be provided in
