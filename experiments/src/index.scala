@@ -3,7 +3,6 @@ package experiments
 import io.github.quafadas.table.{*, given}
 import io.github.quafadas.plots.SetupVegaBrowser.{*, given}
 import experiments.RPT.*
-import vecxt_re.*
 
 @main def plotIndex =
   val idx = CSV.resource("idx.csv", CsvOpts(TypeInferrer.FromAllRows, ReadAs.Columns))

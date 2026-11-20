@@ -20,15 +20,24 @@ object Plots:
   private lazy val hillPlotSpec = VegaPlot.fromResource("hillPlot.vl.json") // Hill plot for tail index
 
   extension (idx: CalendarYearIndex)
-    def plotIndex(reportingThreshold: Double)(using viz.LowPriorityPlotTarget) =
+    /** Plot the per-year index factors, the shortfall of each year's level relative to the current year, and the
+      * reporting threshold on-levelled to the current year.
+      *
+      * @param reportingThreshold
+      *   The reporting threshold, in `thresholdYear` money
+      * @param thresholdYear
+      *   The year the reporting threshold was set
+      */
+    def plotIndex(reportingThreshold: Double, thresholdYear: Int)(using viz.LowPriorityPlotTarget) =
       val linePlot2 = VegaPlot.fromResource("index.vl.json")
-      val cumulative = idx.onLevel(Array.fill(idx.years.length)(1.0), idx.years)
-      val factors = idx.years.zip(idx.indices).zip(cumulative).map { case ((year, index), cumulative) =>
+      val cumulative = idx.onLevel(Array.fill(idx.numYears)(1.0), idx.years)
+      val threshold = idx.suggestedNewThreshold(reportingThreshold, thresholdYear)
+      val factors = idx.years.indices.map { i =>
         (
-          year = year,
-          index = index,
-          missing = 1 / cumulative,
-          threshold = idx.suggestedNewThreshold(reportingThreshold)
+          year = idx.years(i),
+          index = idx.indices(i),
+          missing = 1 / cumulative(i),
+          threshold = threshold
         )
       }
       linePlot2.plot(
