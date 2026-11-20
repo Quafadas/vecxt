@@ -8,10 +8,13 @@ import vecxt.all.*
   * arrays have the same length, `years` is sorted in non-decreasing order, and every value is in 1..numIterations.
   * Arrays that come from a `Scenario`, or a `Scenarr` with `isSorted = true`, already satisfy this.
   *
-  * The precondition is NOT checked. These methods are on the reporting hot path and work in a single pass over arrays
-  * with one entry per event, and checking would add a second full pass on every call. Unsorted `years` silently gives
-  * wrong numbers, not an error: the group-sum based methods keep only the last run of each iteration (see
-  * groupSums.scala), and `lossReport` drops every event after the first out-of-order one.
+  * `lossReport` checks the precondition and throws IllegalArgumentException if it is broken. The check costs nothing
+  * extra: its single pass only consumes `years(i)` when it equals the current iteration, so leftover entries at the end
+  * mean `years` was unsorted or out of range.
+  *
+  * The group-sum based methods (`attachmentProbability`, `exhaustionProbability`, `std`) do NOT check it, because
+  * checking would add a second full pass. Unsorted `years` silently gives wrong numbers there: they keep only the last
+  * run of each iteration (see groupSums.scala).
   */
 object ReReporting:
   extension (calcd: (layer: Layer, cededToLayer: Array[Double]))
@@ -40,7 +43,7 @@ object ReReporting:
       * @param numIterations
       *   Number of simulation iterations
       * @param years
-      *   Sorted array of 1-based iteration indices, one per element of `cededToLayer`. Not checked: see the object doc.
+      *   Sorted array of 1-based iteration indices, one per element of `cededToLayer`. Checked: see the object doc.
       * @param limit
       *   Report denominator for normalizing EL and std
       * @return
@@ -54,4 +57,32 @@ object ReReporting:
       PlatformReporting.lossReportFast(calcd, numIterations, years, limit)
 
   end extension
+
+  /** Failure path for `PlatformReporting.lossReportFast`. Kept out of the inline method so the diagnostic code isn't
+    * copied into every call site. Only runs once the precondition is already known to be broken.
+    */
+  private[vecxt_re] def yearsMismatch(years: Array[Int], numValues: Int, numIterations: Int): Nothing =
+    if numValues != years.length then
+      throw IllegalArgumentException(
+        s"years and cededToLayer must have the same length: years=${years.length}, cededToLayer=$numValues"
+      )
+    end if
+    var k = 0
+    while k < years.length do
+      val y = years(k)
+      if y < 1 || y > numIterations then
+        throw IllegalArgumentException(
+          s"years must be 1-based iteration indices in 1..$numIterations, but years($k) = $y"
+        )
+      end if
+      if k > 0 && y < years(k - 1) then
+        throw IllegalArgumentException(
+          s"years must be sorted in non-decreasing order, but years(${k - 1}) = ${years(k - 1)} > years($k) = $y. " +
+            "Sort the scenario first (Scenarr.sorted), and use the iterations of the sorted scenario."
+        )
+      end if
+      k += 1
+    end while
+    throw IllegalArgumentException("years violates the lossReport precondition")
+  end yearsMismatch
 end ReReporting

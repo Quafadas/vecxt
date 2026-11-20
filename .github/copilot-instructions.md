@@ -96,7 +96,6 @@ When writing code, follow the coding guidelines in `styleguide.md` in the root o
 
 ## Code Guidelines
 Follow styleguide.md for coding conventions
-Use inline methods where possible to avoid dispatch overhead.
 
 ## GitHub Actions CI
 The project uses GitHub Actions for CI/CD

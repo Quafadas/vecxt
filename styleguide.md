@@ -4,7 +4,7 @@ This style guide outlines the conventions and best practices for contributing to
 
 ## General Guidelines
 
-- **Use inline methods**: Inline methods are preferred for performance reasons.
+- **Use inline sparingly**: Inline methods take the budget the JVM C2 compiler needs.
 - **Use `while` loops**: Prefer `while` loops over `for` loops for performance-critical sections, especially in JS and Native targets.
 - **Use Java's SIMD `Vector` API**: On the JVM, leverage Java's SIMD `Vector` API for vectorized operations.
 - **Use tail recursion**: When implementing recursive methods, prefer tail recursion for performance improvements.
@@ -51,7 +51,7 @@ object arrays:
 
   extension (vec: Array[Double])
 
-    inline def +(d: Double): Array[Double] =
+    def +(d: Double): Array[Double] =
       val out = new Array[Double](vec.length)
       val inc = DoubleVector.broadcast(spd, d)
       var i = 0

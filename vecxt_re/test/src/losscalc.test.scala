@@ -251,4 +251,28 @@ class LossReportSuite extends FunSuite:
     assertEqualsDouble(report.limit, 50.0, 0.0001)
   }
 
+  test("lossReport rejects out-of-order years instead of dropping losses") {
+    val calcd = (layer = Layer(occLimit = Some(100.0)), cededToLayer = Array(5.0, 1.0))
+    val ex = intercept[IllegalArgumentException](calcd.lossReport(2, Array(2, 1), ReportDenominator.FirstLimit))
+    assert(ex.getMessage.contains("non-decreasing"), ex.getMessage)
+  }
+
+  test("lossReport rejects 0-based years") {
+    val calcd = (layer = Layer(occLimit = Some(100.0)), cededToLayer = Array(5.0, 1.0))
+    val ex = intercept[IllegalArgumentException](calcd.lossReport(2, Array(0, 1), ReportDenominator.FirstLimit))
+    assert(ex.getMessage.contains("1-based"), ex.getMessage)
+  }
+
+  test("lossReport rejects years beyond numIterations") {
+    val calcd = (layer = Layer(occLimit = Some(100.0)), cededToLayer = Array(5.0, 1.0))
+    val ex = intercept[IllegalArgumentException](calcd.lossReport(2, Array(1, 3), ReportDenominator.FirstLimit))
+    assert(ex.getMessage.contains("1..2"), ex.getMessage)
+  }
+
+  test("lossReport rejects mismatched years and cededToLayer lengths") {
+    val calcd = (layer = Layer(occLimit = Some(100.0)), cededToLayer = Array(5.0, 1.0, 2.0))
+    val ex = intercept[IllegalArgumentException](calcd.lossReport(2, Array(1, 2), ReportDenominator.FirstLimit))
+    assert(ex.getMessage.contains("same length"), ex.getMessage)
+  }
+
 end LossReportSuite
