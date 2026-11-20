@@ -85,6 +85,65 @@ case class Scenario(
 
 end Scenario
 
+object Scenario:
+
+  /** A scenario with no events, belonging to a simulation of `numberIterations` iterations starting at `day1`.
+    *
+    * With the default zero threshold it leaves any scenario unchanged under `combine`. A positive threshold states that
+    * nothing above it happened, and raises the threshold of anything it is combined with.
+    */
+  def empty(numberIterations: Int, day1: LocalDate, threshold: Double = 0d): Scenario =
+    Scenario(Vector.empty, numberIterations, threshold, day1, "empty", 0L)
+
+  /** Combine two scenarios. Same as `combineAll(Seq(s1, s2))`. */
+  def combine(s1: Scenario, s2: Scenario): Scenario = combineAll(Seq(s1, s2))
+
+  /** Combine scenarios from the same simulation into one, with the same semantics as `Scenarr.combineAll`:
+    *
+    *   - Events with the same `eventId` are one event, and their losses are summed. An ID must sit at the same
+    *     (iteration, day) wherever it appears.
+    *   - Scenarios with no events don't constrain anything. All scenarios that have events must agree on
+    *     `numberIterations` and `day1`.
+    *   - Scenarios linked by shared event IDs form a group whose threshold is the sum of its members' thresholds; the
+    *     result's threshold is the largest group threshold. For two scenarios: `t1 + t2` if they share an ID,
+    *     `max(t1, t2)` otherwise.
+    *   - Events at or below the result's threshold are dropped, once, after all losses have been summed.
+    *
+    * Combining with non-zero thresholds is not associative, so prefer this over folding `combine`.
+    *
+    * @throws IllegalArgumentException
+    *   if `scenarios` is empty, if scenarios with events disagree on `numberIterations` or `day1`, or if an event ID
+    *   appears at more than one (iteration, day)
+    */
+  def combineAll(scenarios: Seq[Scenario]): Scenario =
+    fromScenarr(Scenarr.combineAll(scenarios.map(toScenarr)))
+
+  extension (s1: Scenario) def |+|(s2: Scenario): Scenario = combine(s1, s2)
+  end extension
+
+  private def toScenarr(s: Scenario): Scenarr =
+    val ev = s.eventsSorted
+    new Scenarr(
+      ev.map(_.iteration),
+      ev.map(_.day),
+      ev.map(_.loss),
+      ev.map(_.eventId),
+      s.numberIterations,
+      s.threshold,
+      s.day1,
+      s.name,
+      s.id,
+      isSorted = true
+    )
+  end toScenarr
+
+  private def fromScenarr(s: Scenarr): Scenario =
+    val events = Vector.tabulate(s.ids.length)(i => Event(s.ids(i), s.iterations(i), s.days(i), s.amounts(i)))
+    Scenario(events, s.numberIterations, s.threshold, s.day1, s.name, s.id)
+  end fromScenarr
+
+end Scenario
+
 extension (scenario: Scenario)
   inline def scaleAmntBy(scale: Double): Scenario = Scenario(
     scenario.eventsSorted.map(_.multiplyBy(scale)),
