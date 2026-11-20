@@ -3,6 +3,8 @@ package vecxt_re
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
+import vecxt.all.*
+
 import io.circe.{Decoder, DecodingFailure, Encoder, Json}
 import io.circe.syntax.*
 
@@ -62,8 +64,11 @@ case class FreqSev(frequency: Poisson | NegativeBinomial, severity: Mixed):
     *   1. Unfold the claim counts into a contiguous iteration column (1-based), e.g. counts `[2, 0, 1]` become
     *      iterations `[1, 1, 3]`.
     *
-    * Days are sorted within each iteration so the result is sorted by iteration then day. Claims at or below
-    * `threshold` are then dropped, matching `Scenarr.applyThreshold`.
+    * Days are sorted within each iteration so the result is sorted by iteration then day.
+    *
+    * The frequency is taken to count claims in excess of `threshold`, so every drawn severity must exceed it. Claims are
+    * never dropped (that would understate the frequency); an `IllegalStateException` is thrown if any severity draw is
+    * at or below `threshold`.
     *
     * {{{
     * val scenarr = freqSev.drawScenarr(numberIterations = 10000, day1 = LocalDate.of(2026, 1, 1), name = "property")
@@ -76,7 +81,7 @@ case class FreqSev(frequency: Poisson | NegativeBinomial, severity: Mixed):
     * @param name
     *   Name of the resulting Scenarr
     * @param threshold
-    *   Reporting threshold; only claims strictly above it are kept
+    *   Reporting threshold; the severity must only generate losses strictly above it
     */
   def drawScenarr(
       numberIterations: Int,
@@ -111,10 +116,21 @@ case class FreqSev(frequency: Poisson | NegativeBinomial, severity: Mixed):
       itr += 1
     end while
 
+    // 5. the frequency counts claims in excess of the threshold, so every severity must exceed it. Dropping
+    //    claims here would silently thin the frequency, so fail loudly instead. All claims exceed the threshold iff
+    //    the smallest does: a single SIMD min-reduction. NaN propagates through the vector MIN, so it is caught too.
+    val minAmount = amounts.minSIMD
+    if !(minAmount > threshold) then
+      throw new IllegalStateException(
+        s"severity drew $minAmount, which is not above the threshold $threshold. The frequency counts claims in " +
+          "excess of the threshold, so the severity distribution must only generate losses above it."
+      )
+    end if
+
     Scenarr.withGeneratedIds(
-      java.util.Arrays.copyOf(iterations, kept),
-      java.util.Arrays.copyOf(days, kept),
-      java.util.Arrays.copyOf(amounts, kept),
+      iterations,
+      days,
+      amounts,
       numberIterations,
       threshold = threshold,
       day1 = day1,

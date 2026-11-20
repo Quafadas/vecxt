@@ -112,10 +112,23 @@ class FreqSevTest extends FunSuite:
     assertEqualsDouble(s.agg.sum / n, simple.mean, simple.mean * 0.05)
   }
 
-  test("drawScenarr drops claims at or below the threshold") {
-    val s = simple.drawScenarr(numberIterations = 1000, threshold = 3.0)
+  // severity support is {4, 5, 6, 7, 8} ∪ Pareto tail from 10, so everything is above a threshold of 3
+  private val aboveThree = FreqSev(Poisson(5.0), Mixed.fromValues(Array(4.0, 5.0, 6.0, 7.0, 8.0), 10.0, 3.0))
+
+  test("drawScenarr keeps every claim when the severity is above the threshold") {
+    val n = 20000
+    val s = aboveThree.drawScenarr(numberIterations = n, threshold = 3.0)
     assertEquals(s.threshold, 3.0)
     assert(s.amounts.forall(_ > 3.0))
+    // nothing is dropped, so the realised frequency is still the model frequency
+    assertEquals(s.freq.sum, s.amounts.length)
+    assertEqualsDouble(s.meanFreq, 5.0, 5.0 * 0.05)
+  }
+
+  test("drawScenarr throws rather than dropping claims at or below the threshold") {
+    // `simple` draws 1, 2 and 3 with probability 3/5 each claim: over ~5,000 claims one is certain to hit
+    val e = intercept[IllegalStateException](simple.drawScenarr(numberIterations = 1000, threshold = 3.0))
+    assert(e.getMessage.contains("threshold 3.0"), e.getMessage)
   }
 
   test("drawScenarr rejects invalid arguments") {
@@ -135,7 +148,7 @@ class FreqSevTest extends FunSuite:
   }
 
   test("drawScenarr with a threshold stays sorted") {
-    val s = simple.drawScenarr(numberIterations = 500, threshold = 3.0)
+    val s = aboveThree.drawScenarr(numberIterations = 500, threshold = 3.0)
     assert(s.isSorted)
     val pairs = s.iterations.zip(s.days).toSeq
     assertEquals(pairs, pairs.sorted)
