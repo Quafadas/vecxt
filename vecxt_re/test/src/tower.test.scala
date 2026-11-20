@@ -221,6 +221,67 @@ class TowerSuite extends munit.FunSuite:
     end for
   }
 
+  /** Plain scalar reference for one layer, straight from the DeductibleType definitions: occurrence terms per loss,
+    * aggregate terms on each year's running total, share, then back to per-loss amounts.
+    */
+  private def referenceSplit(layer: Layer, years: Array[Int], losses: Array[Double]): Array[Double] =
+    def terms(t: DeductibleType, lim: Option[Double], ret: Option[Double])(x: Double): Double =
+      val l = lim.getOrElse(Double.PositiveInfinity)
+      val r = ret.getOrElse(0.0)
+      t match
+        case DeductibleType.Retention        => math.min(math.max(x - r, 0.0), l)
+        case DeductibleType.Franchise        => if x >= r then math.min(x, l + r) else 0.0
+        case DeductibleType.ReverseFranchise => math.min(if ret.forall(x <= _) then x else 0.0, l)
+      end match
+    end terms
+    val occ = losses.map(terms(layer.occType, layer.occLimit, layer.occRetention))
+    val out = new Array[Double](losses.length)
+    var i = 0
+    while i < losses.length do
+      var running = 0.0
+      var prevPaid = 0.0
+      val year = years(i)
+      while i < losses.length && years(i) == year do
+        running += occ(i)
+        val paid = terms(layer.aggType, layer.aggLimit, layer.aggRetention)(running) * layer.share
+        out(i) = paid - prevPaid
+        prevPaid = paid
+        i += 1
+      end while
+    end while
+    out
+  end referenceSplit
+
+  test("splitAmntFast matches a scalar reference: occ-only and agg layers, with share, sequential and parallel sizes") {
+    val layers = IndexedSeq(
+      Layer(occRetention = Some(10.0), occLimit = Some(20.0)), // occ only, share 1
+      Layer(occRetention = Some(5.0), occLimit = Some(15.0), share = 0.35), // occ only, share
+      Layer(occRetention = Some(12.0), occType = DeductibleType.Franchise, share = 0.6), // occ franchise, share
+      Layer(occRetention = Some(2.0), aggRetention = Some(15.0), aggLimit = Some(40.0), share = 0.25),
+      Layer(
+        occLimit = Some(30.0),
+        aggRetention = Some(20.0),
+        aggLimit = Some(25.0),
+        aggType = DeductibleType.Franchise,
+        share = 0.8
+      ),
+      Layer(aggRetention = Some(60.0), aggType = DeductibleType.ReverseFranchise, share = 0.5),
+      Layer(aggLimit = Some(50.0), share = 0.1) // agg limit only
+    )
+    // 60001 losses exercises the JVM's parallel branch (>= 50000 losses and > 1 layer)
+    for n <- Seq(1, 13, 1000, 60001) do
+      val r = scala.util.Random(n)
+      val years = Array.fill(n)(1 + r.nextInt(math.max(1, n / 4))).sorted
+      val losses = Array.fill(n)(r.nextDouble() * 40.0)
+
+      val (ceded, retained, splits) = Tower(layers).splitAmntFast(years, losses)
+
+      for (layer, col) <- splits do assertVecEquals(col, referenceSplit(layer, years, losses))
+      end for
+      noleakage(losses, ceded, retained, splits)
+    end for
+  }
+
   test("Agg - One layer, 5 claims across 3 iters. 3 xs 10 occ, 3 xs 1.5 agg") {
     val iterations = Array(1, 2, 2, 3, 3)
     val amounts = Array(12.0, 14.0, 12.0, 11.5, 10.5)

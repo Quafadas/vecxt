@@ -387,28 +387,178 @@ object Scenarr:
     new Scenarr(iterations, days, amounts, ids, numberIterations, threshold, day1, name, id, isSorted)
   end withGeneratedIds
 
-  extension (scenario: Scenarr)
-    inline def sorted: Scenarr =
-      val indicies = scenario.iterations.zipWithIndex
-        .zip(scenario.days)
-        .map { case ((iter, idx), day) =>
-          (index = idx, iter = iter, day = day)
-        }
-        .sortBy(r => (r.iter, r.day))
-        .map(_.index)
+  /** True when events are already in (iteration, day) order. One pass, no allocation. */
+  private[vecxt_re] def isOrderedByIterationDay(iterations: Array[Int], days: Array[Int]): Boolean =
+    var i = 1
+    while i < iterations.length do
+      val it0 = iterations(i - 1)
+      val it1 = iterations(i)
+      if it1 < it0 || (it1 == it0 && days(i) < days(i - 1)) then return false
+      end if
+      i += 1
+    end while
+    true
+  end isOrderedByIterationDay
 
-      Scenarr(
-        scenario.iterations.select(indicies),
-        scenario.days.select(indicies),
-        scenario.amounts.select(indicies),
-        scenario.ids.select(indicies),
-        scenario.numberIterations,
-        scenario.threshold,
-        scenario.day1,
-        scenario.name,
-        scenario.id,
-        isSorted = true
-      )
+  /** The permutation that stably sorts events by (iteration, day): `perm(k)` is the original index of the k-th event.
+    * Events with equal (iteration, day) keep their original relative order.
+    *
+    * Iterations are dense (1..numberIterations) and days span about a year, so both keys usually have a small range.
+    * Then this is an LSD radix sort: a stable counting sort by day, followed by a stable counting sort by iteration.
+    * That's O(n + iteration range + day range), with primitive arrays only.
+    *
+    * If either key's range is much larger than the number of events (e.g. a handful of events spread over millions of
+    * iterations, or unusual values), the counting arrays would be wasteful, so it falls back to a stable merge sort.
+    * Any Int values are accepted, as the original comparison sort did.
+    */
+  private[vecxt_re] def sortPermutation(iterations: Array[Int], days: Array[Int]): Array[Int] =
+    val n = iterations.length
+    if n == 0 then Array.emptyIntArray
+    else
+      var minIt = iterations(0)
+      var maxIt = minIt
+      var minDay = days(0)
+      var maxDay = minDay
+      var i = 1
+      while i < n do
+        val it = iterations(i)
+        if it < minIt then minIt = it
+        else if it > maxIt then maxIt = it
+        end if
+        val d = days(i)
+        if d < minDay then minDay = d
+        else if d > maxDay then maxDay = d
+        end if
+        i += 1
+      end while
+      val itRange = maxIt.toLong - minIt + 1
+      val dayRange = maxDay.toLong - minDay + 1
+      // Counting arrays this size are cheap relative to the arrays being sorted
+      val maxRange = math.max(4L * n, 1L << 16)
+      if itRange <= maxRange && dayRange <= maxRange then
+        val byDay = countingSortPermutation(null, days, minDay, dayRange.toInt)
+        countingSortPermutation(byDay, iterations, minIt, itRange.toInt)
+      else mergeSortPermutation(iterations, days)
+      end if
+    end if
+  end sortPermutation
+
+  /** Stable counting sort of the events listed in `order` (or 0 until n when `order` is null) by `keys`, whose values
+    * lie in [min, min + range). Returns the reordered indices.
+    */
+  private[vecxt_re] def countingSortPermutation(
+      order: Array[Int] | Null,
+      keys: Array[Int],
+      min: Int,
+      range: Int
+  ): Array[Int] =
+    val n = keys.length
+    // starts(k) = first output slot for key bucket k
+    val starts = new Array[Int](range + 1)
+    var i = 0
+    while i < n do
+      starts(keys(i) - min + 1) += 1
+      i += 1
+    end while
+    var k = 1
+    while k <= range do
+      starts(k) += starts(k - 1)
+      k += 1
+    end while
+    val out = new Array[Int](n)
+    i = 0
+    if order == null then
+      while i < n do
+        val b = keys(i) - min
+        out(starts(b)) = i
+        starts(b) += 1
+        i += 1
+      end while
+    else
+      val ord = order.nn
+      while i < n do
+        val idx = ord(i)
+        val b = keys(idx) - min
+        out(starts(b)) = idx
+        starts(b) += 1
+        i += 1
+      end while
+    end if
+    out
+  end countingSortPermutation
+
+  /** Stable bottom-up merge sort of event indices by (iteration, day). The fallback for sparse key ranges. */
+  private[vecxt_re] def mergeSortPermutation(iterations: Array[Int], days: Array[Int]): Array[Int] =
+    val n = iterations.length
+    var src = new Array[Int](n)
+    var i = 0
+    while i < n do
+      src(i) = i
+      i += 1
+    end while
+    var dst = new Array[Int](n)
+    var width = 1
+    while width < n do
+      var lo = 0
+      while lo < n do
+        val mid = math.min(lo + width, n)
+        val hi = math.min(lo.toLong + 2L * width, n.toLong).toInt
+        var a = lo
+        var b = mid
+        var o = lo
+        while o < hi do
+          // Take from the left run unless the right element is strictly smaller: keeps the sort stable
+          val takeLeft = a < mid && (b >= hi || {
+            val ia = src(a)
+            val ib = src(b)
+            val ita = iterations(ia)
+            val itb = iterations(ib)
+            !(itb < ita || (itb == ita && days(ib) < days(ia)))
+          })
+          if takeLeft then
+            dst(o) = src(a)
+            a += 1
+          else
+            dst(o) = src(b)
+            b += 1
+          end if
+          o += 1
+        end while
+        lo = hi
+      end while
+      val t = src
+      src = dst
+      dst = t
+      width = if width.toLong * 2 >= n then n else width * 2
+    end while
+    src
+  end mergeSortPermutation
+
+  extension (scenario: Scenarr)
+    /** This scenario ordered by (iteration, day), with `isSorted = true`. Events on the same iteration and day keep
+      * their original relative order.
+      *
+      * Returns `scenario` itself when it is already flagged sorted. When it is in order but not flagged, the result
+      * shares its arrays (no copy). Otherwise the columns are copied in sorted order.
+      */
+    def sorted: Scenarr =
+      if scenario.isSorted then scenario
+      else if isOrderedByIterationDay(scenario.iterations, scenario.days) then scenario.copy(isSorted = true)
+      else
+        val perm = sortPermutation(scenario.iterations, scenario.days)
+        Scenarr(
+          scenario.iterations.select(perm),
+          scenario.days.select(perm),
+          scenario.amounts.select(perm),
+          scenario.ids.select(perm),
+          scenario.numberIterations,
+          scenario.threshold,
+          scenario.day1,
+          scenario.name,
+          scenario.id,
+          isSorted = true
+        )
+      end if
     end sorted
 
     inline def takeFirstNIterations(i: Int) =

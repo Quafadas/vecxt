@@ -37,7 +37,7 @@ object SplitLosses:
         val numLayers = layers.length
 
         // Per-layer splits (column major) and totals
-        val cededSplits = IndexedSeq.fill(numLayers)(losses.clone())
+        val cededSplits: Array[Array[Double]] = Array.fill(numLayers)(losses.clone())
         val retained = new Array[Double](numLosses)
         val ceded = new Array[Double](numLosses)
 
@@ -55,48 +55,53 @@ object SplitLosses:
               applyReverseFranchise(col, 0, numLosses, layer.occLimit, layer.occRetention)
           end match
 
-          // Group cumulative sum on the fly by detecting year boundaries
-          var i = 0
-          while i < numLosses do
-            val year = years(i)
-            var cumSum = 0.0
-            while i < numLosses && years(i) == year do
-              cumSum += col(i)
-              col(i) = cumSum
-              i += 1
+          if layer.aggLimit.isEmpty && layer.aggRetention.isEmpty then
+            // No aggregate terms: every aggregate kernel is the identity, so the per-year cumulative sum and diff
+            // would cancel out (adding only rounding). Two passes saved.
+            if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
+            end if
+          else
+            // Group cumulative sum on the fly by detecting year boundaries
+            var i = 0
+            while i < numLosses do
+              val year = years(i)
+              var cumSum = 0.0
+              while i < numLosses && years(i) == year do
+                cumSum += col(i)
+                col(i) = cumSum
+                i += 1
+              end while
             end while
-          end while
 
-          layer.aggType match
-            case DeductibleType.Retention =>
-              applyRetention(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
-              if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
-              end if
-            case DeductibleType.Franchise =>
-              applyFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
-              if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
-              end if
-            case DeductibleType.ReverseFranchise =>
-              applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
-              if layer.share != 1.0 then applyShare(col, 0, numLosses, layer.share)
-              end if
-          end match
+            // Aggregate terms, on the cumulative amounts
+            layer.aggType match
+              case DeductibleType.Retention =>
+                applyRetention(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+              case DeductibleType.Franchise =>
+                applyFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+              case DeductibleType.ReverseFranchise =>
+                applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+            end match
 
-          // Group diff on the fly by detecting year boundaries
-          i = 0
-          while i < numLosses do
-            val year = years(i)
-            var prevValue = 0.0
-            var isFirst = true
-            while i < numLosses && years(i) == year do
-              val current = col(i)
-              if isFirst then isFirst = false
-              else col(i) = current - prevValue
-              end if
-              prevValue = current
-              i += 1
+            // Back to per-loss amounts (diff within year groups), with the share folded in: one pass instead of two
+            val share = layer.share
+            i = 0
+            while i < numLosses do
+              val year = years(i)
+              var prevValue = 0.0
+              var isFirst = true
+              while i < numLosses && years(i) == year do
+                val current = col(i)
+                if isFirst then
+                  isFirst = false
+                  col(i) = current * share
+                else col(i) = (current - prevValue) * share
+                end if
+                prevValue = current
+                i += 1
+              end while
             end while
-          end while
+          end if
 
           layerIdx += 1
         end while

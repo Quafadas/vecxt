@@ -1,6 +1,6 @@
 package vecxt_re
 
-import java.util.concurrent.Executors
+import java.util.stream.IntStream
 
 import jdk.incubator.vector.DoubleVector
 import jdk.incubator.vector.VectorOperators
@@ -44,8 +44,8 @@ object SplitLosses:
         val numLayers = layers.length
 
         // Per-layer splits (column major) and totals
-        val cededSplits = IndexedSeq.fill(numLayers)(losses.clone())
-        val retained = losses.clone()
+        val cededSplits: Array[Array[Double]] = Array.fill(numLayers)(losses.clone())
+        val retained = new Array[Double](numLosses) // fully written in step 5
         val ceded = new Array[Double](numLosses)
 
         // SIMD species for vectorization
@@ -66,53 +66,52 @@ object SplitLosses:
               applyReverseFranchise(col, 0, numLosses, layer.occLimit, layer.occRetention)
           end match
 
-          // Cumulative sum within each year group using a single pass
-          var i = 0
-          var prevYear = -1
-          var cumSum = 0.0
-          while i < numLosses do
-            if years(i) != prevYear then
-              prevYear = years(i)
-              cumSum = col(i)
-            else cumSum += col(i)
+          if layer.aggLimit.isEmpty && layer.aggRetention.isEmpty then
+            // No aggregate terms: every aggregate kernel is the identity, so the per-year cumulative sum and diff
+            // would cancel out (adding only rounding). Two scalar passes saved.
+            if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
             end if
-            col(i) = cumSum
-            i += 1
-          end while
+          else
+            // Cumulative sum within each year group using a single pass
+            var i = 0
+            var prevYear = -1
+            var cumSum = 0.0
+            while i < numLosses do
+              if years(i) != prevYear then
+                prevYear = years(i)
+                cumSum = col(i)
+              else cumSum += col(i)
+              end if
+              col(i) = cumSum
+              i += 1
+            end while
 
-          // Aggregate layer with share
-          layer.aggType match
-            case DeductibleType.Retention =>
-              applyRetentionSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
-              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
-              end if
-            case DeductibleType.Franchise =>
-              applyFranchiseSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
-              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
-              end if
-            case DeductibleType.ReverseFranchise =>
-              applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
-              if layer.share != 1.0 then applyShareSIMD(col, 0, numLosses, layer.share, species)
-              end if
-          end match
+            // Aggregate terms, on the cumulative amounts
+            layer.aggType match
+              case DeductibleType.Retention =>
+                applyRetentionSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
+              case DeductibleType.Franchise =>
+                applyFranchiseSIMD(col, 0, numLosses, layer.aggLimit, layer.aggRetention, species)
+              case DeductibleType.ReverseFranchise =>
+                applyReverseFranchise(col, 0, numLosses, layer.aggLimit, layer.aggRetention)
+            end match
 
-          // Convert cumulative back to per-loss (diff) within year groups in one pass
-          i = 0
-          var prevVal = 0.0
-          prevYear = -1
-          var firstInGroup = true
-          while i < numLosses do
-            if years(i) != prevYear then
-              prevYear = years(i)
-              prevVal = col(i)
-              firstInGroup = false
-            else
+            // Back to per-loss amounts (diff within year groups), with the share folded in: one pass instead of two
+            val share = layer.share
+            i = 0
+            var prevVal = 0.0
+            prevYear = -1
+            while i < numLosses do
               val current = col(i)
-              col(i) = current - prevVal
+              if years(i) != prevYear then
+                prevYear = years(i)
+                col(i) = current * share
+              else col(i) = (current - prevVal) * share
+              end if
               prevVal = current
-            end if
-            i += 1
-          end while
+              i += 1
+            end while
+          end if
         end processLayer
 
         /** Benchmarking 15.01.2026
@@ -126,7 +125,7 @@ object SplitLosses:
           * layer...
           */
         (numLosses, numLayers) match
-          case (_, 0)                => () // empty tower: nothing ceded; avoids newFixedThreadPool(0) below
+          case (_, 0)                => () // empty tower: nothing ceded
           case (_, 1)                => processLayer(0)
           case (nl, _) if nl < 50000 =>
             var i = 0
@@ -135,18 +134,9 @@ object SplitLosses:
               i += 1
             end while
           case _ =>
-            val threads = math.min(numLayers, Runtime.getRuntime.availableProcessors())
-            val executor = Executors.newFixedThreadPool(threads)
-            try
-              val futures: IndexedSeq[java.util.concurrent.Future[?]] = (0 until numLayers).map { idx =>
-                executor.submit(
-                  new Runnable:
-                    override def run(): Unit = processLayer(idx)
-                )
-              }
-              futures.foreach(_.get())
-            finally executor.shutdown()
-            end try
+            // Runs on the shared ForkJoinPool: no thread creation per call, the calling thread takes part, and an
+            // exception from a layer is rethrown as is (not wrapped in ExecutionException).
+            IntStream.range(0, numLayers).parallel().forEach(idx => processLayer(idx))
         end match
 
         // Step 5: total ceded per loss and retained (vectorized)
