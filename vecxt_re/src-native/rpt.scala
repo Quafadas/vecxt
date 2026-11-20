@@ -139,8 +139,8 @@ object rpt:
   // Matrix extensions that delegate to the underlying array
   extension (mat: Matrix[Double])
 
-    /** These operate on `mat.raw` directly, so they are only sound when the matrix owns its whole backing array in a dense
-      * layout. A view (submatrix, transpose, offset) would otherwise silently modify elements outside it.
+    /** These operate on `mat.raw` directly, so they are only sound when the matrix owns its whole backing array in a
+      * dense layout. A view (submatrix, transpose, offset) would otherwise silently modify elements outside it.
       */
     private inline def requireDenseContiguous(op: String): Unit =
       if !mat.hasSimpleContiguousMemoryLayout then

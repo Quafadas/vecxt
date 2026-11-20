@@ -40,8 +40,7 @@ object ReReporting:
       * @param numIterations
       *   Number of simulation iterations
       * @param years
-      *   Sorted array of 1-based iteration indices, one per element of `cededToLayer`. Not checked: see the object
-      *   doc.
+      *   Sorted array of 1-based iteration indices, one per element of `cededToLayer`. Not checked: see the object doc.
       * @param limit
       *   Report denominator for normalizing EL and std
       * @return

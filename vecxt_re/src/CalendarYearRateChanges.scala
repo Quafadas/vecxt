@@ -185,8 +185,8 @@ end CalendarYearRateChanges
 
 object CalendarYearRateChanges:
 
-  /** Create a CalendarYearRateChanges with years already in contiguous descending order starting at `currentYear`.
-    * The input arrays are copied.
+  /** Create a CalendarYearRateChanges with years already in contiguous descending order starting at `currentYear`. The
+    * input arrays are copied.
     */
   def apply(currentYear: Int, years: Array[Int], factors: Array[Double]): CalendarYearRateChanges =
     new CalendarYearRateChanges(currentYear, years.clone(), factors.clone())

@@ -175,8 +175,8 @@ end CalendarYearLevels
 
 object CalendarYearLevels:
 
-  /** Create a CalendarYearLevels with years already in contiguous descending order starting at `currentYear`. The
-    * input arrays are copied.
+  /** Create a CalendarYearLevels with years already in contiguous descending order starting at `currentYear`. The input
+    * arrays are copied.
     */
   def apply(currentYear: Int, years: Array[Int], levels: Array[Double]): CalendarYearLevels =
     new CalendarYearLevels(currentYear, years.clone(), levels.clone())

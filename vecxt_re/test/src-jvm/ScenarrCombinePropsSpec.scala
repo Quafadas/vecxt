@@ -68,6 +68,7 @@ class ScenarrCombinePropsSpec extends FunSuite:
   private def check(prop: Prop)(using munit.Location): Unit =
     val result = Test.check(Test.Parameters.default.withMinSuccessfulTests(200), prop)
     assert(result.passed, org.scalacheck.util.Pretty.pretty(result))
+  end check
 
   test("zero thresholds: associativity") {
     check(forAll(zeroThreshold, zeroThreshold, zeroThreshold) { (a, b, c) =>

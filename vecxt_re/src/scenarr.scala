@@ -53,6 +53,7 @@ case class Scenarr(
       case (amt, idx) =>
         (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
     }
+  end oep
 
   lazy val claimDates: Array[LocalDate] = (days - 1).map(d => ChronoUnit.DAYS.addTo(this.day1, d))
 
@@ -162,8 +163,8 @@ object Scenarr:
     *     scenario if none has any.
     *   - Threshold: scenarios that share event IDs (directly, or through a chain of other scenarios) form a group whose
     *     threshold is the sum of its members' thresholds, because an event split across them can be missing a piece
-    *     below each member's threshold. Groups don't interact, so the result's threshold is the largest group threshold.
-    *     A scenario sharing no IDs, including one with no events, is a group of its own.
+    *     below each member's threshold. Groups don't interact, so the result's threshold is the largest group
+    *     threshold. A scenario sharing no IDs, including one with no events, is a group of its own.
     *   - Events at or below the result's threshold are dropped, once, after all amounts have been summed.
     *   - The result is sorted by (iteration, day).
     *

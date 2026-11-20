@@ -83,7 +83,8 @@ class ScenarrCombineSuite extends FunSuite:
   }
 
   test("an empty scenario with a higher threshold raises the threshold and filters") {
-    val s = new Scenarr(Array(1, 1), Array(10, 20), Array(6.0, 20.0), Array(1L, 2L), numberIterations = 2, threshold = 5.0)
+    val s =
+      new Scenarr(Array(1, 1), Array(10, 20), Array(6.0, 20.0), Array(1L, 2L), numberIterations = 2, threshold = 5.0)
     val e = Scenarr.empty(2, Day1, threshold = 8.0)
 
     for result <- Seq(s |+| e, e |+| s) do
