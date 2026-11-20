@@ -20,8 +20,8 @@ object PlatformReporting:
     * @param numIterations
     *   Number of iterations/years
     * @param years
-    *   Sorted array of 1-based iteration indices, in 1..numIterations, same length as `calcd.cededToLayer`. Checked
-    *   at no extra cost: throws IllegalArgumentException if violated.
+    *   Sorted array of 1-based iteration indices, in 1..numIterations, same length as `calcd.cededToLayer`. Checked at
+    *   no extra cost: throws IllegalArgumentException if violated.
     * @param limit
     *   Report denominator for normalizing results
     * @return
