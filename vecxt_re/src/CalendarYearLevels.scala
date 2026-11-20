@@ -192,4 +192,12 @@ object CalendarYearLevels:
     CalendarYearLevels(sortedYears.head, sortedYears, sortedLevels)
   end apply
 
+  /** Create a CalendarYearLevels from `(year, level)` pairs, in any order. Years must be contiguous and unique.
+    * {{{
+    * CalendarYearLevels(Seq((year = 2025, level = 3.70e12), (year = 2026, level = 3.80e12)))
+    * }}}
+    */
+  def apply(entries: Seq[(year: Int, level: Double)]): CalendarYearLevels =
+    CalendarYearLevels(entries.map(_.year).toArray, entries.map(_.level).toArray)
+
 end CalendarYearLevels

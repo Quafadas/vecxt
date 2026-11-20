@@ -266,4 +266,43 @@ class CalendarYearLevelsSuite extends FunSuite:
     assertEquals(a.toString, "CalendarYearLevels(currentYear=2024, 2024 -> 110.0, 2023 -> 100.0)")
   }
 
+  // --- named tuple constructor ---
+
+  test("apply from named tuples matches the array constructor") {
+    val fromTuples = CalendarYearLevels(
+      Seq(
+        (year = 2024, level = 120.0),
+        (year = 2023, level = 110.0),
+        (year = 2022, level = 105.0),
+        (year = 2021, level = 100.0)
+      )
+    )
+    assertEquals(fromTuples, idx)
+  }
+
+  test("apply from named tuples accepts any order") {
+    val shuffled = CalendarYearLevels(
+      Seq(
+        (year = 2022, level = 105.0),
+        (year = 2024, level = 120.0),
+        (year = 2021, level = 100.0),
+        (year = 2023, level = 110.0)
+      )
+    )
+    assertEquals(shuffled, idx)
+    assertEqualsDouble(shuffled.onLevel(value = 1.0, fromYear = 2021), 1.2, 1e-12)
+  }
+
+  test("apply from named tuples validates like the array constructor") {
+    intercept[IllegalArgumentException] {
+      CalendarYearLevels(Seq.empty[(year: Int, level: Double)])
+    }
+    intercept[IllegalArgumentException] {
+      CalendarYearLevels(Seq((year = 2024, level = 120.0), (year = 2022, level = 105.0)))
+    }
+    intercept[IllegalArgumentException] {
+      CalendarYearLevels(Seq((year = 2024, level = 120.0), (year = 2024, level = 110.0)))
+    }
+  }
+
 end CalendarYearLevelsSuite
