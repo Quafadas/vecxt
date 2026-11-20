@@ -158,10 +158,13 @@ object Plots:
       )
     end plotRootogram
 
-    /** Plot Pearson residuals: (observed - expected) / sqrt(expected).
+    /** Plot Pearson residuals per count value k: (Oₖ − Eₖ) / √Eₖ, where Oₖ is the number of samples equal to k and Eₖ =
+      * n·P(X = k) under the fitted distribution.
       *
-      * Residuals beyond ±2 (shown in red) indicate significant deviation from the fitted model. For Negative Binomial,
-      * we use the variance = μ(1 + μ/a) for the denominator when available.
+      * The denominator is √Eₖ because the number of samples landing in bucket k is approximately Poisson(Eₖ), whatever
+      * distribution generated the samples. The Negative Binomial variance μ(1 + μ/a) is the variance of a single draw
+      * X, not of a bucket count, so it does not belong here. Residuals beyond ±2 (shown in red) indicate significant
+      * deviation from the fitted model.
       */
     def plotPearsonResiduals(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       plotPearsonResiduals(samples, Nil)
@@ -179,8 +182,7 @@ object Plots:
         val expected = nb.probabilityOf(k) * n
         // Only include if expected > 0 to avoid division by zero
         if expected > 0.001 then
-          // For NegBin, variance of count = expected * (1 + expected/(n*a)) approximately
-          // Simplify to Pearson: (O - E) / sqrt(E)
+          // Bucket count Oₖ ≈ Poisson(Eₖ), so its standard deviation is √Eₖ
           val residual = (observed - expected) / math.sqrt(expected)
           Some((k = k, residual = residual))
         else None

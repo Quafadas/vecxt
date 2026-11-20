@@ -17,7 +17,8 @@ object `package` extends SiteModule:
     build.vecxt.jvm.pomSettings().url
   )
 
-  override def unidocDeps = Seq(build.vecxt.jvm)
+  // Also the mdoc classpath: vecxt_re is needed for the reinsurance pages.
+  override def unidocDeps = Seq(build.vecxt.jvm, build.vecxt_re.jvm)
 
   override def scalaJSImportMap = Task {
     Seq(
