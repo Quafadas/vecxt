@@ -19,6 +19,6 @@ object all:
   export vecxt_re.Pareto
   export vecxt_re.Mixed
   export vecxt_re.HillEstimator
-  export vecxt_re.PickandsEstimator  
+  export vecxt_re.PickandsEstimator
 
 end all
