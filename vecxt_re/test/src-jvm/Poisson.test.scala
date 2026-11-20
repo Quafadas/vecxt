@@ -216,4 +216,30 @@ class PoissonTest extends FunSuite:
     assert(decode[Poisson]("""{"lambda":-1.0}""").isLeft)
   }
 
+  test("goodnessOfFit merges a short tail into the last cell") {
+    // lambda = 1, n = 20, minExpected = 4: cells {0}, {1}, {2,3} and the tail {4+} (expected 0.38) is merged into {2,3}
+    val data = Array.fill(7)(0) ++ Array.fill(7)(1) ++ Array.fill(4)(2) ++ Array.fill(2)(3)
+    val p = Poisson(1.0)
+    val n = data.length.toDouble
+    def term(o: Double, e: Double) = (o - e) * (o - e) / e
+    val e0 = n * p.probabilityOf(0)
+    val e1 = n * p.probabilityOf(1)
+    val eRest = n * (1.0 - p.cdf(1))
+    val expected = term(7, e0) + term(7, e1) + term(6, eRest)
+
+    val (stat, df, _) = Poisson.goodnessOfFit(data, Some(1.0), minExpected = 4.0)
+    assertEqualsDouble(stat, expected, 1e-10)
+    assertEquals(df, 2)
+  }
+
+  test("goodnessOfFit loses a degree of freedom when lambda is estimated") {
+    val data = Array.fill(30)(0) ++ Array.fill(40)(1) ++ Array.fill(20)(2) ++ Array.fill(10)(3)
+    val mean = data.sum.toDouble / data.length
+    val known = Poisson.goodnessOfFit(data, Some(mean))
+    val estimated = Poisson.goodnessOfFit(data)
+    assertEqualsDouble(estimated.statistic, known.statistic, 1e-12)
+    assertEquals(estimated.degreesOfFreedom, known.degreesOfFreedom - 1)
+    assert(estimated.pValue < known.pValue)
+  }
+
 end PoissonTest

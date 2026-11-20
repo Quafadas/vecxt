@@ -70,15 +70,19 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
   private val xs: Array[Double] = xsBuf.toArray
   private val probs: Array[Double] = wBuf.toArray.map(_ / totalWeight)
 
+  // Accumulate raw weights and divide once, rather than summing normalised probabilities: for integer weights the
+  // running sum is exact, so F(x_k) = k/n is correctly rounded and `inverseCdf(k/n)` lands on x_k (summing 0.1 eight
+  // times gives 0.7999999999999999, which used to push inverseCdf(0.8) on 1..10 to 9).
   private val cdfVals: Array[Double] =
-    val out = new Array[Double](probs.length)
+    val out = new Array[Double](wBuf.length)
     var acc = 0.0
     var j = 0
-    while j < probs.length do
-      acc += probs(j)
-      out(j) = acc
+    while j < out.length do
+      acc += wBuf(j)
+      out(j) = acc / totalWeight
       j += 1
     end while
+    out(out.length - 1) = 1.0
     out
   end cdfVals
 

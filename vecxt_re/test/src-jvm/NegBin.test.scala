@@ -619,4 +619,13 @@ class NegBinTest extends FunSuite:
     assert(decode[NegativeBinomial]("""{"a":1.0,"b":0.0}""").isLeft)
   }
 
+  test("poisson(mu) limit matches Poisson pmf without LogGamma cancellation") {
+    val nb = NegativeBinomial.poisson(5.0)
+    val p = Poisson(5.0)
+    for k <- 0 to 20 do
+      val rel = math.abs(nb.probabilityOf(k) / p.probabilityOf(k) - 1.0)
+      assert(rel < 1e-9, s"k=$k rel err=$rel")
+    end for
+  }
+
 end NegBinTest

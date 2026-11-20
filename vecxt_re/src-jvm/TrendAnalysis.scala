@@ -2,6 +2,7 @@ package vecxt_re
 
 import org.apache.commons.numbers.gamma.LogGamma
 import org.apache.commons.numbers.gamma.RegularizedBeta
+import org.apache.commons.statistics.distribution.ChiSquaredDistribution
 import org.apache.commons.statistics.distribution.FDistribution
 import org.apache.commons.statistics.distribution.NormalDistribution
 
@@ -36,9 +37,9 @@ import org.apache.commons.statistics.distribution.NormalDistribution
   * @param dispersion
   *   Estimated dispersion parameter (1.0 for Poisson, estimated for NegBin)
   * @param fStatistic
-  *   F-statistic for model vs intercept-only (using dispersion)
+  *   Test statistic for model vs intercept-only: the deviance drop, divided by the estimated dispersion for NegBin
   * @param fPValue
-  *   p-value for F-statistic
+  *   p-value for `fStatistic`: χ²(1) for Poisson (dispersion fixed at 1), F(1, n−2) for NegBin (dispersion estimated)
   * @param aic
   *   Akaike Information Criterion
   * @param logLikelihood
@@ -92,7 +93,7 @@ case class TrendFitResult(
     sb.append(f"AIC: $aic%.3f\n")
     sb.append(f"Log-Likelihood: $logLikelihood%.3f\n\n")
 
-    sb.append(f"F-statistic vs. constant model: $fStatistic%.3f, p-value = $fPValue%.6f\n")
+    sb.append(f"Deviance test vs. constant model: $fStatistic%.3f, p-value = $fPValue%.6f\n")
 
     sb.toString
   end summary
@@ -123,6 +124,12 @@ object TrendAnalysis:
     else
       val fDist = FDistribution.of(df1.toDouble, df2.toDouble)
       1.0 - fDist.cumulativeProbability(f)
+
+  private val chiSq1 = ChiSquaredDistribution.of(1.0)
+
+  /** Chi-squared(1) p-value: P(X > x) */
+  private inline def chiSq1PValue(x: Double): Double =
+    if x <= 0 then 1.0 else chiSq1.survivalProbability(x)
 
   /** Regularized incomplete beta function using Apache Commons Math */
   private inline def incompleteBeta(a: Double, b: Double, x: Double): Double =
@@ -244,9 +251,10 @@ object TrendAnalysis:
       end while
       val estimatedDispersion = pearsonChi2 / (n - 2)
 
-      // F-statistic: (null deviance - residual deviance) / dispersion
+      // Likelihood-ratio test: with dispersion fixed at 1 the deviance drop is asymptotically χ²(1). An F reference
+      // distribution is only appropriate when the dispersion is estimated (see the NegBin fit).
       val fStat = (nullDeviance - residualDeviance) / dispersion
-      val fPVal = fDistPValue(fStat, 1, n - 2)
+      val fPVal = chiSq1PValue(fStat)
 
       // Log-likelihood
       def poissonLogLik(observed: IndexedSeq[Double], fitted: IndexedSeq[Double]): Double =

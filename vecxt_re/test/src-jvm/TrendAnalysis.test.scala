@@ -184,7 +184,7 @@ class TrendAnalysisTest extends FunSuite:
     assert(summary.contains("Null Deviance"), "should show null deviance")
     assert(summary.contains("Residual Deviance"), "should show residual deviance")
     assert(summary.contains("AIC"), "should show AIC")
-    assert(summary.contains("F-statistic"), "should show F-statistic")
+    assert(summary.contains("Deviance test vs. constant model"), "should show the model-vs-constant test")
   }
 
   test("fitTrend requires minimum 3 observations") {
@@ -256,6 +256,14 @@ class TrendAnalysisTest extends FunSuite:
     // Slopes should be in the same ballpark
     val slopeDiff = math.abs(poisResult.slope - nbResult.slope)
     assert(slopeDiff < 0.5, s"slopes should be similar: Poisson=${poisResult.slope}, NegBin=${nbResult.slope}")
+  }
+
+  test("Poisson trend LR test uses chi-squared(1), not F") {
+    val years = Vector(2000, 2001, 2002, 2003, 2004)
+    val counts = Vector(2, 4, 3, 7, 9)
+    val r = Poisson(1.0).fitTrend(years, counts)
+    val chi = org.apache.commons.statistics.distribution.ChiSquaredDistribution.of(1.0)
+    assertEqualsDouble(r.fPValue, chi.survivalProbability(r.fStatistic), 1e-12)
   }
 
 end TrendAnalysisTest

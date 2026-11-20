@@ -175,10 +175,12 @@ object Poisson:
     * @param lambda
     *   the Poisson rate parameter (if None, uses MLE from data)
     * @param minExpected
-    *   minimum expected frequency per bin (bins are combined to meet this threshold)
+    *   minimum expected frequency per bin (bins are combined to meet this threshold; a short upper tail is merged into
+    *   the last full bin)
     * @return
     *   Named tuple with `statistic`: the chi-squared test statistic, `degreesOfFreedom`: the degrees of freedom, and
-    *   `pValue`: the p-value of the test
+    *   `pValue`: the p-value of the test. Degrees of freedom are `cells − 1`, less one more when `lambda` is estimated
+    *   from the data.
     */
   def goodnessOfFit(
       observations: Array[Int],
@@ -216,31 +218,43 @@ object Poisson:
     // Last bin is "maxObs or more"
     expected(expected.length - 1) = n * (1.0 - poisson.cdf(expected.length - 2))
 
-    // Combine bins with expected < minExpected
+    // Combine adjacent bins until each cell has expected >= minExpected
+    inline def term(o: Int, e: Double): Double = (o - e) * (o - e) / e
     var chiSq = 0.0
-    var df = -1 // Start at -1 because we estimated lambda
+    var cells = 0
     var obsAccum = 0
     var expAccum = 0.0
+    var lastObs = 0 // the most recently closed cell, so a short tail can be merged into it
+    var lastExp = 0.0
 
     i = 0
     while i < counts.length do
       obsAccum += counts(i)
       expAccum += expected(i)
       if expAccum >= minExpected then
-        chiSq += (obsAccum - expAccum) * (obsAccum - expAccum) / expAccum
-        df += 1
+        chiSq += term(obsAccum, expAccum)
+        cells += 1
+        lastObs = obsAccum
+        lastExp = expAccum
         obsAccum = 0
         expAccum = 0.0
       end if
       i += 1
     end while
 
-    // Handle remaining accumulated values
-    if expAccum > 0 then
-      // Add to previous bin's chi-squared contribution
-      chiSq += (obsAccum - expAccum) * (obsAccum - expAccum) / expAccum
-      df += 1
+    // Leftover tail with expected < minExpected: merge into the previous cell rather than scoring it on its own
+    if expAccum > 0 || obsAccum > 0 then
+      if cells > 0 then
+        chiSq -= term(lastObs, lastExp)
+        chiSq += term(lastObs + obsAccum, lastExp + expAccum)
+      else if expAccum > 0 then
+        chiSq += term(obsAccum, expAccum)
+        cells = 1
+      end if
     end if
+
+    // One constraint (total count) plus one per estimated parameter
+    val df = cells - 1 - (if lambda.isEmpty then 1 else 0)
 
     // Compute p-value using chi-squared distribution
     val pValue =

@@ -98,4 +98,12 @@ class EmpiricalTest extends FunSuite:
     }
   }
 
+  test("inverseCdf hits exact probability levels despite float accumulation") {
+    val emp = Empirical.equalWeights(Array.tabulate(10)(i => (i + 1).toDouble))
+    for k <- 1 to 10 do
+      assertEqualsDouble(emp.inverseCdf(k / 10.0), k.toDouble, 0.0, s"inverseCdf(${k / 10.0})")
+      assertEqualsDouble(emp.cdf(k.toDouble), k / 10.0, 0.0)
+    end for
+  }
+
 end EmpiricalTest
