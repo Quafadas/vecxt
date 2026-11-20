@@ -60,7 +60,8 @@ case class FreqSev(frequency: Poisson | NegativeBinomial, severity: Mixed):
     *
     *   1. For each iteration, draw the number of claims from `frequency`.
     *   1. For each claim, draw a severity.
-    *   1. For each claim, draw a day of occurrence, uniform over the year starting at `day1` (0-based: day 0 is `day1`).
+    *   1. For each claim, draw a day of occurrence, uniform over the year starting at `day1` (0-based: day 0 is
+    *      `day1`).
     *   1. Unfold the claim counts into a contiguous iteration column (1-based), e.g. counts `[2, 0, 1]` become
     *      iterations `[1, 1, 3]`.
     *
@@ -156,9 +157,12 @@ object FreqSev:
     c.downField("type").as[String].flatMap {
       case PoissonTag          => c.as[Poisson]
       case NegativeBinomialTag => c.as[NegativeBinomial]
-      case other =>
+      case other               =>
         Left(
-          DecodingFailure(s"unknown frequency type '$other', expected '$PoissonTag' or '$NegativeBinomialTag'", c.history)
+          DecodingFailure(
+            s"unknown frequency type '$other', expected '$PoissonTag' or '$NegativeBinomialTag'",
+            c.history
+          )
         )
     }
   }

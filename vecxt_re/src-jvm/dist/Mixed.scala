@@ -146,6 +146,7 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
       // which could otherwise return a point at or above the mixing point.
       val q = empirical.inverseCdf(p)
       if q < mixingPoint then q else maxBodyValue
+      end if
     else
       // In the tail region - use Pareto inverse CDF
       val tailP = (p - bodyWeight) / tailWeight
