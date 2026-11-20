@@ -71,7 +71,10 @@ case class Pareto(scale: Double, shape: Double)
     case s if s > 1 => mean + 20 * scale // no well defined variance
     case _          => scale * 10 // no well defined mean
 
-  def plot(using viz.LowPriorityPlotTarget) =
+  def plot(using viz.LowPriorityPlotTarget): viz.VizReturn = plot(Nil)
+
+  /** As [[plot]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plot(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
 
     val linePlot2 = VegaPlot.fromResource("paretoPdf.vl.json")
     val maxX = guessMaxXForPlot * 5
@@ -84,7 +87,7 @@ case class Pareto(scale: Double, shape: Double)
     // The Vega template contains a placeholder formula; we inject the parameterized one here.
     val pdfExpr = s"$shape * pow($scale, $shape) * pow(datum.data, -(${shape + 1.0}))"
 
-    linePlot2.plot(
+    Plots.render(linePlot2, mods)(
       _.layer.head.data.values := data.asJson,
       _.layer.head.encoding.x.scale.domain := List(scale, maxX).asJson,
       _.layer.head.encoding.x.scale.nice := false,
@@ -98,11 +101,14 @@ case class Pareto(scale: Double, shape: Double)
     )
   end plot
 
-  def plotCdf(using viz.LowPriorityPlotTarget) =
+  def plotCdf(using viz.LowPriorityPlotTarget): viz.VizReturn = plotCdf(Nil)
+
+  /** As [[plotCdf]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plotCdf(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val linePlot = VegaPlot.fromResource("paretoCdf.vl.json")
     val maxX = guessMaxXForPlot
 
-    linePlot.plot(
+    Plots.render(linePlot, mods)(
       _.data.sequence.start := scale,
       _.data.sequence.stop := maxX,
       _.data.sequence.step := (maxX - scale) / 200,

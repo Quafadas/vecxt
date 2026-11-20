@@ -214,19 +214,25 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
   end variance
 
   /** Plot the mixed distribution PDF/histogram. */
-  def plot(using viz.LowPriorityPlotTarget) =
+  def plot(using viz.LowPriorityPlotTarget): viz.VizReturn = plot(Nil)
+
+  /** As [[plot]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plot(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val plot = VegaPlot.fromResource("mixedPdf.vl.json")
     val numSamples = 10000
     val samples = (0 until numSamples).map(_ => (x = draw))
 
-    plot.plot(
+    Plots.render(plot, mods)(
       _.data.values := samples.asJson,
       _ += (title = s"Mixed Distribution (mixingPoint=$mixingPoint, paretoShape=$paretoShape)").asJson
     )
   end plot
 
   /** Plot the mixed CDF. */
-  def plotCdf(using viz.LowPriorityPlotTarget) =
+  def plotCdf(using viz.LowPriorityPlotTarget): viz.VizReturn = plotCdf(Nil)
+
+  /** As [[plotCdf]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plotCdf(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val plot = VegaPlot.fromResource("mixedCdf.vl.json")
 
     // Generate points for the CDF
@@ -240,7 +246,7 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
       (x = x, cdf = cdf(x))
     }
 
-    plot.plot(
+    Plots.render(plot, mods)(
       _.data.values := points.asJson,
       _ += (title = s"Mixed Distribution CDF (mixingPoint=$mixingPoint, paretoShape=$paretoShape)").asJson
     )

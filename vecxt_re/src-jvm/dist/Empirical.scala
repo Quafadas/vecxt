@@ -147,17 +147,23 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
   end inverseCdf
 
   /** Plot a (weighted) histogram density estimate. */
-  def plot(using viz.LowPriorityPlotTarget) =
+  def plot(using viz.LowPriorityPlotTarget): viz.VizReturn = plot(Nil)
+
+  /** As [[plot]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plot(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val plot = VegaPlot.fromResource("empiricalPdf.vl.json")
     val data = (0 until n).map(i => (x = values(i), w = weights(i)))
-    plot.plot(
+    Plots.render(plot, mods)(
       _.data.values := data.asJson,
       _ += (title = s"Empirical Distribution (n=$n)").asJson
     )
   end plot
 
   /** Plot the empirical CDF (step function). */
-  def plotCdf(using viz.LowPriorityPlotTarget) =
+  def plotCdf(using viz.LowPriorityPlotTarget): viz.VizReturn = plotCdf(Nil)
+
+  /** As [[plotCdf]], applying `mods` (e.g. [[Plots.fixedSize]]) to the spec after the built-in modifications. */
+  def plotCdf(mods: Seq[Plots.SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
     val plot = VegaPlot.fromResource("empiricalCdf.vl.json")
 
     // Add an initial point at (min, 0) so the step is visible from the left.
@@ -172,7 +178,7 @@ case class Empirical(values: IArray[Double], weights: IArray[Double])
       pts.toVector
     end points
 
-    plot.plot(
+    Plots.render(plot, mods)(
       _.data.values := points.asJson,
       _ += (title = s"Empirical CDF (n=$n)").asJson
     )

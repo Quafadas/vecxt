@@ -3,10 +3,33 @@ package vecxt_re
 import vecxt_re.HillEstimator.HillPlotResult
 import vecxt_re.PickandsEstimator.PickandsPlotResult
 
+import io.circe.Json
 import io.circe.syntax.*
 import io.github.quafadas.plots.SetupVega.{*, given}
+import viz.vega.VegaSpec
 
 object Plots:
+
+  /** A modification applied to a plot's JSON spec, after the plot's own modifications (data, title, ...) have been
+    * applied. Every plot in this object accepts a `mods` argument of these.
+    *
+    * @example
+    *   {{{hillResult.plotHill(Seq(Plots.fixedSize(600, 400)))}}}
+    */
+  type SpecMod = viz.macros.SpecMod
+
+  /** Replace the top-level `width` / `height` (which default to `"container"`) with fixed pixel sizes. Use this in
+    * notebooks, where sizing to the container causes the plot to grow indefinitely.
+    */
+  def fixedSize(width: Int = 600, height: Int = 400): SpecMod =
+    _.mapObject(_.add("width", Json.fromInt(width)).add("height", Json.fromInt(height)))
+
+  /** Apply the plot's own typed modifications, followed by the caller supplied `mods`. */
+  private[vecxt_re] def render[M](spec: VegaSpec[M], mods: Seq[SpecMod])(own: (M => SpecMod)*)(using
+      viz.LowPriorityPlotTarget
+  ): viz.VizReturn =
+    spec.plotWith(own.map(_(spec.mod)) ++ mods)
+
   // These must be private otherwise scaladoc get crazy.
   private lazy val timeline = VegaPlot.fromResource("timeline.vl.json") // riskInceptionDate, riskExpiryDate
   private lazy val seasonality = VegaPlot.fromResource("seasonality.vg.json") // catagory, amount
@@ -28,7 +51,9 @@ object Plots:
       * @param thresholdYear
       *   The year the reporting threshold was set
       */
-    def plotIndex(reportingThreshold: Double, thresholdYear: Int)(using viz.LowPriorityPlotTarget) =
+    def plotIndex(reportingThreshold: Double, thresholdYear: Int, mods: Seq[SpecMod] = Nil)(using
+        viz.LowPriorityPlotTarget
+    ) =
       val linePlot2 = VegaPlot.fromResource("index.vl.json")
       val cumulative = idx.onLevel(Array.fill(idx.numYears)(1.0), idx.years)
       val threshold = idx.suggestedNewThreshold(reportingThreshold, thresholdYear)
@@ -40,7 +65,7 @@ object Plots:
           threshold = threshold
         )
       }
-      linePlot2.plot(
+      render(linePlot2, mods)(
         _.data.values := factors.asJson
       )
   end extension
@@ -52,7 +77,11 @@ object Plots:
       * Both curves are step functions. Deviations between the orange (empirical) and blue (theoretical) lines indicate
       * potential model misfit.
       */
-    inline def plotEcdfVsCdf(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget) =
+    def plotEcdfVsCdf(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      plotEcdfVsCdf(samples, Nil)
+
+    /** As [[plotEcdfVsCdf]], applying `mods` to the spec after the built-in modifications. */
+    def plotEcdfVsCdf(samples: IndexedSeq[Int], mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val maxX = math.max(samples.max, (nb.mean + 4 * math.sqrt(nb.variance)).toInt)
 
       // Theoretical CDF
@@ -71,7 +100,7 @@ object Plots:
         (value = k, prob = empiricalCum / n)
       }
 
-      ecdfVsCdf.plot(
+      render(ecdfVsCdf, mods)(
         _.title(s"NegBin(a=${nb.a}, b=${nb.b}) ECDF vs Theoretical CDF"),
         _.layer._0.data.values := theoreticalCdf.asJson,
         _.layer._1.data.values := empiricalCdf.asJson
@@ -84,7 +113,11 @@ object Plots:
       * the model fits well, bars hang close to the zero line. Bars extending below zero indicate under-prediction; bars
       * stopping above zero indicate over-prediction.
       */
-    inline def plotRootogram(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget) =
+    def plotRootogram(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      plotRootogram(samples, Nil)
+
+    /** As [[plotRootogram]], applying `mods` to the spec after the built-in modifications. */
+    def plotRootogram(samples: IndexedSeq[Int], mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val n = samples.length.toDouble
       val maxK = math.max(samples.max, (nb.mean + 3 * math.sqrt(nb.variance)).toInt)
       val counts = samples.groupMapReduce(identity)(_ => 1)(_ + _)
@@ -98,7 +131,7 @@ object Plots:
         (k = k, sqrtExpected = sqrtExp, sqrtObserved = sqrtObs, hanging = sqrtExp - sqrtObs)
       }
 
-      rootogram.plot(
+      render(rootogram, mods)(
         _.title(s"NegBin(a=${nb.a}, b=${nb.b}) Hanging Rootogram"),
         _.data.values := data.asJson
       )
@@ -109,7 +142,13 @@ object Plots:
       * Residuals beyond ±2 (shown in red) indicate significant deviation from the fitted model. For Negative Binomial,
       * we use the variance = μ(1 + μ/a) for the denominator when available.
       */
-    inline def plotPearsonResiduals(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget) =
+    def plotPearsonResiduals(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      plotPearsonResiduals(samples, Nil)
+
+    /** As [[plotPearsonResiduals]], applying `mods` to the spec after the built-in modifications. */
+    def plotPearsonResiduals(samples: IndexedSeq[Int], mods: Seq[SpecMod])(using
+        viz.LowPriorityPlotTarget
+    ): viz.VizReturn =
       val n = samples.length.toDouble
       val maxK = math.max(samples.max, (nb.mean + 3 * math.sqrt(nb.variance)).toInt)
       val counts = samples.groupMapReduce(identity)(_ => 1)(_ + _)
@@ -127,7 +166,7 @@ object Plots:
         end if
       }
 
-      pearsonResiduals.plot(
+      render(pearsonResiduals, mods)(
         _.title(s"NegBin(a=${nb.a}, b=${nb.b}) Pearson Residuals"),
         _.data.values := data.asJson
       )
@@ -136,7 +175,11 @@ object Plots:
 
   extension (p: Poisson)
     /** Plot ECDF vs theoretical CDF as step functions for visual goodness-of-fit assessment. */
-    inline def plotEcdfVsCdf(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget) =
+    def plotEcdfVsCdf(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      plotEcdfVsCdf(samples, Nil)
+
+    /** As [[plotEcdfVsCdf]], applying `mods` to the spec after the built-in modifications. */
+    def plotEcdfVsCdf(samples: IndexedSeq[Int], mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val maxX = math.max(samples.max, (p.mean + 4 * math.sqrt(p.variance)).toInt)
 
       // Theoretical CDF
@@ -155,7 +198,7 @@ object Plots:
         (value = k, prob = empiricalCum / n)
       }
 
-      ecdfVsCdf.plot(
+      render(ecdfVsCdf, mods)(
         _.title(s"Poisson(λ=${p.lambda}) ECDF vs Theoretical CDF"),
         _.layer._0.data.values := theoreticalCdf.asJson,
         _.layer._1.data.values := empiricalCdf.asJson
@@ -166,7 +209,11 @@ object Plots:
       *
       * Bars hang from sqrt(expected) down to sqrt(expected) - sqrt(observed). Good fit means bars end near zero.
       */
-    inline def plotRootogram(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget) =
+    def plotRootogram(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      plotRootogram(samples, Nil)
+
+    /** As [[plotRootogram]], applying `mods` to the spec after the built-in modifications. */
+    def plotRootogram(samples: IndexedSeq[Int], mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val n = samples.length.toDouble
       val maxK = math.max(samples.max, (p.mean + 3 * math.sqrt(p.variance)).toInt)
       val counts = samples.groupMapReduce(identity)(_ => 1)(_ + _)
@@ -179,7 +226,7 @@ object Plots:
         (k = k, sqrtExpected = sqrtExp, sqrtObserved = sqrtObs, hanging = sqrtExp - sqrtObs)
       }
 
-      rootogram.plot(
+      render(rootogram, mods)(
         _.title(s"Poisson(λ=${p.lambda}) Hanging Rootogram"),
         _.data.values := data.asJson
       )
@@ -190,7 +237,13 @@ object Plots:
       * For Poisson, variance = mean, so the denominator is simply sqrt(expected). Residuals beyond ±2 (red) suggest
       * significant deviation. Systematic patterns may indicate overdispersion (consider Negative Binomial).
       */
-    inline def plotPearsonResiduals(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget) =
+    def plotPearsonResiduals(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      plotPearsonResiduals(samples, Nil)
+
+    /** As [[plotPearsonResiduals]], applying `mods` to the spec after the built-in modifications. */
+    def plotPearsonResiduals(samples: IndexedSeq[Int], mods: Seq[SpecMod])(using
+        viz.LowPriorityPlotTarget
+    ): viz.VizReturn =
       val n = samples.length.toDouble
       val maxK = math.max(samples.max, (p.mean + 3 * math.sqrt(p.variance)).toInt)
       val counts = samples.groupMapReduce(identity)(_ => 1)(_ + _)
@@ -205,7 +258,7 @@ object Plots:
         end if
       }
 
-      pearsonResiduals.plot(
+      render(pearsonResiduals, mods)(
         _.title(s"Poisson(λ=${p.lambda}) Pearson Residuals"),
         _.data.values := data.asJson
       )
@@ -224,7 +277,9 @@ object Plots:
       * @param counts
       *   the count for each observation (same length as years)
       */
-    inline def plotTrend(years: IndexedSeq[Int], counts: IndexedSeq[Int])(using viz.LowPriorityPlotTarget) =
+    def plotTrend(years: IndexedSeq[Int], counts: IndexedSeq[Int], mods: Seq[SpecMod] = Nil)(using
+        viz.LowPriorityPlotTarget
+    ) =
       require(years.length == counts.length, "years and counts must have the same length")
 
       val n = years.length
@@ -331,7 +386,7 @@ object Plots:
 
       val obsData = years.zip(counts).map { case (y, c) => (year = y, count = c) }
 
-      poissonTrend.plot(
+      render(poissonTrend, mods)(
         _.title(s"Poisson Trend: β₀=${f"$beta0%.3f"}±${f"$seBeta0%.3f"}, β₁=${f"$beta1%.5f"}±${f"$seBeta1%.5f"}"),
         _.layer._0.data.values := ciData.asJson,
         _.layer._1.data.values := ciData.asJson,
@@ -343,7 +398,10 @@ object Plots:
   end extension
 
   extension (scenario: Scenarr)
-    inline def plotSeasonality(highlight: Option[(year: Int, month: Int)] = None)(using
+    def plotSeasonality(
+        highlight: Option[(year: Int, month: Int)] = None,
+        mods: Seq[SpecMod] = Nil
+    )(using
         tgt: viz.LowPriorityPlotTarget
     ) =
       val calc = scenario.monthYear.zip(scenario.amounts).groupMapReduce(_._1)(_._2)(_ + _).toVector
@@ -359,7 +417,7 @@ object Plots:
           )
         )
 
-      seasonality.plot(
+      render(seasonality, mods)(
         _.title("Seasonality " + scenario.name),
         _.data.values := sorted.asJson
       )
@@ -371,7 +429,9 @@ object Plots:
       * This plot shows the complementary CDF (1 - CDF) on log-log scale, which is useful for visualizing tail behavior
       * of heavy-tailed distributions. The x-axis shows log(value) and y-axis shows log(1 - CDF).
       */
-    def plotLogLogVsSample(samples: IndexedSeq[Double], threshold: Double)(using viz.LowPriorityPlotTarget) =
+    def plotLogLogVsSample(samples: IndexedSeq[Double], threshold: Double, mods: Seq[SpecMod] = Nil)(using
+        viz.LowPriorityPlotTarget
+    ) =
       val sortedSamples = samples.sorted
       val n = sortedSamples.length.toDouble
 
@@ -399,7 +459,7 @@ object Plots:
 
       val allData = theoreticalData ++ empiricalData
 
-      logLogPlot.plot(
+      render(logLogPlot, mods)(
         _.title("Mixed Distribution Log-Log Plot"),
         _.data.values := allData.asJson,
         _.layer._0.encoding.x.scale.domainMin := threshold
@@ -414,12 +474,15 @@ object Plots:
       * for a stable plateau region where the estimate is relatively constant - this indicates the range of k where the
       * Pareto assumption holds. Too small k gives high variance; too large k includes non-tail observations.
       */
-    def plotHill(using viz.LowPriorityPlotTarget) =
+    def plotHill(using viz.LowPriorityPlotTarget): viz.VizReturn = plotHill(Nil)
+
+    /** As [[plotHill]], applying `mods` to the spec after the built-in modifications. */
+    def plotHill(mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val data = hp.kValues.zip(hp.estimates).map { case (k, est) =>
         (k = k, estimate = est)
       }
 
-      hillPlotSpec.plot(
+      render(hillPlotSpec, mods)(
         _.title("Hill Plot for Pareto Tail Index Estimation"),
         _.data.values := data.asJson
       )
@@ -433,7 +496,10 @@ object Plots:
       * stable plateau region. Unlike the Hill plot, the Pickands estimator can give negative γ values for light-tailed
       * distributions; only positive γ (and thus positive α) indicates heavy tails.
       */
-    def plotPickands(using viz.LowPriorityPlotTarget) =
+    def plotPickands(using viz.LowPriorityPlotTarget): viz.VizReturn = plotPickands(Nil)
+
+    /** As [[plotPickands]], applying `mods` to the spec after the built-in modifications. */
+    def plotPickands(mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val data = pp.kValues
         .zip(pp.alphaEstimates)
         .filter { case (_, est) => !est.isNaN && est.isFinite && est > 0 }
@@ -441,7 +507,7 @@ object Plots:
           (k = k, estimate = est)
         }
 
-      hillPlotSpec.plot(
+      render(hillPlotSpec, mods)(
         _.title("Pickands Plot for Pareto Tail Index Estimation"),
         _.data.values := data.asJson
       )
@@ -452,7 +518,10 @@ object Plots:
       * For heavy-tailed data, γ > 0. For light-tailed data (e.g., exponential), γ = 0. For bounded distributions, γ <
       * 0.
       */
-    def plotPickandsGamma(using viz.LowPriorityPlotTarget) =
+    def plotPickandsGamma(using viz.LowPriorityPlotTarget): viz.VizReturn = plotPickandsGamma(Nil)
+
+    /** As [[plotPickandsGamma]], applying `mods` to the spec after the built-in modifications. */
+    def plotPickandsGamma(mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val data = pp.kValues
         .zip(pp.gammaEstimates)
         .filter { case (_, est) => !est.isNaN && est.isFinite }
@@ -460,7 +529,7 @@ object Plots:
           (k = k, estimate = est)
         }
 
-      hillPlotSpec.plot(
+      render(hillPlotSpec, mods)(
         _.title("Pickands Plot for Extreme Value Index γ"),
         _.data.values := data.asJson
       )
