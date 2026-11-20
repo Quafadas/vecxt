@@ -158,19 +158,22 @@ object SplitLosses:
       limit: Option[Double],
       retention: Option[Double]
   ): Unit =
+    // Franchise (see DeductibleType): nothing until the loss reaches the franchise point (x >= ret), then the full
+    // loss, capped at limit + franchise point. Must agree with rpt.franchiseFunction and Layer.cap.
     (retention, limit) match
       case (Some(ret), Some(lim)) =>
+        val maxPay = lim + ret
         var i = 0
         while i < length do
           val value = data(offset + i)
-          data(offset + i) = if value > ret then math.min(value, lim) else 0.0
+          data(offset + i) = if value >= ret then math.min(value, maxPay) else 0.0
           i += 1
         end while
       case (Some(ret), None) =>
         var i = 0
         while i < length do
           val value = data(offset + i)
-          data(offset + i) = if value > ret then value else 0.0
+          data(offset + i) = if value >= ret then value else 0.0
           i += 1
         end while
       case (None, Some(lim)) =>

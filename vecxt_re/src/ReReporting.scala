@@ -62,8 +62,9 @@ object ReReporting:
   /** An iteration counts as exhausted when its ceded total is strictly above this value.
     *
     * Ceded amounts already include the share (aggregate terms are applied first, then the share), so the most a layer
-    * can cede in one iteration is `aggLimit * share`. Comparing against `aggLimit` alone would make every layer with
-    * share < 1 report an exhaustion probability of 0.
+    * can cede in one iteration is `aggLimit * share`, or `(aggLimit + aggRetention) * share` for an aggregate
+    * franchise, which pays the full amount up to limit + franchise point (see DeductibleType). Comparing against
+    * `aggLimit` alone would make every layer with share < 1 report an exhaustion probability of 0.
     *
     * The tolerance is relative (1e-9 of the cap), so it absorbs the rounding of the per-loss cumulative-sum / diff
     * round trip at any monetary scale. A fixed absolute tolerance would break for limits quoted in large units (e.g. a
@@ -75,7 +76,10 @@ object ReReporting:
     layer.aggLimit match
       case None      => Double.PositiveInfinity
       case Some(lim) =>
-        val cap = lim * layer.share
+        val maxAgg = layer.aggType match
+          case DeductibleType.Franchise => lim + layer.aggRetention.getOrElse(0.0)
+          case _                        => lim
+        val cap = maxAgg * layer.share
         cap - math.abs(cap) * 1e-9
   end exhaustThreshold
 

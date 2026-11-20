@@ -171,6 +171,56 @@ class TowerSuite extends munit.FunSuite:
     noleakage(amounts, ceded, retained, splits)
   }
 
+  test("Occ franchise 5 xs 10: pays from x >= 10, the full loss capped at limit + franchise point") {
+    // One loss per iteration, so only the occurrence terms matter
+    val amounts = Array(9.0, 10.0, 12.0, 15.0, 16.0, 100.0)
+    val iterations = Array.tabulate(amounts.length)(_ + 1)
+    val layer = Layer(occRetention = Some(10.0), occLimit = Some(5.0), occType = DeductibleType.Franchise)
+
+    val (ceded, retained, splits) = Tower(IndexedSeq(layer)).splitAmntFast(iterations, amounts)
+
+    val cededExpected = Array(0.0, 10.0, 12.0, 15.0, 15.0, 15.0)
+    assertVecEquals(ceded, cededExpected)
+    assertVecEquals(retained, amounts - cededExpected)
+    noleakage(amounts, ceded, retained, splits)
+  }
+
+  test("Agg franchise 5 xs 10: a year whose total exactly reaches the franchise point pays in full") {
+    // Iteration 1 totals 4 + 6 = 10 (pays 10), iteration 2 totals 9.5 (pays 0), iteration 3 totals 40 (pays 15)
+    val iterations = Array(1, 1, 2, 3, 3)
+    val amounts = Array(4.0, 6.0, 9.5, 30.0, 10.0)
+    val layer = Layer(aggRetention = Some(10.0), aggLimit = Some(5.0), aggType = DeductibleType.Franchise)
+
+    val (ceded, retained, splits) = Tower(IndexedSeq(layer)).splitAmntFast(iterations, amounts)
+
+    val cededExpected = Array(0.0, 10.0, 0.0, 15.0, 0.0)
+    assertVecEquals(ceded, cededExpected)
+    noleakage(amounts, ceded, retained, splits)
+  }
+
+  test("Occ franchise in splitAmntFast agrees with rpt.franchiseFunction, SIMD body and tail") {
+    import rpt.*
+    import Retentions.Retention
+    import Limits.Limit
+    val terms = Seq((Some(5.0), Some(10.0)), (None, Some(10.0)), (Some(5.0), None))
+    // Lengths straddle every SIMD width, so both the vector loop and the scalar tail see boundary values
+    for
+      n <- Seq(1, 3, 7, 8, 9, 17, 37)
+      (lim, ret) <- terms
+    do
+      val pattern = Array(0.0, 9.999, 10.0, 10.001, 12.0, 14.999, 15.0, 15.001, 50.0, 5.0, 4.999)
+      val amounts = Array.tabulate(n)(i => pattern(i % pattern.length))
+      val iterations = Array.tabulate(n)(_ + 1)
+      val layer = Layer(occRetention = ret, occLimit = lim, occType = DeductibleType.Franchise)
+
+      val (ceded, _, _) = Tower(IndexedSeq(layer)).splitAmntFast(iterations, amounts)
+
+      val expected = amounts.clone()
+      expected.franchiseFunction(lim.map(Limit(_)), ret.map(Retention(_)))
+      assertVecEquals(ceded, expected)
+    end for
+  }
+
   test("Agg - One layer, 5 claims across 3 iters. 3 xs 10 occ, 3 xs 1.5 agg") {
     val iterations = Array(1, 2, 2, 3, 3)
     val amounts = Array(12.0, 14.0, 12.0, 11.5, 10.5)

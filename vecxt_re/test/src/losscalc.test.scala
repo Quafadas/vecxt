@@ -140,17 +140,27 @@ class LossReportSuite extends FunSuite:
     val retLayer = Layer(aggLimit = Some(10.0), share = 0.25)
     // 2 xs agg retention: (12 - 2) = 10 -> 2.5 exhausted, (4 - 2) = 2 -> 0.5, (30 - 2) capped at 10 -> 2.5 exhausted
     val aggRetLayer = Layer(aggLimit = Some(10.0), aggRetention = Some(2.0), share = 0.25)
-    // Franchise agg terms: above 5 pays min(x, 10) => 12 -> 10, 4 -> 0, 30 -> 10; both full years exhausted
+    // Franchise agg terms: from 5 pays min(x, 10 + 5) => 12 -> 12 (not exhausted), 4 -> 0, 30 -> 15 (exhausted)
     val franchiseLayer =
       Layer(aggLimit = Some(10.0), aggRetention = Some(5.0), aggType = DeductibleType.Franchise, share = 0.6)
 
     val (_, _, splits) = Tower(IndexedSeq(retLayer, aggRetLayer, franchiseLayer)).splitAmntFast(years, losses)
 
-    for (layer, ceded) <- splits do
-      val yearly = Array.tabulate(4)(it => ceded.indices.filter(i => years(i) == it + 1).map(ceded).sum)
-      assert(yearly.forall(_ <= 10.0 * layer.share + 1e-12), s"ceded above aggLimit * share: ${yearly.toList}")
+    def yearly(ceded: Array[Double]) =
+      Array.tabulate(4)(it => ceded.indices.filter(i => years(i) == it + 1).map(ceded).sum)
+
+    for (layer, ceded) <- splits.take(2) do
+      val y = yearly(ceded)
+      assert(y.forall(_ <= 10.0 * layer.share + 1e-12), s"ceded above aggLimit * share: ${y.toList}")
       assertEqualsDouble(exhaustProb(layer, years, ceded, 4), 0.5, 0.0, s"share ${layer.share}")
     end for
+
+    val franchiseCeded = splits(2).cededToLayer
+    val fy = yearly(franchiseCeded)
+    assertEqualsDouble(fy(0), 12.0 * 0.6, 1e-12)
+    assertEqualsDouble(fy(1), 0.0, 0.0)
+    assertEqualsDouble(fy(2), 15.0 * 0.6, 1e-12)
+    assertEqualsDouble(exhaustProb(franchiseLayer, years, franchiseCeded, 4), 0.25, 0.0, "franchise, share 0.6")
   }
 
   test("exhaustion probability tolerates rounding in many small losses with share") {

@@ -265,27 +265,30 @@ object SplitLosses:
       retention: Option[Double],
       species: VectorSpecies[java.lang.Double]
   ): Unit =
+    // Franchise (see DeductibleType): nothing until the loss reaches the franchise point (x >= ret), then the full
+    // loss, capped at limit + franchise point. Must agree with rpt.franchiseFunction and Layer.cap.
     val vectorSize = species.length()
     val loopBound = species.loopBound(length)
 
     (retention, limit) match
       case (Some(ret), Some(lim)) =>
+        val maxPay = lim + ret
         val retVector = DoubleVector.broadcast(species, ret)
-        val limVector = DoubleVector.broadcast(species, lim)
+        val maxPayVector = DoubleVector.broadcast(species, maxPay)
         val zeroVector = DoubleVector.zero(species)
 
         var i = 0
         while i < loopBound do
           val vector = DoubleVector.fromArray(species, data, offset + i)
-          val mask = vector.compare(VectorOperators.GT, retVector)
-          val result = vector.min(limVector).blend(zeroVector, mask.not())
+          val mask = vector.compare(VectorOperators.GE, retVector)
+          val result = vector.min(maxPayVector).blend(zeroVector, mask.not())
           result.intoArray(data, offset + i)
           i += vectorSize
         end while
 
         while i < length do
           val value = data(offset + i)
-          data(offset + i) = if value > ret then math.min(value, lim) else 0.0
+          data(offset + i) = if value >= ret then math.min(value, maxPay) else 0.0
           i += 1
         end while
 
@@ -296,7 +299,7 @@ object SplitLosses:
         var i = 0
         while i < loopBound do
           val vector = DoubleVector.fromArray(species, data, offset + i)
-          val mask = vector.compare(VectorOperators.GT, retVector)
+          val mask = vector.compare(VectorOperators.GE, retVector)
           val result = vector.blend(zeroVector, mask.not())
           result.intoArray(data, offset + i)
           i += vectorSize
@@ -304,7 +307,7 @@ object SplitLosses:
 
         while i < length do
           val value = data(offset + i)
-          data(offset + i) = if value > ret then value else 0.0
+          data(offset + i) = if value >= ret then value else 0.0
           i += 1
         end while
 
