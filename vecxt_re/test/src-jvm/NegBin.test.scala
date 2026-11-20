@@ -202,6 +202,59 @@ class NegBinTest extends FunSuite:
     end match
   }
 
+  /** Seeded gamma-Poisson draws, so the sample (and hence its MLE) is fixed. */
+  private def seededNb(a: Double, mean: Double, size: Int, seed: Long): Array[Int] =
+    val rng = org.apache.commons.rng.simple.RandomSource.XO_RO_SHI_RO_128_PP.create(java.lang.Long.valueOf(seed))
+    val gamma = org.apache.commons.statistics.distribution.GammaDistribution.of(a, mean / a).createSampler(rng)
+    Array.fill(size) {
+      val lambda = gamma.sample()
+      if lambda <= 0 then 0 else PoissonDistribution.of(lambda).createSampler(rng).sample()
+      end if
+    }
+  end seededNb
+
+  /** Reference MLE for `a`: geometric bisection on the profile score, independent of the Newton iteration. */
+  private def profileScoreRoot(x: Array[Int]): Double =
+    import org.apache.commons.numbers.gamma.Digamma
+    val n = x.length.toDouble
+    val xbar = x.map(_.toDouble).sum / n
+    def score(a: Double): Double =
+      x.map(xi => Digamma.value(a + xi) - Digamma.value(a)).sum - n * math.log1p(xbar / a)
+    var lo = 1e-6
+    var hi = 1e6
+    assert(score(lo) > 0 && score(hi) < 0, "root must be bracketed")
+    var k = 0
+    while k < 200 do
+      val mid = math.sqrt(lo * hi)
+      if score(mid) > 0 then lo = mid else hi = mid
+      end if
+      k += 1
+    end while
+    math.sqrt(lo * hi)
+  end profileScoreRoot
+
+  // Regression: S'(a) used to be computed with the wrong sign on the n·x̄/(a(a+x̄)) term, inflating the Newton
+  // denominator by ~a×. Moderate-dispersion fits then crawled, hit maxIter unconverged, and stopped off the MLE.
+  for (aTrue, mean, seed) <- Seq((5.0, 20.0, 11L), (20.0, 10.0, 12L), (50.0, 30.0, 13L), (0.7, 3.0, 14L)) do
+    test(s"MLE matches profile-score root and converges quickly (a=$aTrue, mean=$mean)") {
+      val data = seededNb(aTrue, mean, 500, seed)
+      val expectedA = profileScoreRoot(data)
+      val xbar = data.map(_.toDouble).sum / data.length
+
+      // The correct Newton iteration converges quadratically; 25 iterations is ample.
+      val (fitted, converged) = NegativeBinomial.mle(data, maxIter = 25)
+      assert(converged, s"did not converge in 25 iterations (expected a=$expectedA)")
+
+      fitted match
+        case nb: NegativeBinomial =>
+          assertEqualsDouble(nb.a, expectedA, 1e-6 * expectedA)
+          assertEqualsDouble(nb.mean, xbar, 1e-9 * xbar)
+        case _: Poisson =>
+          fail(s"Expected NegativeBinomial but got Poisson (sample should be overdispersed)")
+      end match
+    }
+  end for
+
   test("MLE returns Poisson for underdispersed data") {
     // Data with variance <= mean should return Poisson
     val poissonData = Array.fill(10000)(

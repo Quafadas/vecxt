@@ -133,11 +133,23 @@ object NegativeBinomial:
 
   /** Maximum likelihood estimation for Negative Binomial parameters.
     *
-    * Uses Newton-Raphson iteration on the profile likelihood for 'a', with method of moments as the initial estimate.
+    * Profiles out b (the MLE of the mean is x̄, so b = x̄/a) and solves the one-dimensional profile score equation S(a) =
+    * 0 by safeguarded Newton-Raphson, starting from the method of moments estimate.
     *
-    * For parameterization p = 1/(1+b), mean = a*b, with b = mean/a:
+    * For parameterization p = 1/(1+b), mean = a*b, with b = x̄/a:
     *   - Score: S(a) = Σᵢ [ψ(a + xᵢ) - ψ(a)] + n·log(a/(a + x̄))
-    *   - Hessian: H(a) = Σᵢ [ψ'(a + xᵢ) - ψ'(a)] + n·x̄/(a·(a + x̄))
+    *   - Derivative: S'(a) = Σᵢ [ψ'(a + xᵢ) - ψ'(a)] + n·x̄/(a·(a + x̄))
+    *
+    * The two terms of S'(a) nearly cancel for large a (S' is O(1/a³) while each term is O(1/a²)), so S' must be
+    * computed with the correct sign or Newton steps become far too small.
+    *
+    * When the population variance exceeds x̄ the profile score has a unique root, with S > 0 below it and S < 0 above
+    * it (Levin & Reeds, 1977). Each evaluation of S therefore tightens a bracket [lo, hi] around the root. A Newton
+    * step is taken when -S' > 0 and the step stays inside the bracket; otherwise the iteration bisects (geometrically)
+    * or, while the bracket is still open on one side, doubles / halves `a`.
+    *
+    * Convergence requires a Newton step (or the bracket width) smaller than `tol·a`. Because S' is correct, a Newton
+    * step estimates the distance to the root, so a small step means the score is genuinely near zero.
     *
     * @param observations
     *   array of non-negative integer observations
@@ -161,85 +173,59 @@ object NegativeBinomial:
     val stats = observations.meanAndVariance
     val xbar = stats.mean
     val variance = stats.variance
-    val sumX = observations.sumSIMD.toDouble
 
     require(xbar > 0, "mean must be positive for NB fitting")
-
-    // Constant term in the log-likelihood: -∑ log Γ(x_i+1)
-    var sumLogFact = 0.0
-    var _i = 0
-    while _i < observations.length do
-      sumLogFact += LogGamma.value(observations(_i) + 1)
-      _i += 1
-    end while
-
-    // Profile log-likelihood with b = xbar/a  (equivalently p = a/(a+xbar))
-    inline def profileLogLik(a: Double): Double =
-      if a <= 0 || !a.isFinite then Double.NegativeInfinity
-      else
-        val p = a / (a + xbar)
-        val logP = math.log(p)
-        val log1MinusP = math.log1p(-p)
-        var ll = n * a * logP + sumX * log1MinusP - sumLogFact - n * LogGamma.value(a)
-        var k = 0
-        while k < observations.length do
-          ll += LogGamma.value(a + observations(k))
-          k += 1
-        end while
-        ll
 
     // If variance <= mean, data is underdispersed relative to Poisson
     // In this case, return Poisson distribution
     if variance <= xbar then (Poisson(xbar), true)
     else
-      // Method of moments initial estimates:
-      // b = variance/mean - 1
-      // a = mean/b = mean^2 / (variance - mean)
+      // Method of moments initial estimate: b = variance/mean - 1, a = mean/b
       val bMom = (variance / xbar) - 1.0
-      val aMom = xbar / bMom
+      var a = xbar / bMom
 
-      // Newton-Raphson iteration on the profile score equation for 'a'
-      // With b = xbar/a, the profile log-likelihood score is:
-      // S(a) = Σᵢ [ψ(a + xᵢ) - ψ(a)] + n·log(a/(a + xbar))
-      var a = aMom
+      // Bracket on the root of S. S(lo) > 0 and S(hi) < 0; 0 and +∞ mean "not yet bounded".
+      var lo = 0.0
+      var hi = Double.PositiveInfinity
       var iter = 0
       var converged = false
 
       while iter < maxIter && !converged do
-        // Score: S(a) = Σᵢ [ψ(a + xᵢ) - ψ(a)] + n·log(a/(a + xbar))
-        var score = n * math.log(a / (a + xbar))
-
-        // Hessian (negative): -H(a) = Σᵢ [ψ'(a) - ψ'(a + xᵢ)] + n·xbar/(a·(a + xbar))
-        var negHessian = n * xbar / (a * (a + xbar))
-
+        // S(a) = Σᵢ ψ(a + xᵢ) - n·ψ(a) - n·log1p(x̄/a)
+        // -S'(a) = n·ψ'(a) - Σᵢ ψ'(a + xᵢ) - n·x̄/(a·(a + x̄))
+        var sumDigamma = 0.0
+        var sumTrigamma = 0.0
         var i = 0
         while i < observations.length do
-          val x = observations(i)
-          score += org.apache.commons.numbers.gamma.Digamma.value(a + x) -
-            org.apache.commons.numbers.gamma.Digamma.value(a)
-          negHessian += org.apache.commons.numbers.gamma.Trigamma.value(a) -
-            org.apache.commons.numbers.gamma.Trigamma.value(a + x)
+          val ax = a + observations(i)
+          sumDigamma += org.apache.commons.numbers.gamma.Digamma.value(ax)
+          sumTrigamma += org.apache.commons.numbers.gamma.Trigamma.value(ax)
           i += 1
         end while
 
-        val delta = score / negHessian
+        val score = sumDigamma - n * org.apache.commons.numbers.gamma.Digamma.value(a) - n * math.log1p(xbar / a)
+        val negDeriv =
+          n * org.apache.commons.numbers.gamma.Trigamma.value(a) - sumTrigamma - n * xbar / (a * (a + xbar))
 
-        // Backtracking line search on the profile log-likelihood to improve robustness.
-        val llCur = profileLogLik(a)
-        var step = 1.0
-        var aNew = Math.fma(step, delta, a)
-        var llNew = profileLogLik(aNew)
-        while step > 1e-6 && llNew < llCur do
-          step *= 0.5
-          aNew = Math.fma(step, delta, a)
-          llNew = profileLogLik(aNew)
-        end while
+        if score == 0.0 then converged = true
+        else
+          if score > 0 then lo = a else hi = a
+          end if
 
-        if aNew <= 0 || !aNew.isFinite then a = a / 2.0
-        else a = aNew
+          val newton = a + score / negDeriv
+          val newtonOk = negDeriv > 0 && newton.isFinite && newton > lo && newton < hi
+
+          val aNext =
+            if newtonOk then newton
+            else if hi.isInfinite then 2.0 * lo
+            else if lo == 0.0 then 0.5 * hi
+            else math.sqrt(lo * hi)
+
+          val bracketClosed = lo > 0 && hi.isFinite && (hi - lo) <= tol * aNext
+          converged = (newtonOk && math.abs(aNext - a) <= tol * aNext) || bracketClosed
+          a = aNext
         end if
 
-        converged = math.abs(step * delta) < tol * math.abs(a)
         iter += 1
       end while
 
