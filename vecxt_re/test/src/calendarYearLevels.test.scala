@@ -306,4 +306,17 @@ class CalendarYearLevelsSuite extends FunSuite:
     }
   }
 
+  test("input arrays are defensively copied (sorted constructor)") {
+    val ys = Array(2024, 2023)
+    val ls = Array(110.0, 100.0)
+    val idx = CalendarYearLevels(2024, ys, ls)
+
+    ls(1) = -5.0 // would fail validation if passed in directly
+    ys(0) = 1999
+
+    assertEquals(idx.levelAt(2023), 100.0)
+    assertEquals(idx.years.toSeq, Seq(2024, 2023))
+    assertEqualsDouble(idx.onLevelFactor(2023), 1.1, 1e-12)
+  }
+
 end CalendarYearLevelsSuite

@@ -103,6 +103,15 @@ class ScenarrSuite extends FunSuite:
     assertEquals(ssorted.amounts.toList, Array(10.0, 15.0, 20.0).toList)
   }
 
+  test("freq, agg and oep refuse an unsorted scenario") {
+    // Iteration 1 is split across two runs: the unchecked group kernels would silently drop the first run.
+    val sc = Scenarr.withGeneratedIds(Array(1, 2, 1), Array(1, 2, 3), Array(1.0, 1.0, 1.0), numberIterations = 2)
+    intercept[AssertionError](sc.freq)
+    intercept[AssertionError](sc.agg)
+    intercept[AssertionError](sc.oep)
+    assertEquals(sc.sorted.agg.toList, List(2.0, 1.0))
+  }
+
   test("scaleAmntBy multiplies amounts and threshold") {
     val sc =
       Scenarr.withGeneratedIds(Array(1, 1), Array(1, 2), Array(10.0, 20.0), numberIterations = 1, threshold = 100.0)

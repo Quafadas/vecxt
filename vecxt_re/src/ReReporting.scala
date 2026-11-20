@@ -2,6 +2,17 @@ package vecxt_re
 
 import vecxt.all.*
 
+/** Per-layer loss metrics over a simulation.
+  *
+  * Precondition for every method taking `years`: `years(i)` is the 1-based iteration of `cededToLayer(i)`, the two
+  * arrays have the same length, `years` is sorted in non-decreasing order, and every value is in 1..numIterations.
+  * Arrays that come from a `Scenario`, or a `Scenarr` with `isSorted = true`, already satisfy this.
+  *
+  * The precondition is NOT checked. These methods are on the reporting hot path and work in a single pass over arrays
+  * with one entry per event, and checking would add a second full pass on every call. Unsorted `years` silently gives
+  * wrong numbers, not an error: the group-sum based methods keep only the last run of each iteration (see
+  * groupSums.scala), and `lossReport` drops every event after the first out-of-order one.
+  */
 object ReReporting:
   extension (calcd: (layer: Layer, cededToLayer: Array[Double]))
 
@@ -29,7 +40,8 @@ object ReReporting:
       * @param numIterations
       *   Number of simulation iterations
       * @param years
-      *   Sorted array of 1-based iteration indices
+      *   Sorted array of 1-based iteration indices, one per element of `cededToLayer`. Not checked: see the object
+      *   doc.
       * @param limit
       *   Report denominator for normalizing EL and std
       * @return

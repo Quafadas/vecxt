@@ -10,6 +10,13 @@ import vecxt.all.*
 
 import cats.kernel.Monoid
 
+/** Columnar scenario: one entry per event across `iterations`, `days`, `amounts` and `ids`.
+  *
+  * `isSorted` is a promise from the constructor's caller that the columns are ordered by (iteration, day), and that
+  * every iteration lies in 1..numberIterations. It is trusted, not verified: per-iteration statistics (`freq`, `agg`,
+  * `oep`) feed it into unchecked single-pass kernels (see groupSums.scala), and passing `isSorted = true` for unsorted
+  * data gives silently wrong results. If you're unsure, leave it false and call `.sorted`.
+  */
 case class Scenarr(
     iterations: Array[Int],
     days: Array[Int],
@@ -45,6 +52,7 @@ case class Scenarr(
   }
 
   lazy val oep =
+    assert(isSorted, "Scenario must be sorted to compute occurrence exceedance")
     groupMax(iterations, amounts, numberIterations).sorted(using Ordering[Double].reverse).zipWithIndex.map {
       case (amt, idx) =>
         (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)

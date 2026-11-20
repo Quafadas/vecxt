@@ -139,18 +139,32 @@ object rpt:
   // Matrix extensions that delegate to the underlying array
   extension (mat: Matrix[Double])
 
+    /** These operate on `mat.raw` directly, so they are only sound when the matrix owns its whole backing array in a dense
+      * layout. A view (submatrix, transpose, offset) would otherwise silently modify elements outside it.
+      */
+    private inline def requireDenseContiguous(op: String): Unit =
+      if !mat.hasSimpleContiguousMemoryLayout then
+        throw new IllegalArgumentException(
+          s"$op requires a dense, contiguous matrix (no views or offsets); got ${mat.layoutString}. Copy the matrix first."
+        )
+      end if
+    end requireDenseContiguous
+
     /** Apply reinsurance function to entire matrix via underlying array */
     inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      requireDenseContiguous("applyReinsurance")
       mat.raw.reinsuranceFunction(limitOpt, retentionOpt)
     end applyReinsurance
 
     /** Apply reinsurance function with share to entire matrix via underlying array */
     inline def applyReinsurance(limitOpt: Option[Limit], retentionOpt: Option[Retention], share: Double): Unit =
+      requireDenseContiguous("applyReinsurance")
       mat.raw.reinsuranceFunction(limitOpt, retentionOpt, share)
     end applyReinsurance
 
     /** Apply franchise function to entire matrix via underlying array */
     inline def applyFranchise(limitOpt: Option[Limit], retentionOpt: Option[Retention]): Unit =
+      requireDenseContiguous("applyFranchise")
       mat.raw.franchiseFunction(limitOpt, retentionOpt)
     end applyFranchise
 

@@ -15,8 +15,11 @@ package vecxt_re
   *   companion `apply(years, levels)` to construct from years in any order.
   * @param levels
   *   Array of index levels corresponding to each year. All levels must be strictly positive.
+  *
+  * The constructor is private: the companion `apply` methods defensively copy the input arrays, so mutating the arrays
+  * passed in cannot bypass validation.
   */
-case class CalendarYearLevels(currentYear: Int, years: Array[Int], levels: Array[Double]):
+case class CalendarYearLevels private (currentYear: Int, years: Array[Int], levels: Array[Double]):
   require(years.length == levels.length, "years and levels must have the same length")
   require(years.length > 0, "must provide at least one year")
   require(
@@ -172,6 +175,12 @@ end CalendarYearLevels
 
 object CalendarYearLevels:
 
+  /** Create a CalendarYearLevels with years already in contiguous descending order starting at `currentYear`. The
+    * input arrays are copied.
+    */
+  def apply(currentYear: Int, years: Array[Int], levels: Array[Double]): CalendarYearLevels =
+    new CalendarYearLevels(currentYear, years.clone(), levels.clone())
+
   /** Create a CalendarYearLevels from arrays of years and their corresponding index levels. Years may be provided in
     * any order, but must be contiguous (no gaps) and unique. The current year is set to the most recent year.
     *
@@ -189,7 +198,8 @@ object CalendarYearLevels:
     val order = years.indices.sortBy(i => -years(i)).toArray
     val sortedYears = order.map(years(_))
     val sortedLevels = order.map(levels(_))
-    CalendarYearLevels(sortedYears.head, sortedYears, sortedLevels)
+    // freshly allocated arrays - no need to copy again
+    new CalendarYearLevels(sortedYears.head, sortedYears, sortedLevels)
   end apply
 
   /** Create a CalendarYearLevels from `(year, level)` pairs, in any order. Years must be contiguous and unique.
