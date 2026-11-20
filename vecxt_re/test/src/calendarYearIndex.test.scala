@@ -279,6 +279,46 @@ class CalendarYearIndexSuite extends FunSuite:
     assertEqualsDouble(result(2), 100.0 * 1.05 * 1.03 * 1.10 * 1.10, 1e-10)
   }
 
+  // --- single value onLevel ---
+
+  test("onLevel single value in the current year is unchanged") {
+    val idx = CalendarYearIndex(Array(2024, 2023, 2022), Array(1.05, 1.03, 1.02))
+    assertEquals(idx.onLevel(100.0, 2024), 100.0)
+  }
+
+  test("onLevel single value applies cumulative factor to current year") {
+    val idx = CalendarYearIndex(Array(2024, 2023, 2022), Array(1.05, 1.03, 1.02))
+    assertEqualsDouble(idx.onLevel(100.0, 2023), 100.0 * 1.05, 1e-10)
+    assertEqualsDouble(idx.onLevel(100.0, 2021), 100.0 * 1.05 * 1.03 * 1.02, 1e-10)
+  }
+
+  test("onLevel single value agrees with the array version") {
+    val idx = CalendarYearIndex(Array(2024, 2023, 2022), Array(1.05, 1.03, 1.02))
+    val values = Array(100.0, 250.0, 75.0, 10.0)
+    val years = Array(2022, 2024, 2021, 2023)
+    val arrayResult = idx.onLevel(values, years)
+    for i <- values.indices do assertEqualsDouble(idx.onLevel(values(i), years(i)), arrayResult(i), 1e-12)
+    end for
+  }
+
+  test("onLevel single value future year is unchanged") {
+    val idx = CalendarYearIndex(Array(2024, 2023), Array(1.05, 1.03))
+    assertEquals(idx.onLevel(100.0, 2026), 100.0)
+  }
+
+  test("onLevel single value throws before earliestOnLevelYear") {
+    val idx = CalendarYearIndex(Array(2024, 2023), Array(1.05, 1.03))
+    intercept[IllegalArgumentException] {
+      idx.onLevel(100.0, 2021)
+    }
+  }
+
+  test("onLevel single value with fallback extrapolates before the index") {
+    val idx = CalendarYearIndex(Array(2024, 2023), Array(1.05, 1.03))
+    assertEqualsDouble(idx.onLevel(100.0, 2022, 1.10), 100.0 * 1.05 * 1.03, 1e-10)
+    assertEqualsDouble(idx.onLevel(100.0, 2020, 1.10), 100.0 * 1.05 * 1.03 * 1.10 * 1.10, 1e-10)
+  }
+
   // --- suggestedNewThreshold ---
 
   test("suggestedNewThreshold set in the current year is unchanged") {

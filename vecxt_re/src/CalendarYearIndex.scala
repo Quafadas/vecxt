@@ -92,6 +92,26 @@ case class CalendarYearIndex(currentYear: Int, years: Array[Int], indices: Array
     end if
   end cumulativeToCurrentFrom
 
+  /** On-level a single value from `dataYear` to the current year.
+    *
+    * @param value
+    *   The historical value, in `dataYear` terms
+    * @param dataYear
+    *   The calendar year of the value
+    * @return
+    *   The value in current-year terms
+    * @throws IllegalArgumentException
+    *   if `dataYear` is earlier than [[earliestOnLevelYear]]
+    */
+  def onLevel(value: Double, dataYear: Int): Double =
+    value * cumulativeToCurrentFrom(dataYear)
+
+  /** On-level a single value from `dataYear` to the current year, extrapolating with `fallbackFactor` per year if
+    * `dataYear` is earlier than the index covers.
+    */
+  def onLevel(value: Double, dataYear: Int, fallbackFactor: Double): Double =
+    value * cumulativeToCurrentFrom(dataYear, fallbackFactor)
+
   /** Apply on-leveling to an array of values, given their corresponding years.
     *
     * @param values
