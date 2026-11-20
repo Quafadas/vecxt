@@ -10,19 +10,31 @@ object SplitLosses:
   extension (tower: Tower)
     /** High-performance SIMD optimized version for small number of layers (1 -5) and large number of claims.
       *
-      * You may assume that year groups already sorted and are in order.
+      * `years` must be sorted ascending (non-decreasing): the aggregate terms are applied per contiguous run of a year,
+      * so an unsorted year would be split into several runs. Throws IllegalArgumentException otherwise.
       *
       * @param years
       * @param losses
       * @param bc
       * @return
       */
-    inline def splitAmntFast(years: Array[Int], losses: Array[Double]): (
+    def splitAmntFast(years: Array[Int], losses: Array[Double]): (
         ceded: Array[Double],
         retained: Array[Double],
         splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]
     ) =
       assert(years.length == losses.length)
+
+      // Once, up front: a throw from inside processLayer would surface wrapped in ExecutionException when parallel.
+      var k = 1
+      while k < years.length do
+        if years(k) < years(k - 1) then
+          throw IllegalArgumentException(
+            s"splitAmntFast requires years sorted ascending; years($k) = ${years(k)} < years(${k - 1}) = ${years(k - 1)}"
+          )
+        end if
+        k += 1
+      end while
 
       if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))
       else
@@ -114,6 +126,7 @@ object SplitLosses:
           * layer...
           */
         (numLosses, numLayers) match
+          case (_, 0)                => () // empty tower: nothing ceded; avoids newFixedThreadPool(0) below
           case (_, 1)                => processLayer(0)
           case (nl, _) if nl < 50000 =>
             var i = 0
@@ -174,7 +187,7 @@ object SplitLosses:
       end if
   end extension
 
-  private inline def applyRetentionSIMD(
+  private def applyRetentionSIMD(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -244,7 +257,7 @@ object SplitLosses:
     end match
   end applyRetentionSIMD
 
-  private inline def applyFranchiseSIMD(
+  private def applyFranchiseSIMD(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -316,7 +329,7 @@ object SplitLosses:
     end match
   end applyFranchiseSIMD
 
-  private inline def applyReverseFranchise(
+  private def applyReverseFranchise(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -338,7 +351,7 @@ object SplitLosses:
     end while
   end applyReverseFranchise
 
-  private inline def applyShareSIMD(
+  private def applyShareSIMD(
       data: Array[Double],
       offset: Int,
       length: Int,

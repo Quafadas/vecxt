@@ -4,19 +4,31 @@ object SplitLosses:
   extension (tower: Tower)
     /** Optimsie for small number of layers. Large numbers of claims.
       *
-      * You may assume that year groups already sorted and are in order.
+      * `years` must be sorted ascending (non-decreasing): the aggregate terms are applied per contiguous run of a year,
+      * so an unsorted year would be split into several runs. Throws IllegalArgumentException otherwise.
       *
       * @param years
       * @param losses
       * @param bc
       * @return
       */
-    inline def splitAmntFast(years: Array[Int], losses: Array[Double]): (
+    def splitAmntFast(years: Array[Int], losses: Array[Double]): (
         ceded: Array[Double],
         retained: Array[Double],
         splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]
     ) =
       assert(years.length == losses.length)
+
+      var k = 1
+      while k < years.length do
+        if years(k) < years(k - 1) then
+          throw IllegalArgumentException(
+            s"splitAmntFast requires years sorted ascending; years($k) = ${years(k)} < years(${k - 1}) = ${years(k - 1)}"
+          )
+        end if
+        k += 1
+      end while
+
       if losses.isEmpty then (Array.empty[Double], Array.empty[Double], tower.layers.map(_ -> Array.empty[Double]))
       else
 
@@ -106,7 +118,7 @@ object SplitLosses:
       end if
   end extension
 
-  private inline def applyRetention(
+  private def applyRetention(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -139,7 +151,7 @@ object SplitLosses:
     end match
   end applyRetention
 
-  private inline def applyFranchise(
+  private def applyFranchise(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -172,7 +184,7 @@ object SplitLosses:
     end match
   end applyFranchise
 
-  private inline def applyReverseFranchise(
+  private def applyReverseFranchise(
       data: Array[Double],
       offset: Int,
       length: Int,
@@ -194,7 +206,7 @@ object SplitLosses:
     end while
   end applyReverseFranchise
 
-  private inline def applyShare(
+  private def applyShare(
       data: Array[Double],
       offset: Int,
       length: Int,

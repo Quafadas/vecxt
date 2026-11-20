@@ -31,6 +31,47 @@ class TowerSuite extends munit.FunSuite:
 
   }
 
+  test("Empty tower cedes nothing, including above the parallel threshold") {
+    val tower = Tower(IndexedSeq.empty)
+    for n <- Seq(3, 50000, 60001) do
+      val iterations = Array.tabulate(n)(i => i / 3 + 1)
+      val amounts = Array.tabulate(n)(i => (i % 7).toDouble + 0.5)
+
+      val (ceded, retained, splits) = tower.splitAmntFast(iterations, amounts)
+
+      assert(splits.isEmpty)
+      assertVecEquals(ceded, Array.fill(n)(0.0))
+      assertVecEquals(retained, amounts)
+    end for
+  }
+
+  test("splitAmntFast rejects unsorted years, including above the parallel threshold") {
+    val tower = Tower.fromRetention(5.0, Vector(6.0, 7.0))
+    // Grouped-but-unsorted and interleaved inputs both rejected; the bad index is reported.
+    for years <- Seq(Array(3, 3, 1, 1, 2), Array(1, 2, 1)) do
+      intercept[IllegalArgumentException] {
+        tower.splitAmntFast(years, Array.fill(years.length)(10.0))
+      }
+    end for
+
+    val n = 60001
+    val big = Array.tabulate(n)(i => i / 3 + 1)
+    big(n - 1) = 0
+    val ex = intercept[IllegalArgumentException] {
+      tower.splitAmntFast(big, Array.fill(n)(10.0))
+    }
+    assert(ex.getMessage.contains(s"years(${n - 1})"), ex.getMessage)
+  }
+
+  test("splitAmntFast accepts negative and repeated years") {
+    val tower = Tower(IndexedSeq(Layer(aggLimit = Some(15.0))))
+    val years = Array(-2, -2, -1, 0, 0)
+    val losses = Array(10.0, 10.0, 10.0, 10.0, 10.0)
+    val (ceded, retained, splits) = tower.splitAmntFast(years, losses)
+    assertVecEquals(ceded, Array(10.0, 5.0, 10.0, 10.0, 5.0))
+    noleakage(losses, ceded, retained, splits)
+  }
+
   test("One layer, one claim. Inf xs 10, loss 12.0") {
     val iterations = Array(1)
     val amounts = Array(12.0)
