@@ -2,9 +2,9 @@ package vecxt_re
 
 /** A calendar year index of levels, for on-leveling historical data.
   *
-  * Holds an index _level_ per calendar year (e.g. total insured value, a price index, or any series whose ratio
-  * between two years gives the change between them). A value from year `Y` is on-levelled to the current year by
-  * multiplying by `level(currentYear) / level(Y)`.
+  * Holds an index _level_ per calendar year (e.g. total insured value, a price index, or any series whose ratio between
+  * two years gives the change between them). A value from year `Y` is on-levelled to the current year by multiplying by
+  * `level(currentYear) / level(Y)`.
   *
   * For year-on-year change factors (e.g. 1.05 for +5%) rather than levels, use [[CalendarYearRateChanges]].
   *
@@ -64,6 +64,7 @@ case class CalendarYearLevels(currentYear: Int, years: Array[Int], levels: Array
       s"Year $fromYear is before the earliest year in the index ($earliestYear). Supply a fallbackFactor to extrapolate."
     )
     if fromYear >= currentYear then 1.0 else levels(0) / levels(currentYear - fromYear)
+    end if
   end onLevelFactor
 
   /** The factor which on-levels a value from `fromYear` to the current year, extrapolating the index backwards with a
