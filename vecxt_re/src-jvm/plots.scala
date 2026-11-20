@@ -43,8 +43,8 @@ object Plots:
   private lazy val hillPlotSpec = VegaPlot.fromResource("hillPlot.vl.json") // Hill plot for tail index
 
   extension (idx: CalendarYearIndex)
-    /** Plot the year-on-year change in the index, each year's level relative to the current year, and the reporting
-      * threshold on-levelled to the current year. The earliest year has no year-on-year change.
+    /** Plot the per-year index factors, the shortfall of each year's level relative to the current year, and the
+      * reporting threshold on-levelled to the current year.
       *
       * @param reportingThreshold
       *   The reporting threshold, in `thresholdYear` money
@@ -55,13 +55,13 @@ object Plots:
         viz.LowPriorityPlotTarget
     ) =
       val linePlot2 = VegaPlot.fromResource("index.vl.json")
-      val onLevelled = idx.onLevel(Array.fill(idx.numYears)(1.0), idx.years)
+      val cumulative = idx.onLevel(Array.fill(idx.numYears)(1.0), idx.years)
       val threshold = idx.suggestedNewThreshold(reportingThreshold, thresholdYear)
       val factors = idx.years.indices.map { i =>
         (
           year = idx.years(i),
-          index = if i + 1 < idx.numYears then Some(idx.indices(i) / idx.indices(i + 1)) else None,
-          missing = 1 / onLevelled(i),
+          index = idx.indices(i),
+          missing = 1 / cumulative(i),
           threshold = threshold
         )
       }

@@ -2,7 +2,7 @@ package vecxt_re
 
 import munit.FunSuite
 
-/** Regression test with a real TIV level series, passed to the index directly. */
+/** Regression test with a real TIV level series, converted with `fromLevels`. */
 class CalendarYearIndexTivSuite extends FunSuite:
 
   private val indexRaw = Seq(
@@ -16,7 +16,7 @@ class CalendarYearIndexTivSuite extends FunSuite:
     (year = 2019, tiv = 2029813961272d)
   )
 
-  private val cyi = CalendarYearIndex(indexRaw.map(_.year).toArray, indexRaw.map(_.tiv).toArray)
+  private val cyi = CalendarYearIndex.fromLevels(indexRaw.map(_.year).toArray, indexRaw.map(_.tiv).toArray)
 
   test("on-level 1 from each year is tiv(2026) / tiv(year)") {
     for r <- indexRaw do
