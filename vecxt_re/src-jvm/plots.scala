@@ -130,6 +130,9 @@ object Plots:
       * A rootogram displays sqrt(expected) as the reference curve and hangs bars from it down to sqrt(observed). When
       * the model fits well, bars hang close to the zero line. Bars extending below zero indicate under-prediction; bars
       * stopping above zero indicate over-prediction.
+      *
+      * A tick marks each bar bottom, so a bucket with zero observations (bottom = top) is still visible. The grey band
+      * marks ±1, the usual rule of thumb for a meaningful deviation on the √ scale.
       */
     def plotRootogram(samples: IndexedSeq[Int])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       plotRootogram(samples, Nil)

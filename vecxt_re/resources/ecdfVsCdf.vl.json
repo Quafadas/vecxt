@@ -19,12 +19,16 @@
         "type": "line",
         "interpolate": "step-after",
         "strokeWidth": 2,
-        "color": "steelblue",
         "tooltip": true
       },
       "encoding": {
         "x": {"field": "value", "type": "quantitative", "title": "k"},
-        "y": {"field": "prob", "type": "quantitative", "title": "Cumulative Probability"}
+        "y": {"field": "prob", "type": "quantitative", "title": "Cumulative Probability"},
+        "color": {
+          "datum": "Fitted",
+          "scale": {"domain": ["Fitted", "Observed"], "range": ["steelblue", "orange"]},
+          "legend": {"title": null, "orient": "bottom-right"}
+        }
       }
     },
     {
@@ -42,12 +46,16 @@
         "interpolate": "step-after",
         "strokeWidth": 2,
         "strokeDash": [4, 4],
-        "color": "orange",
         "tooltip": true
       },
       "encoding": {
         "x": {"field": "value", "type": "quantitative", "title": "k"},
-        "y": {"field": "prob", "type": "quantitative", "title": "Cumulative Probability"}
+        "y": {"field": "prob", "type": "quantitative", "title": "Cumulative Probability"},
+        "color": {
+          "datum": "Observed",
+          "scale": {"domain": ["Fitted", "Observed"], "range": ["steelblue", "orange"]},
+          "legend": {"title": null, "orient": "bottom-right"}
+        }
       }
     }
   ]

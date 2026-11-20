@@ -68,6 +68,19 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
   // Tail weight is the complement
   private val tailWeight: Double = 1.0 - bodyWeight
 
+  // Largest empirical value strictly below the mixing point (only used when bodyWeight > 0)
+  private val maxBodyValue: Double =
+    var mx = Double.NegativeInfinity
+    var i = 0
+    while i < empirical.values.length do
+      val v = empirical.values(i)
+      if v < mixingPoint && v > mx then mx = v
+      end if
+      i += 1
+    end while
+    mx
+  end maxBodyValue
+
   /** Draw a random sample from the mixed distribution */
   def draw: Double =
     val u = rng.nextDouble()
@@ -128,12 +141,11 @@ case class Mixed(empirical: Empirical, mixingPoint: Double, paretoShape: Double)
       // Return minimum of empirical or mixing point
       empirical.inverseCdf(0.0)
     else if p <= bodyWeight then
-      // In the body region - use empirical inverse CDF
-      // Scale p to [0, 1] within the body
-      val scaledP = p / bodyWeight
-      val q = empirical.inverseCdf(math.min(scaledP, 1.0))
-      // Ensure we don't exceed mixing point
-      math.min(q, mixingPoint - Double.MinPositiveValue)
+      // In the body region F(x) = F_emp(x), so the quantile is the empirical quantile, unscaled.
+      // Guard against rounding differences between bodyWeight and the empirical cumulative weights,
+      // which could otherwise return a point at or above the mixing point.
+      val q = empirical.inverseCdf(p)
+      if q < mixingPoint then q else maxBodyValue
     else
       // In the tail region - use Pareto inverse CDF
       val tailP = (p - bodyWeight) / tailWeight
@@ -286,5 +298,21 @@ object Mixed:
       paretoShape: Double
   ): Mixed =
     Mixed(Empirical.weighted(values, weights), mixingPoint, paretoShape)
+
+  /** JSON codec. Only the distribution parameters (`empirical`, `mixingPoint`, `paretoShape`) are written; derived
+    * state (body/tail weights, Pareto tail, RNG) is rebuilt on decode. Constructor validation failures surface as a
+    * [[io.circe.DecodingFailure]].
+    */
+  given mixedEncoder: io.circe.Encoder[Mixed] =
+    io.circe.Encoder.forProduct3[Mixed, Empirical, Double, Double]("empirical", "mixingPoint", "paretoShape")(m =>
+      (m.empirical, m.mixingPoint, m.paretoShape)
+    )
+
+  given mixedDecoder: io.circe.Decoder[Mixed] =
+    io.circe.Decoder
+      .forProduct3[(Empirical, Double, Double), Empirical, Double, Double]("empirical", "mixingPoint", "paretoShape")(
+        (_, _, _)
+      )
+      .emapTry((e, m, a) => scala.util.Try(Mixed(e, m, a)))
 
 end Mixed

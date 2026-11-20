@@ -1,6 +1,6 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-  "description": "Hanging rootogram for count data diagnostics",
+  "description": "Hanging rootogram for count data diagnostics. Bars hang from sqrt(expected); their bottoms should sit near zero. The grey band marks +/-1, the usual threshold for a meaningful deviation on the sqrt scale.",
   "width": "container",
   "height": "container",
   "title": "Hanging Rootogram",
@@ -11,27 +11,47 @@
       {"k": 2, "sqrtExpected": 2.5, "sqrtObserved": 2.3, "hanging": 0.2}
     ]
   },
-  "encoding": {
-    "x": {"field": "k", "type": "ordinal", "title": "Count (k)"}
-  },
   "layer": [
+    {
+      "data": {"values": [{}]},
+      "mark": {"type": "rect", "color": "lightgrey", "opacity": 0.4},
+      "encoding": {
+        "y": {"datum": -1, "type": "quantitative"},
+        "y2": {"datum": 1}
+      }
+    },
     {
       "mark": {"type": "bar", "color": "steelblue", "opacity": 0.7},
       "encoding": {
+        "x": {"field": "k", "type": "ordinal", "title": "Count (k)"},
         "y": {"field": "sqrtExpected", "type": "quantitative", "title": "√Frequency"},
         "y2": {"field": "hanging", "type": "quantitative"}
       }
     },
     {
-      "mark": {"type": "line", "color": "red", "strokeWidth": 2, "point": true},
+      "mark": {"type": "rule", "color": "black", "strokeWidth": 1},
       "encoding": {
-        "y": {"field": "sqrtExpected", "type": "quantitative"}
+        "y": {"datum": 0, "type": "quantitative"}
       }
     },
     {
-      "mark": {"type": "rule", "color": "black", "strokeDash": [4, 4]},
+      "mark": {"type": "tick", "color": "black", "thickness": 2},
       "encoding": {
-        "y": {"datum": 0}
+        "x": {"field": "k", "type": "ordinal"},
+        "y": {"field": "hanging", "type": "quantitative"},
+        "tooltip": [
+          {"field": "k", "type": "ordinal", "title": "k"},
+          {"field": "sqrtObserved", "type": "quantitative", "title": "√Observed", "format": ".2f"},
+          {"field": "sqrtExpected", "type": "quantitative", "title": "√Expected", "format": ".2f"},
+          {"field": "hanging", "type": "quantitative", "title": "Bar bottom", "format": ".2f"}
+        ]
+      }
+    },
+    {
+      "mark": {"type": "line", "color": "red", "strokeWidth": 2, "point": true},
+      "encoding": {
+        "x": {"field": "k", "type": "ordinal"},
+        "y": {"field": "sqrtExpected", "type": "quantitative"}
       }
     }
   ]

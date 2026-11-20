@@ -141,4 +141,62 @@ class MixedTest extends FunSuite:
     }
   }
 
+  test("inverseCdf in the body is the unscaled empirical quantile") {
+    // Body: 1, 2, 3 (weight 0.6); tail: Pareto from 4
+    val values = Array(1.0, 2.0, 3.0, 5.0, 10.0)
+    val mixed = Mixed.fromValues(values, 4.0, 2.0)
+
+    assertEqualsDouble(mixed.inverseCdf(0.1), 1.0, 1e-12)
+    assertEqualsDouble(mixed.inverseCdf(0.2), 1.0, 1e-12)
+    assertEqualsDouble(mixed.inverseCdf(0.3), 2.0, 1e-12)
+    assertEqualsDouble(mixed.inverseCdf(0.5), 3.0, 1e-12)
+    assertEqualsDouble(mixed.inverseCdf(0.6), 3.0, 1e-12)
+    // Just above the body weight we are in the Pareto tail, starting at the mixing point
+    assert(mixed.inverseCdf(0.6000001) >= 4.0)
+  }
+
+  test("draw frequencies match cdf") {
+    val values = Array(1.0, 2.0, 3.0, 5.0, 10.0)
+    val mixingPoint = 4.0
+    val mixed = Mixed.fromValues(values, mixingPoint, 2.0)
+
+    val n = 50000
+    val samples = Array.fill(n)(mixed.draw)
+
+    // Each body atom has mass 0.2, and nothing should pile up at the mixing point
+    for v <- Array(1.0, 2.0, 3.0) do
+      val freq = samples.count(_ == v).toDouble / n
+      assertEqualsDouble(freq, 0.2, 0.01)
+    end for
+    assertEquals(samples.count(x => x > 3.0 && x < mixingPoint), 0)
+
+    // Tail probabilities agree with the CDF
+    for x <- Array(4.5, 6.0, 10.0) do
+      val freq = samples.count(_ > x).toDouble / n
+      assertEqualsDouble(freq, 1.0 - mixed.cdf(x), 0.01)
+    end for
+  }
+
+  test("JSON codec round-trips the distribution parameters") {
+    import io.circe.syntax.*
+    import io.circe.parser.decode
+
+    val mixed = Mixed.fromWeightedValues(Array(1.0, 2.0, 3.0, 5.0, 10.0), Array(1.0, 2.0, 1.0, 0.5, 0.5), 4.0, 2.5)
+    val json = mixed.asJson.noSpaces
+    val back = decode[Mixed](json).fold(throw _, identity)
+
+    assertEquals(back.empirical.values.toSeq, mixed.empirical.values.toSeq)
+    assertEquals(back.empirical.weights.toSeq, mixed.empirical.weights.toSeq)
+    assertEquals(back.mixingPoint, mixed.mixingPoint)
+    assertEquals(back.paretoShape, mixed.paretoShape)
+    for p <- Seq(0.1, 0.5, 0.9, 0.99) do assertEqualsDouble(back.inverseCdf(p), mixed.inverseCdf(p), 0.0)
+    end for
+  }
+
+  test("JSON decoder reports invalid parameters as a decoding failure") {
+    import io.circe.parser.decode
+    val json = """{"empirical":{"values":[1.0,2.0],"weights":[1.0,1.0]},"mixingPoint":-1.0,"paretoShape":2.0}"""
+    assert(decode[Mixed](json).isLeft)
+  }
+
 end MixedTest

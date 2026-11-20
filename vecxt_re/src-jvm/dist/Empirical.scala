@@ -201,4 +201,17 @@ object Empirical:
   /** Construct a weighted empirical distribution from arrays. */
   inline def weighted(values: Array[Double], weights: Array[Double]): Empirical =
     Empirical(IArray.from(values), IArray.from(weights))
+
+  /** JSON codec. Only the defining parameters (`values`, `weights`) are written; derived state (sorted support, CDF
+    * table, RNG) is rebuilt on decode. Constructor validation failures surface as a [[io.circe.DecodingFailure]].
+    */
+  given empiricalEncoder: io.circe.Encoder[Empirical] =
+    io.circe.Encoder.forProduct2[Empirical, Vector[Double], Vector[Double]]("values", "weights")(e =>
+      (e.values.toVector, e.weights.toVector)
+    )
+
+  given empiricalDecoder: io.circe.Decoder[Empirical] =
+    io.circe.Decoder
+      .forProduct2[(Vector[Double], Vector[Double]), Vector[Double], Vector[Double]]("values", "weights")((_, _))
+      .emapTry((v, w) => scala.util.Try(Empirical(IArray.from(v), IArray.from(w))))
 end Empirical
