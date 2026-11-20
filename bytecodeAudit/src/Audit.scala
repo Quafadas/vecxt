@@ -154,6 +154,9 @@ end Loader
   *     bytecode-bloat probe. `probe.Kernel.chain16` exists precisely to be large, so auditing its size is measuring the
   *     ruler.
   *   - `vecxt_re.Plots` — reporting and plotting, never on a fast path.
+  *   - `vecxt_re.calendarYearIndexPlots$package` — `CalendarYearIndex.plotIndex`, moved out of `Plots` to a top-level
+  *     extension so `import vecxt_re.*` finds it. Same reasoning as `Plots`; C1 measured it at ~9.5 KB because the
+  *     `VegaPlot` macros expand inline.
   *   - `vecxt_io.*` — CSV read/write. Slow while parsing is fine. The one way a specialization failure could leak from
   *     here into `vecxt` core — `Matrix.row`, `inline`, called generically from `MatrixIO.write` — was checked in Phase
   *     0 and does not happen.
@@ -166,7 +169,8 @@ end Loader
   */
 object Scope:
 
-  val excludedClassPrefixes: Seq[String] = Seq("probe.", "vecxt_re.Plots", "vecxt_io.")
+  val excludedClassPrefixes: Seq[String] =
+    Seq("probe.", "vecxt_re.Plots", "vecxt_re.calendarYearIndexPlots$package", "vecxt_io.")
 
   /** `inv_test.scala` joins `mnist.scala` and `pricing_fun.scala` on the same reasoning, and on evidence: C1 measured
     * `inv_test$package$.inv_test` at 12278 bytes. It is an `@main` script that runs a matrix inversion once against

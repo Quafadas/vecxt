@@ -141,7 +141,6 @@ object CoverageSuite:
     "vecxt_io.MatrixIO$.write -> calls scala.runtime.ScalaRunTime$.array_apply",
     "vecxt_io.MatrixIO$.write -> calls scala.runtime.ScalaRunTime$.array_update",
     "vecxt_re.Plots$.plotHill$$anonfun$2$$anonfun$1 -> calls scala.Predef$.genericWrapArray",
-    "vecxt_re.Plots$.plotIndex$$anonfun$1$$anonfun$1 -> calls scala.Predef$.genericWrapArray",
     "vecxt_re.Plots$.plotPickands$$anonfun$2$$anonfun$1 -> calls scala.Predef$.genericWrapArray",
     "vecxt_re.Plots$.plotPickandsGamma$$anonfun$2$$anonfun$1 -> calls scala.Predef$.genericWrapArray"
   )
