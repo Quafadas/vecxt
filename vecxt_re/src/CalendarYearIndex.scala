@@ -2,9 +2,9 @@ package vecxt_re
 
 /** A calendar year index for on-leveling historical data.
   *
-  * Holds an index _level_ per calendar year (e.g. total insured value, a price index, or any series whose ratio
-  * between two years gives the change between them). A value from year `Y` is on-levelled to the current year by
-  * multiplying by `level(currentYear) / level(Y)`.
+  * Holds an index _level_ per calendar year (e.g. total insured value, a price index, or any series whose ratio between
+  * two years gives the change between them). A value from year `Y` is on-levelled to the current year by multiplying by
+  * `level(currentYear) / level(Y)`.
   *
   * @param currentYear
   *   The current/reference year. Must equal `years.head`.
@@ -62,6 +62,7 @@ case class CalendarYearIndex(currentYear: Int, years: Array[Int], indices: Array
       s"Year $fromYear is before the earliest year in the index ($earliestYear). Supply a fallbackFactor to extrapolate."
     )
     if fromYear >= currentYear then 1.0 else indices(0) / indices(currentYear - fromYear)
+    end if
   end onLevelFactor
 
   /** The factor which on-levels a value from `fromYear` to the current year, extrapolating the index backwards with a
@@ -169,8 +170,8 @@ end CalendarYearIndex
 
 object CalendarYearIndex:
 
-  /** Create a CalendarYearIndex from arrays of years and their corresponding index levels. Years may be provided in
-    * any order, but must be contiguous (no gaps) and unique. The current year is set to the most recent year.
+  /** Create a CalendarYearIndex from arrays of years and their corresponding index levels. Years may be provided in any
+    * order, but must be contiguous (no gaps) and unique. The current year is set to the most recent year.
     *
     * @param years
     *   Array of calendar years
@@ -221,7 +222,10 @@ object CalendarYearIndex:
   def fromRateChanges(years: Array[Int], rateChanges: Array[Double]): CalendarYearIndex =
     require(years.length > 0, "must provide at least one year")
     require(years.length == rateChanges.length, "years and rateChanges must have the same length")
-    require(rateChanges.forall(_ > -100.0), s"rate changes must be > -100%, got ${rateChanges.mkString("[", ", ", "]")}")
+    require(
+      rateChanges.forall(_ > -100.0),
+      s"rate changes must be > -100%, got ${rateChanges.mkString("[", ", ", "]")}"
+    )
     val ascending = years.zip(rateChanges).sortBy(_._1)
     val base = ascending.head._1 - 1
     val levelYears = base +: ascending.map(_._1)
