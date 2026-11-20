@@ -1,0 +1,26 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Raw index level per calendar year.",
+  "width": "container",
+  "height": "container",
+  "data": {
+    "values": [
+      {"year": 2024, "level": 100.0, "onLevelFactor": 1.1},
+      {"year": 2025, "level": 105.0, "onLevelFactor": 1.05},
+      {"year": 2026, "level": 110.0, "onLevelFactor": 1.0}
+    ]
+  },
+  "encoding": {
+    "x": {"field": "year", "type": "ordinal", "title": "Year"},
+    "y": {"field": "level", "type": "quantitative", "scale": {"zero": false}, "title": "Index level"},
+    "tooltip": [
+      {"field": "year", "type": "ordinal", "title": "Year"},
+      {"field": "level", "type": "quantitative", "title": "Level", "format": ","},
+      {"field": "onLevelFactor", "type": "quantitative", "title": "Factor to current year", "format": ".4f"}
+    ]
+  },
+  "layer": [
+    {"mark": {"type": "line"}},
+    {"mark": {"type": "point", "filled": true, "size": 80}}
+  ]
+}

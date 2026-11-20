@@ -42,7 +42,7 @@ object Plots:
   private lazy val logLogPlot = VegaPlot.fromResource("loglogCdf.vl.json") // log-log CDF plot
   private lazy val hillPlotSpec = VegaPlot.fromResource("hillPlot.vl.json") // Hill plot for tail index
 
-  extension (idx: CalendarYearIndex)
+  extension (idx: CalendarYearRateChanges)
     /** Plot the per-year index factors, the shortfall of each year's level relative to the current year, and the
       * reporting threshold on-levelled to the current year.
       *
@@ -60,13 +60,31 @@ object Plots:
       val factors = idx.years.indices.map { i =>
         (
           year = idx.years(i),
-          index = idx.indices(i),
+          index = idx.factors(i),
           missing = 1 / cumulative(i),
           threshold = threshold
         )
       }
       render(linePlot2, mods)(
         _.data.values := factors.asJson
+      )
+  end extension
+
+  extension (idx: CalendarYearLevels)
+    /** Plot the raw index level for each year. The tooltip shows the factor which on-levels each year to the current
+      * year.
+      */
+    def plotLevels(mods: Seq[SpecMod] = Nil)(using viz.LowPriorityPlotTarget) =
+      val spec = VegaPlot.fromResource("indexLevels.vl.json")
+      val rows = idx.years.indices.map { i =>
+        (
+          year = idx.years(i),
+          level = idx.levels(i),
+          onLevelFactor = idx.onLevelFactor(idx.years(i))
+        )
+      }
+      render(spec, mods)(
+        _.data.values := rows.asJson
       )
   end extension
 

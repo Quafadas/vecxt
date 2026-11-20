@@ -11,8 +11,9 @@ object all:
   export vecxt_re.SplitScenario.*
   export vecxt_re.DeductibleType.*
   export vecxt_re.ReReporting.*
-  export vecxt_re.IndexPerPeriod
-  export vecxt_re.CalendarYearIndex
+  export vecxt_re.RateChangesPerPeriod
+  export vecxt_re.CalendarYearRateChanges
+  export vecxt_re.CalendarYearLevels
   export vecxt_re.NegativeBinomial
   export vecxt_re.Poisson
   export vecxt_re.Empirical

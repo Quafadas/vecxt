@@ -2,55 +2,49 @@ package vecxt_re
 
 import vecxt.all.*
 
-/** Aims to provide a (very) simple index mapping for period-based models.
+/** Per-period rate changes, for on-leveling period-based models.
   *
-  * Each period is associated with a unique index, which provided from period zero 0 going backwards for some historic
-  * number of periods. The basic goal of this is to "on-level" some historical dataset, which has labels corresponding
-  * to the periods here.
+  * Each entry is the _change factor_ for a period (e.g. 1.05 for +5%), counted from period 0 (current) backwards. The
+  * cumulative factor which on-levels a value from a historical period to the current period is the product of the
+  * factors in between.
   *
-  * This object provides methods to:
-  *   - Retrieve the index for a given period.
-  *   - Retrieve the cumulative index which will "on level" some historical number, from it's "historical period" to the
-  *     "current period"
-  *
-  * @param indices
-  *   Array of indices where indices(0) is the current period (period 0) and indices(n) is n periods back. Each index
-  *   typically represents a rate change factor for that period (e.g., 1.05 for 5% increase).
+  * @param factors
+  *   Array of change factors where factors(0) is the current period (period 0) and factors(n) is n periods back.
   */
-case class IndexPerPeriod(indices: Array[Double]):
+case class RateChangesPerPeriod(factors: Array[Double]):
 
-  /** Precomputed cumulative factors: cumulativeFactorsAll(i) = product of indices(0) to indices(i-1) */
+  /** Precomputed cumulative factors: cumulativeFactorsAll(i) = product of factors(0) to factors(i-1) */
   private lazy val cumulativeFactorsAll: Array[Double] =
     // cumulative product via exp(cumsum(log(x)))
-    // Prepend 1.0 to get array where result(0) = 1.0, result(1) = indices(0), result(2) = indices(0)*indices(1), etc.
-    val cumProd = indices.log
+    // Prepend 1.0 to get array where result(0) = 1.0, result(1) = factors(0), result(2) = factors(0)*factors(1), etc.
+    val cumProd = factors.log
     cumProd.`cumsum!`
     cumProd.`exp!`
     // Prepend 1.0 for period 0 (current period needs no adjustment)
-    Array.tabulate(indices.length + 1)(i => if i == 0 then 1.0 else cumProd(i - 1))
+    Array.tabulate(factors.length + 1)(i => if i == 0 then 1.0 else cumProd(i - 1))
   end cumulativeFactorsAll
 
-  /** Number of periods available in the index */
-  inline def numPeriods: Int = indices.length
+  /** Number of periods available */
+  inline def numPeriods: Int = factors.length
 
-  /** Get the index value for a specific period.
+  /** Get the change factor for a specific period.
     *
     * @param period
     *   The period number (0 = current, 1 = one period back, etc.)
     * @return
-    *   The index value for that period
+    *   The change factor for that period
     * @throws IndexOutOfBoundsException
     *   if period is outside the available range
     */
-  inline def indexAt(period: Int): Double = indices(period)
+  inline def factorAt(period: Int): Double = factors(period)
 
   /** Calculate the cumulative on-leveling factor from a historical period to the current period.
     *
-    * This multiplies all indices from period 0 up to (but not including) the specified historical period. The result is
+    * This multiplies all factors from period 0 up to (but not including) the specified historical period. The result is
     * the factor needed to bring a value from the historical period to current levels.
     *
     * For example, if you have rate changes of 5% (1.05) each year for 3 years:
-    *   - indices = Array(1.05, 1.05, 1.05)
+    *   - factors = Array(1.05, 1.05, 1.05)
     *   - cumulativeToCurrentFrom(0) = 1.0 (already current)
     *   - cumulativeToCurrentFrom(1) = 1.05 (one period back, need to apply current period's change)
     *   - cumulativeToCurrentFrom(2) = 1.05 * 1.05 = 1.1025
@@ -103,33 +97,33 @@ case class IndexPerPeriod(indices: Array[Double]):
     values * (factors: Array[Double])
   end onLevel
 
-end IndexPerPeriod
+end RateChangesPerPeriod
 
-object IndexPerPeriod:
+object RateChangesPerPeriod:
 
-  /** Create an IndexPerPeriod from an array of rate changes (as percentages).
+  /** Create an RateChangesPerPeriod from an array of rate changes (as percentages).
     *
     * @param rateChanges
     *   Array of rate changes where each value is the percentage change. e.g., 5.0 means a 5% increase, -3.0 means a 3%
     *   decrease.
     * @return
-    *   IndexPerPeriod with the rate changes converted to factors
+    *   RateChangesPerPeriod with the rate changes converted to factors
     */
-  inline def fromRateChanges(rateChanges: Array[Double]): IndexPerPeriod =
-    IndexPerPeriod((rateChanges / 100.0) + 1.0)
+  inline def fromRateChanges(rateChanges: Array[Double]): RateChangesPerPeriod =
+    RateChangesPerPeriod((rateChanges / 100.0) + 1.0)
   end fromRateChanges
 
-  /** Create an IndexPerPeriod with a constant rate change for all periods.
+  /** Create an RateChangesPerPeriod with a constant rate change for all periods.
     *
     * @param numPeriods
     *   Number of historical periods
     * @param factor
     *   The constant factor for each period (e.g., 1.05 for 5% per period)
     * @return
-    *   IndexPerPeriod with constant factors
+    *   RateChangesPerPeriod with constant factors
     */
-  inline def constant(numPeriods: Int, factor: Double): IndexPerPeriod =
-    IndexPerPeriod(Array.fill(numPeriods)(factor))
+  inline def constant(numPeriods: Int, factor: Double): RateChangesPerPeriod =
+    RateChangesPerPeriod(Array.fill(numPeriods)(factor))
   end constant
 
-end IndexPerPeriod
+end RateChangesPerPeriod
