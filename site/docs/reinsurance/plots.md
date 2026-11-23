@@ -144,13 +144,15 @@ The p-value and the interval carry the same information: the interval excludes z
 val losses: Array[Double] = ???
 
 HillEstimator.hillPlot(losses).plotHill
+HillEstimator.hillPlot(losses, convention = HillConvention.Embrechts).plotHill
+HillEstimator.hillPlot(losses, convention = HillConvention.Unbiased).plotHill
 PickandsEstimator.pickandsPlot(losses).plotPickands
 PickandsEstimator.pickandsPlot(losses).plotPickandsGamma
 ```
 
 | Plot | Shows | Look for |
 |---|---|---|
-| `plotHill` | the Hill estimate of the Pareto tail index α̂ against k / n, the empirical exceedance probability of its threshold (the (k+1)-th largest observation), as a step chart with a 95% interval that is exact for Pareto data. A red sawtooth shows the estimate with the threshold sliding continuously between losses: it jumps as each loss enters and decays to the next Hill estimate. The y-axis stops just above the highest estimate (`plotHill(mods, yMax)` to set it) | a stable plateau. The left end uses only the largest losses and is noisy; further right, losses from outside the tail pull the estimate away. With small data volumes the interval is wide at every threshold, so no plateau can be pinned down. |
+| `plotHill` | the Hill estimate of the Pareto tail index α̂ against k / n, the empirical exceedance probability of its threshold, as points with a 95% interval that is exact for Pareto data. A red sawtooth shows the estimate with the threshold sliding continuously between losses: it jumps as each loss enters and decays until the next one does. The curve and the band are the same whatever the convention; only the points move, and the subtitle says where. `HillConvention.MaxLikelihood` (default) puts the threshold at the (k+1)-th largest loss, so the points are the bottoms of the teeth; it is biased high by k / (k − 1) for Pareto data, 25% at k = 5. `HillConvention.Embrechts` (Embrechts, Klüppelberg & Mikosch) puts it at the k-th largest, so the points are the tops of the teeth; biased high by k / (k − 2), and so starting at k = 3 by default, which keeps the thresholds the same as the other conventions. `HillConvention.Unbiased` uses (k − 1) / k times the maximum likelihood estimate, exactly unbiased for Pareto data. The y-axis stops just above the highest estimate (`plotHill(mods, yMax)` to set it) | a stable plateau. The left end uses only the largest losses and is noisy; further right, losses from outside the tail pull the estimate away. With small data volumes the interval is wide at every threshold, so no plateau can be pinned down. |
 | `plotPickands` | the Pickands estimate α̂(k) = 1/γ̂(k) | a plateau, as for Hill. Pickands is more robust to misspecification than Hill but noisier. |
 | `plotPickandsGamma` | the Pickands extreme value index γ̂(k) | γ > 0 is a heavy tail, γ ≈ 0 exponential-like, γ < 0 bounded |
 

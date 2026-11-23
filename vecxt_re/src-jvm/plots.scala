@@ -630,22 +630,32 @@ object Plots:
   end extension
 
   extension (hp: HillPlotResult)
-    /** Plot a Hill plot: the tail index estimate α̂(k) against k / n, as a step chart with a 95% interval and the
+    /** Plot a Hill plot: the tail index estimate α̂(k) against k / n, as points with a 95% interval and the
       * continuous-threshold estimate.
       *
-      * k / n is the empirical exceedance probability of the threshold X₍ₙ₋ₖ₎. The points are evenly spaced, one per
-      * loss: the left end uses only the largest losses, and each step right lowers the threshold by one loss. The
-      * threshold is in each point's tooltip. Look for a plateau. To the left the estimate is noisy; to the right it
-      * pulls in losses from outside the tail.
+      * k / n is the empirical exceedance probability of the threshold. The points are evenly spaced, one per loss: the
+      * left end uses only the largest losses, and each step right lowers the threshold by one loss. The threshold is in
+      * each point's tooltip. Look for a plateau. To the left the estimate is noisy; to the right it pulls in losses
+      * from outside the tail.
       *
-      * The continuous-threshold estimate (red) lets the threshold u slide between consecutive losses x₍ₖ₊₁₎ ≤ u < x₍ₖ₎:
-      * α̂(u) = 1 / (1/α̂(k) + log(x₍ₖ₊₁₎ / u)). It is drawn between (k − 1)/n and k/n, evenly in log u, so it jumps up
-      * by k / (k − 1) as each loss enters and decays to the next Hill estimate. It needs consecutive k values and the
-      * thresholds; it is left out otherwise.
+      * The continuous-threshold estimate (red) lets the threshold u slide between consecutive losses: with m losses
+      * above u, α̂(u) = m / Σᵢ₌₁ᵐ log(x₍ᵢ₎ / u). It decays as u falls and jumps up by m / (m − 1) as each loss enters.
+      * It is drawn evenly in log u, and always passes through the points:
+      *   - [[HillConvention.MaxLikelihood]]: the threshold is the (k+1)-th largest loss, so the points are the bottoms
+      *     of the teeth. Each tooth runs from (k − 1)/n to k/n.
+      *   - [[HillConvention.Embrechts]]: the threshold is the k-th largest loss, so the points are the tops of the
+      *     teeth. The curve leaves each point decaying and jumps up into the next. It is the maximum likelihood curve
+      *     shifted right by one loss: the two conventions are the same estimator, with the points in different places.
+      *   - [[HillConvention.Unbiased]]: a different estimator, so a different curve, (m − 1) / Σᵢ₌₁ᵐ log(x₍ᵢ₎ / u): (k
+      *     − 1)/k times the maximum likelihood tooth. The points are the bottoms of its teeth.
       *
-      * The band is exact if the losses above the threshold are Pareto: 2α·Σ log(Xᵢ / threshold) is then χ²(2k), so α
-      * lies in [α̂·χ²₂ₖ(0.025) / 2k, α̂·χ²₂ₖ(0.975) / 2k]. It does not include bias from losses that are not Pareto,
-      * which is what drifting to the right shows. If the result does not record n, the x-axis is k instead.
+      * The subtitle says which. The sawtooth needs consecutive k values and the thresholds; it is left out otherwise.
+      *
+      * The band is exact if the losses above the threshold are Pareto: with S = Σ log(Xᵢ / threshold) over d non-zero
+      * terms (d = k, or k − 1 for [[HillConvention.Embrechts]]), 2αS is χ²(2d), so α lies in [χ²₂d(0.025) / 2S,
+      * χ²₂d(0.975) / 2S]. The band is an interval for α, not for the estimator, so it is the same for every convention
+      * (shifted by one loss for Embrechts). It does not include bias from losses that are not Pareto, which is what
+      * drifting to the right shows. If the result does not record n, the x-axis is k instead.
       *
       * The y-axis stops 0.1 above the highest estimate shown, and the band is clipped there; the tooltip gives the
       * unclipped interval. Use the `yMax` overload to set the top yourself.
@@ -658,25 +668,32 @@ object Plots:
       *   the top of the y-axis, where the band and lines are clipped; by default 0.1 above the highest estimate shown
       */
     def plotHill(mods: Seq[SpecMod], yMax: Option[Double] = None)(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      val conv = hp.convention
       val hasThresholds = hp.thresholds.length == hp.kValues.length
       val hasN = hp.nObs > 0
       def xOf(k: Double) = if hasN then k / hp.nObs else k
       val data = hp.kValues.indices.map { i =>
         val k = hp.kValues(i)
-        val est = hp.estimates(i)
-        val chi2 = ChiSquaredDistribution.of(2.0 * k)
+        // the interval is for α itself, from S
+        val sum = hp.sumLogRatios(i)
+        val chi2 = ChiSquaredDistribution.of(2.0 * conv.spacings(k))
         (
           x = xOf(k),
           k = k,
           threshold = Option.when(hasThresholds)(hp.thresholds(i)),
-          estimate = est,
-          lower = est * chi2.inverseCumulativeProbability(0.025) / (2 * k),
-          upper = est * chi2.inverseCumulativeProbability(0.975) / (2 * k)
+          estimate = hp.estimates(i),
+          lower = chi2.inverseCumulativeProbability(0.025) / (2 * sum),
+          upper = chi2.inverseCumulativeProbability(0.975) / (2 * sum)
         )
       }
 
-      // Continuous-threshold estimate between consecutive k: u from x₍ₖ₎ (the previous threshold) down to x₍ₖ₊₁₎
+      // Continuous-threshold estimate m / Σ log(x₍ᵢ₎ / u), between consecutive k
       val samplesPerStep = 25
+      // u from uTop down to uBottom, evenly in log u; ties between losses collapse to a vertical jump
+      def logSteps(uTop: Double, uBottom: Double) = (0 to samplesPerStep).map { j =>
+        val s = j.toDouble / samplesPerStep
+        (s = s, u = if uTop > uBottom then uTop * math.pow(uBottom / uTop, s) else uBottom)
+      }
       val sawtooth =
         if !hasThresholds then IndexedSeq.empty
         else
@@ -685,13 +702,22 @@ object Plots:
             .flatMap { i =>
               val k = hp.kValues(i)
               val (uTop, uBottom) = (hp.thresholds(i - 1), hp.thresholds(i))
-              val invHill = 1.0 / hp.estimates(i)
-              (0 to samplesPerStep).map { j =>
-                val s = j.toDouble / samplesPerStep
-                // evenly spaced in log u; ties between losses collapse to a vertical jump
-                val u = if uTop > uBottom then uTop * math.pow(uBottom / uTop, s) else uBottom
-                (x = xOf(k - 1 + s), estimate = 1.0 / (invHill + math.log(uBottom / u)))
-              }
+              if conv == HillConvention.Embrechts then
+                // k − 1 losses at or above u ∈ (x₍ₖ₎, x₍ₖ₋₁₎]: decay from the previous point, then jump up into this one
+                val sumTop = hp.sumLogRatios(i - 1)
+                logSteps(uTop, uBottom).map(p =>
+                  (x = xOf(k - 1 + p.s), estimate = (k - 1) / (sumTop + (k - 1) * math.log(uTop / p.u)))
+                ) :+ (x = xOf(k), estimate = k / hp.sumLogRatios(i))
+              else
+                // k losses above u ∈ [x₍ₖ₊₁₎, x₍ₖ₎): start at the previous point (a tooth's bottom), jump up as the
+                // k-th loss enters, decay to this point. S(u) = S − k · log(u / x₍ₖ₊₁₎).
+                val sum = hp.sumLogRatios(i)
+                val num = conv.numerator(k)
+                (x = xOf(k - 1), estimate = hp.estimates(i - 1)) +:
+                  logSteps(uTop, uBottom).map(p =>
+                    (x = xOf(k - 1 + p.s), estimate = num / (sum - k * math.log(p.u / uBottom)))
+                  )
+              end if
             }
             .zipWithIndex
             .map((p, seq) => (seq = seq, x = p.x, estimate = p.estimate))
@@ -714,8 +740,46 @@ object Plots:
         .top
         .getOrElse(Json.Null)
 
-      render(hillPlotSpec, (if hasN then Seq(cap) else Seq(byK, cap)) ++ mods)(
-        _.title("Hill plot: Pareto tail index"),
+      val sameCurve =
+        "The red curve and the band are the same in the maximum likelihood and Embrechts conventions: read the plateau from them, not the points."
+      val (name, where, guide) = conv match
+        case HillConvention.MaxLikelihood =>
+          ("maximum likelihood", "Points: threshold at the (k+1)-th largest loss, the bottoms of the teeth.", sameCurve)
+        case HillConvention.Embrechts =>
+          ("Embrechts convention", "Points: threshold at the k-th largest loss, the tops of the teeth.", sameCurve)
+        case HillConvention.Unbiased =>
+          (
+            "unbiased",
+            "Points: (k − 1)/k times the maximum likelihood estimate, the bottoms of the teeth; unbiased for Pareto data.",
+            "The band is the same in every convention; the curve and points are (k − 1)/k times the maximum likelihood ones."
+          )
+      val title: SpecMod = _.mapObject(
+        _.add(
+          "title",
+          Json.obj(
+            "text" -> Json.fromString(s"Hill plot: Pareto tail index ($name)"),
+            "subtitle" -> Json.arr(
+              Json.fromString(where),
+              Json.fromString(guide)
+            )
+          )
+        )
+      )
+
+      // without thresholds there is no sawtooth, and nothing to show in the threshold tooltip
+      val noThresholds: SpecMod = _.hcursor
+        .downField("layer")
+        .withFocus(_.mapArray(_.take(2)))
+        .downN(1)
+        .downField("encoding")
+        .downField("tooltip")
+        .withFocus(_.mapArray(_.filterNot(_.hcursor.get[String]("field").contains("threshold"))))
+        .top
+        .getOrElse(Json.Null)
+
+      val own =
+        Seq(title, cap) ++ (if hasN then Nil else Seq(byK)) ++ (if hasThresholds then Nil else Seq(noThresholds))
+      render(hillPlotSpec, own ++ mods)(
         _.layer._0.data.values := data.asJson,
         _.layer._1.data.values := data.asJson,
         _.layer._2.data.values := sawtooth.asJson

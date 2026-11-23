@@ -49,7 +49,7 @@
       "mark": {
         "type": "area",
         "opacity": 0.2,
-        "interpolate": "step-after",
+        "interpolate": "step-before",
         "clip": true
       },
       "encoding": {
@@ -115,12 +115,9 @@
         ]
       },
       "mark": {
-        "type": "line",
-        "point": {
-          "filled": true,
-          "size": 40
-        },
-        "interpolate": "step-after",
+        "type": "point",
+        "filled": true,
+        "size": 40,
         "clip": true
       },
       "encoding": {

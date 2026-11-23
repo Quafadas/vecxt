@@ -20,6 +20,9 @@ import vecxt_re.all.*
 
   // Opens in the Windows browser. For the raw JSON instead: given viz.LowPriorityPlotTarget = viz.SpecDump("name")
   import viz.WslBrowser.wslBrowser
-  plotLossStems(dates, amounts, normalised, rollingYears = 4, title = "Historical losses", mods = size)
-  plotSeverityTrend(dates.map(_.getYear), normalised, mods = size)
+  // plotLossStems(dates, amounts, normalised, rollingYears = 4, title = "Historical losses", mods = size)
+  // plotSeverityTrend(dates.map(_.getYear), normalised, mods = size)
+  // Every k up to n - 1: the default stops at n / 2, which leaves only a few points with this little data
+  HillEstimator.hillPlot(normalised.toArray, kMin = 3, kMax = 5, convention = HillConvention.Embrechts).plotHill
+  HillEstimator.hillPlot(normalised.toArray, kMin = 3, kMax = 5, convention = HillConvention.Unbiased).plotHill
 end lossStemsDemo
