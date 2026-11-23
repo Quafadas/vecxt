@@ -5,9 +5,27 @@
   "height": "container",
   "data": {
     "values": [
-      { "k": 2, "threshold": 400, "estimate": 2.1, "lower": 0.6, "upper": 4.7 },
-      { "k": 3, "threshold": 300, "estimate": 2.0, "lower": 0.8, "upper": 3.9 },
-      { "k": 4, "threshold": 200, "estimate": 1.9, "lower": 0.9, "upper": 3.4 }
+      {
+        "k": 2,
+        "threshold": 400,
+        "estimate": 2.1,
+        "lower": 0.6,
+        "upper": 4.7
+      },
+      {
+        "k": 3,
+        "threshold": 300,
+        "estimate": 2.0,
+        "lower": 0.8,
+        "upper": 3.9
+      },
+      {
+        "k": 4,
+        "threshold": 200,
+        "estimate": 1.9,
+        "lower": 0.9,
+        "upper": 3.4
+      }
     ]
   },
   "encoding": {
@@ -15,40 +33,100 @@
       "field": "threshold",
       "type": "quantitative",
       "title": "Threshold (decreasing: more losses used to the right)",
-      "scale": { "type": "log", "reverse": true },
-      "axis": { "format": "~s" }
+      "scale": {
+        "type": "log",
+        "reverse": true,
+        "nice": false,
+        "padding": 12
+      },
+      "axis": {
+        "format": "~s"
+      }
     }
   },
   "layer": [
     {
-      "transform": [{ "calculate": "'95% interval'", "as": "legend" }],
-      "mark": { "type": "area", "opacity": 0.2 },
+      "transform": [
+        {
+          "calculate": "'95% interval'",
+          "as": "legend"
+        }
+      ],
+      "mark": {
+        "type": "area",
+        "opacity": 0.2
+      },
       "encoding": {
         "y": {
           "field": "lower",
           "type": "quantitative",
           "title": "Tail index estimate α̂",
-          "scale": { "zero": false }
+          "scale": {
+            "zero": false
+          }
         },
-        "y2": { "field": "upper" },
+        "y2": {
+          "field": "upper"
+        },
         "color": {
           "field": "legend",
           "type": "nominal",
-          "scale": { "range": ["steelblue"] },
-          "legend": { "title": null, "symbolType": "square" }
+          "scale": {
+            "range": [
+              "steelblue"
+            ]
+          },
+          "legend": {
+            "title": null,
+            "symbolType": "square"
+          }
         }
       }
     },
     {
-      "mark": { "type": "line", "point": { "filled": true, "size": 40 }, "color": "steelblue" },
+      "mark": {
+        "type": "line",
+        "point": {
+          "filled": true,
+          "size": 40
+        },
+        "color": "steelblue"
+      },
       "encoding": {
-        "y": { "field": "estimate", "type": "quantitative" },
+        "y": {
+          "field": "estimate",
+          "type": "quantitative"
+        },
         "tooltip": [
-          { "field": "k", "type": "quantitative", "title": "k (losses used)" },
-          { "field": "threshold", "type": "quantitative", "title": "Threshold", "format": ",.0f" },
-          { "field": "estimate", "type": "quantitative", "title": "α̂", "format": ".2f" },
-          { "field": "lower", "type": "quantitative", "title": "95% lower", "format": ".2f" },
-          { "field": "upper", "type": "quantitative", "title": "95% upper", "format": ".2f" }
+          {
+            "field": "k",
+            "type": "quantitative",
+            "title": "k (losses used)"
+          },
+          {
+            "field": "threshold",
+            "type": "quantitative",
+            "title": "Threshold",
+            "format": ",.0f"
+          },
+          {
+            "field": "estimate",
+            "type": "quantitative",
+            "title": "α̂",
+            "format": ".2f"
+          },
+          {
+            "field": "lower",
+            "type": "quantitative",
+            "title": "95% lower",
+            "format": ".2f"
+          },
+          {
+            "field": "upper",
+            "type": "quantitative",
+            "title": "95% upper",
+            "format": ".2f"
+          }
         ]
       }
     }
