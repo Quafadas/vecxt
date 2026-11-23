@@ -4,6 +4,7 @@ import vecxt_re.HillEstimator.HillPlotResult
 import vecxt_re.PickandsEstimator.PickandsPlotResult
 
 import io.circe.Json
+import org.apache.commons.statistics.distribution.ChiSquaredDistribution
 import io.circe.syntax.*
 import io.github.quafadas.plots.SetupVega.{*, given}
 import viz.vega.VegaSpec
@@ -628,22 +629,48 @@ object Plots:
   end extension
 
   extension (hp: HillPlotResult)
-    /** Plot a Hill plot showing tail index estimates α̂(k) vs k.
+    /** Plot a Hill plot: the tail index estimate α̂(k) against the threshold it uses, with a 95% interval.
       *
-      * A Hill plot helps identify the optimal number of upper order statistics to use for Pareto tail estimation. Look
-      * for a stable plateau region where the estimate is relatively constant - this indicates the range of k where the
-      * Pareto assumption holds. Too small k gives high variance; too large k includes non-tail observations.
+      * The x-axis is the threshold X₍ₙ₋ₖ₎, decreasing from left to right on a log scale: the left end uses only the
+      * largest losses, and each step right lowers the threshold by one loss. Look for a plateau. To the left the
+      * estimate is noisy; to the right it pulls in losses from outside the tail.
+      *
+      * The band is exact if the losses above the threshold are Pareto: 2α·Σ log(Xᵢ / threshold) is then χ²(2k), so α
+      * lies in [α̂·χ²₂ₖ(0.025) / 2k, α̂·χ²₂ₖ(0.975) / 2k]. It does not include bias from losses that are not Pareto,
+      * which is what drifting to the right shows. If the result has no thresholds, the x-axis is k instead.
       */
     def plotHill(using viz.LowPriorityPlotTarget): viz.VizReturn = plotHill(Nil)
 
     /** As [[plotHill]], applying `mods` to the spec after the built-in modifications. */
     def plotHill(mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
-      val data = hp.kValues.zip(hp.estimates).map { case (k, est) =>
-        (k = k, estimate = est)
+      val hasThresholds = hp.thresholds.length == hp.kValues.length
+      val data = hp.kValues.indices.map { i =>
+        val k = hp.kValues(i)
+        val est = hp.estimates(i)
+        val chi2 = ChiSquaredDistribution.of(2.0 * k)
+        (
+          k = k,
+          threshold = if hasThresholds then hp.thresholds(i) else k.toDouble,
+          estimate = est,
+          lower = est * chi2.inverseCumulativeProbability(0.025) / (2 * k),
+          upper = est * chi2.inverseCumulativeProbability(0.975) / (2 * k)
+        )
       }
+      val byK: SpecMod = _.hcursor
+        .downField("encoding")
+        .downField("x")
+        .withFocus(
+          _.mapObject(
+            _.add("title", Json.fromString("k (number of largest losses used)"))
+              .add("scale", Json.obj("zero" -> Json.False))
+              .remove("axis")
+          )
+        )
+        .top
+        .getOrElse(Json.Null)
 
-      render(hillPlotSpec, mods)(
-        _.title("Hill Plot for Pareto Tail Index Estimation"),
+      render(hillPlotSpec, if hasThresholds then mods else byK +: mods)(
+        _.title("Hill plot: Pareto tail index against threshold"),
         _.data.values := data.asJson
       )
     end plotHill

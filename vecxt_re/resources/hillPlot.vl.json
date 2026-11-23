@@ -5,29 +5,52 @@
   "height": "container",
   "data": {
     "values": [
-      { "k": 10, "estimate": 2.1 },
-      { "k": 20, "estimate": 2.05 },
-      { "k": 30, "estimate": 1.98 },
-      { "k": 40, "estimate": 2.02 },
-      { "k": 50, "estimate": 1.95 }
+      { "k": 2, "threshold": 400, "estimate": 2.1, "lower": 0.6, "upper": 4.7 },
+      { "k": 3, "threshold": 300, "estimate": 2.0, "lower": 0.8, "upper": 3.9 },
+      { "k": 4, "threshold": 200, "estimate": 1.9, "lower": 0.9, "upper": 3.4 }
     ]
-  },
-  "mark": {
-    "type": "line",
-    "point": { "filled": true, "size": 40 },
-    "tooltip": { "content": "data" }
   },
   "encoding": {
     "x": {
-      "field": "k",
+      "field": "threshold",
       "type": "quantitative",
-      "title": "k (number of upper order statistics)"
+      "title": "Threshold (decreasing: more losses used to the right)",
+      "scale": { "type": "log", "reverse": true },
+      "axis": { "format": "~s" }
+    }
+  },
+  "layer": [
+    {
+      "transform": [{ "calculate": "'95% interval'", "as": "legend" }],
+      "mark": { "type": "area", "opacity": 0.2 },
+      "encoding": {
+        "y": {
+          "field": "lower",
+          "type": "quantitative",
+          "title": "Tail index estimate α̂",
+          "scale": { "zero": false }
+        },
+        "y2": { "field": "upper" },
+        "color": {
+          "field": "legend",
+          "type": "nominal",
+          "scale": { "range": ["steelblue"] },
+          "legend": { "title": null, "symbolType": "square" }
+        }
+      }
     },
-    "y": {
-      "field": "estimate",
-      "type": "quantitative",
-      "title": "Tail Index Estimate α̂(k)"
-    },
-    "color": { "value": "steelblue" }
-  }
+    {
+      "mark": { "type": "line", "point": { "filled": true, "size": 40 }, "color": "steelblue" },
+      "encoding": {
+        "y": { "field": "estimate", "type": "quantitative" },
+        "tooltip": [
+          { "field": "k", "type": "quantitative", "title": "k (losses used)" },
+          { "field": "threshold", "type": "quantitative", "title": "Threshold", "format": ",.0f" },
+          { "field": "estimate", "type": "quantitative", "title": "α̂", "format": ".2f" },
+          { "field": "lower", "type": "quantitative", "title": "95% lower", "format": ".2f" },
+          { "field": "upper", "type": "quantitative", "title": "95% upper", "format": ".2f" }
+        ]
+      }
+    }
+  ]
 }

@@ -53,10 +53,13 @@ object HillEstimator:
     *   Array of k values used
     * @param estimates
     *   Corresponding tail index estimates α̂(k)
+    * @param thresholds
+    *   The threshold X₍ₙ₋ₖ₎ (the (k+1)-th largest observation) behind each estimate. Empty if not supplied.
     */
   case class HillPlotResult(
       kValues: Array[Int],
-      estimates: Array[Double]
+      estimates: Array[Double],
+      thresholds: Array[Double] = Array.emptyDoubleArray
   ):
     /** Find a stable region in the Hill plot by looking for low variance segments.
       *
@@ -153,6 +156,7 @@ object HillEstimator:
     val numK = (actualKMax - actualKMin) / step + 1
     val kValues = new Array[Int](numK)
     val estimates = new Array[Double](numK)
+    val thresholds = new Array[Double](numK)
 
     var idx = 0
     var k = actualKMin
@@ -169,11 +173,12 @@ object HillEstimator:
 
       kValues(idx) = k
       estimates(idx) = k.toDouble / sumLogRatios
+      thresholds(idx) = threshold
       idx += 1
       k += step
     end while
 
-    HillPlotResult(kValues, estimates)
+    HillPlotResult(kValues, estimates, thresholds)
   end hillPlot
 
 end HillEstimator

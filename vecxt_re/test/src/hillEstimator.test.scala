@@ -150,4 +150,14 @@ class HillEstimatorSuite extends munit.FunSuite:
     assertEquals(result.estimates.length, 5)
   }
 
+  test("Hill plot thresholds are the (k+1)-th largest observation") {
+    val data = Array(308.0, 832.0, 365.0, 653.0, 430.0, 386.0, 310.0, 374.0, 427.0)
+    val result = data.hillPlot(kMax = data.length - 1)
+    val descending = data.sorted.reverse
+    assertEquals(result.thresholds.length, result.kValues.length)
+    result.kValues.zip(result.thresholds).foreach((k, t) => assertEqualsDouble(t, descending(k), 0.0))
+    // k = 2: the two largest over the third largest
+    assertEqualsDouble(result.estimates.head, 2.0 / (math.log(832.0 / 430.0) + math.log(653.0 / 430.0)), 1e-12)
+  }
+
 end HillEstimatorSuite
