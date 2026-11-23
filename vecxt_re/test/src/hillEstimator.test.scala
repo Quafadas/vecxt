@@ -155,6 +155,7 @@ class HillEstimatorSuite extends munit.FunSuite:
     val result = data.hillPlot(kMax = data.length - 1)
     val descending = data.sorted.reverse
     assertEquals(result.thresholds.length, result.kValues.length)
+    assertEquals(result.nObs, data.length)
     result.kValues.zip(result.thresholds).foreach((k, t) => assertEqualsDouble(t, descending(k), 0.0))
     // k = 2: the two largest over the third largest
     assertEqualsDouble(result.estimates.head, 2.0 / (math.log(832.0 / 430.0) + math.log(653.0 / 430.0)), 1e-12)

@@ -629,28 +629,31 @@ object Plots:
   end extension
 
   extension (hp: HillPlotResult)
-    /** Plot a Hill plot: the tail index estimate α̂(k) against the threshold it uses, with a 95% interval.
+    /** Plot a Hill plot: the tail index estimate α̂(k) against k / n, with a 95% interval.
       *
-      * The x-axis is the threshold X₍ₙ₋ₖ₎, decreasing from left to right on a log scale: the left end uses only the
-      * largest losses, and each step right lowers the threshold by one loss. Look for a plateau. To the left the
-      * estimate is noisy; to the right it pulls in losses from outside the tail.
+      * k / n is the empirical exceedance probability of the threshold X₍ₙ₋ₖ₎. The points are evenly spaced, one per
+      * loss: the left end uses only the largest losses, and each step right lowers the threshold by one loss. The
+      * threshold is in each point's tooltip. Look for a plateau. To the left the estimate is noisy; to the right it
+      * pulls in losses from outside the tail.
       *
       * The band is exact if the losses above the threshold are Pareto: 2α·Σ log(Xᵢ / threshold) is then χ²(2k), so α
       * lies in [α̂·χ²₂ₖ(0.025) / 2k, α̂·χ²₂ₖ(0.975) / 2k]. It does not include bias from losses that are not Pareto,
-      * which is what drifting to the right shows. If the result has no thresholds, the x-axis is k instead.
+      * which is what drifting to the right shows. If the result does not record n, the x-axis is k instead.
       */
     def plotHill(using viz.LowPriorityPlotTarget): viz.VizReturn = plotHill(Nil)
 
     /** As [[plotHill]], applying `mods` to the spec after the built-in modifications. */
     def plotHill(mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val hasThresholds = hp.thresholds.length == hp.kValues.length
+      val hasN = hp.nObs > 0
       val data = hp.kValues.indices.map { i =>
         val k = hp.kValues(i)
         val est = hp.estimates(i)
         val chi2 = ChiSquaredDistribution.of(2.0 * k)
         (
+          x = if hasN then k.toDouble / hp.nObs else k.toDouble,
           k = k,
-          threshold = if hasThresholds then hp.thresholds(i) else k.toDouble,
+          threshold = Option.when(hasThresholds)(hp.thresholds(i)),
           estimate = est,
           lower = est * chi2.inverseCumulativeProbability(0.025) / (2 * k),
           upper = est * chi2.inverseCumulativeProbability(0.975) / (2 * k)
@@ -659,18 +662,12 @@ object Plots:
       val byK: SpecMod = _.hcursor
         .downField("encoding")
         .downField("x")
-        .withFocus(
-          _.mapObject(
-            _.add("title", Json.fromString("k (number of largest losses used)"))
-              .add("scale", Json.obj("zero" -> Json.False))
-              .remove("axis")
-          )
-        )
+        .withFocus(_.mapObject(_.add("title", Json.fromString("k (number of largest losses used)")).remove("axis")))
         .top
         .getOrElse(Json.Null)
 
-      render(hillPlotSpec, if hasThresholds then mods else byK +: mods)(
-        _.title("Hill plot: Pareto tail index against threshold"),
+      render(hillPlotSpec, if hasN then mods else byK +: mods)(
+        _.title("Hill plot: Pareto tail index"),
         _.data.values := data.asJson
       )
     end plotHill

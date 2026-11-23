@@ -55,11 +55,15 @@ object HillEstimator:
     *   Corresponding tail index estimates α̂(k)
     * @param thresholds
     *   The threshold X₍ₙ₋ₖ₎ (the (k+1)-th largest observation) behind each estimate. Empty if not supplied.
+    * @param nObs
+    *   The number of observations n, so that k / n is the empirical exceedance probability of each threshold. 0 if not
+    *   supplied.
     */
   case class HillPlotResult(
       kValues: Array[Int],
       estimates: Array[Double],
-      thresholds: Array[Double] = Array.emptyDoubleArray
+      thresholds: Array[Double] = Array.emptyDoubleArray,
+      nObs: Int = 0
   ):
     /** Find a stable region in the Hill plot by looking for low variance segments.
       *
@@ -178,7 +182,7 @@ object HillEstimator:
       k += step
     end while
 
-    HillPlotResult(kValues, estimates, thresholds)
+    HillPlotResult(kValues, estimates, thresholds, n)
   end hillPlot
 
 end HillEstimator

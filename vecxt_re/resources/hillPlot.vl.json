@@ -10,37 +10,37 @@
         "threshold": 400,
         "estimate": 2.1,
         "lower": 0.6,
-        "upper": 4.7
+        "upper": 4.7,
+        "x": 0.2
       },
       {
         "k": 3,
         "threshold": 300,
         "estimate": 2.0,
         "lower": 0.8,
-        "upper": 3.9
+        "upper": 3.9,
+        "x": 0.3
       },
       {
         "k": 4,
         "threshold": 200,
         "estimate": 1.9,
         "lower": 0.9,
-        "upper": 3.4
+        "upper": 3.4,
+        "x": 0.4
       }
     ]
   },
   "encoding": {
     "x": {
-      "field": "threshold",
+      "field": "x",
       "type": "quantitative",
-      "title": "Threshold (decreasing: more losses used to the right)",
+      "title": "Exceedance probability of the threshold, k / n",
       "scale": {
-        "type": "log",
-        "reverse": true,
-        "nice": false,
-        "padding": 12
+        "zero": false
       },
       "axis": {
-        "format": "~s"
+        "format": ".0%"
       }
     }
   },
@@ -102,6 +102,12 @@
             "field": "k",
             "type": "quantitative",
             "title": "k (losses used)"
+          },
+          {
+            "field": "x",
+            "type": "quantitative",
+            "title": "k / n",
+            "format": ".1%"
           },
           {
             "field": "threshold",

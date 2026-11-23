@@ -150,7 +150,7 @@ PickandsEstimator.pickandsPlot(losses).plotPickandsGamma
 
 | Plot | Shows | Look for |
 |---|---|---|
-| `plotHill` | the Hill estimate of the Pareto tail index α̂ against its threshold, the (k+1)-th largest observation, decreasing to the right, with a 95% interval that is exact for Pareto data | a stable plateau. The left end uses only the largest losses and is noisy; further right, losses from outside the tail pull the estimate away. With small data volumes the interval is wide at every threshold, so no plateau can be pinned down. |
+| `plotHill` | the Hill estimate of the Pareto tail index α̂ against k / n, the empirical exceedance probability of its threshold (the (k+1)-th largest observation), with a 95% interval that is exact for Pareto data. One evenly spaced point per loss; the threshold is in the tooltip | a stable plateau. The left end uses only the largest losses and is noisy; further right, losses from outside the tail pull the estimate away. With small data volumes the interval is wide at every threshold, so no plateau can be pinned down. |
 | `plotPickands` | the Pickands estimate α̂(k) = 1/γ̂(k) | a plateau, as for Hill. Pickands is more robust to misspecification than Hill but noisier. |
 | `plotPickandsGamma` | the Pickands extreme value index γ̂(k) | γ > 0 is a heavy tail, γ ≈ 0 exponential-like, γ < 0 bounded |
 
