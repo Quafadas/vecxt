@@ -105,8 +105,9 @@ The rolling average for end year Y is the mean normalised loss dated in years Y 
 
 `plotSeverityTrend` fits log(loss) = β₀ + β₁·year by ordinary least squares. It plots each loss on a log scale, with the fitted median severity and a confidence band.
 
-- **The title** gives the annual trend exp(β₁) − 1 and its confidence interval: the range of trends the data cannot rule out. `alpha` (default 0.05) sets the confidence level.
-- **The subtitle** gives the range of trends when each loss is left out in turn. Each loss's tooltip shows the trend without it.
+- **The title** gives the annual trend exp(β₁) − 1, its confidence interval (the range of trends the data cannot rule out) and the p-value of β₁. `alpha` (default 0.05) sets the confidence level.
+- **The subtitle** gives the range of trends and p-values when each loss is left out in turn. Each loss's tooltip shows the trend and p-value without it.
+- **Clicking a loss** redraws the fit and band without it, and shows that refit's trend, interval and p-value on the chart. Double-click to restore all losses.
 
 ```scala mdoc:compile-only
 val years: IndexedSeq[Int] = ???
@@ -128,7 +129,7 @@ Read the confidence interval against the trend you expect the index to have remo
 - **The interval is wide and includes zero.** The data is consistent with the index, but cannot confirm it. This is the usual result with small data volumes, and it is not evidence that there is no trend.
 - **The result depends on one loss.** Significant with every loss included, but not with one of them left out. Treat it as a question about that loss (its date, its normalisation, whether it is really one event), not as a trend.
 
-`fit.hasSignificantTrend(alpha)` and the p-value in `fit.summary` are available. With small data volumes, the interval and the leave-one-out range tell you more.
+The p-value and the interval carry the same information: the interval excludes zero exactly when p < `alpha`. The p-value is a continuous measure of how compatible the data is with no trend. Read it as a degree of confidence, not as a pass or fail at 0.05. With small data volumes, how much it moves when a single loss is left out matters as much as its value. `fit.pValueSlope` and `fit.summary` give it outside the plot.
 
 ### Reading the result
 
