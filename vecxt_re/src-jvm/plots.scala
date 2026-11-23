@@ -487,7 +487,7 @@ object Plots:
     * Shows each loss on a log scale, the fitted median severity exp(β₀ + β₁·year) and a `(1 − alpha)` confidence band
     * for it. The title gives the annual trend and its confidence interval: the range of trends the data cannot rule
     * out. The subtitle gives the range of trends when each loss is left out in turn, and each loss's tooltip shows the
-    * trend without it.
+    * trend without it. Clicking a loss redraws the fit and band without it; double-clicking restores all losses.
     *
     * With small data volumes the result is not robust: read it as a check for gross errors in the normalisation, not as
     * a measurement of the trend.
@@ -508,21 +508,35 @@ object Plots:
     val fit = TrendAnalysis.fitSeverityTrend(years, losses)
     val ci = fit.annualTrendCI(alpha)
     val level = math.round((1 - alpha) * 100)
-    val withoutEach = TrendAnalysis.fitSeverityTrendLeaveOneOut(years, losses).map(_.map(_.annualTrend))
+    val looFits = TrendAnalysis.fitSeverityTrendLeaveOneOut(years, losses)
+    val withoutEach = looFits.map(_.map(_.annualTrend))
     def pct(x: Double) = f"${x * 100}%+.1f%%"
+    def describe(f: SeverityTrendResult) =
+      val c = f.annualTrendCI(alpha)
+      s"${pct(f.annualTrend)} p.a. ($level% CI ${pct(c.lower)} to ${pct(c.upper)})"
+    end describe
 
-    val title = s"Severity trend ${pct(fit.annualTrend)} p.a. ($level% CI ${pct(ci.lower)} to ${pct(ci.upper)})"
+    val title = s"Severity trend ${describe(fit)}"
     val loo = withoutEach.flatten
     val subtitle =
       if loo.isEmpty then "Too few losses to leave one out"
       else s"Leaving out one loss at a time: ${pct(loo.min)} to ${pct(loo.max)} p.a."
 
-    val bandData = (years.min to years.max).map { y =>
-      val f = fit.fittedLog(y.toDouble, alpha)
-      (year = y, fit = math.exp(f.fit), lower = math.exp(f.lower), upper = math.exp(f.upper))
+    // The band for every fit: all losses (dropped = -1), and each leave-one-out refit (dropped = index of the loss
+    // left out). The plot shows the one matching the clicked loss.
+    val fits = (-1 -> fit) +: looFits.zipWithIndex.collect { case (Some(f), i) => i -> f }
+    val yearRange = years.min to years.max
+    val bandData = fits.flatMap { (dropped, f) =>
+      yearRange.map { y =>
+        val l = f.fittedLog(y.toDouble, alpha)
+        (dropped = dropped, year = y, fit = math.exp(l.fit), lower = math.exp(l.lower), upper = math.exp(l.upper))
+      }
     }
+    val textData =
+      (dropped = -1, text = "Click a loss to refit without it, double-click to restore") +:
+        fits.tail.map((i, f) => (dropped = i, text = s"Without the ${years(i)} loss: ${describe(f)}"))
     val obsData = years.indices.map { i =>
-      (year = years(i), loss = losses(i), trendWithout = withoutEach(i).fold("n/a")(pct))
+      (id = i, year = years(i), loss = losses(i), trendWithout = withoutEach(i).fold("n/a")(pct))
     }
 
     render(severityTrend, mods)(
@@ -532,7 +546,8 @@ object Plots:
         ),
       _.layer._0.data.values := bandData.asJson,
       _.layer._1.data.values := bandData.asJson,
-      _.layer._2.data.values := obsData.asJson
+      _.layer._2.data.values := obsData.asJson,
+      _.layer._3.data.values := textData.asJson
     )
   end plotSeverityTrend
 
