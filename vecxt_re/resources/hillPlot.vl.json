@@ -54,7 +54,9 @@
       ],
       "mark": {
         "type": "area",
-        "opacity": 0.2
+        "opacity": 0.2,
+        "interpolate": "step-after",
+        "clip": true
       },
       "encoding": {
         "y": {
@@ -62,7 +64,8 @@
           "type": "quantitative",
           "title": "Tail index estimate α̂",
           "scale": {
-            "zero": false
+            "zero": false,
+            "domainMax": 5
           }
         },
         "y2": {
@@ -90,7 +93,9 @@
           "filled": true,
           "size": 40
         },
-        "color": "steelblue"
+        "color": "steelblue",
+        "interpolate": "step-after",
+        "clip": true
       },
       "encoding": {
         "y": {

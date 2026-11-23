@@ -629,21 +629,28 @@ object Plots:
   end extension
 
   extension (hp: HillPlotResult)
-    /** Plot a Hill plot: the tail index estimate α̂(k) against k / n, with a 95% interval.
+    /** Plot a Hill plot: the tail index estimate α̂(k) against k / n, as a step chart with a 95% interval.
       *
       * k / n is the empirical exceedance probability of the threshold X₍ₙ₋ₖ₎. The points are evenly spaced, one per
-      * loss: the left end uses only the largest losses, and each step right lowers the threshold by one loss. The
-      * threshold is in each point's tooltip. Look for a plateau. To the left the estimate is noisy; to the right it
-      * pulls in losses from outside the tail.
+      * loss: the left end uses only the largest losses, and each step right lowers the threshold by one loss. Each
+      * estimate is held until the next loss enters. The threshold is in each point's tooltip. Look for a plateau. To
+      * the left the estimate is noisy; to the right it pulls in losses from outside the tail.
       *
       * The band is exact if the losses above the threshold are Pareto: 2α·Σ log(Xᵢ / threshold) is then χ²(2k), so α
       * lies in [α̂·χ²₂ₖ(0.025) / 2k, α̂·χ²₂ₖ(0.975) / 2k]. It does not include bias from losses that are not Pareto,
       * which is what drifting to the right shows. If the result does not record n, the x-axis is k instead.
+      *
+      * The y-axis is capped at 5, where the band is clipped; use the `yMax` overload to change it. The tooltip gives
+      * the unclipped interval.
       */
     def plotHill(using viz.LowPriorityPlotTarget): viz.VizReturn = plotHill(Nil)
 
-    /** As [[plotHill]], applying `mods` to the spec after the built-in modifications. */
-    def plotHill(mods: Seq[SpecMod])(using viz.LowPriorityPlotTarget): viz.VizReturn =
+    /** As [[plotHill]], applying `mods` to the spec after the built-in modifications.
+      *
+      * @param yMax
+      *   the top of the y-axis; the band and line are clipped there
+      */
+    def plotHill(mods: Seq[SpecMod], yMax: Double = 5.0)(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val hasThresholds = hp.thresholds.length == hp.kValues.length
       val hasN = hp.nObs > 0
       val data = hp.kValues.indices.map { i =>
@@ -666,7 +673,17 @@ object Plots:
         .top
         .getOrElse(Json.Null)
 
-      render(hillPlotSpec, if hasN then mods else byK +: mods)(
+      val cap: SpecMod = _.hcursor
+        .downField("layer")
+        .downN(0)
+        .downField("encoding")
+        .downField("y")
+        .downField("scale")
+        .withFocus(_.mapObject(_.add("domainMax", Json.fromDoubleOrNull(yMax))))
+        .top
+        .getOrElse(Json.Null)
+
+      render(hillPlotSpec, (if hasN then Seq(cap) else Seq(byK, cap)) ++ mods)(
         _.title("Hill plot: Pareto tail index"),
         _.data.values := data.asJson
       )
