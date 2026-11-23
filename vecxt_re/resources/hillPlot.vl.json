@@ -3,34 +3,6 @@
   "title": "Hill Plot",
   "width": "container",
   "height": "container",
-  "data": {
-    "values": [
-      {
-        "k": 2,
-        "threshold": 400,
-        "estimate": 2.1,
-        "lower": 0.6,
-        "upper": 4.7,
-        "x": 0.2
-      },
-      {
-        "k": 3,
-        "threshold": 300,
-        "estimate": 2.0,
-        "lower": 0.8,
-        "upper": 3.9,
-        "x": 0.3
-      },
-      {
-        "k": 4,
-        "threshold": 200,
-        "estimate": 1.9,
-        "lower": 0.9,
-        "upper": 3.4,
-        "x": 0.4
-      }
-    ]
-  },
   "encoding": {
     "x": {
       "field": "x",
@@ -46,12 +18,34 @@
   },
   "layer": [
     {
-      "transform": [
-        {
-          "calculate": "'95% interval'",
-          "as": "legend"
-        }
-      ],
+      "data": {
+        "values": [
+          {
+            "k": 2,
+            "threshold": 400,
+            "estimate": 2.1,
+            "lower": 0.6,
+            "upper": 4.7,
+            "x": 0.2
+          },
+          {
+            "k": 3,
+            "threshold": 300,
+            "estimate": 2.0,
+            "lower": 0.8,
+            "upper": 3.9,
+            "x": 0.3
+          },
+          {
+            "k": 4,
+            "threshold": 200,
+            "estimate": 1.9,
+            "lower": 0.9,
+            "upper": 3.4,
+            "x": 0.4
+          }
+        ]
+      },
       "mark": {
         "type": "area",
         "opacity": 0.2,
@@ -72,28 +66,60 @@
           "field": "upper"
         },
         "color": {
-          "field": "legend",
-          "type": "nominal",
+          "datum": "95% interval",
           "scale": {
+            "domain": [
+              "95% interval",
+              "Hill estimate",
+              "Continuous threshold"
+            ],
             "range": [
-              "steelblue"
+              "steelblue",
+              "steelblue",
+              "firebrick"
             ]
           },
           "legend": {
-            "title": null,
-            "symbolType": "square"
+            "title": null
           }
         }
       }
     },
     {
+      "data": {
+        "values": [
+          {
+            "k": 2,
+            "threshold": 400,
+            "estimate": 2.1,
+            "lower": 0.6,
+            "upper": 4.7,
+            "x": 0.2
+          },
+          {
+            "k": 3,
+            "threshold": 300,
+            "estimate": 2.0,
+            "lower": 0.8,
+            "upper": 3.9,
+            "x": 0.3
+          },
+          {
+            "k": 4,
+            "threshold": 200,
+            "estimate": 1.9,
+            "lower": 0.9,
+            "upper": 3.4,
+            "x": 0.4
+          }
+        ]
+      },
       "mark": {
         "type": "line",
         "point": {
           "filled": true,
           "size": 40
         },
-        "color": "steelblue",
         "interpolate": "step-after",
         "clip": true
       },
@@ -138,7 +164,44 @@
             "title": "95% upper",
             "format": ".2f"
           }
+        ],
+        "color": {
+          "datum": "Hill estimate"
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [
+          {
+            "seq": 0,
+            "x": 0.2,
+            "estimate": 2.0
+          },
+          {
+            "seq": 1,
+            "x": 0.3,
+            "estimate": 1.9
+          }
         ]
+      },
+      "mark": {
+        "type": "line",
+        "strokeWidth": 1.5,
+        "clip": true
+      },
+      "encoding": {
+        "y": {
+          "field": "estimate",
+          "type": "quantitative"
+        },
+        "order": {
+          "field": "seq",
+          "type": "quantitative"
+        },
+        "color": {
+          "datum": "Continuous threshold"
+        }
       }
     }
   ]

@@ -44,6 +44,7 @@ object Plots:
   private lazy val lossStems = VegaPlot.fromResource("stemChartWithRollingAverage.vl.json") // losses against date
   private lazy val logLogPlot = VegaPlot.fromResource("loglogCdf.vl.json") // log-log CDF plot
   private lazy val hillPlotSpec = VegaPlot.fromResource("hillPlot.vl.json") // Hill plot for tail index
+  private lazy val pickandsPlotSpec = VegaPlot.fromResource("pickandsPlot.vl.json") // Pickands estimates against k
 
   extension (idx: CalendarYearRateChanges)
     /** Plot the per-year index factors, the shortfall of each year's level relative to the current year, and the
@@ -629,36 +630,43 @@ object Plots:
   end extension
 
   extension (hp: HillPlotResult)
-    /** Plot a Hill plot: the tail index estimate α̂(k) against k / n, as a step chart with a 95% interval.
+    /** Plot a Hill plot: the tail index estimate α̂(k) against k / n, as a step chart with a 95% interval and the
+      * continuous-threshold estimate.
       *
       * k / n is the empirical exceedance probability of the threshold X₍ₙ₋ₖ₎. The points are evenly spaced, one per
-      * loss: the left end uses only the largest losses, and each step right lowers the threshold by one loss. Each
-      * estimate is held until the next loss enters. The threshold is in each point's tooltip. Look for a plateau. To
-      * the left the estimate is noisy; to the right it pulls in losses from outside the tail.
+      * loss: the left end uses only the largest losses, and each step right lowers the threshold by one loss. The
+      * threshold is in each point's tooltip. Look for a plateau. To the left the estimate is noisy; to the right it
+      * pulls in losses from outside the tail.
+      *
+      * The continuous-threshold estimate (red) lets the threshold u slide between consecutive losses x₍ₖ₊₁₎ ≤ u < x₍ₖ₎:
+      * α̂(u) = 1 / (1/α̂(k) + log(x₍ₖ₊₁₎ / u)). It is drawn between (k − 1)/n and k/n, evenly in log u, so it jumps up
+      * by k / (k − 1) as each loss enters and decays to the next Hill estimate. It needs consecutive k values and the
+      * thresholds; it is left out otherwise.
       *
       * The band is exact if the losses above the threshold are Pareto: 2α·Σ log(Xᵢ / threshold) is then χ²(2k), so α
       * lies in [α̂·χ²₂ₖ(0.025) / 2k, α̂·χ²₂ₖ(0.975) / 2k]. It does not include bias from losses that are not Pareto,
       * which is what drifting to the right shows. If the result does not record n, the x-axis is k instead.
       *
-      * The y-axis is capped at 5, where the band is clipped; use the `yMax` overload to change it. The tooltip gives
-      * the unclipped interval.
+      * The y-axis stops 0.1 above the highest estimate shown, and the band is clipped there; the tooltip gives the
+      * unclipped interval. Use the `yMax` overload to set the top yourself.
       */
     def plotHill(using viz.LowPriorityPlotTarget): viz.VizReturn = plotHill(Nil)
 
     /** As [[plotHill]], applying `mods` to the spec after the built-in modifications.
       *
       * @param yMax
-      *   the top of the y-axis; the band and line are clipped there
+      *   the top of the y-axis, where the band and lines are clipped; by default 0.1 above the highest estimate shown
       */
-    def plotHill(mods: Seq[SpecMod], yMax: Double = 5.0)(using viz.LowPriorityPlotTarget): viz.VizReturn =
+    def plotHill(mods: Seq[SpecMod], yMax: Option[Double] = None)(using viz.LowPriorityPlotTarget): viz.VizReturn =
       val hasThresholds = hp.thresholds.length == hp.kValues.length
       val hasN = hp.nObs > 0
+      def xOf(k: Double) = if hasN then k / hp.nObs else k
       val data = hp.kValues.indices.map { i =>
         val k = hp.kValues(i)
         val est = hp.estimates(i)
         val chi2 = ChiSquaredDistribution.of(2.0 * k)
         (
-          x = if hasN then k.toDouble / hp.nObs else k.toDouble,
+          x = xOf(k),
           k = k,
           threshold = Option.when(hasThresholds)(hp.thresholds(i)),
           estimate = est,
@@ -666,26 +674,51 @@ object Plots:
           upper = est * chi2.inverseCumulativeProbability(0.975) / (2 * k)
         )
       }
+
+      // Continuous-threshold estimate between consecutive k: u from x₍ₖ₎ (the previous threshold) down to x₍ₖ₊₁₎
+      val samplesPerStep = 25
+      val sawtooth =
+        if !hasThresholds then IndexedSeq.empty
+        else
+          (1 until hp.kValues.length)
+            .filter(i => hp.kValues(i) == hp.kValues(i - 1) + 1)
+            .flatMap { i =>
+              val k = hp.kValues(i)
+              val (uTop, uBottom) = (hp.thresholds(i - 1), hp.thresholds(i))
+              val invHill = 1.0 / hp.estimates(i)
+              (0 to samplesPerStep).map { j =>
+                val s = j.toDouble / samplesPerStep
+                // evenly spaced in log u; ties between losses collapse to a vertical jump
+                val u = if uTop > uBottom then uTop * math.pow(uBottom / uTop, s) else uBottom
+                (x = xOf(k - 1 + s), estimate = 1.0 / (invHill + math.log(uBottom / u)))
+              }
+            }
+            .zipWithIndex
+            .map((p, seq) => (seq = seq, x = p.x, estimate = p.estimate))
+
+      val top = yMax.getOrElse((hp.estimates.iterator ++ sawtooth.iterator.map(_.estimate)).max + 0.1)
+
       val byK: SpecMod = _.hcursor
         .downField("encoding")
         .downField("x")
         .withFocus(_.mapObject(_.add("title", Json.fromString("k (number of largest losses used)")).remove("axis")))
         .top
         .getOrElse(Json.Null)
-
       val cap: SpecMod = _.hcursor
         .downField("layer")
         .downN(0)
         .downField("encoding")
         .downField("y")
         .downField("scale")
-        .withFocus(_.mapObject(_.add("domainMax", Json.fromDoubleOrNull(yMax))))
+        .withFocus(_.mapObject(_.add("domainMax", Json.fromDoubleOrNull(top))))
         .top
         .getOrElse(Json.Null)
 
       render(hillPlotSpec, (if hasN then Seq(cap) else Seq(byK, cap)) ++ mods)(
         _.title("Hill plot: Pareto tail index"),
-        _.data.values := data.asJson
+        _.layer._0.data.values := data.asJson,
+        _.layer._1.data.values := data.asJson,
+        _.layer._2.data.values := sawtooth.asJson
       )
     end plotHill
   end extension
@@ -708,7 +741,7 @@ object Plots:
           (k = k, estimate = est)
         }
 
-      render(hillPlotSpec, mods)(
+      render(pickandsPlotSpec, mods)(
         _.title("Pickands Plot for Pareto Tail Index Estimation"),
         _.data.values := data.asJson
       )
@@ -730,7 +763,7 @@ object Plots:
           (k = k, estimate = est)
         }
 
-      render(hillPlotSpec, mods)(
+      render(pickandsPlotSpec, mods)(
         _.title("Pickands Plot for Extreme Value Index γ"),
         _.data.values := data.asJson
       )
