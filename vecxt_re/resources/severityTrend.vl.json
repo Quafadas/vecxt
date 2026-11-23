@@ -1,0 +1,258 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Severity trend: log(severity) ~ year, with confidence band. Click a loss to refit without it; double-click to restore.",
+  "width": "container",
+  "height": "container",
+  "title": "Severity Trend",
+  "layer": [
+    {
+      "data": {
+        "values": [
+          {
+            "dropped": -1,
+            "year": 2000,
+            "lower": 1.0,
+            "upper": 2.0
+          }
+        ]
+      },
+      "transform": [
+        {
+          "filter": "datum.dropped == (length(data('drop_store')) > 0 ? data('drop_store')[0].values[0] : -1)"
+        },
+        {
+          "calculate": "'Confidence band'",
+          "as": "legend"
+        }
+      ],
+      "mark": {
+        "type": "area",
+        "opacity": 0.15
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "quantitative",
+          "title": "Year",
+          "scale": {
+            "zero": false
+          },
+          "axis": {
+            "format": "d"
+          }
+        },
+        "y": {
+          "field": "lower",
+          "type": "quantitative",
+          "title": "Severity",
+          "scale": {
+            "type": "log"
+          }
+        },
+        "y2": {
+          "field": "upper"
+        },
+        "color": {
+          "field": "legend",
+          "type": "nominal",
+          "scale": {
+            "range": [
+              "red"
+            ]
+          },
+          "legend": {
+            "symbolType": "square",
+            "symbolOpacity": 0.15,
+            "title": null
+          }
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [
+          {
+            "dropped": -1,
+            "year": 2000,
+            "fit": 1.5
+          }
+        ]
+      },
+      "transform": [
+        {
+          "filter": "datum.dropped == (length(data('drop_store')) > 0 ? data('drop_store')[0].values[0] : -1)"
+        },
+        {
+          "calculate": "'Fitted median'",
+          "as": "legend"
+        }
+      ],
+      "mark": {
+        "type": "line",
+        "strokeWidth": 2.5,
+        "tooltip": true
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "quantitative"
+        },
+        "y": {
+          "field": "fit",
+          "type": "quantitative",
+          "scale": {
+            "type": "log"
+          }
+        },
+        "stroke": {
+          "field": "legend",
+          "type": "nominal",
+          "scale": {
+            "range": [
+              "red"
+            ]
+          },
+          "legend": {
+            "symbolType": "stroke",
+            "symbolStrokeWidth": 2.5,
+            "title": null
+          }
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [
+          {
+            "id": 0,
+            "year": 2000,
+            "loss": 1.5,
+            "trendWithout": "+0.0%"
+          }
+        ]
+      },
+      "transform": [
+        {
+          "calculate": "'Loss'",
+          "as": "obsLegend"
+        }
+      ],
+      "mark": {
+        "type": "point",
+        "shape": "cross",
+        "size": 60,
+        "strokeWidth": 1.5,
+        "opacity": 0.6,
+        "stroke": "steelblue",
+        "cursor": "pointer"
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "quantitative"
+        },
+        "y": {
+          "field": "loss",
+          "type": "quantitative",
+          "scale": {
+            "type": "log"
+          }
+        },
+        "fill": {
+          "field": "obsLegend",
+          "type": "nominal",
+          "scale": {
+            "range": [
+              "steelblue"
+            ]
+          },
+          "legend": {
+            "symbolType": "cross",
+            "symbolStrokeColor": "steelblue",
+            "title": null
+          }
+        },
+        "tooltip": [
+          {
+            "field": "year",
+            "type": "quantitative",
+            "title": "Year"
+          },
+          {
+            "field": "loss",
+            "type": "quantitative",
+            "title": "Loss",
+            "format": ",.0f"
+          },
+          {
+            "field": "trendWithout",
+            "type": "nominal",
+            "title": "Trend without this loss"
+          }
+        ],
+        "opacity": {
+          "condition": {
+            "param": "drop",
+            "empty": false,
+            "value": 0.2
+          },
+          "value": 1
+        }
+      },
+      "params": [
+        {
+          "name": "drop",
+          "select": {
+            "type": "point",
+            "fields": [
+              "id"
+            ],
+            "on": "click",
+            "clear": "dblclick",
+            "toggle": false
+          }
+        }
+      ]
+    },
+    {
+      "data": {
+        "values": [
+          {
+            "dropped": -1,
+            "text": "Click a loss to refit without it"
+          }
+        ]
+      },
+      "transform": [
+        {
+          "filter": "datum.dropped == (length(data('drop_store')) > 0 ? data('drop_store')[0].values[0] : -1)"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "baseline": "top",
+        "fontSize": 12,
+        "fontWeight": "bold"
+      },
+      "encoding": {
+        "x": {
+          "value": 8
+        },
+        "y": {
+          "value": 8
+        },
+        "text": {
+          "field": "text",
+          "type": "nominal"
+        }
+      }
+    }
+  ],
+  "config": {
+    "legend": {
+      "orient": "top-right",
+      "offset": 5
+    }
+  }
+}

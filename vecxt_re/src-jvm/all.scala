@@ -7,6 +7,7 @@ object all:
   export vecxt_re.Plots.*
   export vecxt_re.TrendAnalysis.*
   export vecxt_re.TrendFitResult
+  export vecxt_re.SeverityTrendResult
   export vecxt_re.SplitLosses.*
   export vecxt_re.SplitScenario.*
   export vecxt_re.DeductibleType.*

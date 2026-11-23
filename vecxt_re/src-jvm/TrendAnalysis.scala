@@ -5,6 +5,7 @@ import org.apache.commons.numbers.gamma.RegularizedBeta
 import org.apache.commons.statistics.distribution.ChiSquaredDistribution
 import org.apache.commons.statistics.distribution.FDistribution
 import org.apache.commons.statistics.distribution.NormalDistribution
+import org.apache.commons.statistics.distribution.TDistribution
 
 /** Result of fitting a GLM trend model: log(μ) = β₀ + β₁·year
   *
@@ -105,6 +106,128 @@ case class TrendFitResult(
     else if p < 0.1 then " ."
     else ""
 end TrendFitResult
+
+/** Result of fitting a severity trend: log(X) = β₀ + β₁·year + ε, by ordinary least squares.
+  *
+  * `exp(β₁) − 1` is the annual trend in the median (geometric mean) severity. If log(X) is normal with constant σ (a
+  * lognormal severity), it is also the annual trend in the mean.
+  *
+  * Inference uses Student's t with `n − 2` degrees of freedom, assuming independent residuals with constant variance.
+  * Residuals of log severity are often skewed (log of a Pareto is exponential). With small data volumes that makes the
+  * t-based intervals approximate, and single losses can dominate the fit: see
+  * [[TrendAnalysis.fitSeverityTrendLeaveOneOut]]. Read the result as a check for gross errors in the normalisation, not
+  * as a measurement of the trend.
+  *
+  * @param nObs
+  *   Number of losses
+  * @param dfResidual
+  *   Residual degrees of freedom (n − 2)
+  * @param intercept
+  *   Estimated intercept (β₀), log scale
+  * @param slope
+  *   Estimated year coefficient (β₁), log scale
+  * @param seIntercept
+  *   Standard error of intercept
+  * @param seSlope
+  *   Standard error of slope
+  * @param tIntercept
+  *   t-statistic for intercept
+  * @param tSlope
+  *   t-statistic for slope
+  * @param pValueIntercept
+  *   Two-tailed p-value for intercept (H₀: β₀ = 0)
+  * @param pValueSlope
+  *   Two-tailed p-value for slope (H₀: β₁ = 0) - this tests for a significant severity trend
+  * @param sigma
+  *   Residual standard deviation of log severity
+  * @param rSquared
+  *   Coefficient of determination
+  * @param meanYear
+  *   Mean of the years, x̄
+  * @param sxx
+  *   Σ(yearᵢ − x̄)²
+  */
+case class SeverityTrendResult(
+    nObs: Int,
+    dfResidual: Int,
+    intercept: Double,
+    slope: Double,
+    seIntercept: Double,
+    seSlope: Double,
+    tIntercept: Double,
+    tSlope: Double,
+    pValueIntercept: Double,
+    pValueSlope: Double,
+    sigma: Double,
+    rSquared: Double,
+    meanYear: Double,
+    sxx: Double
+):
+
+  private lazy val tDist = TDistribution.of(dfResidual.toDouble)
+
+  /** Two-sided critical value t₁₋α/₂ with `n − 2` degrees of freedom. */
+  def tCritical(alpha: Double = 0.05): Double =
+    require(alpha > 0 && alpha < 1, "alpha must be in (0, 1)")
+    tDist.inverseSurvivalProbability(alpha / 2)
+  end tCritical
+
+  /** Test whether there is a statistically significant severity trend at the given alpha level */
+  def hasSignificantTrend(alpha: Double = 0.05): Boolean = pValueSlope < alpha
+
+  /** Annual trend in median severity, `exp(β₁) − 1`. 0.03 means +3% per year. */
+  def annualTrend: Double = math.expm1(slope)
+
+  /** `(1 − alpha)` confidence interval for [[annualTrend]]. */
+  def annualTrendCI(alpha: Double = 0.05): (lower: Double, upper: Double) =
+    val t = tCritical(alpha)
+    (lower = math.expm1(slope - t * seSlope), upper = math.expm1(slope + t * seSlope))
+  end annualTrendCI
+
+  /** Fitted log severity at `year`, with a `(1 − alpha)` confidence interval for the regression line. */
+  def fittedLog(year: Double, alpha: Double = 0.05): (fit: Double, lower: Double, upper: Double) =
+    val fit = intercept + slope * year
+    val dx = year - meanYear
+    val se = sigma * math.sqrt(1.0 / nObs + dx * dx / sxx)
+    val t = tCritical(alpha)
+    (fit = fit, lower = fit - t * se, upper = fit + t * se)
+  end fittedLog
+
+  /** Nicely formatted summary string, similar to R's lm summary output */
+  def summary: String =
+    val sb = new StringBuilder
+    sb.append("Linear Model: log(Severity) ~ 1 + Year\n")
+    sb.append("=" * 60 + "\n\n")
+
+    sb.append("Coefficients:\n")
+    sb.append(f"${""}%-15s ${"Estimate"}%12s ${"Std. Error"}%12s ${"t value"}%10s ${"Pr(>|t|)"}%12s\n")
+    sb.append("-" * 60 + "\n")
+    sb.append(
+      f"(Intercept)${" "}%-4s $intercept%12.5f $seIntercept%12.5f $tIntercept%10.3f $pValueIntercept%12.6f${significanceCode(pValueIntercept)}%s\n"
+    )
+    sb.append(
+      f"Year${" "}%-11s $slope%12.7f $seSlope%12.7f $tSlope%10.3f $pValueSlope%12.6f${significanceCode(pValueSlope)}%s\n"
+    )
+    sb.append("-" * 60 + "\n")
+    sb.append("Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n")
+
+    sb.append(f"Residual standard error: $sigma%.4f on $dfResidual degrees of freedom\n")
+    sb.append(f"R-squared: $rSquared%.4f\n")
+    val ci = annualTrendCI()
+    sb.append(
+      f"Annual trend in median severity: ${annualTrend * 100}%.2f%% (95%% CI ${ci.lower * 100}%.2f%% to ${ci.upper * 100}%.2f%%)\n"
+    )
+
+    sb.toString
+  end summary
+
+  private def significanceCode(p: Double): String =
+    if p < 0.001 then " ***"
+    else if p < 0.01 then " **"
+    else if p < 0.05 then " *"
+    else if p < 0.1 then " ."
+    else ""
+end SeverityTrendResult
 
 object TrendAnalysis:
   private val normDist = NormalDistribution.of(0.0, 1.0)
@@ -456,5 +579,110 @@ object TrendAnalysis:
         logLikelihood = logLik
       )
   end extension
+
+  /** Fit a severity trend: log(X) = β₀ + β₁·year + ε, by ordinary least squares.
+    *
+    * Use on-levelled losses above a threshold that is fixed in on-levelled terms. A significant slope means the
+    * conditional severity above the threshold is not stationary: on-levelling has left (or introduced) a trend.
+    *
+    * Note that with a fixed threshold, a pure scale trend in a Pareto tail is invisible here: above the threshold, the
+    * Pareto is scale free, so the trend appears only as a trend in the counts above the threshold. Check the frequency
+    * trend as well.
+    *
+    * @param years
+    *   the year of each loss
+    * @param losses
+    *   the (on-levelled) loss amounts, all strictly positive, same length as years
+    * @return
+    *   SeverityTrendResult containing coefficients, standard errors, p-values and the implied annual trend
+    */
+  def fitSeverityTrend(years: IndexedSeq[Int], losses: IndexedSeq[Double]): SeverityTrendResult =
+    require(years.length == losses.length, "years and losses must have the same length")
+    require(years.length >= 3, "need at least 3 observations to fit a trend")
+
+    val n = years.length
+    var sumX = 0.0
+    var sumY = 0.0
+    var i = 0
+    while i < n do
+      val l = losses(i)
+      require(l > 0 && !l.isInfinite, s"losses must be finite and strictly positive, got $l at index $i")
+      sumX += years(i)
+      sumY += math.log(l)
+      i += 1
+    end while
+    val xBar = sumX / n
+    val yBar = sumY / n
+
+    // Centred sums, for numerical stability with years ~ 2000
+    var sxx = 0.0
+    var sxy = 0.0
+    var syy = 0.0
+    i = 0
+    while i < n do
+      val dx = years(i) - xBar
+      val dy = math.log(losses(i)) - yBar
+      sxx += dx * dx
+      sxy += dx * dy
+      syy += dy * dy
+      i += 1
+    end while
+    require(sxx > 0, "need at least two distinct years to fit a trend")
+
+    val beta1 = sxy / sxx
+    val beta0 = yBar - beta1 * xBar
+    val rss = math.max(syy - beta1 * sxy, 0.0)
+    val df = n - 2
+    val sigma = math.sqrt(rss / df)
+    val seBeta1 = sigma / math.sqrt(sxx)
+    val seBeta0 = sigma * math.sqrt(1.0 / n + xBar * xBar / sxx)
+
+    val tDist = TDistribution.of(df.toDouble)
+    def pValueT(t: Double): Double =
+      if t.isNaN then Double.NaN
+      else if t.isInfinite then 0.0
+      else 2.0 * tDist.survivalProbability(math.abs(t))
+
+    val tBeta0 = beta0 / seBeta0
+    val tBeta1 = beta1 / seBeta1
+
+    SeverityTrendResult(
+      nObs = n,
+      dfResidual = df,
+      intercept = beta0,
+      slope = beta1,
+      seIntercept = seBeta0,
+      seSlope = seBeta1,
+      tIntercept = tBeta0,
+      tSlope = tBeta1,
+      pValueIntercept = pValueT(tBeta0),
+      pValueSlope = pValueT(tBeta1),
+      sigma = sigma,
+      rSquared = if syy > 0 then 1.0 - rss / syy else Double.NaN,
+      meanYear = xBar,
+      sxx = sxx
+    )
+  end fitSeverityTrend
+
+  /** Refit [[fitSeverityTrend]] with each loss left out in turn.
+    *
+    * With small data volumes a single loss can move the trend by more than any plausible true trend. The spread of the
+    * leave-one-out trends shows how much the result depends on individual losses.
+    *
+    * @return
+    *   one entry per loss, aligned with the inputs: the fit without that loss, or `None` where the remaining losses
+    *   cannot be fitted (fewer than 3, or all in one year)
+    */
+  def fitSeverityTrendLeaveOneOut(
+      years: IndexedSeq[Int],
+      losses: IndexedSeq[Double]
+  ): IndexedSeq[Option[SeverityTrendResult]] =
+    require(years.length == losses.length, "years and losses must have the same length")
+    years.indices.map { drop =>
+      val ys = years.patch(drop, Nil, 1)
+      val ls = losses.patch(drop, Nil, 1)
+      Option.when(ys.length >= 3 && ys.distinct.length >= 2)(fitSeverityTrend(ys, ls))
+    }
+  end fitSeverityTrendLeaveOneOut
 
 end TrendAnalysis

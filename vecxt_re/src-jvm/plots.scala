@@ -39,6 +39,8 @@ object Plots:
   private lazy val rootogram = VegaPlot.fromResource("rootogram.vl.json") // hanging rootogram
   private lazy val pearsonResiduals = VegaPlot.fromResource("pearsonResiduals.vl.json") // residual plot
   private lazy val poissonTrend = VegaPlot.fromResource("poissonTrend.vl.json") // Poisson GLM trend
+  private lazy val severityTrend = VegaPlot.fromResource("severityTrend.vl.json") // log(severity) ~ year
+  private lazy val lossStems = VegaPlot.fromResource("stemChartWithRollingAverage.vl.json") // losses against date
   private lazy val logLogPlot = VegaPlot.fromResource("loglogCdf.vl.json") // log-log CDF plot
   private lazy val hillPlotSpec = VegaPlot.fromResource("hillPlot.vl.json") // Hill plot for tail index
 
@@ -419,6 +421,141 @@ object Plots:
       )
     end plotTrend
   end extension
+
+  /** Stem plot of individual losses against their date: the amount as reported, the normalised (on-levelled) amount,
+    * and a trailing rolling average of the normalised amounts.
+    *
+    * Use it to look at the data behind [[plotSeverityTrend]]: clusters of losses in time, single years that dominate,
+    * and how much normalisation moves the older losses.
+    *
+    * The rolling average for end year `Y` is the mean normalised amount of the losses dated in years `Y - rollingYears
+    * + 1` to `Y`, plotted at 31 December of `Y`. It is shown for every end year whose window lies inside the data and
+    * contains at least one loss.
+    *
+    * @param dates
+    *   the date of each loss
+    * @param amounts
+    *   the amount of each loss as reported
+    * @param normalisedAmounts
+    *   the amount of each loss normalised to the current year, same length as dates
+    * @param rollingYears
+    *   the length of the rolling average window, in years
+    */
+  def plotLossStems(
+      dates: IndexedSeq[java.time.LocalDate],
+      amounts: IndexedSeq[Double],
+      normalisedAmounts: IndexedSeq[Double],
+      rollingYears: Int = 3,
+      title: String = "Losses over time",
+      mods: Seq[SpecMod] = Nil
+  )(using viz.LowPriorityPlotTarget): viz.VizReturn =
+    require(
+      dates.length == amounts.length && dates.length == normalisedAmounts.length,
+      "dates, amounts and normalisedAmounts must have the same length"
+    )
+    require(dates.nonEmpty, "need at least one loss")
+    require(rollingYears >= 1, "rollingYears must be at least 1")
+
+    val stems = dates.indices.map { i =>
+      (date = dates(i).toString, amount = amounts(i), normalisedAmount = normalisedAmounts(i))
+    }
+
+    val years = dates.map(_.getYear)
+    val (firstYear, lastYear) = (years.min, years.max)
+    val rolling = (firstYear + rollingYears - 1 to lastYear).flatMap { end =>
+      val start = end - rollingYears + 1
+      val inWindow = years.indices.filter(i => years(i) >= start && years(i) <= end)
+      Option.when(inWindow.nonEmpty)(
+        (
+          date = java.time.LocalDate.of(end, 12, 31).toString,
+          rollingAverage = inWindow.map(normalisedAmounts).sum / inWindow.length,
+          window = if rollingYears == 1 then s"$end" else s"$start–$end",
+          n = inWindow.length
+        )
+      )
+    }
+
+    render(lossStems, mods)(
+      _.title(title),
+      _.datasets.stemData := stems.asJson,
+      _.datasets.rollingAverageData := rolling.asJson
+    )
+  end plotLossStems
+
+  /** Plot a severity trend: log(Severity) ~ 1 + Year, fitted by [[TrendAnalysis.fitSeverityTrend]].
+    *
+    * Shows each loss on a log scale, the fitted median severity exp(β₀ + β₁·year) and a `(1 − alpha)` confidence band
+    * for it. The title gives the annual trend, its confidence interval (the range of trends the data cannot rule out)
+    * and the p-value of the slope. The subtitle gives the range of trends when each loss is left out in turn, and each
+    * loss's tooltip shows the trend without it. Clicking a loss redraws the fit and band without it; double-clicking
+    * restores all losses.
+    *
+    * With small data volumes the result is not robust: read it as a check for gross errors in the normalisation, not as
+    * a measurement of the trend.
+    *
+    * @param years
+    *   the year of each loss
+    * @param losses
+    *   the (on-levelled) loss amounts, all strictly positive, same length as years
+    * @param alpha
+    *   `1 − alpha` is the confidence level of the band and the interval in the title
+    */
+  def plotSeverityTrend(
+      years: IndexedSeq[Int],
+      losses: IndexedSeq[Double],
+      alpha: Double = 0.05,
+      mods: Seq[SpecMod] = Nil
+  )(using viz.LowPriorityPlotTarget): viz.VizReturn =
+    val fit = TrendAnalysis.fitSeverityTrend(years, losses)
+    val ci = fit.annualTrendCI(alpha)
+    val level = math.round((1 - alpha) * 100)
+    val looFits = TrendAnalysis.fitSeverityTrendLeaveOneOut(years, losses)
+    def pct(x: Double) = f"${x * 100}%+.1f%%"
+    def pNum(p: Double) = if p < 0.001 then "<0.001" else f"$p%.3f"
+    def pv(p: Double) = if p < 0.001 then "p < 0.001" else s"p = ${pNum(p)}"
+    def describe(f: SeverityTrendResult) =
+      val c = f.annualTrendCI(alpha)
+      s"${pct(f.annualTrend)} p.a. ($level% CI ${pct(c.lower)} to ${pct(c.upper)}, ${pv(f.pValueSlope)})"
+    end describe
+
+    val title = s"Severity trend ${describe(fit)}"
+    val loo = looFits.flatten
+    val subtitle =
+      if loo.isEmpty then "Too few losses to leave one out"
+      else
+        val t = loo.map(_.annualTrend)
+        val p = loo.map(_.pValueSlope)
+        s"Leaving out one loss at a time: ${pct(t.min)} to ${pct(t.max)} p.a., p from ${pNum(p.min)} to ${pNum(p.max)}"
+
+    // The band for every fit: all losses (dropped = -1), and each leave-one-out refit (dropped = index of the loss
+    // left out). The plot shows the one matching the clicked loss.
+    val fits = (-1 -> fit) +: looFits.zipWithIndex.collect { case (Some(f), i) => i -> f }
+    val yearRange = years.min to years.max
+    val bandData = fits.flatMap { (dropped, f) =>
+      yearRange.map { y =>
+        val l = f.fittedLog(y.toDouble, alpha)
+        (dropped = dropped, year = y, fit = math.exp(l.fit), lower = math.exp(l.lower), upper = math.exp(l.upper))
+      }
+    }
+    val textData =
+      (dropped = -1, text = "Click a loss to refit without it, double-click to restore") +:
+        fits.tail.map((i, f) => (dropped = i, text = s"Without the ${years(i)} loss: ${describe(f)}"))
+    val obsData = years.indices.map { i =>
+      val without = looFits(i).fold("n/a")(f => s"${pct(f.annualTrend)}, ${pv(f.pValueSlope)}")
+      (id = i, year = years(i), loss = losses(i), trendWithout = without)
+    }
+
+    render(severityTrend, mods)(
+      _ =>
+        _.mapObject(
+          _.add("title", Json.obj("text" -> Json.fromString(title), "subtitle" -> Json.fromString(subtitle)))
+        ),
+      _.layer._0.data.values := bandData.asJson,
+      _.layer._1.data.values := bandData.asJson,
+      _.layer._2.data.values := obsData.asJson,
+      _.layer._3.data.values := textData.asJson
+    )
+  end plotSeverityTrend
 
   extension (scenario: Scenarr)
     def plotSeasonality(

@@ -1,108 +1,179 @@
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
-  "description": "Stem plot with daily time unit showing amounts",
-  "title": "Stem Plot",
+  "description": "Stem plot of losses against date: as reported, normalised (on-levelled), and a rolling average of the normalised amounts",
+  "title": "Losses over time",
   "width": "container",
   "height": "container",
   "datasets": {
     "stemData": [
-      { "date": "2022-01-01", "amount": 10, "normalisedAmount": 12 },
-      { "date": "2023-01-02", "amount": 5, "normalisedAmount": 7 },
-      { "date": "2024-01-03", "amount": 15, "normalisedAmount": 20 },
-      { "date": "2022-06-04", "amount": 10, "normalisedAmount": 12 },
-      { "date": "2023-03-05", "amount": 20, "normalisedAmount": 22 }
+      {
+        "date": "2022-01-01",
+        "amount": 10,
+        "normalisedAmount": 12
+      },
+      {
+        "date": "2023-01-02",
+        "amount": 5,
+        "normalisedAmount": 7
+      },
+      {
+        "date": "2024-01-03",
+        "amount": 15,
+        "normalisedAmount": 20
+      },
+      {
+        "date": "2022-06-04",
+        "amount": 10,
+        "normalisedAmount": 12
+      },
+      {
+        "date": "2023-03-05",
+        "amount": 20,
+        "normalisedAmount": 22
+      }
     ],
     "rollingAverageData": [
-      { "endYear": "2022", "rollingAverage": 8 },
-      { "endYear": "2023", "rollingAverage": 9 },
-      { "endYear": "2024", "rollingAverage": 10 }
+      {
+        "date": "2022-12-31",
+        "rollingAverage": 8,
+        "window": "2020–2022",
+        "n": 3
+      },
+      {
+        "date": "2023-12-31",
+        "rollingAverage": 9,
+        "window": "2021–2023",
+        "n": 3
+      }
     ]
   },
-  "data": { "name": "stemData" },
+  "data": {
+    "name": "stemData"
+  },
   "encoding": {
     "x": {
       "field": "date",
       "type": "temporal",
       "timeUnit": "yearmonthdate",
-      "title": "Date"
+      "title": "Date",
+      "axis": {
+        "format": "%b %Y"
+      }
     }
   },
   "layer": [
     {
-      "mark": { "type": "rule" },
+      "mark": {
+        "type": "rule"
+      },
       "encoding": {
         "y": {
           "field": "amount",
           "type": "quantitative",
-          "title": "Amount"
+          "title": "Amount",
+          "axis": {
+            "format": "~s"
+          }
         },
-        "y2": { "datum": 0 },
-        "color": { "datum": "Amount", "legend": { "title": "Series" } }
-      }
-    },
-    {
-      "mark": { "type": "rule" },
-      "encoding": {
-        "y": {
-          "field": "amount",
-          "type": "quantitative"
+        "y2": {
+          "datum": 0
         },
-        "y2": { "field": "normalisedAmount" },
-        "color": { "datum": "Normalised Amount" }
+        "color": {
+          "datum": "Amount",
+          "legend": {
+            "title": "Series"
+          }
+        }
       }
     },
     {
       "mark": {
-        "type": "circle",
-        "size": 100,
-        "tooltip": { "content": "data" }
+        "type": "rule"
       },
       "encoding": {
         "y": {
           "field": "amount",
           "type": "quantitative"
         },
-        "color": { "datum": "Amount" }
+        "y2": {
+          "field": "normalisedAmount"
+        },
+        "color": {
+          "datum": "Normalised Amount"
+        }
       }
     },
     {
       "mark": {
         "type": "circle",
         "size": 100,
-        "tooltip": { "content": "data" }
+        "tooltip": {
+          "content": "data"
+        }
+      },
+      "encoding": {
+        "y": {
+          "field": "amount",
+          "type": "quantitative"
+        },
+        "color": {
+          "datum": "Amount"
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "circle",
+        "size": 100,
+        "tooltip": {
+          "content": "data"
+        }
       },
       "encoding": {
         "y": {
           "field": "normalisedAmount",
           "type": "quantitative"
         },
-        "color": { "datum": "Normalised Amount" }
+        "color": {
+          "datum": "Normalised Amount"
+        }
       }
     },
     {
-      "data": { "name": "rollingAverageData" },
+      "data": {
+        "name": "rollingAverageData"
+      },
       "mark": {
         "type": "line",
         "strokeWidth": 2,
-        "tooltip": { "content": "data" }
+        "tooltip": {
+          "content": "data"
+        },
+        "point": true
       },
       "encoding": {
         "x": {
-          "field": "endYear",
+          "field": "date",
           "type": "temporal",
-          "timeUnit": "year"
+          "timeUnit": "yearmonthdate"
         },
         "y": {
           "field": "rollingAverage",
           "type": "quantitative"
         },
-        "color": { "datum": "Rolling Average" }
+        "color": {
+          "datum": "Rolling Average"
+        }
       }
     }
   ],
   "config": {
     "range": {
-      "category": ["steelblue", "orange", "green"]
+      "category": [
+        "steelblue",
+        "orange",
+        "green"
+      ]
     }
   }
 }
