@@ -105,6 +105,23 @@ case class Scenarr(
   lazy val period: (firstLoss: LocalDate, lastLoss: LocalDate) =
     (day1.plusDays((days.minSIMD - 1).toLong), day1.plusDays((days.maxSIMD - 1).toLong))
 
+  /** One line, cheap: doesn't sort or compute any statistics. Use [[show]] for a report. */
+  override def toString: String =
+    val label = if name.isEmpty then "" else s"\"$name\", "
+    s"Scenarr(${label}events=${amounts.length}, numberIterations=$numberIterations, threshold=${Scenarr.fmtAmount(threshold)}, day1=$day1, isSorted=$isSorted, id=$id)"
+  end toString
+
+  /** A multi-line, terminal-friendly report with the first 10 events. See `show(eventRows)`. */
+  def show: String = show(10)
+
+  /** A multi-line, terminal-friendly report: summary statistics, OEP / AEP at standard return periods (those the
+    * simulation can support), the largest events, and the first `eventRows` events in (iteration, day) order.
+    *
+    * Sorts a copy if this scenario isn't flagged sorted, so it costs O(n log n) on unsorted data. Meant for
+    * interrogating a scenario by eye, not for parsing.
+    */
+  def show(eventRows: Int): String = Scenarr.report(this, eventRows)
+
 end Scenarr
 
 object Scenarr:
@@ -325,6 +342,90 @@ object Scenarr:
   /** Infix operator for combining scenarios */
   extension (s1: Scenarr) def |+|(s2: Scenarr): Scenarr = combine(s1, s2)
   end extension
+
+  private[vecxt_re] def fmtAmount(x: Double): String = f"$x%,.2f"
+
+  private val standardReturnPeriods = Array(2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 5000, 10000)
+
+  /** Pads columns to a common width; numeric-looking columns are right aligned. */
+  private def table(header: Seq[String], rows: Seq[Seq[String]], indent: String): Seq[String] =
+    val widths = header.indices.map(c => (header(c) +: rows.map(_(c))).map(_.length).max)
+    def line(cells: Seq[String]) =
+      cells.indices.map(c => cells(c).reverse.padTo(widths(c), ' ').reverse).mkString(indent, " | ", "")
+    (line(header) +: widths.map("-" * _).mkString(indent, "-+-", "") +: rows.map(line)).toSeq
+  end table
+
+  private def report(scenario: Scenarr, eventRows: Int): String =
+    val s = scenario.sorted
+    val n = s.amounts.length
+    val ni = s.numberIterations
+    val nl = "\n"
+    val out = scala.collection.mutable.ArrayBuffer.empty[String]
+
+    val label = if s.name.isEmpty then "Scenarr" else s"Scenarr \"${s.name}\""
+    out += s"$label (id ${s.id})"
+    out += f"  events           $n%,d${if scenario.isSorted then "" else " (unsorted; statistics computed on a sorted copy)"}"
+    out += f"  iterations       $ni%,d"
+    out += s"  threshold        ${fmtAmount(s.threshold)}"
+    out += s"  day1             ${s.day1}"
+
+    if n == 0 then
+      out += "  (no events)"
+      return out.mkString(nl)
+    end if
+
+    out += s"  period           ${s.period.firstLoss} .. ${s.period.lastLoss}"
+    out += f"  freq / iteration mean ${n.toDouble / ni}%.4g, var/mean ${s.varianceMeanRatio}%.4g, cluster coeff ${s.clusterCoeff}%.4g"
+    out += s"  total loss       ${fmtAmount(s.amounts.sum)}"
+    out += s"  mean annual loss ${fmtAmount(s.meanLoss)}"
+    out += s"  event amount     min ${fmtAmount(s.amounts.minSIMD)}, mean ${fmtAmount(s.amounts.sum / n)}, max ${fmtAmount(s.amounts.maxSIMD)}"
+
+    val rps = standardReturnPeriods.filter(_ <= ni)
+    if rps.nonEmpty then
+      out += ""
+      out ++= table(
+        Seq("Return period", "OEP", "AEP"),
+        rps.toSeq.map(rp => Seq(rp.toString, fmtAmount(s.oep.lossAt(rp)), fmtAmount(s.aep.lossAt(rp)))),
+        "  "
+      )
+    end if
+
+    def eventRow(i: Int) = Seq(
+      s.iterations(i).toString,
+      s.days(i).toString,
+      s.day1.plusDays((s.days(i) - 1).toLong).toString,
+      fmtAmount(s.amounts(i)),
+      s.ids(i).toString
+    )
+    val eventHeader = Seq("Iteration", "Day", "Date", "Amount", "Id")
+
+    // Top k by amount: k is small, so repeated selection beats sorting a large scenario.
+    val k = math.min(5, n)
+    val taken = new Array[Boolean](n)
+    val largest = (0 until k).map { _ =>
+      var best = -1
+      var i = 0
+      while i < n do
+        if !taken(i) && (best < 0 || s.amounts(i) > s.amounts(best)) then best = i
+        end if
+        i += 1
+      end while
+      taken(best) = true
+      best
+    }
+    out += ""
+    out += s"  Largest $k events"
+    out ++= table(eventHeader, largest.map(eventRow), "  ")
+
+    val shown = math.min(math.max(eventRows, 0), n)
+    if shown > 0 then
+      out += ""
+      out += s"  First $shown of $n events, by (iteration, day)"
+      out ++= table(eventHeader, (0 until shown).map(eventRow), "  ")
+    end if
+
+    out.mkString(nl)
+  end report
 
   /** Event columns sorted by (iteration, day), each event tagged with the index of the scenario it came from. */
   private final class Cols(
