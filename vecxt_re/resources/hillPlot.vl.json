@@ -3,31 +3,203 @@
   "title": "Hill Plot",
   "width": "container",
   "height": "container",
-  "data": {
-    "values": [
-      { "k": 10, "estimate": 2.1 },
-      { "k": 20, "estimate": 2.05 },
-      { "k": 30, "estimate": 1.98 },
-      { "k": 40, "estimate": 2.02 },
-      { "k": 50, "estimate": 1.95 }
-    ]
-  },
-  "mark": {
-    "type": "line",
-    "point": { "filled": true, "size": 40 },
-    "tooltip": { "content": "data" }
-  },
   "encoding": {
     "x": {
-      "field": "k",
+      "field": "x",
       "type": "quantitative",
-      "title": "k (number of upper order statistics)"
+      "title": "Exceedance probability of the threshold, k / n",
+      "scale": {
+        "zero": false
+      },
+      "axis": {
+        "format": ".0%"
+      }
+    }
+  },
+  "layer": [
+    {
+      "data": {
+        "values": [
+          {
+            "k": 2,
+            "threshold": 400,
+            "estimate": 2.1,
+            "lower": 0.6,
+            "upper": 4.7,
+            "x": 0.2
+          },
+          {
+            "k": 3,
+            "threshold": 300,
+            "estimate": 2.0,
+            "lower": 0.8,
+            "upper": 3.9,
+            "x": 0.3
+          },
+          {
+            "k": 4,
+            "threshold": 200,
+            "estimate": 1.9,
+            "lower": 0.9,
+            "upper": 3.4,
+            "x": 0.4
+          }
+        ]
+      },
+      "mark": {
+        "type": "area",
+        "opacity": 0.2,
+        "interpolate": "step-before",
+        "clip": true
+      },
+      "encoding": {
+        "y": {
+          "field": "lower",
+          "type": "quantitative",
+          "title": "Tail index estimate α̂",
+          "scale": {
+            "zero": false,
+            "domainMax": 5
+          }
+        },
+        "y2": {
+          "field": "upper"
+        },
+        "color": {
+          "datum": "95% interval",
+          "scale": {
+            "domain": [
+              "95% interval",
+              "Hill estimate",
+              "Continuous threshold"
+            ],
+            "range": [
+              "steelblue",
+              "steelblue",
+              "firebrick"
+            ]
+          },
+          "legend": {
+            "title": null
+          }
+        }
+      }
     },
-    "y": {
-      "field": "estimate",
-      "type": "quantitative",
-      "title": "Tail Index Estimate α̂(k)"
+    {
+      "data": {
+        "values": [
+          {
+            "k": 2,
+            "threshold": 400,
+            "estimate": 2.1,
+            "lower": 0.6,
+            "upper": 4.7,
+            "x": 0.2
+          },
+          {
+            "k": 3,
+            "threshold": 300,
+            "estimate": 2.0,
+            "lower": 0.8,
+            "upper": 3.9,
+            "x": 0.3
+          },
+          {
+            "k": 4,
+            "threshold": 200,
+            "estimate": 1.9,
+            "lower": 0.9,
+            "upper": 3.4,
+            "x": 0.4
+          }
+        ]
+      },
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 40,
+        "clip": true
+      },
+      "encoding": {
+        "y": {
+          "field": "estimate",
+          "type": "quantitative"
+        },
+        "tooltip": [
+          {
+            "field": "k",
+            "type": "quantitative",
+            "title": "k (losses used)"
+          },
+          {
+            "field": "x",
+            "type": "quantitative",
+            "title": "k / n",
+            "format": ".1%"
+          },
+          {
+            "field": "threshold",
+            "type": "quantitative",
+            "title": "Threshold",
+            "format": ",.0f"
+          },
+          {
+            "field": "estimate",
+            "type": "quantitative",
+            "title": "α̂",
+            "format": ".2f"
+          },
+          {
+            "field": "lower",
+            "type": "quantitative",
+            "title": "95% lower",
+            "format": ".2f"
+          },
+          {
+            "field": "upper",
+            "type": "quantitative",
+            "title": "95% upper",
+            "format": ".2f"
+          }
+        ],
+        "color": {
+          "datum": "Hill estimate"
+        }
+      }
     },
-    "color": { "value": "steelblue" }
-  }
+    {
+      "data": {
+        "values": [
+          {
+            "seq": 0,
+            "x": 0.2,
+            "estimate": 2.0
+          },
+          {
+            "seq": 1,
+            "x": 0.3,
+            "estimate": 1.9
+          }
+        ]
+      },
+      "mark": {
+        "type": "line",
+        "strokeWidth": 1.5,
+        "clip": true
+      },
+      "encoding": {
+        "y": {
+          "field": "estimate",
+          "type": "quantitative"
+        },
+        "order": {
+          "field": "seq",
+          "type": "quantitative"
+        },
+        "color": {
+          "datum": "Continuous threshold"
+        }
+      }
+    }
+  ]
 }

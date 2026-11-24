@@ -22,6 +22,7 @@ object all:
   export vecxt_re.Mixed
   export vecxt_re.FreqSev
   export vecxt_re.HillEstimator
+  export vecxt_re.HillConvention
   export vecxt_re.PickandsEstimator
 
 end all
