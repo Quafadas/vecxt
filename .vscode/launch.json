@@ -30,6 +30,16 @@
       "args": [],
       "jvmOptions": [],
       "env": {}
+    },
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "lossStemsDemo",
+      "mainClass": "lossStemsDemo",
+      "buildTarget": "file:///home/simon.parten/vecxt/experiments",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
     }
   ]
 }

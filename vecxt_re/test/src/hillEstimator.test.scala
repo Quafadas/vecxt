@@ -94,13 +94,26 @@ class HillEstimatorSuite extends munit.FunSuite:
     }
   }
 
-  test("Hill plot default kMax is sensible") {
+  test("Hill plot default k range uses every loss") {
     val data = generatePareto(100, 2.0)
-    val result = data.hillPlot()
+    // the threshold reaches the smallest loss: k = n - 1, or n for Embrechts
+    assertEquals(data.hillPlot().kValues.last, 99)
+    assertEquals(data.hillPlot(convention = HillConvention.Unbiased).kValues.last, 99)
+    assertEquals(data.hillPlot(convention = HillConvention.Embrechts).kValues.last, 100)
+    assertEquals(data.hillPlot().kValues.head, 2) // default kMin
+    assertEquals(data.hillPlot(convention = HillConvention.Unbiased).kValues.head, 2)
+    assertEquals(data.hillPlot(convention = HillConvention.Embrechts).kValues.head, 3)
+  }
 
-    // Default kMax should be min(n/2, n-1) = 50
-    assert(result.kValues.last <= 50)
-    assert(result.kValues.head == 2) // default kMin
+  test("Hill plot defaults cover the same thresholds in every convention") {
+    val data = generatePareto(100, 2.0)
+    val thresholds = HillConvention.values.map(c => data.hillPlot(convention = c).thresholds.toSeq)
+    thresholds.foreach(t => assertEquals(t, thresholds.head))
+  }
+
+  test("Embrechts Hill plot still allows k = 2 when asked") {
+    val data = generatePareto(100, 2.0)
+    assertEquals(data.hillPlot(kMin = 2, convention = HillConvention.Embrechts).kValues.head, 2)
   }
 
   test("Hill plot findStableRegion identifies plateau") {
@@ -148,6 +161,96 @@ class HillEstimatorSuite extends munit.FunSuite:
 
     assertEquals(result.kValues.toSeq, Seq(10, 20, 30, 40, 50))
     assertEquals(result.estimates.length, 5)
+  }
+
+  test("Hill plot thresholds are the (k+1)-th largest observation") {
+    val data = Array(308.0, 832.0, 365.0, 653.0, 430.0, 386.0, 310.0, 374.0, 427.0)
+    val result = data.hillPlot(kMax = data.length - 1)
+    val descending = data.sorted.reverse
+    assertEquals(result.thresholds.length, result.kValues.length)
+    assertEquals(result.nObs, data.length)
+    result.kValues.zip(result.thresholds).foreach((k, t) => assertEqualsDouble(t, descending(k), 0.0))
+    // k = 2: the two largest over the third largest
+    assertEqualsDouble(result.estimates.head, 2.0 / (math.log(832.0 / 430.0) + math.log(653.0 / 430.0)), 1e-12)
+  }
+
+  test("Unbiased Hill estimator is (k - 1) / k times the maximum likelihood estimate") {
+    val data = Array(1.0, 2.0, 4.0, 8.0, 16.0)
+    // k = 2: S = ln(16/4) + ln(8/4) = 3 ln 2, so (k - 1) / S = 1 / (3 ln 2)
+    assertEqualsDouble(data.hillEstimator(2, HillConvention.Unbiased), 1.0 / (3.0 * math.log(2.0)), 1e-12)
+    assertEqualsDouble(data.hillEstimator(3, HillConvention.Unbiased), data.hillEstimator(3) * 2.0 / 3.0, 1e-12)
+  }
+
+  test("Embrechts Hill estimator puts the threshold at the k-th largest") {
+    val data = Array(1.0, 2.0, 4.0, 8.0, 16.0)
+    // k = 3: threshold 4, S = ln(16/4) + ln(8/4) + ln(4/4) = 3 ln 2, estimate 3 / S
+    assertEqualsDouble(data.hillEstimator(3, HillConvention.Embrechts), 1.0 / math.log(2.0), 1e-12)
+    // k = n is allowed: threshold is the smallest loss
+    assertEqualsDouble(data.hillEstimator(5, HillConvention.Embrechts), 5.0 / (10.0 * math.log(2.0)), 1e-12)
+  }
+
+  test("Embrechts estimate is k / (k - 1) times the maximum likelihood estimate at k - 1, and never below it at k") {
+    val data = generatePareto(300, 2.0)
+    (2 to 100).foreach { k =>
+      val ekm = data.hillEstimator(k, HillConvention.Embrechts)
+      assertEqualsDouble(ekm, data.hillEstimator(k - 1) * k / (k - 1), 1e-9)
+      assert(ekm >= data.hillEstimator(k))
+    }
+  }
+
+  test("Hill conventions reject k outside their range") {
+    val data = Array(1.0, 2.0, 3.0, 4.0, 5.0)
+    intercept[IllegalArgumentException](data.hillEstimator(1, HillConvention.Unbiased))
+    intercept[IllegalArgumentException](data.hillEstimator(1, HillConvention.Embrechts))
+    intercept[IllegalArgumentException](data.hillEstimator(5, HillConvention.Unbiased))
+    intercept[IllegalArgumentException](data.hillEstimator(6, HillConvention.Embrechts))
+  }
+
+  test("Hill plot conventions: estimates, thresholds and S line up with the maximum likelihood plot") {
+    val data = generatePareto(200, 2.0)
+    val mle = data.hillPlot(kMin = 1)
+    val unbiased = data.hillPlot(kMin = 1, convention = HillConvention.Unbiased)
+    val ekm = data.hillPlot(kMin = 1, convention = HillConvention.Embrechts)
+    assertEquals(mle.convention, HillConvention.MaxLikelihood)
+    assertEquals(unbiased.convention, HillConvention.Unbiased)
+    assertEquals(ekm.convention, HillConvention.Embrechts)
+    assertEquals(unbiased.kValues.toSeq, mle.kValues.toSeq.tail)
+    assertEquals(ekm.kValues.toSeq.init, mle.kValues.toSeq.tail) // Embrechts also reaches k = n
+    val descending = data.sorted.reverse
+    unbiased.kValues.indices.foreach { i =>
+      val k = unbiased.kValues(i)
+      assertEqualsDouble(unbiased.estimates(i), mle.estimates(i + 1) * (k - 1) / k, 1e-12)
+      assertEqualsDouble(unbiased.thresholds(i), mle.thresholds(i + 1), 0.0)
+      assertEqualsDouble(unbiased.sumLogRatios(i), mle.sumLogRatios(i + 1), 1e-12)
+      // Embrechts at k: threshold the k-th largest, and the same estimate as k / (k - 1) * MLE at k - 1
+      assertEqualsDouble(ekm.thresholds(i), descending(k - 1), 0.0)
+      assertEqualsDouble(ekm.estimates(i), mle.estimates(i) * k / (k - 1), 1e-9)
+    }
+  }
+
+  test(
+    "Unbiased Hill estimator is unbiased for exact Pareto data; MLE biased by k / (k - 1), Embrechts by k / (k - 2)"
+  ) {
+    // With k + 1 observations the losses above the threshold are exactly Pareto
+    val alpha = 2.0
+    val k = 5
+    val reps = 20000
+    val rng = new scala.util.Random(7L)
+    var sumMle = 0.0
+    var sumUnbiased = 0.0
+    var sumEkm = 0.0
+    var r = 0
+    while r < reps do
+      val data = Array.fill(k + 1)(1.0 / math.pow(rng.nextDouble(), 1.0 / alpha))
+      sumMle += data.hillEstimator(k)
+      sumUnbiased += data.hillEstimator(k, HillConvention.Unbiased)
+      sumEkm += data.hillEstimator(k, HillConvention.Embrechts)
+      r += 1
+    end while
+    // standard errors of the means are about 0.008, 0.010 and 0.017
+    assertEqualsDouble(sumUnbiased / reps, alpha, 0.04)
+    assertEqualsDouble(sumMle / reps, alpha * k / (k - 1), 0.05)
+    assertEqualsDouble(sumEkm / reps, alpha * k / (k - 2), 0.08)
   }
 
 end HillEstimatorSuite
