@@ -43,9 +43,9 @@ case class Scenarr(
     groupSum(iterations, amounts, numberIterations)
   end agg
 
-  lazy val aep = agg.sorted(using Ordering[Double].reverse).zipWithIndex.map { case (amt, idx) =>
-    (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
-  }
+  /** Aggregate exceedance curve: the total of all events per iteration, ranked. Iterations with no events count as 0.
+    */
+  lazy val aep: ExceedanceCurve = ExceedanceCurve.fromIterationValues(agg)
 
   /** Occurrence exceedance curve: the largest single event per iteration, ranked. Iterations with no events count as a
     * largest loss of 0.
@@ -53,7 +53,7 @@ case class Scenarr(
     * Only empty iterations (left at -Inf by `groupMax`) are replaced. A negative largest loss is kept as is, so don't
     * simplify this to `math.max(_, 0)`: negative losses may become meaningful depending on how inuring is treated.
     */
-  lazy val oep =
+  lazy val oep: ExceedanceCurve =
     assert(isSorted, "Scenario must be sorted to compute occurrence exceedance")
     val maxes = groupMax(iterations, amounts, numberIterations)
     var i = 0
@@ -62,9 +62,7 @@ case class Scenarr(
       end if
       i += 1
     end while
-    maxes.sorted(using Ordering[Double].reverse).zipWithIndex.map { case (amt, idx) =>
-      (returnPeriod = numberIterations.toDouble / (idx + 1).toDouble, amount = amt)
-    }
+    ExceedanceCurve.fromIterationValues(maxes)
   end oep
 
   lazy val claimDates: Array[LocalDate] = (days - 1).map(d => ChronoUnit.DAYS.addTo(this.day1, d))
@@ -170,6 +168,13 @@ object Scenarr:
     *
     *   - Events with the same ID are one event, and their amounts are summed. An ID must sit at the same (iteration,
     *     day) wherever it appears.
+    *
+    * '''Event IDs from more than one source.''' The same-ID-means-same-event rule is easy to trip over: vendor event
+    * IDs are usually only unique within one model or catalogue, so two perils' scenarios can share an ID by
+    * coincidence. Their losses are then summed into one event (inflating the OEP), the scenarios are joined into one
+    * threshold group, and if the two events sit on different days `combineAll` throws. Build IDs with
+    * [[Scenarr.eventKey]] (or remap with `withIdSource`) so that only a genuinely shared event shares an ID.
+    *
     *   - Scenarios with no events don't constrain anything. All scenarios that have events must agree on
     *     `numberIterations` and `day1`; the result takes both from the first scenario with events, or from the first
     *     scenario if none has any.
@@ -368,6 +373,116 @@ object Scenarr:
     to.ids(o) = from.ids(at)
     to.srcs(o) = from.srcs(at)
   end copyEvent
+
+  /** A Scenarr event ID that is unique across sources: `source` in the high 32 bits, the source's own `eventId` in the
+    * low 32.
+    *
+    * Use it when scenarios come from more than one model or vendor whose event IDs may collide (see `combineAll`). A
+    * given (source, eventId) always maps to the same key, so the same event loaded from different loss tables (e.g. two
+    * programmes on one catalogue) still lines up and is summed.
+    */
+  inline def eventKey(source: Int, eventId: Int): Long = (source.toLong << 32) | (eventId.toLong & 0xffffffffL)
+
+  /** The `source` an [[eventKey]] was built from. */
+  inline def eventKeySource(key: Long): Int = (key >>> 32).toInt
+
+  /** The source's own `eventId` an [[eventKey]] was built from. */
+  inline def eventKeyEventId(key: Long): Int = key.toInt
+
+  /** A [[Builder]] for a scenario of `numberIterations` iterations. */
+  def builder(
+      numberIterations: Int,
+      threshold: Double = 0d,
+      day1: LocalDate = LocalDate.of(2019, 1, 1),
+      name: String = "",
+      id: Long = scala.util.Random.nextLong(),
+      sizeHint: Int = 16
+  ): Builder = Builder(numberIterations, threshold, day1, name, id, sizeHint)
+
+  /** Collects events one at a time into primitive columns, then builds a [[Scenarr]]. Use it for streaming sources
+    * (CSV, parquet, a database cursor), where the number of events isn't known up front.
+    *
+    * Each `add` checks the iteration lies in 1..numberIterations (the per-iteration kernels trust this without
+    * checking), that the day is at least 1, and that the amount is not NaN. `result` checks the sort order in one pass:
+    * events added in (iteration, day) order are used as they are, anything else is sorted. Either way the result has
+    * `isSorted = true`.
+    *
+    * A builder can't be reused after `result`.
+    */
+  final class Builder(
+      val numberIterations: Int,
+      threshold: Double,
+      day1: LocalDate,
+      name: String,
+      id: Long,
+      sizeHint: Int
+  ):
+    require(numberIterations >= 1, s"numberIterations must be at least 1, got $numberIterations")
+    private var its = new Array[Int](math.max(sizeHint, 1))
+    private var ds = new Array[Int](its.length)
+    private var amts = new Array[Double](its.length)
+    private var eids = new Array[Long](its.length)
+    private var n = 0
+    private var ordered = true
+    private var done = false
+
+    /** The number of events added so far. */
+    def length: Int = n
+
+    def add(iteration: Int, day: Int, amount: Double, eventId: Long): this.type =
+      if done then throw new IllegalStateException("Scenarr.Builder already built its result")
+      end if
+      if iteration < 1 || iteration > numberIterations then
+        throw new IllegalArgumentException(
+          s"Iteration $iteration outside 1..$numberIterations - is numberIterations the catalogue length?"
+        )
+      end if
+      if day < 1 then throw new IllegalArgumentException(s"Day $day must be at least 1 (day 1 is day1)")
+      end if
+      if amount.isNaN then throw new IllegalArgumentException(s"NaN amount for event $eventId")
+      end if
+      if n == its.length then grow()
+      end if
+      if ordered && n > 0 then
+        val prevIt = its(n - 1)
+        ordered = iteration > prevIt || (iteration == prevIt && day >= ds(n - 1))
+      end if
+      its(n) = iteration
+      ds(n) = day
+      amts(n) = amount
+      eids(n) = eventId
+      n += 1
+      this
+    end add
+
+    private def grow(): Unit =
+      val cap = math.max(4, math.min(Int.MaxValue - 8L, its.length.toLong * 2).toInt)
+      its = java.util.Arrays.copyOf(its, cap)
+      ds = java.util.Arrays.copyOf(ds, cap)
+      amts = java.util.Arrays.copyOf(amts, cap)
+      eids = java.util.Arrays.copyOf(eids, cap)
+    end grow
+
+    def result(): Scenarr =
+      if done then throw new IllegalStateException("Scenarr.Builder already built its result")
+      end if
+      done = true
+      val s = new Scenarr(
+        if n == its.length then its else java.util.Arrays.copyOf(its, n),
+        if n == ds.length then ds else java.util.Arrays.copyOf(ds, n),
+        if n == amts.length then amts else java.util.Arrays.copyOf(amts, n),
+        if n == eids.length then eids else java.util.Arrays.copyOf(eids, n),
+        numberIterations,
+        threshold,
+        day1,
+        name,
+        id,
+        isSorted = ordered
+      )
+      if ordered then s else s.sorted
+      end if
+    end result
+  end Builder
 
   /** Create a Scenarr with automatically generated random IDs for each event. Use this factory when you don't need to
     * specify event IDs explicitly.
@@ -578,6 +693,24 @@ object Scenarr:
         isSorted = scenario.isSorted
       )
     end takeFirstNIterations
+
+    /** This scenario with every event ID replaced by `eventKey(source, id)`, so its IDs can't collide with those of a
+      * scenario from another source under `combineAll`.
+      *
+      * @throws IllegalArgumentException
+      *   if an ID doesn't fit in 32 bits (it already carries a source, or isn't a vendor event ID)
+      */
+    def withIdSource(source: Int): Scenarr =
+      val out = new Array[Long](scenario.ids.length)
+      var i = 0
+      while i < out.length do
+        val raw = scenario.ids(i)
+        require(raw == raw.toInt.toLong, s"Event ID $raw doesn't fit in 32 bits, so it can't take a source")
+        out(i) = eventKey(source, raw.toInt)
+        i += 1
+      end while
+      scenario.copy(ids = out)
+    end withIdSource
 
     inline def scaleAmntBy(scale: Double): Scenarr =
       scenario.copy(amounts = scenario.amounts * scale, ids = scenario.ids, threshold = scenario.threshold * scale)

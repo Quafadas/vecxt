@@ -178,8 +178,9 @@ class ScenarrSuite extends FunSuite:
       numberIterations = 4,
       isSorted = true
     )
-    assertEquals(sc.oep.map(_.amount).toList, List(7.0, 3.0, 0.0, 0.0))
-    assertEquals(sc.oep.map(_.returnPeriod).toList, List(4.0, 2.0, 4.0 / 3.0, 1.0))
+    assertEquals(sc.oep.amounts.toList, List(7.0, 3.0, 0.0, 0.0))
+    assertEquals(sc.oep.returnPeriods.toList, List(4.0, 2.0, 4.0 / 3.0, 1.0))
+    assertEquals(sc.oep.points.map(_.amount).toList, List(7.0, 3.0, 0.0, 0.0))
   }
 
   test("scaleAmntBy multiplies amounts and threshold") {

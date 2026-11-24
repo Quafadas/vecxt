@@ -4,6 +4,10 @@ object all:
   export vecxt_re.Scenario
   export vecxt_re.Scenarr
   export vecxt_re.Tower
+  export vecxt_re.Layer
+  export vecxt_re.AmountUnit
+  export vecxt_re.ExceedanceCurve
+  export vecxt_re.ExceedanceType
   export vecxt_re.Plots.*
   export vecxt_re.TrendAnalysis.*
   export vecxt_re.TrendFitResult

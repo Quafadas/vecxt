@@ -191,3 +191,40 @@ scenario.plotSeasonality(highlight = Some((year = 2024, month = 9)))
 ```
 
 `plotSeasonality` plots the scenario's losses summed by calendar month, as a share of the total. `highlight` picks out one month.
+
+### Exceedance curves (OEP / AEP)
+
+`plotOep` and `plotAep` plot the occurrence or aggregate exceedance curves of a set of scenarios on one chart: loss along x, return period (log scale) up y. With more than one scenario, their combination (`Scenarr.combineAll`) is added as a thick line. Click a legend entry to pick out one curve.
+
+```scala mdoc:compile-only
+val perils: Seq[Scenarr] = ???
+val layers: Seq[Layer] = Seq(Layer(limit = 50e6, ret = 50e6), Layer(limit = 100e6, ret = 100e6))
+
+perils.plotOep(layers, unit = AmountUnit.Mn)
+perils.plotAep(total = None)
+Seq(perils.head).plotOep(maxLoss = Some(500e6))
+
+plotExceedance(
+  perils,
+  ExceedanceType.OEP,
+  attachments = Seq((label = "Board appetite", loss = 75e6)),
+  minReturnPeriod = 5,
+  title = Some("Net OEP by peril")
+)
+```
+
+The loss axis on an OEP plot with layers or attachments stops at 1.2 × the highest line, usually the top layer's exhaustion point, to leave 20% headroom without letting the tail squash everything else. Set `maxLoss` to choose the end yourself; on an AEP, or a plot with no lines, the axis covers every curve unless `maxLoss` is set.
+
+Each layer adds dashed lines at its attachment (retention) and exhaustion (retention + limit): the occurrence terms on an OEP, the aggregate terms on an AEP. A dot marks where each curve reaches each line; hover it for the return period. The layer terms are compared with the scenario losses as they are, so plot the losses *to* the layer (ground up, or net of inuring cover).
+
+The same numbers are available without plotting. `Scenarr.oep` and `Scenarr.aep` are `ExceedanceCurve`s:
+
+```scala mdoc:compile-only
+val scenario: Scenarr = ???
+
+scenario.oep.lossAt(200)              // the 1-in-200 occurrence loss
+scenario.aep.returnPeriodAt(100e6)    // Some(rp), or None if no iteration reaches 100m
+scenario.oep.points                   // (returnPeriod, amount), largest first
+```
+
+The `k`-th largest of `n` iterations sits at return period `n / k`. Between those points the curve is a step: `lossAt` takes the next point up the curve, so it never understates the loss, and it refuses return periods beyond `n`.
