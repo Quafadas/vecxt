@@ -395,4 +395,53 @@ class LossReportSuite extends FunSuite:
     assert(ex.getMessage.contains("same length"), ex.getMessage)
   }
 
+  // Adjacent layers, contiguous per occurrence but capped only in aggregate (B: unl xs 2.1 occ, 0.8 agg;
+  // A: unl xs 2.9 occ, 0.7 agg). B's agg limit can be used up by several events below 2.9, so
+  // P(exhaust B) >= P(attach A), not ==.
+  private val contigA = Layer(occRetention = Some(2.9), aggLimit = Some(0.7))
+  private val contigB = Layer(occRetention = Some(2.1), aggLimit = Some(0.8))
+
+  test("contiguous occ layers with agg limits: two events below A's retention exhaust B without attaching A") {
+    import SplitLosses.*
+    val years = Array(1, 1)
+    val losses = Array(2.5, 2.5)
+    val (ceded, retained, splits) = Tower(IndexedSeq(contigA, contigB)).splitAmntFast(years, losses)
+
+    assertEquals(splits(0).cededToLayer.toSeq, Seq(0.0, 0.0))
+    assertEqualsDouble(splits(1).cededToLayer.sum, 0.8, 1e-12)
+    assertEqualsDouble(splits(0).lossReport(1, years, ReportDenominator.FirstLimit).attachProb, 0.0, 0.0)
+    assertEqualsDouble(splits(1).lossReport(1, years, ReportDenominator.FirstLimit).exhaustProb, 1.0, 0.0)
+    for i <- losses.indices do assertEqualsDouble(ceded(i) + retained(i), losses(i), 1e-12, s"no leak ($i)")
+    end for
+  }
+
+  test("contiguous occ layers with agg limits: A attached implies B exhausted, per iteration") {
+    import SplitLosses.*
+    val rng = scala.util.Random(42)
+    val n = 2000
+    // Random losses in 1.5 .. 4.0, plus one final year with a single loss of exactly 2.9: it exhausts B without
+    // attaching A (attachment needs ceded > 0), so the two probabilities differ even with one event per year.
+    val years = Array.fill(5000)(rng.nextInt(n - 1) + 1).sorted :+ n
+    val losses = Array.fill(years.length - 1)(1.5 + rng.nextDouble() * 2.5) :+ 2.9
+    val (_, _, splits) = Tower(IndexedSeq(contigA, contigB)).splitAmntFast(years, losses)
+
+    def yearly(ceded: Array[Double]) =
+      val out = new Array[Double](n)
+      for i <- ceded.indices do out(years(i) - 1) += ceded(i)
+      end for
+      out
+    end yearly
+    val aYear = yearly(splits(0).cededToLayer)
+    val bYear = yearly(splits(1).cededToLayer)
+    for i <- 0 until n do
+      if aYear(i) > 0 then assert(bYear(i) > 0.8 - 1e-9, s"iteration ${i + 1}: A attached but B at ${bYear(i)}")
+    end for
+    assertEqualsDouble(aYear(n - 1), 0.0, 0.0)
+    assertEqualsDouble(bYear(n - 1), 0.8, 1e-12)
+
+    val ra = splits(0).lossReport(n, years, ReportDenominator.FirstLimit)
+    val rb = splits(1).lossReport(n, years, ReportDenominator.FirstLimit)
+    assert(rb.exhaustProb > ra.attachProb, s"exhaust B ${rb.exhaustProb} <= attach A ${ra.attachProb}")
+  }
+
 end LossReportSuite
