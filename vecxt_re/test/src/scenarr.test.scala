@@ -241,7 +241,8 @@ class ScenarrSuite extends FunSuite:
   }
 
   test("toString is one line and doesn't need sorted data") {
-    val sc = Scenarr(Array(2, 1), Array(1, 1), Array(10.0, 20.0), Array(7L, 8L), numberIterations = 2, name = "x", id = 3L)
+    val sc =
+      Scenarr(Array(2, 1), Array(1, 1), Array(10.0, 20.0), Array(7L, 8L), numberIterations = 2, name = "x", id = 3L)
     assertEquals(
       sc.toString,
       "Scenarr(\"x\", events=2, numberIterations=2, threshold=0.00, day1=2019-01-01, isSorted=false, id=3)"

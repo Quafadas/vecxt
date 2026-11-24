@@ -364,7 +364,9 @@ object Scenarr:
 
     val label = if s.name.isEmpty then "Scenarr" else s"Scenarr \"${s.name}\""
     out += s"$label (id ${s.id})"
-    out += f"  events           $n%,d${if scenario.isSorted then "" else " (unsorted; statistics computed on a sorted copy)"}"
+    out += f"  events           $n%,d${
+        if scenario.isSorted then "" else " (unsorted; statistics computed on a sorted copy)"
+      }"
     out += f"  iterations       $ni%,d"
     out += s"  threshold        ${fmtAmount(s.threshold)}"
     out += s"  day1             ${s.day1}"
