@@ -1,0 +1,75 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "Exceedance curves (OEP or AEP) of several scenarios, loss against return period, with attachment lines and the return period at which each curve crosses each one",
+  "title": "OEP",
+  "width": "container",
+  "height": "container",
+  "autosize": {"type": "fit", "contains": "padding"},
+  "data": {
+    "values": [
+      {"scenario": "All", "total": true, "returnPeriod": 1, "loss": 0},
+      {"scenario": "All", "total": true, "returnPeriod": 10, "loss": 5},
+      {"scenario": "All", "total": true, "returnPeriod": 100, "loss": 20}
+    ]
+  },
+  "layer": [
+    {
+      "encoding": {
+        "x": {"field": "loss", "type": "quantitative", "title": "Loss"},
+        "y": {
+          "field": "returnPeriod",
+          "type": "quantitative",
+          "scale": {"type": "log"},
+          "title": "Return period (years)"
+        },
+        "order": {"field": "returnPeriod", "type": "quantitative"},
+        "color": {"field": "scenario", "type": "nominal", "title": "Scenario"},
+        "opacity": {"condition": {"param": "pick", "value": 1}, "value": 0.15}
+      },
+      "layer": [
+        {
+          "params": [
+            {"name": "pick", "select": {"type": "point", "fields": ["scenario"]}, "bind": "legend"}
+          ],
+          "transform": [{"filter": "!datum.total"}],
+          "mark": {"type": "line", "interpolate": "step-before", "tooltip": true, "strokeWidth": 1.5, "clip": true}
+        },
+        {
+          "transform": [{"filter": "datum.total"}],
+          "mark": {"type": "line", "interpolate": "step-before", "tooltip": true, "strokeWidth": 5, "clip": true}
+        }
+      ]
+    },
+    {
+      "data": {"values": [{"label": "Layer attach", "loss": 10}]},
+      "layer": [
+        {
+          "mark": {"type": "rule", "strokeDash": [6, 4], "strokeWidth": 1.5, "color": "#555"},
+          "encoding": {"x": {"field": "loss", "type": "quantitative"}}
+        },
+        {
+          "mark": {"type": "text", "angle": 270, "align": "right", "baseline": "bottom", "dx": -6, "dy": -3, "color": "#555"},
+          "encoding": {
+            "x": {"field": "loss", "type": "quantitative"},
+            "y": {"value": 0},
+            "text": {"field": "label"}
+          }
+        }
+      ]
+    },
+    {
+      "data": {"values": [{"scenario": "All", "attachment": "Layer attach", "loss": 10, "returnPeriod": 20}]},
+      "mark": {"type": "point", "filled": true, "size": 90, "stroke": "white", "strokeWidth": 1},
+      "encoding": {
+        "x": {"field": "loss", "type": "quantitative"},
+        "y": {"field": "returnPeriod", "type": "quantitative"},
+        "color": {"field": "scenario", "type": "nominal"},
+        "tooltip": [
+          {"field": "attachment", "title": "Attachment"},
+          {"field": "scenario", "title": "Scenario"},
+          {"field": "returnPeriod", "title": "Return period", "format": ",.0f"}
+        ]
+      }
+    }
+  ]
+}

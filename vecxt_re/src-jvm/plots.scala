@@ -44,6 +44,7 @@ object Plots:
   private lazy val lossStems = VegaPlot.fromResource("stemChartWithRollingAverage.vl.json") // losses against date
   private lazy val logLogPlot = VegaPlot.fromResource("loglogCdf.vl.json") // log-log CDF plot
   private lazy val hillPlotSpec = VegaPlot.fromResource("hillPlot.vl.json") // Hill plot for tail index
+  private lazy val exceedance = VegaPlot.fromResource("exceedance.vl.json") // OEP / AEP curves with attachments
   private lazy val pickandsPlotSpec = VegaPlot.fromResource("pickandsPlot.vl.json") // Pickands estimates against k
 
   extension (idx: CalendarYearRateChanges)
@@ -558,6 +559,201 @@ object Plots:
       _.layer._3.data.values := textData.asJson
     )
   end plotSeverityTrend
+
+  /** The attachment lines a layer contributes to an exceedance plot: its retention ("attach") and retention + limit
+    * ("exhaust"), on the occurrence terms for an OEP and the aggregate terms for an AEP. A layer without terms of that
+    * kind contributes nothing; nor does the exhaustion point of a reverse franchise, which has none.
+    */
+  private[vecxt_re] def layerAttachments(
+      layer: Layer,
+      curve: ExceedanceType,
+      unit: AmountUnit = AmountUnit.One
+  ): Seq[(label: String, loss: Double)] =
+    val (limit, retention, dedType) = curve match
+      case ExceedanceType.OEP => (layer.occLimit, layer.occRetention, layer.occType)
+      case ExceedanceType.AEP => (layer.aggLimit, layer.aggRetention, layer.aggType)
+    def fmt(x: Double) =
+      val v = BigDecimal(x / unit.multiplier).round(java.math.MathContext(6)).bigDecimal.stripTrailingZeros
+      v.toPlainString
+    end fmt
+    val name = layer.layerName.getOrElse(
+      limit.fold("Unlimited")(fmt) + " xs " + fmt(retention.getOrElse(0d)) +
+        (if curve == ExceedanceType.AEP then " agg" else "")
+    )
+    val attach = retention.orElse(limit.map(_ => 0d))
+    val exhaust =
+      if dedType == DeductibleType.ReverseFranchise then None
+      else limit.map(_ + retention.getOrElse(0d))
+    attach.map(a => (label = s"$name attach", loss = a)).toSeq ++
+      exhaust.map(e => (label = s"$name exhaust", loss = e)).toSeq
+  end layerAttachments
+
+  /** Plot the OEP or AEP curves of several scenarios on one chart: loss along x, return period (log scale) up y.
+    *
+    * Each scenario is one line, named by `Scenarr.name`; click a legend entry to pick one out. With more than one
+    * scenario, their combination (`Scenarr.combineAll`) is added as a thick line named `total`. Pass `total = None` to
+    * leave it out, e.g. when the scenarios are alternatives rather than parts of one portfolio.
+    *
+    * Attachments are drawn as dashed vertical lines, taken from `layers` (see the retention and limit of each layer's
+    * occurrence terms for an OEP, aggregate terms for an AEP) and from `attachments`. A dot marks where each curve
+    * reaches each attachment; hover it for the return period.
+    *
+    * @param scenarios
+    *   all from the same simulation (same `numberIterations`) if `total` is used
+    * @param curve
+    *   OEP or AEP
+    * @param layers
+    *   layers whose attachment and exhaustion points to draw. Their terms are compared with the scenario losses as they
+    *   are: the scenarios should be the losses to the layer (e.g. ground up, or net of inuring cover).
+    * @param attachments
+    *   further lines to draw, as (label, loss), in the same money as the scenarios
+    * @param minReturnPeriod
+    *   points below this return period are left out, which keeps the plot small for big simulations
+    * @param maxLoss
+    *   the right-hand end of the loss axis, in the same money as the scenarios; curves are cut off there. If not set,
+    *   an OEP plot with attachment lines stops at 1.2 × the highest line (the top layer's exhaustion point, plus 20%
+    *   headroom), and any other plot shows the whole of every curve.
+    * @param unit
+    *   losses are divided by `unit.multiplier` for display
+    * @param lossTitle
+    *   the loss axis title; the unit is appended
+    */
+  def plotExceedance(
+      scenarios: Seq[Scenarr],
+      curve: ExceedanceType = ExceedanceType.OEP,
+      layers: Seq[Layer] = Nil,
+      attachments: Seq[(label: String, loss: Double)] = Nil,
+      total: Option[String] = Some("All"),
+      minReturnPeriod: Double = 1.0,
+      maxLoss: Option[Double] = None,
+      unit: AmountUnit = AmountUnit.One,
+      lossTitle: String = "Loss",
+      title: Option[String] = None,
+      mods: Seq[SpecMod] = Nil
+  )(using viz.LowPriorityPlotTarget): viz.VizReturn =
+    require(scenarios.nonEmpty, "need at least one scenario")
+    maxLoss.foreach(m => require(m > 0 && !m.isInfinite, s"maxLoss must be positive and finite, got $m"))
+    val scale = unit.multiplier.toDouble
+    val withTotal = total match
+      case Some(name) if scenarios.length > 1 =>
+        (Scenarr.combineAll(scenarios).copy(name = name), true) +: scenarios.map(s => (s.sorted, false))
+      case _ => scenarios.map(s => (s.sorted, false))
+
+    val named = withTotal.zipWithIndex.map { case ((s, isTotal), i) =>
+      (scenario = s, name = if s.name.nonEmpty then s.name else s"Scenario ${i + 1}", total = isTotal)
+    }
+    val curves = named.map(n => (n, curve.of(n.scenario)))
+
+    // Lines at the same loss (e.g. one layer's exhaustion and the next one's attachment) share one label, or the
+    // labels would be drawn over each other.
+    val lines = (layers.flatMap(layerAttachments(_, curve, unit)) ++ attachments)
+      .groupBy(_.loss)
+      .toSeq
+      .sortBy(_._1)
+      .map((loss, ls) => (label = ls.map(_.label).distinct.mkString(" / "), loss = loss))
+
+    val cap = maxLoss.orElse(
+      Option.when(curve == ExceedanceType.OEP && lines.nonEmpty)(lines.map(_.loss).max * 1.2).filter(_ > 0)
+    )
+    val shownLines = cap.fold(lines)(m => lines.filter(_.loss <= m))
+
+    val data = curves.flatMap { (n, c) =>
+      val out = Vector.newBuilder[(scenario: String, total: Boolean, returnPeriod: Double, loss: Double)]
+      // Amounts are ranked largest first. Past the cap, only the first point beyond it is needed, so the clipped step
+      // still runs to the edge of the plot.
+      var i = cap.fold(0) { m =>
+        var above = 0
+        while above < c.numberIterations && c.amounts(above) > m do above += 1
+        end while
+        math.max(above - 1, 0)
+      }
+      while i < c.numberIterations do
+        val rp = c.returnPeriod(i)
+        if rp >= minReturnPeriod then
+          out += ((scenario = n.name, total = n.total, returnPeriod = rp, loss = c.amounts(i) / scale))
+        end if
+        i += 1
+      end while
+      out.result()
+    }
+
+    val crossings = for
+      a <- shownLines
+      (n, c) <- curves
+      rp <- c.returnPeriodAt(a.loss) if rp >= minReturnPeriod
+    yield (scenario = n.name, attachment = a.label, loss = a.loss / scale, returnPeriod = rp)
+
+    val unitSuffix = unit match
+      case AmountUnit.One => ""
+      case AmountUnit.K   => " (k)"
+      case AmountUnit.Mn  => " (m)"
+      case AmountUnit.Bn  => " (bn)"
+    val plotTitle = title.getOrElse(
+      if scenarios.length == 1 then s"${curve.title} ${named.head.name}" else curve.title
+    )
+
+    render(exceedance, mods)(
+      _.title(plotTitle),
+      _.data.values := data.asJson,
+      _.layer._0.encoding.x.title := (lossTitle + unitSuffix).asJson,
+      _ =>
+        spec =>
+          cap.fold(spec) { m =>
+            spec.hcursor
+              .downField("layer")
+              .downN(0)
+              .downField("encoding")
+              .downField("x")
+              .withFocus(_.deepMerge(Json.obj("scale" -> Json.obj("domainMax" -> Json.fromDoubleOrNull(m / scale)))))
+              .top
+              .getOrElse(spec)
+          },
+      _.layer._1.data.values := shownLines.map(a => (label = a.label, loss = a.loss / scale)).asJson,
+      _.layer._2.data.values := crossings.asJson
+    )
+  end plotExceedance
+
+  extension (scenarios: Seq[Scenarr])
+    /** [[Plots.plotExceedance]] of the scenarios' OEP curves. */
+    def plotOep(
+        layers: Seq[Layer] = Nil,
+        total: Option[String] = Some("All"),
+        minReturnPeriod: Double = 1.0,
+        maxLoss: Option[Double] = None,
+        unit: AmountUnit = AmountUnit.One,
+        mods: Seq[SpecMod] = Nil
+    )(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      plotExceedance(
+        scenarios,
+        ExceedanceType.OEP,
+        layers,
+        total = total,
+        minReturnPeriod = minReturnPeriod,
+        maxLoss = maxLoss,
+        unit = unit,
+        mods = mods
+      )
+
+    /** [[Plots.plotExceedance]] of the scenarios' AEP curves. */
+    def plotAep(
+        layers: Seq[Layer] = Nil,
+        total: Option[String] = Some("All"),
+        minReturnPeriod: Double = 1.0,
+        maxLoss: Option[Double] = None,
+        unit: AmountUnit = AmountUnit.One,
+        mods: Seq[SpecMod] = Nil
+    )(using viz.LowPriorityPlotTarget): viz.VizReturn =
+      plotExceedance(
+        scenarios,
+        ExceedanceType.AEP,
+        layers,
+        total = total,
+        minReturnPeriod = minReturnPeriod,
+        maxLoss = maxLoss,
+        unit = unit,
+        mods = mods
+      )
+  end extension
 
   extension (scenario: Scenarr)
     def plotSeasonality(

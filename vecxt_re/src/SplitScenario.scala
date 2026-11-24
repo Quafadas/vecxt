@@ -4,7 +4,7 @@ import vecxt_re.SplitLosses.splitAmntFast
 
 object SplitScenario:
   extension (tower: Tower)
-    inline def splitScenarioAmounts(scenario: Scenarr): (
+    def splitScenarioAmounts(scenario: Scenarr): (
         ceded: Array[Double],
         retained: Array[Double],
         splits: IndexedSeq[(layer: Layer, cededToLayer: Array[Double])]

@@ -178,8 +178,9 @@ class ScenarrSuite extends FunSuite:
       numberIterations = 4,
       isSorted = true
     )
-    assertEquals(sc.oep.map(_.amount).toList, List(7.0, 3.0, 0.0, 0.0))
-    assertEquals(sc.oep.map(_.returnPeriod).toList, List(4.0, 2.0, 4.0 / 3.0, 1.0))
+    assertEquals(sc.oep.amounts.toList, List(7.0, 3.0, 0.0, 0.0))
+    assertEquals(sc.oep.returnPeriods.toList, List(4.0, 2.0, 4.0 / 3.0, 1.0))
+    assertEquals(sc.oep.points.map(_.amount).toList, List(7.0, 3.0, 0.0, 0.0))
   }
 
   test("scaleAmntBy multiplies amounts and threshold") {
@@ -237,6 +238,42 @@ class ScenarrSuite extends FunSuite:
 
     val unsorted = Scenarr.withGeneratedIds(Array(2, 1), Array(1, 1), Array(10.0, 20.0), numberIterations = 2)
     assert(!unsorted.applyThreshold(1.0).isSorted)
+  }
+
+  test("toString is one line and doesn't need sorted data") {
+    val sc =
+      Scenarr(Array(2, 1), Array(1, 1), Array(10.0, 20.0), Array(7L, 8L), numberIterations = 2, name = "x", id = 3L)
+    assertEquals(
+      sc.toString,
+      "Scenarr(\"x\", events=2, numberIterations=2, threshold=0.00, day1=2019-01-01, isSorted=false, id=3)"
+    )
+  }
+
+  test("show reports summary, OEP / AEP and events") {
+    val sc = Scenarr(
+      Array(3, 1, 2, 1),
+      Array(5, 1, 4, 2),
+      Array(50.0, 10.0, 40.0, 20.0),
+      Array(1L, 2L, 3L, 4L),
+      numberIterations = 10,
+      name = "demo",
+      id = 9L
+    )
+    val out = sc.show(2)
+    val lines = out.linesIterator.toVector
+    assertEquals(lines.head, "Scenarr \"demo\" (id 9)")
+    assert(out.contains("unsorted"))
+    assert(lines.exists(_.matches(raw"\s+2 \|\s+0\.00 \|\s+0\.00")), out)
+    assert(lines.exists(_.matches(raw"\s+5 \|\s+40\.00 \|\s+40\.00")), out)
+    assert(lines.exists(_.matches(raw"\s+10 \|\s+50\.00 \|\s+50\.00")), out)
+    assert(!lines.exists(_.trim.startsWith("20 |")), out) // beyond the 10 iterations
+    assert(out.contains("First 2 of 4 events"))
+    assert(out.contains("mean annual loss 12.00"))
+  }
+
+  test("show on an empty scenario") {
+    val out = Scenarr.empty(5, LocalDate.of(2020, 1, 1)).show
+    assert(out.contains("(no events)"), out)
   }
 
 end ScenarrSuite

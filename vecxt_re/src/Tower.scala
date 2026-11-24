@@ -3,14 +3,14 @@ package vecxt_re
 import vecxt.all.*
 
 object Tower:
-  inline def fromRetention(ret: Double, limits: IndexedSeq[Double]): Tower =
+  def fromRetention(ret: Double, limits: IndexedSeq[Double]): Tower =
     val retentions = Array((ret +: limits.dropRight(1))*).cumsum.toArray
 
     val layers = retentions.zip(limits).map((retention, limit) => Layer(limit, retention))
     Tower(layers)
   end fromRetention
 
-  inline def singleShot(ret: Double, limits: IndexedSeq[Double]) =
+  def singleShot(ret: Double, limits: IndexedSeq[Double]) =
     val retentions = Array((ret +: limits.dropRight(1))*).cumsum.toArray
 
     val layers = retentions.zip(limits).map { (retention, limit) =>
@@ -22,7 +22,7 @@ object Tower:
     Tower(layers)
   end singleShot
 
-  inline def oneAt100(ret: Double, limits: IndexedSeq[Double]): Tower =
+  def oneAt100(ret: Double, limits: IndexedSeq[Double]): Tower =
 
     val retentions = Array((ret +: limits.dropRight(1))*).cumsum.toArray
 
@@ -63,16 +63,16 @@ case class Tower(
     if layers.isEmpty then return s"${name.getOrElse("Tower")}: no layers"
     end if
 
-    inline def formatDouble(value: Double): String =
+    def formatDouble(value: Double): String =
       BigDecimal(value).bigDecimal.stripTrailingZeros().toPlainString
 
-    inline def optionalColumn(label: String, f: Layer => Option[String]): Option[(String, IndexedSeq[String])] =
+    def optionalColumn(label: String, f: Layer => Option[String]): Option[(String, IndexedSeq[String])] =
       val values = layers.map(f)
       if values.exists(_.isDefined) then Some(label -> values.map(_.getOrElse("-"))) else None
       end if
     end optionalColumn
 
-    inline def requiredColumn(label: String, f: Layer => String): (String, IndexedSeq[String]) =
+    def requiredColumn(label: String, f: Layer => String): (String, IndexedSeq[String]) =
       label -> layers.map(f)
 
     val indexColumn = "Layer" -> layers.indices.map(i => (i + 1).toString)
@@ -112,7 +112,7 @@ case class Tower(
       math.max(label.length, rows.map(_.length).maxOption.getOrElse(0))
     }
 
-    inline def pad(value: String, width: Int): String =
+    def pad(value: String, width: Int): String =
       val padding = width - value.length
       if padding <= 0 then value else value + (" " * padding)
       end if
